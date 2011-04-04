@@ -14,6 +14,7 @@ import java.util.zip.ZipInputStream;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.io.IOUtils;
+import org.jenkins.tools.test.model.PluginRemoting;
 
 public class PluginCompatTester {
 
@@ -28,31 +29,16 @@ public class PluginCompatTester {
 	public void testPlugins(){
         UpdateSite.Data data = extractUpdateCenterData();
         String coreVersion = data.core.version;
-        System.out.println(coreVersion);
         
         for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
         	testPluginAgainst(coreVersion, pluginEntry.getValue().url);
         }
 	}
 	
-	public void testPluginAgainst(String coreVersion, String pluginUrlStr){
+	public void testPluginAgainst(String coreVersion, String hpiRemoteUrl){
 		try {
-			URL pluginUrl = new URL(pluginUrlStr);
-			ZipInputStream zin = new ZipInputStream(pluginUrl.openStream());
-			ZipEntry zipEntry = zin.getNextEntry();
-			while(!zipEntry.getName().startsWith("META-INF/maven") || !zipEntry.getName().endsWith("pom.xml")){
-				zin.closeEntry();
-				zipEntry = zin.getNextEntry();
-			}
-			
-			StringBuilder sb = new StringBuilder();
-			byte[] buf = new byte[1024];
-			int n;
-			while ((n = zin.read(buf, 0, 1024)) > -1)
-                sb.append(new String(buf, 0, n));
-			
-			String content = sb.toString();
-			System.out.println(content);
+			PluginRemoting remote = new PluginRemoting(hpiRemoteUrl);
+			String pomContent = remote.retrievePomContent();
 			
 		}catch(Exception e){
 			System.err.println("Error : " + e.getMessage());
