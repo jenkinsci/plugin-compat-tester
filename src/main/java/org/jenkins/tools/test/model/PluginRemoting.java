@@ -4,6 +4,16 @@ import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+
+import org.apache.tools.ant.filters.StringInputStream;
+import org.w3c.dom.Document;
+
 public class PluginRemoting {
 
 	private String hpiRemoteUrl;
@@ -35,5 +45,28 @@ public class PluginRemoting {
 			System.err.println("Error : " + e.getMessage());
 			throw e;
 		}
+	}
+	
+	public String retrieveScmConnection() throws Exception {
+		String pomContent = this.retrievePomContent();
+		
+		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+		//docBuilderFactory.setNamespaceAware(true);
+		//docBuilderFactory.setValidating(true);
+		DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
+		Document doc = builder.parse(new StringInputStream(pomContent));
+		
+		XPathFactory xpathFactory = XPathFactory.newInstance();
+		XPath xpath = xpathFactory.newXPath();
+		XPathExpression expr = xpath.compile("/project/scm/connection/text()");
+		
+		String result = (String)expr.evaluate(doc, XPathConstants.STRING);
+		
+		// Just fixing some scm-sync-configuration issues...
+		// TODO: remove this when fixed !
+		if(result.endsWith(".git") && !(result.endsWith("-plugin.git"))){
+			result = result.substring(0, result.length()-4)+"-plugin.git";
+		}
+		return result;
 	}
 }
