@@ -17,17 +17,26 @@ import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
+import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginRemoting;
 
 public class PluginCompatTester {
 
 	private String updateCenterUrl;
-	private String parentGAV;
+	private String parentGroupId;
+	private String parentArtifactId;
+	private String parentVersion = null;
 	private File workDirectory;
 	
 	public PluginCompatTester(String updateCenterUrl, String parentGAV, File workDirectory){
 		this.updateCenterUrl = updateCenterUrl;
-		this.parentGAV = parentGAV;
+		String[] gavChunks = parentGAV.split(":");
+		assert gavChunks.length == 3 || gavChunks.length == 2;
+		this.parentGroupId = gavChunks[0];
+		this.parentArtifactId = gavChunks[1];
+		if(gavChunks.length == 3){
+			this.parentVersion = gavChunks[2];
+		}
 		this.workDirectory = workDirectory;
 	}
 	
@@ -41,18 +50,19 @@ public class PluginCompatTester {
         		testPluginAgainst(coreVersion, pluginEntry.getValue().name, pluginEntry.getValue().url);
         	}catch(Exception e){
     			System.err.println("Error : " + e.getMessage());
+    			// TODO: manage the exception in an Error databean, and jump to the next plugin !
     			throw e;
         	}        		
         }
 	}
 	
 	public void testPluginAgainst(String coreVersion, String pluginName, String hpiRemoteUrl) throws Exception {
-		PluginRemoting remote = new PluginRemoting(hpiRemoteUrl);
-		String scmConnection = remote.retrieveScmConnection();
-		
 		File pluginCheckoutDir = new File(workDirectory.getAbsolutePath()+"/"+pluginName+"/");
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
+		
+		PluginRemoting remote = new PluginRemoting(hpiRemoteUrl);
+		String scmConnection = remote.retrieveScmConnection();
 		
 		ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
 		ScmRepository repository = scmManager.makeScmRepository(scmConnection);
@@ -61,6 +71,12 @@ public class PluginCompatTester {
 		if(!result.isSuccess()){
 			throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
 		}
+		
+		MavenPom pom = new MavenPom(pluginCheckoutDir);
+        // If core version has not been set in GAV : use the latest available
+        // in update center
+		pom.transformPom(parentGroupId, parentArtifactId, parentVersion==null?coreVersion:parentVersion);
+		
 	}
 	
 	protected UpdateSite.Data extractUpdateCenterData(){

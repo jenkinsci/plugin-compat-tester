@@ -23,7 +23,8 @@ public class PluginCompatTesterTest {
 	
 	@Test
 	public void testWithUrl() throws Throwable {
-		PluginCompatTester tester = new PluginCompatTester("http://updates.jenkins-ci.org/update-center.json?version=build", "", testFolder.getRoot());
+		PluginCompatTester tester = new PluginCompatTester("http://updates.jenkins-ci.org/update-center.json?version=build", 
+				"org.jenkins-ci.plugins:plugin", testFolder.getRoot());
 		tester.testPluginAgainst("1.404", "scm-sync-configuration", "http://updates.jenkins-ci.org/download/plugins/scm-sync-configuration/0.0.4/scm-sync-configuration.hpi");
 	}
 }
