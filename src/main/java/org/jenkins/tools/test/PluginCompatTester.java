@@ -6,17 +6,20 @@ import hudson.model.UpdateSite.Plugin;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map.Entry;
 
 import net.sf.json.JSONObject;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
+import org.jenkins.tools.test.exception.PomTransformationException;
 import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginRemoting;
 
@@ -56,7 +59,7 @@ public class PluginCompatTester {
         }
 	}
 	
-	public void testPluginAgainst(String coreVersion, String pluginName, String hpiRemoteUrl) throws Exception {
+	public void testPluginAgainst(String coreVersion, String pluginName, String hpiRemoteUrl) throws PluginSourcesUnavailableException, PomTransformationException {
 		File pluginCheckoutDir = new File(workDirectory.getAbsolutePath()+"/"+pluginName+"/");
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
@@ -64,12 +67,20 @@ public class PluginCompatTester {
 		PluginRemoting remote = new PluginRemoting(hpiRemoteUrl);
 		String scmConnection = remote.retrieveScmConnection();
 		
-		ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-		ScmRepository repository = scmManager.makeScmRepository(scmConnection);
-		CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir));
-		
-		if(!result.isSuccess()){
-			throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
+		try {
+			ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
+			ScmRepository repository = scmManager.makeScmRepository(scmConnection);
+			CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir));
+			
+			if(!result.isSuccess()){
+				throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
+			}
+		} catch (ComponentLookupException e) {
+			System.err.println("Error : " + e.getMessage());
+			throw new PluginSourcesUnavailableException("Problem while creating ScmManager !", e);
+		} catch (ScmException e) {
+			System.err.println("Error : " + e.getMessage());
+			throw new PluginSourcesUnavailableException("Problem while checkouting plugin sources !", e);
 		}
 		
 		MavenPom pom = new MavenPom(pluginCheckoutDir);
@@ -85,10 +96,8 @@ public class PluginCompatTester {
 		try {
 	        url = new URL(this.updateCenterUrl);
 	        jsonp = IOUtils.toString(url.openStream());
-		}catch(MalformedURLException e){
-			throw new RuntimeException(e);
 		}catch(IOException e){
-			throw new RuntimeException(e);
+			throw new RuntimeException("Invalid update center url : "+this.updateCenterUrl, e);
 		}
 		
         String json = jsonp.substring(jsonp.indexOf('(')+1,jsonp.lastIndexOf(')'));
@@ -100,7 +109,7 @@ public class PluginCompatTester {
 	        dataConstructor.setAccessible(true);
 	        data = dataConstructor.newInstance(us, JSONObject.fromObject(json));
         }catch(Exception e){
-        	throw new RuntimeException(e);
+        	throw new RuntimeException("UpdateSite.Data instanciation problems", e);
         }
 		
         return data;

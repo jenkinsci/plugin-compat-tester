@@ -1,18 +1,23 @@
 package org.jenkins.tools.test.model;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.tools.ant.filters.StringInputStream;
+import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 public class PluginRemoting {
 
@@ -22,7 +27,7 @@ public class PluginRemoting {
 		this.hpiRemoteUrl = hpiRemoteUrl;
 	}
 	
-	public String retrievePomContent() throws Exception {
+	public String retrievePomContent() throws PluginSourcesUnavailableException{
 		try {
 			URL pluginUrl = new URL(hpiRemoteUrl);
 			ZipInputStream zin = new ZipInputStream(pluginUrl.openStream());
@@ -43,24 +48,37 @@ public class PluginRemoting {
 			
 		}catch(Exception e){
 			System.err.println("Error : " + e.getMessage());
-			throw e;
+			throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
 		}
 	}
 	
-	public String retrieveScmConnection() throws Exception {
+	public String retrieveScmConnection() throws PluginSourcesUnavailableException {
+		String result = null;
 		String pomContent = this.retrievePomContent();
 		
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-		//docBuilderFactory.setNamespaceAware(true);
-		//docBuilderFactory.setValidating(true);
-		DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
-		Document doc = builder.parse(new StringInputStream(pomContent));
-		
-		XPathFactory xpathFactory = XPathFactory.newInstance();
-		XPath xpath = xpathFactory.newXPath();
-		XPathExpression expr = xpath.compile("/project/scm/connection/text()");
-		
-		String result = (String)expr.evaluate(doc, XPathConstants.STRING);
+		try {
+			DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
+			Document doc = builder.parse(new StringInputStream(pomContent));
+			
+			XPathFactory xpathFactory = XPathFactory.newInstance();
+			XPath xpath = xpathFactory.newXPath();
+			XPathExpression expr = xpath.compile("/project/scm/connection/text()");
+			
+			result = (String)expr.evaluate(doc, XPathConstants.STRING);
+		} catch (ParserConfigurationException e) {
+			System.err.println("Error : " + e.getMessage());
+			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
+		} catch (SAXException e) {
+			System.err.println("Error : " + e.getMessage());
+			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
+		} catch (IOException e) {
+			System.err.println("Error : " + e.getMessage());
+			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
+		} catch (XPathExpressionException e) {
+			System.err.println("Error : " + e.getMessage());
+			throw new PluginSourcesUnavailableException("Problem while retrieving plugin's scm connection", e);
+		}
 		
 		// Just fixing some scm-sync-configuration issues...
 		// TODO: remove this when fixed !
