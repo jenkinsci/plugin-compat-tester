@@ -80,11 +80,20 @@ public class PluginRemoting {
 			throw new PluginSourcesUnavailableException("Problem while retrieving plugin's scm connection", e);
 		}
 		
+		return transformScmConnectionUrlDependingOnSillyRules(result);
+	}
+
+    private static String transformScmConnectionUrlDependingOnSillyRules(String connectionUrl){
+        String transformedConnectionUrl = connectionUrl;
 		// Just fixing some scm-sync-configuration issues...
 		// TODO: remove this when fixed !
-		if(result.endsWith(".git") && !(result.endsWith("-plugin.git"))){
-			result = result.substring(0, result.length()-4)+"-plugin.git";
-		}
-		return result;
-	}
+		if(transformedConnectionUrl.endsWith(".git") && !(transformedConnectionUrl.endsWith("-plugin.git"))){
+			transformedConnectionUrl = transformedConnectionUrl.substring(0, transformedConnectionUrl.length()-4)+"-plugin.git";
+        }
+
+        // Java.net SVN migration
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("svn.dev.java.net/svn/hudson/", "svn.java.net/svn/hudson~svn/");
+
+        return transformedConnectionUrl;
+    }
 }
