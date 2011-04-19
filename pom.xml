@@ -6,7 +6,7 @@
   <name>Plugins compatibility tester</name>
   <description>Hudson/Jenkins Plugin compatibility tester against latest released version</description>
   
-  <!-- get every artifact through maven.glassfish.org, which proxies all the artifacts that we need -->
+  <!-- get every artifact through maven.glassfish.org, which proxies all the artifacts that we need
   <repositories>
     <repository>
       <id>m.g.o-public</id>
@@ -20,9 +20,11 @@
       <url>http://maven.glassfish.org/content/groups/public/</url>
     </pluginRepository>
   </pluginRepositories>
+  -->
   
   <properties>
   	<maven.scm.providers.version>1.5</maven.scm.providers.version>
+    <powermock.version>1.4.8</powermock.version>
   </properties>
   
   <build>
@@ -46,6 +48,14 @@
 			</execution>
 			</executions>
 		</plugin>
+        <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>2.3.2</version>
+            <configuration>
+              <source>1.5</source>
+              <target>1.5</target>
+            </configuration>
+        </plugin>
 	</plugins>
   </build>
   
@@ -59,8 +69,41 @@
       <groupId>org.apache.maven.scm</groupId>
       <artifactId>maven-scm-manager-plexus</artifactId>
       <version>1.5</version>
+      <exclusions>
+          <exclusion>
+              <groupId>org.codehaus.plexus</groupId>
+              <artifactId>plexus-container-default</artifactId>
+          </exclusion>
+      </exclusions>
   	</dependency>
-  	
+    <!-- Dependencies needed to launch embedded maven process
+  	<dependency>
+	    <groupId>org.apache.maven</groupId>
+	    <artifactId>maven-embedder</artifactId>
+	    <version>3.0.3</version>
+	</dependency>
+    <dependency>
+        <groupId>org.sonatype.aether</groupId>
+        <artifactId>aether-connector-wagon</artifactId>
+        <version>1.11</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-http</artifactId>
+        <version>1.0-beta-6</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-provider-api</artifactId>
+        <version>1.0-beta-7</version>
+    </dependency>
+    -->
+    <dependency>
+        <groupId>org.jenkins-ci.lib</groupId>
+        <artifactId>lib-jenkins-maven-embedder</artifactId>
+        <version>3.4</version>
+    </dependency>
+
     <!-- providers declaration -->
     <dependency>
       <groupId>org.apache.maven.scm</groupId>
@@ -140,5 +183,17 @@
 	  	<version>4.8.2</version>
 	  	<scope>test</scope>
   	</dependency>
+   <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
+      <version>${powermock.version}</version>
+      <scope>test</scope>
+   </dependency>
+   <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito</artifactId>
+      <version>${powermock.version}</version>
+      <scope>test</scope>
+   </dependency>
   </dependencies>
 </project>
