@@ -1,10 +1,15 @@
 package org.jenkins.tools.test;
 
+import hudson.model.UpdateSite;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PluginCompatTesterTest {
 
@@ -25,6 +30,9 @@ public class PluginCompatTesterTest {
 	public void testWithUrl() throws Throwable {
 		PluginCompatTester tester = new PluginCompatTester("http://updates.jenkins-ci.org/update-center.json?version=build", 
 				"org.jenkins-ci.plugins:plugin", testFolder.getRoot());
-		tester.testPluginAgainst("1.404", "scm-sync-configuration", "http://updates.jenkins-ci.org/download/plugins/scm-sync-configuration/0.0.4/scm-sync-configuration.hpi");
+
+        List<String> includedPlugins = new ArrayList<String>(){{ add("scm-sync-configuration"); /*add("Schmant");*/ }};
+
+		tester.testPlugins(includedPlugins);
 	}
 }
