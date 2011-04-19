@@ -1,10 +1,24 @@
 package org.jenkins.tools.test;
 
-import hudson.maven.MavenEmbedder;
-import hudson.maven.MavenEmbedderException;
-import hudson.maven.MavenRequest;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
+import net.sf.json.JSONObject;
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.execution.MavenExecutionResult;
+import org.apache.maven.scm.ScmException;
+import org.apache.maven.scm.ScmFileSet;
+import org.apache.maven.scm.ScmTag;
+import org.apache.maven.scm.command.checkout.CheckOutScmResult;
+import org.apache.maven.scm.manager.ScmManager;
+import org.apache.maven.scm.repository.ScmRepository;
+import org.codehaus.plexus.PlexusContainerException;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
+import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.exception.PomTransformationException;
+import org.jenkins.tools.test.model.MavenPom;
+import org.jenkins.tools.test.model.PluginCompatResult;
+import org.jenkins.tools.test.model.PluginRemoting;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,36 +26,8 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map.Entry;
 import java.util.List;
-import java.util.logging.Logger;
-
-import net.sf.json.JSONObject;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.lf5.LogLevel;
-import org.apache.log4j.spi.LoggerFactory;
-import org.apache.maven.cli.MavenCli;
-import org.apache.maven.cli.MavenLoggerManager;
-import org.apache.maven.execution.AbstractExecutionListener;
-import org.apache.maven.execution.ExecutionEvent;
-import org.apache.maven.execution.MavenExecutionResult;
-import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.ScmTag;
-import org.apache.maven.scm.ScmVersion;
-import org.apache.maven.scm.command.checkout.CheckOutScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.repository.ScmRepository;
-import org.codehaus.plexus.classworlds.ClassWorld;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.LoggerManager;
-import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
-import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.exception.PomTransformationException;
-import org.jenkins.tools.test.model.MavenPom;
-import org.jenkins.tools.test.model.PluginRemoting;
+import java.util.Map.Entry;
 
 public class PluginCompatTester {
 
@@ -67,24 +53,39 @@ public class PluginCompatTester {
         testPlugins(null);
     }
 
-	public void testPlugins(List<String> includedPluginNames) throws Exception {
+	public List<PluginCompatResult> testPlugins(List<String> includedPluginNames) throws PlexusContainerException {
         UpdateSite.Data data = extractUpdateCenterData();
         String coreVersion = data.core.version;
         
 		SCMManagerFactory.getInstance().start();
+
+        List<PluginCompatResult> pluginCompatResults = new ArrayList<PluginCompatResult>();
         for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
             if(includedPluginNames==null || includedPluginNames.contains(pluginEntry.getValue().name)){
+                boolean compilationOk = false;
+                boolean testsOk = false;
+                String errorMessage = null;
                 try {
-                    testPluginAgainst(coreVersion, pluginEntry.getValue());
-                }catch(Exception e){
-                    System.err.println("Error : " + e.getMessage());
-                    // TODO: manage the exception in an Error databean, and jump to the next plugin !
+                    MavenExecutionResult result = testPluginAgainst(coreVersion, pluginEntry.getValue());
+                    // If no PomExecutionException, everything went well...
+                    compilationOk = true;
+                    testsOk = true;
+                } catch (PomExecutionException e) {
+                    compilationOk = e.succeededPluginArtifactIds.contains("maven-compiler-plugin");
+                    testsOk = e.succeededPluginArtifactIds.contains("maven-surefire-plugin");
+                    errorMessage = e.getErrorMessage();
+                } catch (Throwable t){
+                    errorMessage = t.getMessage();
                 }
+
+                pluginCompatResults.add(new PluginCompatResult(parentGroupId, parentArtifactId, coreVersion, compilationOk, testsOk, errorMessage));
             }
         }
+
+        return pluginCompatResults;
 	}
 	
-	public void testPluginAgainst(String coreVersion, Plugin plugin) throws PluginSourcesUnavailableException, PomTransformationException {
+	public MavenExecutionResult testPluginAgainst(String coreVersion, Plugin plugin) throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException {
 		File pluginCheckoutDir = new File(workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
@@ -114,11 +115,7 @@ public class PluginCompatTester {
 		pom.transformPom(parentGroupId, parentArtifactId, parentVersion==null?coreVersion:parentVersion);
 		
 		// Calling maven
-        try {
-            MavenExecutionResult result = pom.executeGoals(Arrays.asList("test"));
-        } catch (PomExecutionException e) {
-            // TODO : manage succeededPlugins in exception !
-        }
+        return pom.executeGoals(Arrays.asList("test"));
 	}
 	
 	protected UpdateSite.Data extractUpdateCenterData(){
