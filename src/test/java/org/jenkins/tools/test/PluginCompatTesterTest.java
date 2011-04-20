@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +30,9 @@ public class PluginCompatTesterTest {
 	@Test
 	public void testWithUrl() throws Throwable {
 		PluginCompatTester tester = new PluginCompatTester("http://updates.jenkins-ci.org/update-center.json?version=build", 
-				"org.jenkins-ci.plugins:plugin", testFolder.getRoot());
+				"org.jenkins-ci.plugins:plugin", testFolder.getRoot(), new File(testFolder.getRoot().getAbsolutePath()+"/report.xml"));
 
-        List<String> includedPlugins = new ArrayList<String>(){{ add("scm-sync-configuration"); /*add("Schmant");*/ }};
-
+        List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("Schmant"); }};
 		tester.testPlugins(includedPlugins);
 	}
 }

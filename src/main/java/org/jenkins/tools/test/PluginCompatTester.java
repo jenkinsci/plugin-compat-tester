@@ -3,6 +3,7 @@ package org.jenkins.tools.test;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import net.sf.json.JSONObject;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.scm.ScmException;
@@ -16,15 +17,12 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.PomTransformationException;
-import org.jenkins.tools.test.model.MavenPom;
-import org.jenkins.tools.test.model.PluginCompatResult;
-import org.jenkins.tools.test.model.PluginRemoting;
+import org.jenkins.tools.test.model.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -36,8 +34,9 @@ public class PluginCompatTester {
 	private String parentArtifactId;
 	private String parentVersion = null;
 	private File workDirectory;
+    private File reportFile;
 	
-	public PluginCompatTester(String updateCenterUrl, String parentGAV, File workDirectory){
+	public PluginCompatTester(String updateCenterUrl, String parentGAV, File workDirectory, File reportFile){
 		this.updateCenterUrl = updateCenterUrl;
 		String[] gavChunks = parentGAV.split(":");
 		assert gavChunks.length == 3 || gavChunks.length == 2;
@@ -47,26 +46,32 @@ public class PluginCompatTester {
 			this.parentVersion = gavChunks[2];
 		}
 		this.workDirectory = workDirectory;
+        this.reportFile = reportFile;
 	}
 
     public void testPlugins() throws Exception {
         testPlugins(null);
     }
 
-	public List<PluginCompatResult> testPlugins(List<String> includedPluginNames) throws PlexusContainerException {
+	public PluginCompatReport testPlugins(List<String> includedPluginNames) throws PlexusContainerException, IOException {
         UpdateSite.Data data = extractUpdateCenterData();
         String coreVersion = data.core.version;
         
 		SCMManagerFactory.getInstance().start();
 
-        List<PluginCompatResult> pluginCompatResults = new ArrayList<PluginCompatResult>();
+        MavenCoordinates coreArtifact = new MavenCoordinates(parentGroupId, parentArtifactId, coreVersion);
+
+        PluginCompatReport report = PluginCompatReport.fromXml(this.reportFile);
+
         for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
             if(includedPluginNames==null || includedPluginNames.contains(pluginEntry.getValue().name)){
                 boolean compilationOk = false;
                 boolean testsOk = false;
                 String errorMessage = null;
+
+                Plugin plugin = pluginEntry.getValue();
                 try {
-                    MavenExecutionResult result = testPluginAgainst(coreVersion, pluginEntry.getValue());
+                    MavenExecutionResult result = testPluginAgainst(coreVersion, plugin);
                     // If no PomExecutionException, everything went well...
                     compilationOk = true;
                     testsOk = true;
@@ -78,11 +83,20 @@ public class PluginCompatTester {
                     errorMessage = t.getMessage();
                 }
 
-                pluginCompatResults.add(new PluginCompatResult(parentGroupId, parentArtifactId, coreVersion, compilationOk, testsOk, errorMessage));
+                PluginCompatResult result = new PluginCompatResult(plugin.name, plugin.version, plugin.url,
+                        compilationOk, testsOk, errorMessage);
+                report.add(coreArtifact, result);
+
+                if(reportFile != null){
+                    if(!reportFile.exists()){
+                        FileUtils.touch(reportFile);
+                    }
+                    report.save(this.reportFile);
+                }
             }
         }
 
-        return pluginCompatResults;
+        return report;
 	}
 	
 	public MavenExecutionResult testPluginAgainst(String coreVersion, Plugin plugin) throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException {
