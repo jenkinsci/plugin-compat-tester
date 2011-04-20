@@ -25,6 +25,7 @@
   <properties>
   	<maven.scm.providers.version>1.5</maven.scm.providers.version>
     <powermock.version>1.4.8</powermock.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   
   <build>
