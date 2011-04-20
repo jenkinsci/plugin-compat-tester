@@ -1,6 +1,7 @@
 package org.jenkins.tools.test;
 
 import hudson.model.UpdateSite;
+import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,10 +30,13 @@ public class PluginCompatTesterTest {
 	
 	@Test
 	public void testWithUrl() throws Throwable {
-		PluginCompatTester tester = new PluginCompatTester("http://updates.jenkins-ci.org/update-center.json?version=build", 
-				"org.jenkins-ci.plugins:plugin", testFolder.getRoot(), new File(testFolder.getRoot().getAbsolutePath()+"/report.xml"));
-
         List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("Schmant"); }};
-		tester.testPlugins(includedPlugins);
+
+        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
+                new File(testFolder.getRoot().getAbsolutePath()+"/report.xml"));
+		config.setPluginsList(includedPlugins);
+
+        PluginCompatTester tester = new PluginCompatTester(config);
+		tester.testPlugins();
 	}
 }

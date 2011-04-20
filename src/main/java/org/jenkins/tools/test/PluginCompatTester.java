@@ -24,47 +24,28 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map.Entry;
 
 public class PluginCompatTester {
 
-	private String updateCenterUrl;
-	private String parentGroupId;
-	private String parentArtifactId;
-	private String parentVersion = null;
-	private File workDirectory;
-    private File reportFile;
+	private PluginCompatTesterConfig config;
 	
-	public PluginCompatTester(String updateCenterUrl, String parentGAV, File workDirectory, File reportFile){
-		this.updateCenterUrl = updateCenterUrl;
-		String[] gavChunks = parentGAV.split(":");
-		assert gavChunks.length == 3 || gavChunks.length == 2;
-		this.parentGroupId = gavChunks[0];
-		this.parentArtifactId = gavChunks[1];
-		if(gavChunks.length == 3){
-			this.parentVersion = gavChunks[2];
-		}
-		this.workDirectory = workDirectory;
-        this.reportFile = reportFile;
+	public PluginCompatTester(PluginCompatTesterConfig config){
+        this.config = config;
 	}
 
-    public void testPlugins() throws Exception {
-        testPlugins(null);
-    }
-
-	public PluginCompatReport testPlugins(List<String> includedPluginNames) throws PlexusContainerException, IOException {
+	public PluginCompatReport testPlugins() throws PlexusContainerException, IOException {
         UpdateSite.Data data = extractUpdateCenterData();
         String coreVersion = data.core.version;
         
 		SCMManagerFactory.getInstance().start();
 
-        MavenCoordinates coreArtifact = new MavenCoordinates(parentGroupId, parentArtifactId, coreVersion);
+        MavenCoordinates coreArtifact = new MavenCoordinates(config.parentGroupId, config.parentArtifactId, coreVersion);
 
-        PluginCompatReport report = PluginCompatReport.fromXml(this.reportFile);
+        PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
         for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
-            if(includedPluginNames==null || includedPluginNames.contains(pluginEntry.getValue().name)){
+            if(config.getPluginsList()==null || config.getPluginsList().contains(pluginEntry.getValue().name)){
                 boolean compilationOk = false;
                 boolean testsOk = false;
                 String errorMessage = null;
@@ -87,11 +68,11 @@ public class PluginCompatTester {
                         compilationOk, testsOk, errorMessage);
                 report.add(coreArtifact, result);
 
-                if(reportFile != null){
-                    if(!reportFile.exists()){
-                        FileUtils.touch(reportFile);
+                if(config.reportFile != null){
+                    if(!config.reportFile.exists()){
+                        FileUtils.touch(config.reportFile);
                     }
-                    report.save(this.reportFile);
+                    report.save(config.reportFile);
                 }
             }
         }
@@ -100,7 +81,7 @@ public class PluginCompatTester {
 	}
 	
 	public MavenExecutionResult testPluginAgainst(String coreVersion, Plugin plugin) throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException {
-		File pluginCheckoutDir = new File(workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
+		File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
 		
@@ -126,7 +107,8 @@ public class PluginCompatTester {
 		MavenPom pom = new MavenPom(pluginCheckoutDir);
         // If core version has not been set in GAV : use the latest available
         // in update center
-		pom.transformPom(parentGroupId, parentArtifactId, parentVersion==null?coreVersion:parentVersion);
+		pom.transformPom(config.parentGroupId, config.parentArtifactId,
+                config.getParentVersion()==null?coreVersion:config.getParentVersion());
 		
 		// Calling maven
         return pom.executeGoals(Arrays.asList("test"));
@@ -136,10 +118,10 @@ public class PluginCompatTester {
 		URL url = null;
 		String jsonp = null;
 		try {
-	        url = new URL(this.updateCenterUrl);
+	        url = new URL(config.updateCenterUrl);
 	        jsonp = IOUtils.toString(url.openStream());
 		}catch(IOException e){
-			throw new RuntimeException("Invalid update center url : "+this.updateCenterUrl, e);
+			throw new RuntimeException("Invalid update center url : "+config.updateCenterUrl, e);
 		}
 		
         String json = jsonp.substring(jsonp.indexOf('(')+1,jsonp.lastIndexOf(')'));
