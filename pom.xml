@@ -1,0 +1,19 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jenkins-ci.tests</groupId>
+  <artifactId>plugins-compat-tester-aggregator</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Plugins compatibility tester Aggregator</name>
+  <description>Hudson/Jenkins Plugin compatibility tester against latest released version</description>
+  <packaging>pom</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <modules>
+      <module>plugins-compat-tester</module>
+      <module>plugins-compat-tester-cli</module>
+  </modules>
+
+</project>

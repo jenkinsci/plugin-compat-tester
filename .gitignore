@@ -2,5 +2,5 @@
 /plugins-compat-tester/.settings
 /plugins-compat-tester/.classpath
 /plugins-compat-tester/.project
-
+/plugins-compat-tester-cli/plugins-compat-tester-cli.iml
 plugins-compat-tester.iml
