@@ -45,7 +45,7 @@ public class MavenPom {
 			FileUtils.moveFile(pom, backupedPom);
 			
 			Source xmlSource = new StreamSource(backupedPom);
-			Source xsltSource = new StreamSource(new ClassPathResource("mavenParentReplacer.xsl").getFile());
+			Source xsltSource = new StreamSource(new ClassPathResource("mavenParentReplacer.xsl").getInputStream());
 			Result result = new StreamResult(pom);
 			
 			TransformerFactory factory = TransformerFactory.newInstance();
