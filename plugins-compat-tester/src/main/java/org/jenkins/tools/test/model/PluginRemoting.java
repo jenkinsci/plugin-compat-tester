@@ -95,7 +95,7 @@ public class PluginRemoting {
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("svn.dev.java.net/svn/hudson/", "svn.java.net/svn/hudson~svn/");
 
         // ${project.artifactId}
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("\\$\\{project.artifactId\\}}", artifactId);
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("\\$\\{project.artifactId\\}", artifactId);
 
         return transformedConnectionUrl;
     }
