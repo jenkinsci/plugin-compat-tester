@@ -4,6 +4,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.List;
 
 public class PomExecutionException extends Exception {
@@ -18,12 +19,13 @@ public class PomExecutionException extends Exception {
 
     public String getErrorMessage(){
         StringBuilder strBldr = new StringBuilder();
-        strBldr.append(String.format("Message : %1%n%nExecuted plugins : %2%n%nStacktraces :%n", this.getMessage(), succeededPluginArtifactIds.toArray()));
+        strBldr.append(String.format("Message : %s %n %nExecuted plugins : %s %n %nStacktraces :%n",
+                this.getMessage(), Arrays.toString(succeededPluginArtifactIds.toArray())));
         for(Throwable t : exceptionsThrown){
             Writer writer = new StringWriter();
             PrintWriter printWriter = new PrintWriter(writer);
             t.printStackTrace(printWriter);
-            strBldr.append(String.format("%1%n%n", writer.toString()));
+            strBldr.append(String.format("%s %n %n", writer.toString()));
         }
         return strBldr.toString();
     }
