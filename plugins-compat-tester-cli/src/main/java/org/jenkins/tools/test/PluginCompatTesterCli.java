@@ -28,13 +28,13 @@ public class PluginCompatTesterCli {
         }
 
         PluginCompatTesterConfig config = null;
-        if(updateCenterUrl != null || parentCoord != null){
+        if(updateCenterUrl != null || (parentCoord != null && !"".equals(parentCoord))){
             config = new PluginCompatTesterConfig(updateCenterUrl, parentCoord, new File(workDirectory), new File(reportFile));
         } else {
             config = new PluginCompatTesterConfig(new File(workDirectory), new File(reportFile));
         }
 
-        if(pluginsListParam != null){
+        if(pluginsListParam != null && !"".equals(pluginsListParam)){
             List<String> pluginsList = Arrays.asList(pluginsListParam.split(","));
             config.setPluginsList(pluginsList);
         }
