@@ -1,23 +1,21 @@
 package org.jenkins.tools.test.model;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
 import org.apache.tools.ant.filters.StringInputStream;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
+import java.net.URL;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class PluginRemoting {
 
@@ -27,7 +25,7 @@ public class PluginRemoting {
 		this.hpiRemoteUrl = hpiRemoteUrl;
 	}
 	
-	public String retrievePomContent() throws PluginSourcesUnavailableException{
+	private String retrievePomContent() throws PluginSourcesUnavailableException{
 		try {
 			URL pluginUrl = new URL(hpiRemoteUrl);
 			ZipInputStream zin = new ZipInputStream(pluginUrl.openStream());
@@ -52,8 +50,9 @@ public class PluginRemoting {
 		}
 	}
 	
-	public String retrieveScmConnection() throws PluginSourcesUnavailableException {
-		String result = null;
+	public PomData retrievePomData() throws PluginSourcesUnavailableException {
+		String scmConnection = null;
+        String artifactId = null;
 		String pomContent = this.retrievePomContent();
 		
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -62,10 +61,11 @@ public class PluginRemoting {
 			Document doc = builder.parse(new StringInputStream(pomContent));
 			
 			XPathFactory xpathFactory = XPathFactory.newInstance();
-			XPath xpath = xpathFactory.newXPath();
-			XPathExpression expr = xpath.compile("/project/scm/connection/text()");
-			
-			result = (String)expr.evaluate(doc, XPathConstants.STRING);
+			XPathExpression scmConnectionXPath = xpathFactory.newXPath().compile("/project/scm/connection/text()");
+            XPathExpression artifactIdXPath = xpathFactory.newXPath().compile("/project/artifactId/text()");
+
+			scmConnection = (String)scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
+            artifactId = (String)artifactIdXPath.evaluate(doc, XPathConstants.STRING);
 		} catch (ParserConfigurationException e) {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
@@ -80,10 +80,10 @@ public class PluginRemoting {
 			throw new PluginSourcesUnavailableException("Problem while retrieving plugin's scm connection", e);
 		}
 		
-		return transformScmConnectionUrlDependingOnSillyRules(result);
+		return new PomData(artifactId, computeScmConnection(scmConnection, artifactId));
 	}
 
-    private static String transformScmConnectionUrlDependingOnSillyRules(String connectionUrl){
+    private static String computeScmConnection(String connectionUrl, String artifactId){
         String transformedConnectionUrl = connectionUrl;
 		// Just fixing some scm-sync-configuration issues...
 		// TODO: remove this when fixed !
@@ -93,6 +93,9 @@ public class PluginRemoting {
 
         // Java.net SVN migration
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("svn.dev.java.net/svn/hudson/", "svn.java.net/svn/hudson~svn/");
+
+        // ${project.artifactId}
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("\\$\\{project.artifactId\\}}", artifactId);
 
         return transformedConnectionUrl;
     }
