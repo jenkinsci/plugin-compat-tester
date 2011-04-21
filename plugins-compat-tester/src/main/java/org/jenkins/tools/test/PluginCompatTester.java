@@ -86,11 +86,11 @@ public class PluginCompatTester {
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
 		
 		PluginRemoting remote = new PluginRemoting(plugin.url);
-		String scmConnection = remote.retrieveScmConnection();
+		PomData pomData = remote.retrievePomData();
 		
 		try {
 			ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-			ScmRepository repository = scmManager.makeScmRepository(scmConnection);
+			ScmRepository repository = scmManager.makeScmRepository(pomData.connectionUrl);
 			CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
 			
 			if(!result.isSuccess()){
