@@ -76,6 +76,7 @@ public class MavenPom {
         mavenRequest.setUserSettingsFile(this.m2SettingsFile!=null?this.m2SettingsFile.getAbsolutePath():null);
         mavenRequest.setExecutionListener(mavenListener);
         mavenRequest.getUserProperties().put( "failIfNoTests", "false" );
+        mavenRequest.getUserProperties().put( "argLine", "-XX:MaxPermSize=128m" );
         mavenRequest.setPom(rootDir.getAbsolutePath()+"/pom.xml");
 
         MavenExecutionResult result;
