@@ -17,11 +17,11 @@ public class PluginCompatTesterConfig {
 
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this("http://updates.jenkins-ci.org/update-center.json?version=build", "org.jenkins-ci.plugins:plugin",
-                m2SettingsFile, workDirectory, reportFile);
+                workDirectory, reportFile, m2SettingsFile);
     }
 
-    public PluginCompatTesterConfig(String updateCenterUrl, String parentGAV, File m2SettingsFile,
-                                    File workDirectory, File reportFile){
+    public PluginCompatTesterConfig(String updateCenterUrl, String parentGAV,
+                                    File workDirectory, File reportFile, File m2SettingsFile){
         this.updateCenterUrl = updateCenterUrl;
         String[] gavChunks = parentGAV.split(":");
         assert gavChunks.length == 3 || gavChunks.length == 2;

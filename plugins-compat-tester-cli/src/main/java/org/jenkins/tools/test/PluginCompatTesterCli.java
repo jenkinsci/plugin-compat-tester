@@ -2,6 +2,7 @@ package org.jenkins.tools.test;
 
 import org.codehaus.plexus.PlexusContainerException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +17,7 @@ public class PluginCompatTesterCli {
         String workDirectory = System.getProperty("workDirectory");
         String reportFile = System.getProperty("reportFile");
         String pluginsListParam = System.getProperty("pluginsList");
+        String m2SettingsFilePath = System.getProperty("m2SettingsFile");
 
         if(workDirectory == null){
             throw new IllegalArgumentException("Parameter -DworkDirectory should be passed to the CLI !");
@@ -27,11 +29,19 @@ public class PluginCompatTesterCli {
             throw new IllegalArgumentException("Parameter -DreportFile should be passed to the CLI !");
         }
 
+        File m2SettingsFile = null;
+        if(m2SettingsFilePath == null || "".equals(m2SettingsFilePath)){
+            m2SettingsFile = new ClassPathResource("m2-settings.xml").getFile();
+        } else {
+            m2SettingsFile = new File(m2SettingsFilePath);
+        }
+
         PluginCompatTesterConfig config = null;
         if(updateCenterUrl != null || (parentCoord != null && !"".equals(parentCoord))){
-            config = new PluginCompatTesterConfig(updateCenterUrl, parentCoord, new File(workDirectory), new File(reportFile));
+            config = new PluginCompatTesterConfig(updateCenterUrl, parentCoord, new File(workDirectory),
+                    new File(reportFile), m2SettingsFile);
         } else {
-            config = new PluginCompatTesterConfig(new File(workDirectory), new File(reportFile));
+            config = new PluginCompatTesterConfig(new File(workDirectory), new File(reportFile), m2SettingsFile);
         }
 
         if(pluginsListParam != null && !"".equals(pluginsListParam)){
