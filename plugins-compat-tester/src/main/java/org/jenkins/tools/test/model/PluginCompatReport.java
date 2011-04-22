@@ -11,19 +11,19 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PluginCompatReport {
-
-    private HashMap<MavenCoordinates,List<PluginCompatResult>> pluginCompatTests;
+    private HashMap<String, List<PluginCompatResult>> pluginCompatTests;
 
     public PluginCompatReport(){
-        this.pluginCompatTests = new HashMap<MavenCoordinates, List<PluginCompatResult>>();
+        this.pluginCompatTests = new HashMap<String, List<PluginCompatResult>>();
     }
 
-    public void add(MavenCoordinates coreCoordinates, PluginCompatResult result){
-        if(!this.pluginCompatTests.containsKey(coreCoordinates)){
-            this.pluginCompatTests.put(coreCoordinates, new ArrayList<PluginCompatResult>());
+    public void add(String pluginName, PluginCompatResult result){
+        if(!this.pluginCompatTests.containsKey(pluginName)){
+            this.pluginCompatTests.put(pluginName, new ArrayList<PluginCompatResult>());
         }
 
-        List<PluginCompatResult> results = pluginCompatTests.get(coreCoordinates);
+        List<PluginCompatResult> results = pluginCompatTests.get(pluginName);
+        // Deleting existing result if it exists
         if(results.contains(result)){
             results.remove(result);
         }

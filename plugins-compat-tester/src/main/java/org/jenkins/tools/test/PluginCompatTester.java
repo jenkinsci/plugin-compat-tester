@@ -64,9 +64,9 @@ public class PluginCompatTester {
                     errorMessage = t.getMessage();
                 }
 
-                PluginCompatResult result = new PluginCompatResult(plugin.name, plugin.version, plugin.url,
+                PluginCompatResult result = new PluginCompatResult(coreArtifact, plugin.version, plugin.url,
                         compilationOk, testsOk, errorMessage);
-                report.add(coreArtifact, result);
+                report.add(plugin.name, result);
 
                 if(config.reportFile != null){
                     if(!config.reportFile.exists()){
