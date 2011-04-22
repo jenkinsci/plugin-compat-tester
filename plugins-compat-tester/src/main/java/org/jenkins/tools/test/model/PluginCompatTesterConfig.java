@@ -10,16 +10,18 @@ public class PluginCompatTesterConfig {
     public final String parentArtifactId;
     public final File workDirectory;
     public final File reportFile;
+    private final File m2SettingsFile;
 
     private String parentVersion = null;
     private List<String> pluginsList = null;
 
-    public PluginCompatTesterConfig(File workDirectory, File reportFile){
+    public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this("http://updates.jenkins-ci.org/update-center.json?version=build", "org.jenkins-ci.plugins:plugin",
-                workDirectory, reportFile);
+                m2SettingsFile, workDirectory, reportFile);
     }
 
-    public PluginCompatTesterConfig(String updateCenterUrl, String parentGAV, File workDirectory, File reportFile){
+    public PluginCompatTesterConfig(String updateCenterUrl, String parentGAV, File m2SettingsFile,
+                                    File workDirectory, File reportFile){
         this.updateCenterUrl = updateCenterUrl;
         String[] gavChunks = parentGAV.split(":");
         assert gavChunks.length == 3 || gavChunks.length == 2;
@@ -30,6 +32,7 @@ public class PluginCompatTesterConfig {
         }
         this.workDirectory = workDirectory;
         this.reportFile = reportFile;
+        this.m2SettingsFile = m2SettingsFile;
     }
 
     public String getParentVersion() {
@@ -46,5 +49,9 @@ public class PluginCompatTesterConfig {
 
     public void setPluginsList(List<String> pluginsList) {
         this.pluginsList = pluginsList;
+    }
+
+    public File getM2SettingsFile() {
+        return m2SettingsFile;
     }
 }

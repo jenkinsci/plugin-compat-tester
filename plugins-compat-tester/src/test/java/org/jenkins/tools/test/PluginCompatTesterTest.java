@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,7 +32,8 @@ public class PluginCompatTesterTest {
         List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("Schmant"); }};
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File(testFolder.getRoot().getAbsolutePath()+"/report.xml"));
+                new File(testFolder.getRoot().getAbsolutePath()+"/report.xml"),
+                new ClassPathResource("m2-settings.xml").getFile());
 		config.setPluginsList(includedPlugins);
 
         PluginCompatTester tester = new PluginCompatTester(config);

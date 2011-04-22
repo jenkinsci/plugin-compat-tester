@@ -104,7 +104,7 @@ public class PluginCompatTester {
 			throw new PluginSourcesUnavailableException("Problem while checkouting plugin sources !", e);
 		}
 		
-		MavenPom pom = new MavenPom(pluginCheckoutDir);
+		MavenPom pom = new MavenPom(pluginCheckoutDir, config.getM2SettingsFile());
         // If core version has not been set in GAV : use the latest available
         // in update center
 		pom.transformPom(config.parentGroupId, config.parentArtifactId,

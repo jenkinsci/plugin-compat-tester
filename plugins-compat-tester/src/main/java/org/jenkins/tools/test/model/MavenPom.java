@@ -28,14 +28,16 @@ public class MavenPom {
 
 	private File rootDir;
 	private String pomFileName;
+    private File m2SettingsFile;
 	
-	public MavenPom(File rootDir){
-		this(rootDir, "pom.xml");
+	public MavenPom(File rootDir, File m2SettingsFile){
+		this(rootDir, "pom.xml", m2SettingsFile);
 	}
 	
-	public MavenPom(File rootDir, String pomFileName){
+	public MavenPom(File rootDir, String pomFileName, File m2SettingsFile){
 		this.rootDir = rootDir;
 		this.pomFileName = pomFileName;
+        this.m2SettingsFile = m2SettingsFile;
 	}
 	
 	public void transformPom(String newParentGroupId, String newParentArtifactId, String newParentVersion) throws PomTransformationException{
@@ -71,6 +73,7 @@ public class MavenPom {
                  succeededPlugins.add(event.getMojoExecution().getArtifactId());
             }
         };
+        mavenRequest.setUserSettingsFile(this.m2SettingsFile.getAbsolutePath());
         mavenRequest.setExecutionListener(mavenListener);
         mavenRequest.getUserProperties().put( "failIfNoTests", "false" );
         mavenRequest.setPom(rootDir.getAbsolutePath()+"/pom.xml");
