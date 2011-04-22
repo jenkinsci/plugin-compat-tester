@@ -1,46 +1,35 @@
 package org.jenkins.tools.test;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 import org.codehaus.plexus.PlexusContainerException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 public class PluginCompatTesterCli {
 
     public static void main(String[] args) throws IOException, PlexusContainerException {
-        String updateCenterUrl = System.getProperty("updateCenterUrl");
-        String parentCoord = System.getProperty("parentCoordinates");
-        String workDirectoryPath = System.getProperty("workDirectory");
-        String reportFile = System.getProperty("reportFile");
-        String pluginsListParam = System.getProperty("pluginsList");
-        String m2SettingsFilePath = System.getProperty("m2SettingsFile");
-
-        if(workDirectoryPath == null){
-            throw new IllegalArgumentException("Parameter -DworkDirectory should be passed to the CLI !");
-        }
-        File workDirectory = new File(workDirectoryPath);
-        workDirectory.mkdirs();
-
-        File m2SettingsFile = m2SettingsFilePath!=null ? new File(m2SettingsFilePath) : null;
-        
-        if(reportFile == null){
-            throw new IllegalArgumentException("Parameter -DreportFile should be passed to the CLI !");
+        CliOptions options = new CliOptions();
+        JCommander jcommander = null;
+        try {
+            jcommander = new JCommander(options, args);
+        }catch(ParameterException e){
+            System.err.println(e.getMessage());
+            if(jcommander == null){
+                jcommander = new JCommander(options);
+            }
+            jcommander.usage();
+            System.exit(1);
         }
 
-        PluginCompatTesterConfig config = null;
-        if(updateCenterUrl != null || (parentCoord != null && !"".equals(parentCoord))){
-            config = new PluginCompatTesterConfig(updateCenterUrl, parentCoord, workDirectory,
-                    new File(reportFile), m2SettingsFile);
-        } else {
-            config = new PluginCompatTesterConfig(workDirectory, new File(reportFile), m2SettingsFile);
-        }
+        options.getWorkDirectory().mkdirs();
 
-        if(pluginsListParam != null && !"".equals(pluginsListParam)){
-            List<String> pluginsList = Arrays.asList(pluginsListParam.split(","));
-            config.setPluginsList(pluginsList);
+        PluginCompatTesterConfig config = new PluginCompatTesterConfig(options.getUpdateCenterUrl(), options.getParentCoord(),
+                options.getWorkDirectory(), options.getReportFile(), options.getM2SettingsFile());
+
+        if(options.getPluginsList() != null && !options.getPluginsList().isEmpty()){
+            config.setPluginsList(options.getPluginsList());
         }
 
         PluginCompatTester tester = new PluginCompatTester(config);
