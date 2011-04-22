@@ -22,16 +22,10 @@ public class PluginCompatTesterCli {
             throw new IllegalArgumentException("Parameter -DworkDirectory should be passed to the CLI !");
         }
         File workDirectory = new File(workDirectoryPath);
-        if(!workDirectory.exists()){
-            throw new IllegalArgumentException("Parameter -DworkDirectory should be referencing an existing directory !\");");
-        }
-        if(m2SettingsFilePath == null){
-            throw new IllegalArgumentException("Parameter -Dm2SettingsFile should be passed to the CLI !");
-        }
-        File m2SettingsFile = new File(m2SettingsFilePath);
-        if(!m2SettingsFile.exists()){
-            throw new IllegalArgumentException("Parameter -Dm2SettingsFile should be referencing an existing settings file !\");");
-        }
+        workDirectory.mkdirs();
+
+        File m2SettingsFile = m2SettingsFilePath!=null ? new File(m2SettingsFilePath) : null;
+        
         if(reportFile == null){
             throw new IllegalArgumentException("Parameter -DreportFile should be passed to the CLI !");
         }

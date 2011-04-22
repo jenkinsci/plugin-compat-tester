@@ -73,7 +73,7 @@ public class MavenPom {
                  succeededPlugins.add(event.getMojoExecution().getArtifactId());
             }
         };
-        mavenRequest.setUserSettingsFile(this.m2SettingsFile.getAbsolutePath());
+        mavenRequest.setUserSettingsFile(this.m2SettingsFile!=null?this.m2SettingsFile.getAbsolutePath():null);
         mavenRequest.setExecutionListener(mavenListener);
         mavenRequest.getUserProperties().put( "failIfNoTests", "false" );
         mavenRequest.setPom(rootDir.getAbsolutePath()+"/pom.xml");
