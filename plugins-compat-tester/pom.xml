@@ -13,22 +13,6 @@
   <name>Plugins compatibility tester</name>
   <description>Hudson/Jenkins Plugin compatibility tester against latest released version</description>
   
-  <!-- get every artifact through maven.glassfish.org, which proxies all the artifacts that we need
-  <repositories>
-    <repository>
-      <id>m.g.o-public</id>
-      <url>http://maven.glassfish.org/content/groups/public/</url>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>m.g.o-public</id>
-      <url>http://maven.glassfish.org/content/groups/public/</url>
-    </pluginRepository>
-  </pluginRepositories>
-  -->
-  
   <properties>
   	<maven.scm.providers.version>1.5</maven.scm.providers.version>
     <powermock.version>1.4.8</powermock.version>
