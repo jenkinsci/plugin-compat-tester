@@ -1,33 +1,39 @@
 package org.jenkins.tools.test.model;
 
 import com.thoughtworks.xstream.XStream;
+import org.jenkins.tools.test.model.comparators.MavenCoordinatesComparator;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class PluginCompatReport {
-    private HashMap<String, List<PluginCompatResult>> pluginCompatTests;
+    private Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests;
+    private Set<MavenCoordinates> testedCoreCoordinates;
 
     public PluginCompatReport(){
-        this.pluginCompatTests = new HashMap<String, List<PluginCompatResult>>();
+        this.pluginCompatTests = new HashMap<PluginInfos, List<PluginCompatResult>>();
+        this.testedCoreCoordinates = new TreeSet<MavenCoordinates>(new MavenCoordinatesComparator());
     }
 
-    public void add(String pluginName, PluginCompatResult result){
-        if(!this.pluginCompatTests.containsKey(pluginName)){
-            this.pluginCompatTests.put(pluginName, new ArrayList<PluginCompatResult>());
+    public void add(PluginInfos infos, PluginCompatResult result){
+        if(!this.pluginCompatTests.containsKey(infos)){
+            this.pluginCompatTests.put(infos, new ArrayList<PluginCompatResult>());
         }
 
-        List<PluginCompatResult> results = pluginCompatTests.get(pluginName);
+        List<PluginCompatResult> results = pluginCompatTests.get(infos);
         // Deleting existing result if it exists
         if(results.contains(result)){
             results.remove(result);
         }
         results.add(result);
+
+        // Updating maven testedMavenCoordinates
+        if(!testedCoreCoordinates.contains(result.coreCoordinates)){
+            testedCoreCoordinates.add(result.coreCoordinates);
+        }
     }
 
     public void save(File reportPath) throws FileNotFoundException {
@@ -52,6 +58,8 @@ public class PluginCompatReport {
 
     private static XStream createXStream(){
         XStream xstream = new XStream();
+        xstream.setMode(XStream.NO_REFERENCES);
+        xstream.alias("pluginInfos", PluginInfos.class);
         xstream.alias("coord", MavenCoordinates.class);
         xstream.alias("compatResult", PluginCompatResult.class);
         xstream.alias("report", PluginCompatReport.class);
