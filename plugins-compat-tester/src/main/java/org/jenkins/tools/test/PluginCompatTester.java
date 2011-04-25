@@ -36,7 +36,10 @@ public class PluginCompatTester {
 
 	public PluginCompatReport testPlugins() throws PlexusContainerException, IOException {
         UpdateSite.Data data = extractUpdateCenterData();
-        String coreVersion = data.core.version;
+
+        // If coreVersion is not provided in PluginCompatTesterConfig, let's use latest core
+        // version used in update center
+        String coreVersion = config.getParentVersion()==null?data.core.version:config.getParentVersion();
         
 		SCMManagerFactory.getInstance().start();
 
