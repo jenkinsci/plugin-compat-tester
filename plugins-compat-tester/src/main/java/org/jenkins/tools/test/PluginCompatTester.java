@@ -48,8 +48,8 @@ public class PluginCompatTester {
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
         for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
-            if(config.getPluginsList()==null || config.getPluginsList().contains(pluginEntry.getValue().name.toLowerCase())){
-                Plugin plugin = pluginEntry.getValue();
+            Plugin plugin = pluginEntry.getValue();
+            if(config.getPluginsList()==null || config.getPluginsList().contains(plugin.name.toLowerCase())){
                 PluginInfos pluginInfos = new PluginInfos(plugin);
 
                 if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, coreArtifact, config.getTestCacheTimeout())){
@@ -83,6 +83,8 @@ public class PluginCompatTester {
                     }
                     report.save(config.reportFile);
                 }
+            } else {
+                System.out.println("Plugin "+plugin.name+" not in provided pluginsList => test skipped !");
             }
         }
 
