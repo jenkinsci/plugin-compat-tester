@@ -11,7 +11,8 @@ public class CliOptions {
     private String updateCenterUrl = "http://updates.jenkins-ci.org/update-center.json?version=build";
 
     @Parameter(names = "-parentCoordinates",
-            description = "Parent pom GAV in the form groupId:artifactId[:version].")
+            description = "Parent pom GAV in the form groupId:artifactId[:version].\n" +
+                    "If null/empty, every core coordinates located in report XML files will be tested.")
     private String parentCoord = "org.jenkins-ci.plugins:plugin";
 
     @Parameter(names = "-workDirectory", required = true,

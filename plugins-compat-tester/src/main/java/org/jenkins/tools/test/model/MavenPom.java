@@ -1,9 +1,16 @@
 package org.jenkins.tools.test.model;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import hudson.maven.MavenEmbedder;
+import hudson.maven.MavenEmbedderException;
+import hudson.maven.MavenRequest;
+import org.apache.maven.execution.AbstractExecutionListener;
+import org.apache.maven.execution.ExecutionEvent;
+import org.apache.maven.execution.MavenExecutionResult;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.util.FileUtils;
+import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.exception.PomTransformationException;
+import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -11,18 +18,10 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-
-import hudson.maven.MavenEmbedder;
-import hudson.maven.MavenEmbedderException;
-import hudson.maven.MavenRequest;
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.execution.AbstractExecutionListener;
-import org.apache.maven.execution.ExecutionEvent;
-import org.apache.maven.execution.MavenExecutionResult;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.exception.PomTransformationException;
-import org.springframework.core.io.ClassPathResource;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MavenPom {
 
@@ -40,11 +39,11 @@ public class MavenPom {
         this.m2SettingsFile = m2SettingsFile;
 	}
 	
-	public void transformPom(String newParentGroupId, String newParentArtifactId, String newParentVersion) throws PomTransformationException{
+	public void transformPom(MavenCoordinates coreCoordinates) throws PomTransformationException{
 		File pom = new File(rootDir.getAbsolutePath()+"/"+pomFileName);
 		File backupedPom = new File(rootDir.getAbsolutePath()+"/"+pomFileName+".backup");
 		try {
-			FileUtils.moveFile(pom, backupedPom);
+			FileUtils.rename(pom, backupedPom);
 			
 			Source xmlSource = new StreamSource(backupedPom);
 			Source xsltSource = new StreamSource(new ClassPathResource("mavenParentReplacer.xsl").getInputStream());
@@ -52,9 +51,9 @@ public class MavenPom {
 			
 			TransformerFactory factory = TransformerFactory.newInstance();
 			Transformer transformer = factory.newTransformer(xsltSource);
-			transformer.setParameter("parentArtifactId", newParentArtifactId);
-			transformer.setParameter("parentGroupId", newParentGroupId);
-			transformer.setParameter("parentVersion", newParentVersion);
+			transformer.setParameter("parentArtifactId", coreCoordinates.artifactId);
+			transformer.setParameter("parentGroupId", coreCoordinates.groupId);
+			transformer.setParameter("parentVersion", coreCoordinates.version);
 			transformer.transform(xmlSource, result);
 		} catch (Exception e) {
 			throw new PomTransformationException("Error while transforming pom : "+pom.getAbsolutePath(), e);

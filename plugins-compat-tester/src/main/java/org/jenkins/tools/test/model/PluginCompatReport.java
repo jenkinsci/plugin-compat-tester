@@ -9,7 +9,7 @@ import java.util.*;
 
 public class PluginCompatReport {
     private Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests;
-    private Set<MavenCoordinates> testedCoreCoordinates;
+    private SortedSet<MavenCoordinates> testedCoreCoordinates;
 
     public PluginCompatReport(){
         this.pluginCompatTests = new HashMap<PluginInfos, List<PluginCompatResult>>();
@@ -29,8 +29,8 @@ public class PluginCompatReport {
         results.add(result);
 
         // Updating maven testedMavenCoordinates
-        if(!testedCoreCoordinates.contains(result.coreCoordinates)){
-            testedCoreCoordinates.add(result.coreCoordinates);
+        if(!getTestedCoreCoordinates().contains(result.coreCoordinates)){
+            getTestedCoreCoordinates().add(result.coreCoordinates);
         }
     }
 
@@ -119,4 +119,7 @@ public class PluginCompatReport {
         return xstream;
     }
 
+    public SortedSet<MavenCoordinates> getTestedCoreCoordinates() {
+        return Collections.unmodifiableSortedSet(testedCoreCoordinates);
+    }
 }

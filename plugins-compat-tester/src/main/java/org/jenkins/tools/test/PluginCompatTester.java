@@ -11,7 +11,6 @@ import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
-import org.codehaus.groovy.tools.groovydoc.ClasspathResourceManager;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
@@ -20,6 +19,7 @@ import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.PomTransformationException;
 import org.jenkins.tools.test.model.*;
+import org.jenkins.tools.test.model.comparators.MavenCoordinatesComparator;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.transform.*;
@@ -31,6 +31,8 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Map.Entry;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class PluginCompatTester {
 
@@ -39,6 +41,31 @@ public class PluginCompatTester {
 	public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
 	}
+
+    public SortedSet<MavenCoordinates> generateCoreCoordinatesToTest(UpdateSite.Data data, PluginCompatReport previousReport){
+        SortedSet<MavenCoordinates> coreCoordinatesToTest = null;
+        // If parent GroupId/Artifact are not null, this will be fast : we will only test
+        // against 1 core coordinate
+        if(config.getParentGroupId() != null && config.getParentArtifactId() != null){
+            coreCoordinatesToTest = new TreeSet<MavenCoordinates>(new MavenCoordinatesComparator());
+
+            // If coreVersion is not provided in PluginCompatTesterConfig, let's use latest core
+            // version used in update center
+            String coreVersion = config.getParentVersion()==null?data.core.version:config.getParentVersion();
+
+            MavenCoordinates coreArtifact = new MavenCoordinates(config.getParentGroupId(), config.getParentArtifactId(), coreVersion);
+            coreCoordinatesToTest.add(coreArtifact);
+        // If parent groupId/artifactId are null, we'll test against every already recorded
+        // cores
+        } else if(config.getParentGroupId() == null && config.getParentArtifactId() == null){
+            coreCoordinatesToTest = previousReport.getTestedCoreCoordinates();
+        } else {
+            throw new IllegalStateException("config.parentGroupId and config.parentArtifactId should either be both null or both filled\n" +
+                    "config.parentGroupId="+String.valueOf(config.getParentGroupId())+", config.parentArtifactId="+String.valueOf(config.getParentArtifactId()));
+        }
+
+        return coreCoordinatesToTest;
+    }
 
 	public PluginCompatReport testPlugins() throws PlexusContainerException, IOException {
         // Providing XSL Stylesheet along xml report file
@@ -50,55 +77,51 @@ public class PluginCompatTester {
         }
 
         UpdateSite.Data data = extractUpdateCenterData();
-
-        // If coreVersion is not provided in PluginCompatTesterConfig, let's use latest core
-        // version used in update center
-        String coreVersion = config.getParentVersion()==null?data.core.version:config.getParentVersion();
-        
-		SCMManagerFactory.getInstance().start();
-
-        MavenCoordinates coreArtifact = new MavenCoordinates(config.parentGroupId, config.parentArtifactId, coreVersion);
-
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
-        for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
-            Plugin plugin = pluginEntry.getValue();
-            if(config.getPluginsList()==null || config.getPluginsList().contains(plugin.name.toLowerCase())){
-                PluginInfos pluginInfos = new PluginInfos(plugin);
+        SortedSet<MavenCoordinates> testedCores = generateCoreCoordinatesToTest(data, report);
 
-                if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, coreArtifact, config.getTestCacheTimeout())){
-                    System.out.println("Cache activated for plugin "+pluginInfos.pluginName+" : test will be skipped !");
-                    continue; // Don't do anything : we are in the cached interval ! :-)
-                }
+		SCMManagerFactory.getInstance().start();
+        for(MavenCoordinates coreCoordinates : testedCores){
+            for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
+                Plugin plugin = pluginEntry.getValue();
+                if(config.getPluginsList()==null || config.getPluginsList().contains(plugin.name.toLowerCase())){
+                    PluginInfos pluginInfos = new PluginInfos(plugin);
 
-                boolean compilationOk = false;
-                boolean testsOk = false;
-                String errorMessage = null;
-
-                try {
-                    MavenExecutionResult result = testPluginAgainst(coreVersion, plugin);
-                    // If no PomExecutionException, everything went well...
-                    compilationOk = true;
-                    testsOk = true;
-                } catch (PomExecutionException e) {
-                    compilationOk = e.succeededPluginArtifactIds.contains("maven-compiler-plugin");
-                    testsOk = e.succeededPluginArtifactIds.contains("maven-surefire-plugin");
-                    errorMessage = e.getErrorMessage();
-                } catch (Throwable t){
-                    errorMessage = t.getMessage();
-                }
-
-                PluginCompatResult result = new PluginCompatResult(coreArtifact, compilationOk, testsOk, errorMessage);
-                report.add(pluginInfos, result);
-
-                if(config.reportFile != null){
-                    if(!config.reportFile.exists()){
-                        FileUtils.fileWrite(config.reportFile.getAbsolutePath(), "");
+                    if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, coreCoordinates, config.getTestCacheTimeout())){
+                        System.out.println("Cache activated for plugin "+pluginInfos.pluginName+" : test will be skipped !");
+                        continue; // Don't do anything : we are in the cached interval ! :-)
                     }
-                    report.save(config.reportFile);
+
+                    boolean compilationOk = false;
+                    boolean testsOk = false;
+                    String errorMessage = null;
+
+                    try {
+                        MavenExecutionResult result = testPluginAgainst(coreCoordinates, plugin);
+                        // If no PomExecutionException, everything went well...
+                        compilationOk = true;
+                        testsOk = true;
+                    } catch (PomExecutionException e) {
+                        compilationOk = e.succeededPluginArtifactIds.contains("maven-compiler-plugin");
+                        testsOk = e.succeededPluginArtifactIds.contains("maven-surefire-plugin");
+                        errorMessage = e.getErrorMessage();
+                    } catch (Throwable t){
+                        errorMessage = t.getMessage();
+                    }
+
+                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, compilationOk, testsOk, errorMessage);
+                    report.add(pluginInfos, result);
+
+                    if(config.reportFile != null){
+                        if(!config.reportFile.exists()){
+                            FileUtils.fileWrite(config.reportFile.getAbsolutePath(), "");
+                        }
+                        report.save(config.reportFile);
+                    }
+                } else {
+                    System.out.println("Plugin "+plugin.name+" not in provided pluginsList => test skipped !");
                 }
-            } else {
-                System.out.println("Plugin "+plugin.name+" not in provided pluginsList => test skipped !");
             }
         }
 
@@ -131,7 +154,7 @@ public class PluginCompatTester {
         return new ClassPathResource("resultToReport.xsl");
     }
 	
-	public MavenExecutionResult testPluginAgainst(String coreVersion, Plugin plugin) throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException {
+	public MavenExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin) throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException {
 		File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
@@ -156,13 +179,10 @@ public class PluginCompatTester {
 		}
 		
 		MavenPom pom = new MavenPom(pluginCheckoutDir, config.getM2SettingsFile());
-        // If core version has not been set in GAV : use the latest available
-        // in update center
-		pom.transformPom(config.parentGroupId, config.parentArtifactId,
-                config.getParentVersion()==null?coreVersion:config.getParentVersion());
+		pom.transformPom(coreCoordinates);
 		
 		// Calling maven
-        return pom.executeGoals(Arrays.asList("test"));
+        return pom.executeGoals(Arrays.asList("clean", "test"));
 	}
 	
 	protected UpdateSite.Data extractUpdateCenterData(){

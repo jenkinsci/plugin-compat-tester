@@ -8,12 +8,6 @@ public class PluginCompatTesterConfig {
     // Update center used to retrieve plugins informations
     public final String updateCenterUrl;
 
-    // GroupId which will be used to replace tested plugin's parent groupId
-    public final String parentGroupId;
-
-    // ArtifactId which will be used to replace tested plugin's parent artifactId
-    public final String parentArtifactId;
-
     // A working directory where will be checkouted tested plugin's sources
     public final File workDirectory;
 
@@ -25,6 +19,12 @@ public class PluginCompatTesterConfig {
     // download jenkins-core artefact (and dependencies)
     private final File m2SettingsFile;
 
+    // GroupId which will be used to replace tested plugin's parent groupId
+    // If null, every recorded core coordinates (in report xml) will be played
+    private String parentGroupId = null;
+    // ArtifactId which will be used to replace tested plugin's parent artifactId
+    // If null, every recorded core coordinates (in report xml) will be played
+    private String parentArtifactId = null;
     // Version which will be used to replace tested plugin's parent verison
     // If null, latest core version (retrieved via the update center) will be used
     private String parentVersion = null;
@@ -56,12 +56,14 @@ public class PluginCompatTesterConfig {
     public PluginCompatTesterConfig(String updateCenterUrl, String parentGAV,
                                     File workDirectory, File reportFile, File m2SettingsFile){
         this.updateCenterUrl = updateCenterUrl;
-        String[] gavChunks = parentGAV.split(":");
-        assert gavChunks.length == 3 || gavChunks.length == 2;
-        this.parentGroupId = gavChunks[0];
-        this.parentArtifactId = gavChunks[1];
-        if(gavChunks.length == 3){
-            this.setParentVersion(gavChunks[2]);
+        if(parentGAV != null && !"".equals(parentGAV)){
+            String[] gavChunks = parentGAV.split(":");
+            assert gavChunks.length == 3 || gavChunks.length == 2;
+            this.parentGroupId = gavChunks[0];
+            this.parentArtifactId = gavChunks[1];
+            if(gavChunks.length == 3){
+                this.setParentVersion(gavChunks[2]);
+            }
         }
         this.workDirectory = workDirectory;
         this.reportFile = reportFile;
@@ -118,5 +120,13 @@ public class PluginCompatTesterConfig {
 
     public void setGenerateHtmlReport(boolean generateHtmlReport) {
         this.generateHtmlReport = generateHtmlReport;
+    }
+
+    public String getParentGroupId() {
+        return parentGroupId;
+    }
+
+    public String getParentArtifactId() {
+        return parentArtifactId;
     }
 }
