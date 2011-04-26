@@ -29,8 +29,8 @@ public class PluginCompatReport {
         results.add(result);
 
         // Updating maven testedMavenCoordinates
-        if(!getTestedCoreCoordinates().contains(result.coreCoordinates)){
-            getTestedCoreCoordinates().add(result.coreCoordinates);
+        if(!this.testedCoreCoordinates.contains(result.coreCoordinates)){
+            this.testedCoreCoordinates.add(result.coreCoordinates);
         }
     }
 
@@ -115,6 +115,7 @@ public class PluginCompatReport {
         xstream.alias("pluginInfos", PluginInfos.class);
         xstream.alias("coord", MavenCoordinates.class);
         xstream.alias("compatResult", PluginCompatResult.class);
+        xstream.alias("status", TestStatus.class);
         xstream.alias("report", PluginCompatReport.class);
         return xstream;
     }

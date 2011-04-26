@@ -97,20 +97,26 @@ public class PluginCompatTester {
                     boolean testsOk = false;
                     String errorMessage = null;
 
+                    TestStatus status;
                     try {
                         MavenExecutionResult result = testPluginAgainst(coreCoordinates, plugin);
                         // If no PomExecutionException, everything went well...
-                        compilationOk = true;
-                        testsOk = true;
+                        status = TestStatus.SUCCESS;
                     } catch (PomExecutionException e) {
-                        compilationOk = e.succeededPluginArtifactIds.contains("maven-compiler-plugin");
-                        testsOk = e.succeededPluginArtifactIds.contains("maven-surefire-plugin");
+                        if(!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")){
+                            status = TestStatus.COMPILATION_ERROR;
+                        } else if(!e.succeededPluginArtifactIds.contains("maven-surefire-plugin")){
+                            status = TestStatus.TEST_FAILURES;
+                        } else { // Can this really happen ???
+                            status = TestStatus.SUCCESS;
+                        }
                         errorMessage = e.getErrorMessage();
                     } catch (Throwable t){
+                        status = TestStatus.INTERNAL_ERROR;
                         errorMessage = t.getMessage();
                     }
 
-                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, compilationOk, testsOk, errorMessage);
+                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, status, errorMessage);
                     report.add(pluginInfos, result);
 
                     if(config.reportFile != null){

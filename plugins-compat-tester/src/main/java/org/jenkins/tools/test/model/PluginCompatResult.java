@@ -8,19 +8,16 @@ import java.util.Date;
 public class PluginCompatResult {
     public final MavenCoordinates coreCoordinates;
 
-    public final boolean compilationOk;
-    public final boolean testsOk;
-
+    public final TestStatus status;
     public final Date compatTestExecutedOn;
 
     public final String errorMessage;
 
-    public PluginCompatResult(MavenCoordinates coreCoordinates, boolean compilationOk, boolean testsOk,
+    public PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
                               String errorMessage){
         this.coreCoordinates = coreCoordinates;
 
-        this.compilationOk = compilationOk;
-        this.testsOk = testsOk;
+        this.status = status;
 
         this.errorMessage = errorMessage;
 
