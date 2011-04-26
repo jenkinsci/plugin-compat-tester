@@ -48,7 +48,7 @@ public class PluginCompatTester {
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
         for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
-            if(config.getPluginsList()==null || config.getPluginsList().contains(pluginEntry.getValue().name)){
+            if(config.getPluginsList()==null || config.getPluginsList().contains(pluginEntry.getValue().name.toLowerCase())){
                 boolean compilationOk = false;
                 boolean testsOk = false;
                 String errorMessage = null;
