@@ -32,6 +32,12 @@ public class PluginCompatTesterCli {
         if(options.getPluginsList() != null && !options.getPluginsList().isEmpty()){
             config.setPluginsList(Arrays.asList(options.getPluginsList().toLowerCase().split(",")));
         }
+        if(options.getSkipTestCache() != null){
+            config.setSkipTestCache(options.getSkipTestCache().booleanValue());
+        }
+        if(options.getTestCacheTimeout() != null){
+            config.setTestCacheTimeout(options.getTestCacheTimeout().longValue());
+        }
 
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();

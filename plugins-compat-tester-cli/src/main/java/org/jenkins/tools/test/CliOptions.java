@@ -6,23 +6,43 @@ import java.io.File;
 import java.util.List;
 
 public class CliOptions {
-    @Parameter(names = "-updateCenterUrl", description = "Update center JSON file URL")
+    @Parameter(names = "-updateCenterUrl",
+            description = "Update center JSON file URL")
     private String updateCenterUrl = "http://updates.jenkins-ci.org/update-center.json?version=build";
 
-    @Parameter(names = "-parentCoordinates", description = "Parent pom GAV in the form groupId:artifactId[:version].")
+    @Parameter(names = "-parentCoordinates",
+            description = "Parent pom GAV in the form groupId:artifactId[:version].")
     private String parentCoord = "org.jenkins-ci.plugins:plugin";
 
-    @Parameter(names = "-workDirectory", required = true, description = "Work directory where plugin sources will be checkouted")
+    @Parameter(names = "-workDirectory", required = true,
+            description = "Work directory where plugin sources will be checkouted")
     private File workDirectory;
 
-    @Parameter(names = "-reportFile", required = true, description = "Output report xml file path")
+    @Parameter(names = "-reportFile", required = true,
+            description = "Output report xml file path")
     private File reportFile;
 
-    @Parameter(names = "-pluginsList", description = "Comma separated list of plugins' artifactId to test\nIf not set, every plugin will be tested.")
+    @Parameter(names = "-pluginsList",
+            description = "Comma separated list of plugins' artifactId to test.\n" +
+                    "If not set, every plugin will be tested.")
     private String pluginsList = null;
 
-    @Parameter(names = "-m2SettingsFile", description = "Maven settings file used while executing maven")
+    @Parameter(names = "-m2SettingsFile",
+            description = "Maven settings file used while executing maven")
     private File m2SettingsFile;
+
+    @Parameter(names = "-skipTestCache",
+            description = "Allows to skip compat test cache (by default, to 3 days)\n" +
+                    "If set to true, every plugin will be tested, no matter the cache is.")
+    private Boolean skipTestCache = null;
+
+    @Parameter(names = "-testCacheTimeout",
+            description = "Allows to override the test cache timeout.\n" +
+                    "Test cache timeout allows to not perform compatibility test over\n" +
+                    "some plugins if compatibility test was performed recently.\n" +
+                    "Cache timeout is given in milliseconds")
+    private Long testCacheTimeout = null;
+
 
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
@@ -46,5 +66,13 @@ public class CliOptions {
 
     public File getM2SettingsFile() {
         return m2SettingsFile;
+    }
+
+    public Boolean getSkipTestCache() {
+        return skipTestCache;
+    }
+
+    public Long getTestCacheTimeout() {
+        return testCacheTimeout;
     }
 }

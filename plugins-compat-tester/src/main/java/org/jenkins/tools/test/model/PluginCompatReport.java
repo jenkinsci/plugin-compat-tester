@@ -41,6 +41,31 @@ public class PluginCompatReport {
         xstream.toXML(this, new FileOutputStream(reportPath));
     }
 
+    public boolean isCompatTestResultAlreadyInCache(PluginInfos pluginInfos, MavenCoordinates coreCoord, long cacheTimeout){
+        // Retrieving plugin compat results corresponding to pluginsInfos + coreCoord
+        if(!pluginCompatTests.containsKey(pluginInfos)){
+            // No data for this plugin version ? => no cache !
+            return false;
+        }
+
+        List<PluginCompatResult> results = pluginCompatTests.get(pluginInfos);
+        PluginCompatResult resultCorrespondingToGivenCoreCoords = null;
+        for(PluginCompatResult r : results){
+            if(r.coreCoordinates.equals(coreCoord)){
+                resultCorrespondingToGivenCoreCoords = r;
+                break;
+            }
+        }
+        if(resultCorrespondingToGivenCoreCoords == null){
+            // No data for this core coordinates ? => no cache !
+            return false;
+        }
+
+        // Is the latest execution on this plugin compliant with the given cache timeout ?
+        // If so, then cache will be activated !
+        return new Date().before(new Date(resultCorrespondingToGivenCoreCoords.compatTestExecutedOn.getTime()+cacheTimeout));
+    }
+
     public static PluginCompatReport fromXml(File reportPath) {
         PluginCompatReport report = null;
 
@@ -65,4 +90,5 @@ public class PluginCompatReport {
         xstream.alias("report", PluginCompatReport.class);
         return xstream;
     }
+
 }

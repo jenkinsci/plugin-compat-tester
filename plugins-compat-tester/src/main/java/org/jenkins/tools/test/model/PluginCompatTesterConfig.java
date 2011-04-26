@@ -33,6 +33,12 @@ public class PluginCompatTesterConfig {
     // If null, tests will be performed on every plugins retrieved from update center
     private List<String> pluginsList = null;
 
+    // Allows to skip a plugin test if this plugin test has already been performed
+    // within testCacheTimeout ms
+    private long testCacheTimeout = 1000*60*60*24*3;
+    // Skips test cache : plugin will be tested, no matter the test cache is
+    private boolean skipTestCache = false;
+
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this("http://updates.jenkins-ci.org/update-center.json?version=build", "org.jenkins-ci.plugins:plugin",
                 workDirectory, reportFile, m2SettingsFile);
@@ -71,5 +77,21 @@ public class PluginCompatTesterConfig {
 
     public File getM2SettingsFile() {
         return m2SettingsFile;
+    }
+
+    public long getTestCacheTimeout() {
+        return testCacheTimeout;
+    }
+
+    public void setTestCacheTimeout(long testCacheTimeout) {
+        this.testCacheTimeout = testCacheTimeout;
+    }
+
+    public boolean isSkipTestCache() {
+        return skipTestCache;
+    }
+
+    public void setSkipTestCache(boolean skipTestCache) {
+        this.skipTestCache = skipTestCache;
     }
 }

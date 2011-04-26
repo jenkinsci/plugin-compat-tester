@@ -49,11 +49,17 @@ public class PluginCompatTester {
 
         for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
             if(config.getPluginsList()==null || config.getPluginsList().contains(pluginEntry.getValue().name.toLowerCase())){
+                Plugin plugin = pluginEntry.getValue();
+                PluginInfos pluginInfos = new PluginInfos(plugin);
+
+                if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, coreArtifact, config.getTestCacheTimeout())){
+                    continue; // Don't do anything : we are in the cached interval ! :-)
+                }
+
                 boolean compilationOk = false;
                 boolean testsOk = false;
                 String errorMessage = null;
 
-                Plugin plugin = pluginEntry.getValue();
                 try {
                     MavenExecutionResult result = testPluginAgainst(coreVersion, plugin);
                     // If no PomExecutionException, everything went well...
@@ -67,7 +73,6 @@ public class PluginCompatTester {
                     errorMessage = t.getMessage();
                 }
 
-                PluginInfos pluginInfos = new PluginInfos(plugin);
                 PluginCompatResult result = new PluginCompatResult(coreArtifact, compilationOk, testsOk, errorMessage);
                 report.add(pluginInfos, result);
 
