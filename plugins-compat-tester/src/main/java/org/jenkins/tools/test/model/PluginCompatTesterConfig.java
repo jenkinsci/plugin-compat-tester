@@ -39,6 +39,15 @@ public class PluginCompatTesterConfig {
     // Skips test cache : plugin will be tested, no matter the test cache is
     private boolean skipTestCache = false;
 
+
+    // Allows to provide XSL report file near XML report file
+    // Only if reportFile is not null
+    private boolean provideXslReport = true;
+
+    // Allows to generate HTML Report file
+    // Only if reportFile is not null
+    private boolean generateHtmlReport = true;
+
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this("http://updates.jenkins-ci.org/update-center.json?version=build", "org.jenkins-ci.plugins:plugin",
                 workDirectory, reportFile, m2SettingsFile);
@@ -93,5 +102,21 @@ public class PluginCompatTesterConfig {
 
     public void setSkipTestCache(boolean skipTestCache) {
         this.skipTestCache = skipTestCache;
+    }
+
+    public boolean isProvideXslReport() {
+        return provideXslReport;
+    }
+
+    public void setProvideXslReport(boolean provideXslReport) {
+        this.provideXslReport = provideXslReport;
+    }
+
+    public boolean isGenerateHtmlReport() {
+        return generateHtmlReport;
+    }
+
+    public void setGenerateHtmlReport(boolean generateHtmlReport) {
+        this.generateHtmlReport = generateHtmlReport;
     }
 }

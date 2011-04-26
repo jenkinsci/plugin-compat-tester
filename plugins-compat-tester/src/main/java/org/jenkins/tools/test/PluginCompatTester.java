@@ -3,7 +3,6 @@ package org.jenkins.tools.test;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import net.sf.json.JSONObject;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.scm.ScmException;
@@ -12,13 +11,20 @@ import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
+import org.codehaus.groovy.tools.groovydoc.ClasspathResourceManager;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.PomTransformationException;
 import org.jenkins.tools.test.model.*;
+import org.springframework.core.io.ClassPathResource;
 
+import javax.xml.transform.*;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -79,7 +85,7 @@ public class PluginCompatTester {
 
                 if(config.reportFile != null){
                     if(!config.reportFile.exists()){
-                        FileUtils.touch(config.reportFile);
+                        FileUtils.fileWrite(config.reportFile.getAbsolutePath(), "");
                     }
                     report.save(config.reportFile);
                 }
@@ -88,8 +94,38 @@ public class PluginCompatTester {
             }
         }
 
+        if(config.reportFile != null){
+            if(config.isProvideXslReport()){
+                File xslFilePath = PluginCompatReport.getXslFilepath(config.reportFile);
+                FileUtils.copyStreamToFile(new RawInputStreamFacade(getXslTransformerResource().getInputStream()), xslFilePath);
+            }
+
+            if(config.isGenerateHtmlReport()){
+                generateHtmlReportFile();
+            }
+        }
+
         return report;
 	}
+
+    public void generateHtmlReportFile() throws IOException {
+        Source xmlSource = new StreamSource(config.reportFile);
+        Source xsltSource = new StreamSource(getXslTransformerResource().getInputStream());
+        Result result = new StreamResult(PluginCompatReport.getHtmlFilepath(config.reportFile));
+
+        TransformerFactory factory = TransformerFactory.newInstance();
+        Transformer transformer = null;
+        try {
+            transformer = factory.newTransformer(xsltSource);
+            transformer.transform(xmlSource, result);
+        } catch (TransformerException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ClassPathResource getXslTransformerResource(){
+        return new ClassPathResource("resultToReport.xsl");
+    }
 	
 	public MavenExecutionResult testPluginAgainst(String coreVersion, Plugin plugin) throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException {
 		File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
