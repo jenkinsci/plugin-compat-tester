@@ -3,10 +3,7 @@ package org.jenkins.tools.test.model;
 import com.thoughtworks.xstream.XStream;
 import org.jenkins.tools.test.model.comparators.MavenCoordinatesComparator;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.*;
 
 public class PluginCompatReport {
@@ -36,9 +33,34 @@ public class PluginCompatReport {
         }
     }
 
-    public void save(File reportPath) throws FileNotFoundException {
+    public void save(File reportPath) throws IOException {
+        Writer out = new FileWriter(reportPath);
+        out.write(String.format("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>%n"));
+        out.write(String.format("<?xml-stylesheet href=\""+getXslFilename(reportPath)+"\" type=\"text/xsl\"?>%n"));
         XStream xstream = createXStream();
-        xstream.toXML(this, new FileOutputStream(reportPath));
+        xstream.toXML(this, out);
+        out.flush();
+        out.close();
+    }
+
+    public static String getXslFilename(File reportPath){
+        return getBaseFilename(reportPath)+".xsl";
+    }
+
+    public static File getXslFilepath(File reportPath){
+        return new File(getBaseFilepath(reportPath)+".xsl");
+    }
+
+    public static File getHtmlFilepath(File reportPath){
+        return new File(getBaseFilepath(reportPath)+".html");
+    }
+
+    public static String getBaseFilepath(File reportPath){
+        return reportPath.getParentFile().getAbsolutePath()+"/"+getBaseFilename(reportPath);
+    }
+
+    public static String getBaseFilename(File reportPath){
+        return reportPath.getName().split("\\.")[0];
     }
 
     public boolean isCompatTestResultAlreadyInCache(PluginInfos pluginInfos, MavenCoordinates coreCoord, long cacheTimeout){
@@ -63,7 +85,7 @@ public class PluginCompatReport {
 
         // Is the latest execution on this plugin compliant with the given cache timeout ?
         // If so, then cache will be activated !
-        return new Date().before(new Date(resultCorrespondingToGivenCoreCoords.compatTestExecutedOn.getTime()+cacheTimeout));
+        return new Date().before(new Date(resultCorrespondingToGivenCoreCoords.compatTestExecutedOn.getTime() + cacheTimeout));
     }
 
     public static PluginCompatReport fromXml(File reportPath) {
