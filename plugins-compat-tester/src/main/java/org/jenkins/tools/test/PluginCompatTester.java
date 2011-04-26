@@ -53,6 +53,7 @@ public class PluginCompatTester {
                 PluginInfos pluginInfos = new PluginInfos(plugin);
 
                 if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, coreArtifact, config.getTestCacheTimeout())){
+                    System.out.println("Cache activated for plugin "+pluginInfos.pluginName+" : test will be skipped !");
                     continue; // Don't do anything : we are in the cached interval ! :-)
                 }
 
