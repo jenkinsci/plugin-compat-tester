@@ -35,7 +35,7 @@ public class PluginCompatTesterConfig {
 
     // Allows to skip a plugin test if this plugin test has already been performed
     // within testCacheTimeout ms
-    private long testCacheTimeout = 1000*60*60*24*3;
+    private long testCacheTimeout = 1000*60*60*24*100;
     // Skips test cache : plugin will be tested, no matter the test cache is
     private boolean skipTestCache = false;
 
