@@ -44,7 +44,10 @@ th.version {
                     </th>
                 </xsl:for-each>
             </tr>
-            <xsl:apply-templates select="/report/pluginCompatTests/entry" />
+            <xsl:apply-templates select="/report/pluginCompatTests/entry">
+                <xsl:sort select="pluginInfos/pluginName" />
+                <xsl:sort select="pluginInfos/pluginVersion" />
+            </xsl:apply-templates>
         </table>
     </body>
 </html>
