@@ -19,7 +19,7 @@ public class CliOptions {
     private File reportFile;
 
     @Parameter(names = "-pluginsList", description = "Comma separated list of plugins' artifactId to test\nIf not set, every plugin will be tested.")
-    private List<String> pluginsList = null;
+    private String pluginsList = null;
 
     @Parameter(names = "-m2SettingsFile", description = "Maven settings file used while executing maven")
     private File m2SettingsFile;
@@ -40,7 +40,7 @@ public class CliOptions {
         return workDirectory;
     }
 
-    public List<String> getPluginsList() {
+    public String getPluginsList() {
         return pluginsList;
     }
 

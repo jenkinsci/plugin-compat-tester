@@ -6,6 +6,7 @@ import org.codehaus.plexus.PlexusContainerException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class PluginCompatTesterCli {
 
@@ -29,7 +30,7 @@ public class PluginCompatTesterCli {
                 options.getWorkDirectory(), options.getReportFile(), options.getM2SettingsFile());
 
         if(options.getPluginsList() != null && !options.getPluginsList().isEmpty()){
-            config.setPluginsList(options.getPluginsList());
+            config.setPluginsList(Arrays.asList(options.getPluginsList().toLowerCase().split(",")));
         }
 
         PluginCompatTester tester = new PluginCompatTester(config);
