@@ -56,18 +56,26 @@ th.version {
     <xsl:template match="/report/pluginCompatTests/entry">
         <xsl:variable name="currentEntry" select="." />
         <tr>
-           <td><xsl:value-of select="pluginInfos/pluginName/text()"/></td>
+           <!-- Merging rows having same plugin name -->
+           <xsl:if test="not(preceding-sibling::entry/pluginInfos/pluginName = $currentEntry/pluginInfos/pluginName)">
+               <xsl:element name="td">
+                   <xsl:attribute name="rowspan"><xsl:value-of select="count(//entry[pluginInfos/pluginName=$currentEntry/pluginInfos/pluginName])" /></xsl:attribute>
+                   <xsl:value-of select="pluginInfos/pluginName/text()"/>
+               </xsl:element>
+           </xsl:if>
+           <!-- Displaying plugin version -->
            <td><xsl:value-of select="pluginInfos/pluginVersion/text()"/></td>
-            <xsl:for-each select="$testedJenkinsCoordinates">
+           <!-- Displaying plugin compilation / test result for every tested core coordinates -->
+           <xsl:for-each select="$testedJenkinsCoordinates">
                 <xsl:call-template name="display-cell">
                     <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
                 </xsl:call-template>
-            </xsl:for-each>
-            <xsl:for-each select="$otherCoreCoordinates">
+           </xsl:for-each>
+           <xsl:for-each select="$otherCoreCoordinates">
                 <xsl:call-template name="display-cell">
                     <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
                 </xsl:call-template>
-            </xsl:for-each>
+           </xsl:for-each>
         </tr>
     </xsl:template>
 
