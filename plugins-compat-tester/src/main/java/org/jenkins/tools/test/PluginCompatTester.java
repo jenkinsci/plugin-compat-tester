@@ -41,6 +41,14 @@ public class PluginCompatTester {
 	}
 
 	public PluginCompatReport testPlugins() throws PlexusContainerException, IOException {
+        // Providing XSL Stylesheet along xml report file
+        if(config.reportFile != null){
+            if(config.isProvideXslReport()){
+                File xslFilePath = PluginCompatReport.getXslFilepath(config.reportFile);
+                FileUtils.copyStreamToFile(new RawInputStreamFacade(getXslTransformerResource().getInputStream()), xslFilePath);
+            }
+        }
+
         UpdateSite.Data data = extractUpdateCenterData();
 
         // If coreVersion is not provided in PluginCompatTesterConfig, let's use latest core
@@ -94,12 +102,8 @@ public class PluginCompatTester {
             }
         }
 
+        // Generating HTML report if needed
         if(config.reportFile != null){
-            if(config.isProvideXslReport()){
-                File xslFilePath = PluginCompatReport.getXslFilepath(config.reportFile);
-                FileUtils.copyStreamToFile(new RawInputStreamFacade(getXslTransformerResource().getInputStream()), xslFilePath);
-            }
-
             if(config.isGenerateHtmlReport()){
                 generateHtmlReportFile();
             }
