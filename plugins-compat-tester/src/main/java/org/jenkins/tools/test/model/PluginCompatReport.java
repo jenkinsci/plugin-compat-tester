@@ -1,6 +1,7 @@
 package org.jenkins.tools.test.model;
 
 import com.thoughtworks.xstream.XStream;
+import org.codehaus.plexus.util.FileUtils;
 import org.jenkins.tools.test.model.comparators.MavenCoordinatesComparator;
 
 import java.io.*;
@@ -34,13 +35,18 @@ public class PluginCompatReport {
     }
 
     public void save(File reportPath) throws IOException {
-        Writer out = new FileWriter(reportPath);
+        // Writing to a temporary report file ...
+        File tempReportPath = new File(reportPath.getAbsolutePath()+".tmp");
+        Writer out = new FileWriter(tempReportPath);
         out.write(String.format("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>%n"));
         out.write(String.format("<?xml-stylesheet href=\""+getXslFilename(reportPath)+"\" type=\"text/xsl\"?>%n"));
         XStream xstream = createXStream();
         xstream.toXML(this, out);
         out.flush();
         out.close();
+
+        // When everything went well, let's overwrite old report XML file with the new one
+        FileUtils.rename(tempReportPath, reportPath);
     }
 
     public static String getXslFilename(File reportPath){
