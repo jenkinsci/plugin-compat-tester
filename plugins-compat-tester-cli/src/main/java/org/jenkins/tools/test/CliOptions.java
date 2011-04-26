@@ -34,7 +34,7 @@ public class CliOptions {
     @Parameter(names = "-skipTestCache",
             description = "Allows to skip compat test cache (by default, to 3 days)\n" +
                     "If set to true, every plugin will be tested, no matter the cache is.")
-    private Boolean skipTestCache = null;
+    private String skipTestCache = null;
 
     @Parameter(names = "-testCacheTimeout",
             description = "Allows to override the test cache timeout.\n" +
@@ -68,7 +68,7 @@ public class CliOptions {
         return m2SettingsFile;
     }
 
-    public Boolean getSkipTestCache() {
+    public String getSkipTestCache() {
         return skipTestCache;
     }
 
