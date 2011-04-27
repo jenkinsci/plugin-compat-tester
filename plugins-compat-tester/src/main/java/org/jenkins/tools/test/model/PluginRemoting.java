@@ -130,9 +130,7 @@ public class PluginRemoting {
 		// Just fixing some scm-sync-configuration issues...
 		// TODO: remove this when fixed !
         oldUrl = transformedConnectionUrl;
-		if(transformedConnectionUrl.endsWith(".git")
-                && !(transformedConnectionUrl.endsWith("-plugin.git"))
-                && transformedConnectionUrl.contains("github.com/jenkinsci/")){
+		if("scm-sync-configuration".equals(pomData.artifactId)){
 			transformedConnectionUrl = transformedConnectionUrl.substring(0, transformedConnectionUrl.length()-4)+"-plugin.git";
         }
         if(!oldUrl.equals(transformedConnectionUrl)){

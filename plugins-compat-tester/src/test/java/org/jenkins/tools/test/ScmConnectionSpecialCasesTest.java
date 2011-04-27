@@ -17,15 +17,6 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldGitUrlsShouldEndsWithPlugin(){
-        runComputeScmConnectionAgainst(
-                "git://github.com/jenkinsci/scm-sync-configuration.git",  // No "-plugin" suffix on a jenkinsci module
-                "",
-                "git://github.com/jenkinsci/scm-sync-configuration-plugin.git"
-        );
-    }
-
-    @Test
     public void shouldOldJavaNetSubversionRepoUrlBeenMigrated(){
         runComputeScmConnectionAgainst(
                 "https://guest@svn.dev.java.net/svn/hudson/tags/scm-sync-configuration/scm-sync-configuration-0.0.1", // old java.net url
@@ -53,11 +44,21 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldNonJenkinsCIProjectNotEndsWithPluginSuffix(){
+    public void shouldPluginSuffixOnlyAppliedOnScmSyncConfiguration(){
         runComputeScmConnectionAgainst(
-                "git://github.com/magnayn/Jenkins-AdaptivePlugin.git", // Not jenkinsci project => no -plugin suffix !
-                "",
+                "git://github.com/jenkinsci/scm-sync-configuration.git",  // special case of scm-sync-configuration
+                "scm-sync-configuration",
+                "git://github.com/jenkinsci/scm-sync-configuration-plugin.git"
+        );
+        runComputeScmConnectionAgainst(
+                "git://github.com/magnayn/Jenkins-AdaptivePlugin.git",
+                "Jenkins-AdaptivePlugin",
                 "git://github.com/magnayn/Jenkins-AdaptivePlugin.git"
+        );
+        runComputeScmConnectionAgainst(
+                "git://github.com/jenkinsci/copy-project-link.git",
+                "copy-project-link",
+                "git://github.com/jenkinsci/copy-project-link.git"
         );
     }
 
