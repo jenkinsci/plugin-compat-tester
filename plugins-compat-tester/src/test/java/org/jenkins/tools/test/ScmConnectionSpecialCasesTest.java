@@ -24,6 +24,11 @@ public class ScmConnectionSpecialCasesTest {
                 "",
                 "https://guest@svn.java.net/svn/hudson~svn/tags/scm-sync-configuration/scm-sync-configuration-0.0.1"
         );
+        runComputeScmConnectionAgainst(
+                "https://guest@hudson.dev.java.net/svn/hudson/tags/labeled-test-groups-publisher-1.2.6", // old java.net url
+                "",
+                "https://guest@svn.java.net/svn/hudson~svn/tags/labeled-test-groups-publisher-1.2.6"
+        );
     }
 
     @Test
