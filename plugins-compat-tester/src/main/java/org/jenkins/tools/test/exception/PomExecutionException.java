@@ -10,6 +10,7 @@ import java.util.List;
 public class PomExecutionException extends Exception {
     public final List<Throwable> exceptionsThrown;
     public final List<String> succeededPluginArtifactIds;
+    private List<String> pomWarningMessages;
 
     public PomExecutionException(String message, List<Throwable> exceptionsThrown, List<String> succeededPluginArtifactIds){
         super(message, exceptionsThrown.iterator().next());
@@ -28,5 +29,13 @@ public class PomExecutionException extends Exception {
             strBldr.append(String.format("%s %n %n", writer.toString()));
         }
         return strBldr.toString();
+    }
+
+    public List<String> getPomWarningMessages() {
+        return pomWarningMessages;
+    }
+
+    public void setPomWarningMessages(List<String> pomWarningMessages) {
+        this.pomWarningMessages = pomWarningMessages;
     }
 }
