@@ -29,10 +29,10 @@ public class PluginCompatTesterTest {
 	
 	@Test
 	public void testWithUrl() throws Throwable {
-        List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("schmant"); }};
+        List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("scm-sync-configuration"); }};
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File(testFolder.getRoot().getAbsolutePath()+"/report.xml"),
+                new File("D:/report.xml"),
                 new ClassPathResource("m2-settings.xml").getFile());
 		config.setIncludePlugins(includedPlugins);
 
