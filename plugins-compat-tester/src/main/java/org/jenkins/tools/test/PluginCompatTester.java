@@ -29,10 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
-import java.util.Arrays;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 public class PluginCompatTester {
 
@@ -104,10 +102,12 @@ public class PluginCompatTester {
                     String errorMessage = null;
 
                     TestStatus status;
+                    List<String> warningMessages = new ArrayList<String>();
                     try {
-                        MavenExecutionResult result = testPluginAgainst(coreCoordinates, plugin);
+                        TestExecutionResult result = testPluginAgainst(coreCoordinates, plugin);
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
+                        warningMessages.addAll(result.pomWarningMessages);
                     } catch (PomExecutionException e) {
                         if(!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")){
                             status = TestStatus.COMPILATION_ERROR;
@@ -122,7 +122,7 @@ public class PluginCompatTester {
                         errorMessage = t.getMessage();
                     }
 
-                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, status, errorMessage);
+                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, status, errorMessage, warningMessages);
                     report.add(pluginInfos, result);
 
                     if(config.reportFile != null){
@@ -166,7 +166,7 @@ public class PluginCompatTester {
         return new ClassPathResource("resultToReport.xsl");
     }
 	
-	public MavenExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin) throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException {
+	public TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin) throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException {
 		File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
@@ -194,7 +194,9 @@ public class PluginCompatTester {
 		pom.transformPom(coreCoordinates);
 		
 		// Calling maven
-        return pom.executeGoals(Arrays.asList("clean", "test"));
+        MavenExecutionResult mavenResult = pom.executeGoals(Arrays.asList("clean", "test"));
+
+        return new TestExecutionResult(mavenResult, pomData.getWarningMessages());
 	}
 	
 	protected UpdateSite.Data extractUpdateCenterData(){
