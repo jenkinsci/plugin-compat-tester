@@ -99,60 +99,83 @@ th.version {
     <xsl:template name="display-internal-error">
 	<xsl:param name="compatResult" />
 	<xsl:call-template name="display-result">
-		<xsl:with-param name="title">Compilation : Internal error !</xsl:with-param>
-		<xsl:with-param name="img">red.png</xsl:with-param>
-		<xsl:with-param name="error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
-	</xsl:call-template>
-	<xsl:call-template name="display-result">
-		<xsl:with-param name="title">Tests : Internal error !</xsl:with-param>
-		<xsl:with-param name="img">red.png</xsl:with-param>
-		<xsl:with-param name="error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
+		<xsl:with-param name="compilation-title">Compilation : Internal error !</xsl:with-param>
+		<xsl:with-param name="compilation-img">red.png</xsl:with-param>
+		<xsl:with-param name="compilation-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
+        <xsl:with-param name="tests-title">Tests : Internal error !</xsl:with-param>
+        <xsl:with-param name="tests-img">red.png</xsl:with-param>
+        <xsl:with-param name="tests-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
+        <xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
     
     <xsl:template name="display-compilation-error">
 	<xsl:param name="compatResult" />
-	<xsl:call-template name="display-result">
-		<xsl:with-param name="title">Compilation : failure !</xsl:with-param>
-		<xsl:with-param name="img">yellow.png</xsl:with-param>
-		<xsl:with-param name="error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
-	</xsl:call-template>
-	<xsl:call-template name="display-result">
-		<xsl:with-param name="title">Tests : No tests executed !</xsl:with-param>
-		<xsl:with-param name="img">red.png</xsl:with-param>
-		<xsl:with-param name="error">Compilation failed => No tests executed !</xsl:with-param>
+    <xsl:call-template name="display-result">
+		<xsl:with-param name="compilation-title">Compilation : failure !</xsl:with-param>
+		<xsl:with-param name="compilation-img">yellow.png</xsl:with-param>
+		<xsl:with-param name="compilation-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
+        <xsl:with-param name="tests-title">Tests : No tests executed !</xsl:with-param>
+        <xsl:with-param name="tests-img">red.png</xsl:with-param>
+        <xsl:with-param name="tests-error">Compilation failed => No tests executed !</xsl:with-param>
+        <xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
-    
+
     <xsl:template name="display-tests-failures">
 	<xsl:param name="compatResult" />
 	<xsl:call-template name="display-result">
-		<xsl:with-param name="title">Compilation : Success !</xsl:with-param>
-		<xsl:with-param name="img">blue.png</xsl:with-param>
-		<xsl:with-param name="error">_</xsl:with-param>
-	</xsl:call-template>
-	<xsl:call-template name="display-result">
-		<xsl:with-param name="title">Tests : Some tests are in failure !</xsl:with-param>
-		<xsl:with-param name="img">yellow.png</xsl:with-param>
-		<xsl:with-param name="error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
+		<xsl:with-param name="compilation-title">Compilation : Success !</xsl:with-param>
+		<xsl:with-param name="compilation-img">blue.png</xsl:with-param>
+		<xsl:with-param name="compilation-error">_</xsl:with-param>
+        <xsl:with-param name="tests-title">Tests : Some tests are in failure !</xsl:with-param>
+        <xsl:with-param name="tests-img">yellow.png</xsl:with-param>
+        <xsl:with-param name="tests-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
+        <xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
     
     <xsl:template name="display-success">
 	<xsl:param name="compatResult" />
 	<xsl:call-template name="display-result">
-		<xsl:with-param name="title">Compilation : Success !</xsl:with-param>
-		<xsl:with-param name="img">blue.png</xsl:with-param>
-		<xsl:with-param name="error">_</xsl:with-param>
-	</xsl:call-template>
-	<xsl:call-template name="display-result">
-		<xsl:with-param name="title">Tests : Success !</xsl:with-param>
-		<xsl:with-param name="img">blue.png</xsl:with-param>
-		<xsl:with-param name="error">_</xsl:with-param>
+		<xsl:with-param name="compilation-title">Compilation : Success !</xsl:with-param>
+		<xsl:with-param name="compilation-img">blue.png</xsl:with-param>
+		<xsl:with-param name="compilation-error">_</xsl:with-param>
+        <xsl:with-param name="tests-title">Tests : Success !</xsl:with-param>
+        <xsl:with-param name="tests-img">blue.png</xsl:with-param>
+        <xsl:with-param name="tests-error">_</xsl:with-param>
+        <xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
-    
+
     <xsl:template name="display-result">
+        <xsl:param name="compilation-title"/>
+        <xsl:param name="compilation-img" />
+        <xsl:param name="compilation-error" />
+        <xsl:param name="tests-title" />
+        <xsl:param name="tests-img" />
+        <xsl:param name="tests-error" />
+        <xsl:param name="warnings" />
+        <xsl:call-template name="display-img">
+            <xsl:with-param name="title" select="$compilation-title" />
+            <xsl:with-param name="img" select="$compilation-img" />
+            <xsl:with-param name="error" select="$compilation-error" />
+        </xsl:call-template>
+        <xsl:call-template name="display-img">
+            <xsl:with-param name="title" select="$tests-title" />
+            <xsl:with-param name="img" select="$tests-img" />
+            <xsl:with-param name="error" select="$tests-error" />
+        </xsl:call-template>
+        <xsl:if test="count($warnings) &gt; 0">
+            <xsl:call-template name="display-img">
+                <xsl:with-param name="title">Warnings : <xsl:value-of select="$warnings" /></xsl:with-param>
+                <xsl:with-param name="img">document.gif</xsl:with-param>
+                <xsl:with-param name="error">_</xsl:with-param>
+            </xsl:call-template>
+        </xsl:if>
+    </xsl:template>
+    
+    <xsl:template name="display-img">
         <xsl:param name="title" />
         <xsl:param name="img" />
         <xsl:param name="error" />
