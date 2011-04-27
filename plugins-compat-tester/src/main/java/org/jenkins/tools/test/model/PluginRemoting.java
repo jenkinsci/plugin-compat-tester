@@ -80,23 +80,42 @@ public class PluginRemoting {
 			throw new PluginSourcesUnavailableException("Problem while retrieving plugin's scm connection", e);
 		}
 		
-		return new PomData(artifactId, computeScmConnection(scmConnection, artifactId));
+		PomData pomData = new PomData(artifactId, scmConnection);
+        computeScmConnection(pomData);
+        return pomData;
 	}
 
-    private static String computeScmConnection(String connectionUrl, String artifactId){
-        String transformedConnectionUrl = connectionUrl;
+    public static void computeScmConnection(PomData pomData){
+        String transformedConnectionUrl = pomData.getConnectionUrl();
+
+        // Java.net SVN migration
+        String oldUrl = transformedConnectionUrl;
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("svn.dev.java.net/svn/hudson/", "svn.java.net/svn/hudson~svn/");
+        if(!oldUrl.equals(transformedConnectionUrl)){
+            pomData.getWarningMessages().add("project.scm.connectionUrl is pointing to svn.dev.java.net/svn/hudson/ instead of svn.java.net/svn/hudson~svn/");
+        }
+
+        // ${project.artifactId}
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("\\$\\{project.artifactId\\}", pomData.artifactId);
+
+        // github url like https://<username>@github.com/...
+        // => Replaced by git://github.com/...
+        oldUrl = transformedConnectionUrl;
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("http(s)?://[^@]+@github.com/", "git://github.com/");
+        if(!oldUrl.equals(transformedConnectionUrl)){
+            pomData.getWarningMessages().add("project.scm.connectionUrl is using a github account instead of a read-only url git://github.com/...");
+        }
+
 		// Just fixing some scm-sync-configuration issues...
 		// TODO: remove this when fixed !
+        oldUrl = transformedConnectionUrl;
 		if(transformedConnectionUrl.endsWith(".git") && !(transformedConnectionUrl.endsWith("-plugin.git"))){
 			transformedConnectionUrl = transformedConnectionUrl.substring(0, transformedConnectionUrl.length()-4)+"-plugin.git";
         }
+        if(!oldUrl.equals(transformedConnectionUrl)){
+            pomData.getWarningMessages().add("project.scm.connectionUrl should be ending with '-plugin.git'");
+        }
 
-        // Java.net SVN migration
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("svn.dev.java.net/svn/hudson/", "svn.java.net/svn/hudson~svn/");
-
-        // ${project.artifactId}
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("\\$\\{project.artifactId\\}", artifactId);
-
-        return transformedConnectionUrl;
+        pomData.setConnectionUrl(transformedConnectionUrl);
     }
 }

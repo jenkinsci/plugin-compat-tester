@@ -176,7 +176,7 @@ public class PluginCompatTester {
 		
 		try {
 			ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-			ScmRepository repository = scmManager.makeScmRepository(pomData.connectionUrl);
+			ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
 			CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
 			
 			if(!result.isSuccess()){
