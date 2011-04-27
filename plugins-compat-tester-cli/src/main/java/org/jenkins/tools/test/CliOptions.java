@@ -23,10 +23,10 @@ public class CliOptions {
             description = "Output report xml file path")
     private File reportFile;
 
-    @Parameter(names = "-pluginsList",
+    @Parameter(names = "-includePlugins",
             description = "Comma separated list of plugins' artifactId to test.\n" +
                     "If not set, every plugin will be tested.")
-    private String pluginsList = null;
+    private String includePlugins = null;
 
     @Parameter(names = "-m2SettingsFile",
             description = "Maven settings file used while executing maven")
@@ -61,8 +61,8 @@ public class CliOptions {
         return workDirectory;
     }
 
-    public String getPluginsList() {
-        return pluginsList;
+    public String getIncludePlugins() {
+        return includePlugins;
     }
 
     public File getM2SettingsFile() {

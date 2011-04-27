@@ -85,7 +85,7 @@ public class PluginCompatTester {
         for(MavenCoordinates coreCoordinates : testedCores){
             for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
                 Plugin plugin = pluginEntry.getValue();
-                if(config.getPluginsList()==null || config.getPluginsList().contains(plugin.name.toLowerCase())){
+                if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
                     PluginInfos pluginInfos = new PluginInfos(plugin);
 
                     if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, coreCoordinates, config.getTestCacheTimeout())){

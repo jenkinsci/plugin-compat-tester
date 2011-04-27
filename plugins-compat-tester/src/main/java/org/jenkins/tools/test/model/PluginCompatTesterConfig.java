@@ -31,7 +31,7 @@ public class PluginCompatTesterConfig {
 
     // List of plugin artefact id on which tests will be performed
     // If null, tests will be performed on every plugins retrieved from update center
-    private List<String> pluginsList = null;
+    private List<String> includePlugins = null;
 
     // Allows to skip a plugin test if this plugin test has already been performed
     // within testCacheTimeout ms
@@ -78,12 +78,12 @@ public class PluginCompatTesterConfig {
         this.parentVersion = parentVersion;
     }
 
-    public List<String> getPluginsList() {
-        return pluginsList;
+    public List<String> getIncludePlugins() {
+        return includePlugins;
     }
 
-    public void setPluginsList(List<String> pluginsList) {
-        this.pluginsList = pluginsList;
+    public void setIncludePlugins(List<String> pluginsList) {
+        this.includePlugins = pluginsList;
     }
 
     public File getM2SettingsFile() {

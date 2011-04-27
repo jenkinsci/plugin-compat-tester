@@ -29,8 +29,8 @@ public class PluginCompatTesterCli {
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(options.getUpdateCenterUrl(), options.getParentCoord(),
                 options.getWorkDirectory(), options.getReportFile(), options.getM2SettingsFile());
 
-        if(options.getPluginsList() != null && !options.getPluginsList().isEmpty()){
-            config.setPluginsList(Arrays.asList(options.getPluginsList().toLowerCase().split(",")));
+        if(options.getIncludePlugins() != null && !options.getIncludePlugins().isEmpty()){
+            config.setIncludePlugins(Arrays.asList(options.getIncludePlugins().toLowerCase().split(",")));
         }
         if(options.getSkipTestCache() != null){
             config.setSkipTestCache(Boolean.valueOf(options.getSkipTestCache()).booleanValue());
