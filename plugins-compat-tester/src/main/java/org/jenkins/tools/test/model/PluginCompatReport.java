@@ -89,6 +89,11 @@ public class PluginCompatReport {
             return false;
         }
 
+        if(resultCorrespondingToGivenCoreCoords.status == TestStatus.INTERNAL_ERROR){
+            // Status was INTERNAL_ERROR ? => no cache !
+            return false;
+        }
+
         // Is the latest execution on this plugin compliant with the given cache timeout ?
         // If so, then cache will be activated !
         return new Date().before(new Date(resultCorrespondingToGivenCoreCoords.compatTestExecutedOn.getTime() + cacheTimeout));
