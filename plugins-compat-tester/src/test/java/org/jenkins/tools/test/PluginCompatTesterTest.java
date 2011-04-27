@@ -34,7 +34,7 @@ public class PluginCompatTesterTest {
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                 new File(testFolder.getRoot().getAbsolutePath()+"/report.xml"),
                 new ClassPathResource("m2-settings.xml").getFile());
-		config.setPluginsList(includedPlugins);
+		config.setIncludePlugins(includedPlugins);
 
         PluginCompatTester tester = new PluginCompatTester(config);
 		tester.testPlugins();
