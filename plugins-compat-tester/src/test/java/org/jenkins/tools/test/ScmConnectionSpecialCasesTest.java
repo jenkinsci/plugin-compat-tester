@@ -90,6 +90,16 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
+    public void shouldGitHudsonRepoBeMigratedToJenkinsCI(){
+        runComputeScmConnectionAgainst(
+                "git://github.com/hudson/hudson-clearcase-plugin.git", // hudson repository
+                "",
+                "git://github.com/jenkinsci/hudson-clearcase-plugin.git"
+        );
+    }
+
+
+    @Test
     public void shouldScmConnectionBeTrimed(){
         runComputeScmConnectionAgainst(
                 "\n   https://github.com/jenkinsci/cifs-plugin.git  \n   ", // ssh protocol requiring ssh host key

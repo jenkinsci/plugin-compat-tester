@@ -121,6 +121,12 @@ public class PluginRemoting {
             pomData.getWarningMessages().add("project.scm.connectionUrl should be accessed in read-only mode (with git:// protocol)");
         }
 
+        oldUrl = transformedConnectionUrl;
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github.com/hudson/", "://github.com/jenkinsci/");
+        if(!oldUrl.equals(transformedConnectionUrl)){
+            pomData.getWarningMessages().add("project.scm.connectionUrl should not reference hudson project anymore (no plugin repository there))");
+        }
+
 		// Just fixing some scm-sync-configuration issues...
 		// TODO: remove this when fixed !
         oldUrl = transformedConnectionUrl;
