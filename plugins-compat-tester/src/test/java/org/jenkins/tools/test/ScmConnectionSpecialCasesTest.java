@@ -77,5 +77,24 @@ public class ScmConnectionSpecialCasesTest {
                 "",
                 "git://github.com/jenkinsci/artifactory-plugin.git"
         );
+        runComputeScmConnectionAgainst(
+                "http://github.com/jenkinsci/artifactory-plugin.git", // ssh protocol requiring ssh host key
+                "",
+                "git://github.com/jenkinsci/artifactory-plugin.git"
+        );
+        runComputeScmConnectionAgainst(
+                "https://github.com/jenkinsci/cifs-plugin.git", // ssh protocol requiring ssh host key
+                "",
+                "git://github.com/jenkinsci/cifs-plugin.git"
+        );
+    }
+
+    @Test
+    public void shouldScmConnectionBeTrimed(){
+        runComputeScmConnectionAgainst(
+                "\n   https://github.com/jenkinsci/cifs-plugin.git  \n   ", // ssh protocol requiring ssh host key
+                "",
+                "git://github.com/jenkinsci/cifs-plugin.git"
+        );
     }
 }

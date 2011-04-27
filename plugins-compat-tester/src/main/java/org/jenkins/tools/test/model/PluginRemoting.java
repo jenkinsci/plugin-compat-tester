@@ -88,6 +88,9 @@ public class PluginRemoting {
     public static void computeScmConnection(PomData pomData){
         String transformedConnectionUrl = pomData.getConnectionUrl();
 
+        // Triming url
+        transformedConnectionUrl = transformedConnectionUrl.trim();
+
         // Java.net SVN migration
         String oldUrl = transformedConnectionUrl;
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("svn.dev.java.net/svn/hudson/", "svn.java.net/svn/hudson~svn/");
@@ -113,7 +116,7 @@ public class PluginRemoting {
         }
 
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("ssh://github.com", "git://github.com");
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("((ssh)|(http(s)?))://github.com", "git://github.com");
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl should be accessed in read-only mode (with git:// protocol)");
         }
