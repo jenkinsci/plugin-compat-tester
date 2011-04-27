@@ -69,4 +69,13 @@ public class ScmConnectionSpecialCasesTest {
                 "git://github.com/cittools/artifactdeployer-plugin.git"
         );
     }
+
+    @Test
+    public void shouldGithubBeAccessedWithGitProtocol(){
+        runComputeScmConnectionAgainst(
+                "ssh://github.com/jenkinsci/artifactory-plugin.git", // ssh protocol requiring ssh host key
+                "",
+                "git://github.com/jenkinsci/artifactory-plugin.git"
+        );
+    }
 }

@@ -112,6 +112,12 @@ public class PluginRemoting {
             pomData.getWarningMessages().add("project.scm.connectionUrl should have a '/' after the github.com url");
         }
 
+        oldUrl = transformedConnectionUrl;
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("ssh://github.com", "git://github.com");
+        if(!oldUrl.equals(transformedConnectionUrl)){
+            pomData.getWarningMessages().add("project.scm.connectionUrl should be accessed in read-only mode (with git:// protocol)");
+        }
+
 		// Just fixing some scm-sync-configuration issues...
 		// TODO: remove this when fixed !
         oldUrl = transformedConnectionUrl;
