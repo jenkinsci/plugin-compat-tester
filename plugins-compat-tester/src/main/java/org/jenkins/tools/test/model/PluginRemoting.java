@@ -104,36 +104,36 @@ public class PluginRemoting {
 
         // Java.net SVN migration
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("svn.dev.java.net/svn/hudson/", "svn.java.net/svn/hudson~svn/");
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("(svn|hudson)\\.dev\\.java\\.net/svn/hudson/", "svn.java.net/svn/hudson~svn/");
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl is pointing to svn.dev.java.net/svn/hudson/ instead of svn.java.net/svn/hudson~svn/");
         }
 
         // ${project.artifactId}
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("\\$\\{project.artifactId\\}", pomData.artifactId);
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("\\$\\{project\\.artifactId\\}", pomData.artifactId);
 
         // github url like https://<username>@github.com/...
         // => Replaced by git://github.com/...
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("http(s)?://[^@]+@github.com", "git://github.com");
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("http(s)?://[^@]+@github\\.com", "git://github.com");
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl is using a github account instead of a read-only url git://github.com/...");
         }
 
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github.com[^/]", "://github.com/");
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github\\.com[^/]", "://github.com/");
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl should have a '/' after the github.com url");
         }
 
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("((ssh)|(http(s)?))://github.com", "git://github.com");
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("((ssh)|(http(s)?))://github\\.com", "git://github.com");
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl should be accessed in read-only mode (with git:// protocol)");
         }
 
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github.com/hudson/", "://github.com/jenkinsci/");
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github\\.com/hudson/", "://github.com/jenkinsci/");
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl should not reference hudson project anymore (no plugin repository there))");
         }
