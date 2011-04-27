@@ -111,11 +111,16 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test()
-    public void shouldEmptyConnectionUrlThrowsException() throws Throwable{
+    public void shouldEmptyConnectionUrlImpliesGithubUrlGeneration() throws Throwable{
         runComputeScmConnectionAgainst(
                 "", // ssh protocol requiring ssh host key
                 "hudsontrayapp",
-                "git://github.com/jenkinsci/hudsontrayapp-plugin.git"
+                "git://github.com/jenkinsci/hudsontrayapp-plugin.git"  // Special case
+        );
+        runComputeScmConnectionAgainst(
+                "", // ssh protocol requiring ssh host key
+                "jenkinswalldisplay",
+                "git://github.com/jenkinsci/walldisplay-plugin.git"   // Special case
         );
     }
 }

@@ -96,7 +96,7 @@ public class PluginRemoting {
         // a bizarre repository url...)
         String oldUrl = transformedConnectionUrl;
         if(transformedConnectionUrl.isEmpty()){
-            transformedConnectionUrl = "git://github.com/jenkinsci/"+pomData.artifactId+"-plugin.git";
+            transformedConnectionUrl = "git://github.com/jenkinsci/"+pomData.artifactId.replaceAll("jenkins", "")+"-plugin.git";
             if(!oldUrl.equals(transformedConnectionUrl)){
                 pomData.getWarningMessages().add("project.scm.connectionUrl is not present in plugin's pom .. isn't it residing somewhere on a parent pom ?");
             }
