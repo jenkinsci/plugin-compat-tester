@@ -2,7 +2,8 @@
 	<xsl:output method="html" omit-xml-declaration="no" indent="yes"/>
 
     <xsl:variable name="testedJenkinsCoordinates" select="/report/testedCoreCoordinates/coord[groupId='org.jenkins-ci.plugins']" />
-    <xsl:variable name="otherCoreCoordinates" select="/report/testedCoreCoordinates/coord[not(groupId='org.jenkins-ci.plugins')]" />
+    <xsl:variable name="testedHudsonCoordinates" select="/report/testedCoreCoordinates/coord[groupId='org.jvnet.hudson.plugins']" />
+    <xsl:variable name="otherCoreCoordinates" select="/report/testedCoreCoordinates/coord[not(groupId='org.jenkins-ci.plugins') and not(groupId='org.jvnet.hudson.plugins')]" />
 
     <xsl:template match="/">
 <html>
@@ -21,10 +22,18 @@ th.version {
         <table cellspacing="0" cellpadding="0" border="1">
             <tr>
                <th rowspan="2" colspan="2" class="pluginname">Plugin name</th>
-               <xsl:element name="th">
-                   <xsl:attribute name="colspan"><xsl:value-of select="count($testedJenkinsCoordinates)" /></xsl:attribute>
-                   Jenkins core
-               </xsl:element>
+                <xsl:if test="count($testedJenkinsCoordinates) &gt; 0">
+                    <xsl:element name="th">
+                        <xsl:attribute name="colspan"><xsl:value-of select="count($testedJenkinsCoordinates)" /></xsl:attribute>
+                        Jenkins core
+                    </xsl:element>
+                </xsl:if>
+                <xsl:if test="count($testedHudsonCoordinates) &gt; 0">
+                    <xsl:element name="th">
+                        <xsl:attribute name="colspan"><xsl:value-of select="count($testedHudsonCoordinates)" /></xsl:attribute>
+                        Hudson core
+                    </xsl:element>
+                </xsl:if>
                <xsl:if test="count($otherCoreCoordinates) &gt; 0">
                    <xsl:element name="th">
                        <xsl:attribute name="colspan"><xsl:value-of select="count($otherCoreCoordinates)" /></xsl:attribute>
@@ -34,6 +43,11 @@ th.version {
             </tr>
             <tr>
                 <xsl:for-each select="$testedJenkinsCoordinates" >
+                    <th class="version">
+                        <xsl:value-of select="version" />
+                    </th>
+                </xsl:for-each>
+                <xsl:for-each select="$testedHudsonCoordinates" >
                     <th class="version">
                         <xsl:value-of select="version" />
                     </th>
@@ -66,11 +80,16 @@ th.version {
            <!-- Displaying plugin version -->
            <td><xsl:value-of select="pluginInfos/pluginVersion/text()"/></td>
            <!-- Displaying plugin compilation / test result for every tested core coordinates -->
-           <xsl:for-each select="$testedJenkinsCoordinates">
-                <xsl:call-template name="display-cell">
-                    <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
-                </xsl:call-template>
-           </xsl:for-each>
+            <xsl:for-each select="$testedJenkinsCoordinates">
+                 <xsl:call-template name="display-cell">
+                     <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
+                 </xsl:call-template>
+            </xsl:for-each>
+            <xsl:for-each select="$testedHudsonCoordinates">
+                 <xsl:call-template name="display-cell">
+                     <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
+                 </xsl:call-template>
+            </xsl:for-each>
            <xsl:for-each select="$otherCoreCoordinates">
                 <xsl:call-template name="display-cell">
                     <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
