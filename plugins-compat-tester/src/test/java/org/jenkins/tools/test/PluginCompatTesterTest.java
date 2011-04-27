@@ -32,7 +32,7 @@ public class PluginCompatTesterTest {
         List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("scm-sync-configuration"); }};
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File("D:/report.xml"),
+                new File("./target/report.xml"),
                 new ClassPathResource("m2-settings.xml").getFile());
 		config.setIncludePlugins(includedPlugins);
 

@@ -1,5 +1,8 @@
 package org.jenkins.tools.test;
 
+import hudson.maven.MavenEmbedder;
+import hudson.maven.MavenEmbedderException;
+import hudson.maven.MavenRequest;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import net.sf.json.JSONObject;
@@ -65,7 +68,9 @@ public class PluginCompatTester {
         return coreCoordinatesToTest;
     }
 
-	public PluginCompatReport testPlugins() throws PlexusContainerException, IOException {
+	public PluginCompatReport testPlugins()
+        throws PlexusContainerException, IOException, MavenEmbedderException
+    {
         // Providing XSL Stylesheet along xml report file
         if(config.reportFile != null){
             if(config.isProvideXslReport()){
@@ -78,6 +83,10 @@ public class PluginCompatTester {
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
         SortedSet<MavenCoordinates> testedCores = generateCoreCoordinatesToTest(data, report);
+
+        //here we don't care about paths for build the embedder
+        MavenRequest mavenRequest = buildMavenRequest( null, null );
+        MavenEmbedder embedder = new MavenEmbedder(Thread.currentThread().getContextClassLoader(), mavenRequest);
 
 		SCMManagerFactory.getInstance().start();
         for(MavenCoordinates coreCoordinates : testedCores){
@@ -104,7 +113,7 @@ public class PluginCompatTester {
                     TestStatus status;
                     List<String> warningMessages = new ArrayList<String>();
                     try {
-                        TestExecutionResult result = testPluginAgainst(coreCoordinates, plugin);
+                        TestExecutionResult result = testPluginAgainst(coreCoordinates, plugin, embedder);
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
@@ -167,7 +176,7 @@ public class PluginCompatTester {
         return new ClassPathResource("resultToReport.xsl");
     }
 	
-	public TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin) throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException {
+	public TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenEmbedder embedder) throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException {
 		File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
@@ -193,10 +202,19 @@ public class PluginCompatTester {
 		
 		MavenPom pom = new MavenPom(pluginCheckoutDir, config.getM2SettingsFile());
 		pom.transformPom(coreCoordinates);
-		
+
+
+
 		// Calling maven
         try {
-            MavenExecutionResult mavenResult = pom.executeGoals(Arrays.asList("clean", "test"));
+
+            MavenRequest mavenRequest = buildMavenRequest( pluginCheckoutDir.getAbsolutePath(),
+                                                           config.getM2SettingsFile() == null
+                                                               ? null
+                                                               : config.getM2SettingsFile().getAbsolutePath() );
+            mavenRequest.setGoals(Arrays.asList( "clean","install"));
+            mavenRequest.setPom(pluginCheckoutDir.getAbsolutePath()+"/pom.xml");
+            MavenExecutionResult mavenResult = pom.executeGoals(embedder, mavenRequest);
 
             return new TestExecutionResult(mavenResult, pomData.getWarningMessages());
         }catch(PomExecutionException e){
@@ -204,6 +222,22 @@ public class PluginCompatTester {
             throw e;
         }
 	}
+
+    private MavenRequest buildMavenRequest(String rootDir,String settingsPath)
+    {
+
+        MavenRequest mavenRequest = new MavenRequest();
+
+        mavenRequest.setBaseDirectory(rootDir);
+
+        mavenRequest.setUserSettingsFile(settingsPath);
+
+        mavenRequest.getUserProperties().put( "failIfNoTests", "false" );
+        mavenRequest.getUserProperties().put( "argLine", "-XX:MaxPermSize=128m" );
+
+        return mavenRequest;
+
+    }
 	
 	protected UpdateSite.Data extractUpdateCenterData(){
 		URL url = null;
