@@ -29,9 +29,13 @@ public class PluginCompatTesterConfig {
     // If null, latest core version (retrieved via the update center) will be used
     private String parentVersion = null;
 
-    // List of plugin artefact id on which tests will be performed
+    // List of plugin artefact ids on which tests will be performed
     // If null, tests will be performed on every plugins retrieved from update center
     private List<String> includePlugins = null;
+
+    // List of plugin artefact ids on which tests will be not performed
+    // If null, tests will be performed on every includePlugins found
+    private List<String> excludePlugins = null;
 
     // Allows to skip a plugin test if this plugin test has already been performed
     // within testCacheTimeout ms
@@ -128,5 +132,13 @@ public class PluginCompatTesterConfig {
 
     public String getParentArtifactId() {
         return parentArtifactId;
+    }
+
+    public List<String> getExcludePlugins() {
+        return excludePlugins;
+    }
+
+    public void setExcludePlugins(List<String> excludePlugins) {
+        this.excludePlugins = excludePlugins;
     }
 }

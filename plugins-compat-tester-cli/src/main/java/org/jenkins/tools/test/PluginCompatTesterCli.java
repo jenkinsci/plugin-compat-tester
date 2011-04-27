@@ -32,6 +32,9 @@ public class PluginCompatTesterCli {
         if(options.getIncludePlugins() != null && !options.getIncludePlugins().isEmpty()){
             config.setIncludePlugins(Arrays.asList(options.getIncludePlugins().toLowerCase().split(",")));
         }
+        if(options.getExcludePlugins() != null && !options.getExcludePlugins().isEmpty()){
+            config.setExcludePlugins(Arrays.asList(options.getExcludePlugins().toLowerCase().split(",")));
+        }
         if(options.getSkipTestCache() != null){
             config.setSkipTestCache(Boolean.valueOf(options.getSkipTestCache()).booleanValue());
         }

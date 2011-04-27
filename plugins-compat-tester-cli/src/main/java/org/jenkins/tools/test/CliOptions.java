@@ -28,6 +28,11 @@ public class CliOptions {
                     "If not set, every plugin will be tested.")
     private String includePlugins = null;
 
+    @Parameter(names = "-excludePlugins",
+            description = "Comma separated list of plugins' artifactId to NOT test.\n" +
+                    "If not set, see includePlugins behaviour.")
+    private String excludePlugins = null;
+
     @Parameter(names = "-m2SettingsFile",
             description = "Maven settings file used while executing maven")
     private File m2SettingsFile;
@@ -75,5 +80,9 @@ public class CliOptions {
 
     public Long getTestCacheTimeout() {
         return testCacheTimeout;
+    }
+
+    public String getExcludePlugins() {
+        return excludePlugins;
     }
 }

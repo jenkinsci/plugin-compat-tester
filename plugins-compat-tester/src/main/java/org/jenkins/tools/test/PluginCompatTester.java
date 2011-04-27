@@ -89,8 +89,13 @@ public class PluginCompatTester {
                 if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
                     PluginInfos pluginInfos = new PluginInfos(plugin);
 
+                    if(config.getExcludePlugins()!=null && config.getExcludePlugins().contains(plugin.name.toLowerCase())){
+                        System.out.println("Plugin "+plugin.name+" is in excluded plugins => test skipped !");
+                        continue;
+                    }
+
                     if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, coreCoordinates, config.getTestCacheTimeout())){
-                        System.out.println("Cache activated for plugin "+pluginInfos.pluginName+" : test will be skipped !");
+                        System.out.println("Cache activated for plugin "+pluginInfos.pluginName+" => test skipped !");
                         continue; // Don't do anything : we are in the cached interval ! :-)
                     }
 
@@ -127,7 +132,7 @@ public class PluginCompatTester {
                         report.save(config.reportFile);
                     }
                 } else {
-                    System.out.println("Plugin "+plugin.name+" not in provided pluginsList => test skipped !");
+                    System.out.println("Plugin "+plugin.name+" not in included plugins => test skipped !");
                 }
             }
         }
