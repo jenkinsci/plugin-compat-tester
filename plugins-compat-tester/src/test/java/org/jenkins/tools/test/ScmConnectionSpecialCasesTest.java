@@ -1,5 +1,6 @@
 package org.jenkins.tools.test;
 
+import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.model.PluginRemoting;
 import org.jenkins.tools.test.model.PomData;
 import org.junit.Test;
@@ -10,14 +11,14 @@ import static org.junit.Assert.assertThat;
 
 public class ScmConnectionSpecialCasesTest {
 
-    private static void runComputeScmConnectionAgainst(String scmUrlToTest, String artifactId, String expectedComputedScmUrl){
+    private static void runComputeScmConnectionAgainst(String scmUrlToTest, String artifactId, String expectedComputedScmUrl) {
         PomData pom = new PomData(artifactId, scmUrlToTest);
         PluginRemoting.computeScmConnection(pom);
         assertThat(pom.getConnectionUrl(), is(equalTo(expectedComputedScmUrl)));
     }
 
     @Test
-    public void shouldOldJavaNetSubversionRepoUrlBeenMigrated(){
+    public void shouldOldJavaNetSubversionRepoUrlBeenMigrated() throws Throwable{
         runComputeScmConnectionAgainst(
                 "https://guest@svn.dev.java.net/svn/hudson/tags/scm-sync-configuration/scm-sync-configuration-0.0.1", // old java.net url
                 "",
@@ -26,7 +27,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldProjectArtifactIdCorrectlyReplacedInUrls(){
+    public void shouldProjectArtifactIdCorrectlyReplacedInUrls() throws Throwable{
         runComputeScmConnectionAgainst(
                 "git://github.com/jenkinsci/${project.artifactId}.git", // ${project.artifactId}
                 "scm-sync-configuration-plugin",
@@ -35,7 +36,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldGithubUsernamedUrlBeFiltered(){
+    public void shouldGithubUsernamedUrlBeFiltered() throws Throwable{
         runComputeScmConnectionAgainst(
                 "https://sikakura@github.com/jenkinsci/mail-commander-plugin.git", // user specific authent
                 "",
@@ -44,7 +45,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldPluginSuffixOnlyAppliedOnScmSyncConfiguration(){
+    public void shouldPluginSuffixOnlyAppliedOnScmSyncConfiguration() throws Throwable{
         runComputeScmConnectionAgainst(
                 "git://github.com/jenkinsci/scm-sync-configuration.git",  // special case of scm-sync-configuration
                 "scm-sync-configuration",
@@ -63,7 +64,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldGithubDotComBeFollowedBySlashes(){
+    public void shouldGithubDotComBeFollowedBySlashes() throws Throwable{
         runComputeScmConnectionAgainst(
                 "git://github.com:cittools/artifactdeployer-plugin.git", // No / after github.com
                 "",
@@ -72,7 +73,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldGithubBeAccessedWithGitProtocol(){
+    public void shouldGithubBeAccessedWithGitProtocol() throws Throwable{
         runComputeScmConnectionAgainst(
                 "ssh://github.com/jenkinsci/artifactory-plugin.git", // ssh protocol requiring ssh host key
                 "",
@@ -91,7 +92,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldGitHudsonRepoBeMigratedToJenkinsCI(){
+    public void shouldGitHudsonRepoBeMigratedToJenkinsCI() throws Throwable{
         runComputeScmConnectionAgainst(
                 "git://github.com/hudson/hudson-clearcase-plugin.git", // hudson repository
                 "",
@@ -101,11 +102,20 @@ public class ScmConnectionSpecialCasesTest {
 
 
     @Test
-    public void shouldScmConnectionBeTrimed(){
+    public void shouldScmConnectionBeTrimed() throws Throwable{
         runComputeScmConnectionAgainst(
                 "\n   https://github.com/jenkinsci/cifs-plugin.git  \n   ", // ssh protocol requiring ssh host key
                 "",
                 "git://github.com/jenkinsci/cifs-plugin.git"
+        );
+    }
+
+    @Test()
+    public void shouldEmptyConnectionUrlThrowsException() throws Throwable{
+        runComputeScmConnectionAgainst(
+                "", // ssh protocol requiring ssh host key
+                "hudsontrayapp",
+                "git://github.com/jenkinsci/hudsontrayapp-plugin.git"
         );
     }
 }

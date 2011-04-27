@@ -85,14 +85,25 @@ public class PluginRemoting {
         return pomData;
 	}
 
-    public static void computeScmConnection(PomData pomData){
+    public static void computeScmConnection(PomData pomData) {
         String transformedConnectionUrl = pomData.getConnectionUrl();
 
         // Triming url
         transformedConnectionUrl = transformedConnectionUrl.trim();
 
-        // Java.net SVN migration
+        // Generally, when connectionUrl is empty, is implies it is declared in a parent pom
+        // => Only possibility is to deduct github repository from artifactId (crossing fingers it is not
+        // a bizarre repository url...)
         String oldUrl = transformedConnectionUrl;
+        if(transformedConnectionUrl.isEmpty()){
+            transformedConnectionUrl = "git://github.com/jenkinsci/"+pomData.artifactId+"-plugin.git";
+            if(!oldUrl.equals(transformedConnectionUrl)){
+                pomData.getWarningMessages().add("project.scm.connectionUrl is not present in plugin's pom .. isn't it residing somewhere on a parent pom ?");
+            }
+        }
+
+        // Java.net SVN migration
+        oldUrl = transformedConnectionUrl;
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("svn.dev.java.net/svn/hudson/", "svn.java.net/svn/hudson~svn/");
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl is pointing to svn.dev.java.net/svn/hudson/ instead of svn.java.net/svn/hudson~svn/");
