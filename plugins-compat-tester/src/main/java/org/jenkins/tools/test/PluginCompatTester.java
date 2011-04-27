@@ -83,6 +83,7 @@ public class PluginCompatTester {
 
 		SCMManagerFactory.getInstance().start();
         for(MavenCoordinates coreCoordinates : testedCores){
+            System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
             for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
                 Plugin plugin = pluginEntry.getValue();
                 if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){

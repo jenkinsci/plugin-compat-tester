@@ -25,4 +25,8 @@ public class MavenCoordinates {
     public int hashCode(){
         return new HashCodeBuilder().append(groupId).append(artifactId).append(version).toHashCode();
     }
+
+    public String toString(){
+        return "MavenCoordinates[groupId="+groupId+", artifactId="+artifactId+", version="+version+"]";
+    }
 }
