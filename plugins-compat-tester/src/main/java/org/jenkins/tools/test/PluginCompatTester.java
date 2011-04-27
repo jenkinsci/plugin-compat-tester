@@ -117,6 +117,7 @@ public class PluginCompatTester {
                             status = TestStatus.SUCCESS;
                         }
                         errorMessage = e.getErrorMessage();
+                        warningMessages.addAll(e.getPomWarningMessages());
                     } catch (Throwable t){
                         status = TestStatus.INTERNAL_ERROR;
                         errorMessage = t.getMessage();
@@ -194,9 +195,14 @@ public class PluginCompatTester {
 		pom.transformPom(coreCoordinates);
 		
 		// Calling maven
-        MavenExecutionResult mavenResult = pom.executeGoals(Arrays.asList("clean", "test"));
+        try {
+            MavenExecutionResult mavenResult = pom.executeGoals(Arrays.asList("clean", "test"));
 
-        return new TestExecutionResult(mavenResult, pomData.getWarningMessages());
+            return new TestExecutionResult(mavenResult, pomData.getWarningMessages());
+        }catch(PomExecutionException e){
+            e.setPomWarningMessages(pomData.getWarningMessages());
+            throw e;
+        }
 	}
 	
 	protected UpdateSite.Data extractUpdateCenterData(){
