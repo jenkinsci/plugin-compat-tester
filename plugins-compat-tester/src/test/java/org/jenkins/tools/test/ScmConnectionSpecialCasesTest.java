@@ -19,7 +19,7 @@ public class ScmConnectionSpecialCasesTest {
     @Test
     public void shouldGitUrlsShouldEndsWithPlugin(){
         runComputeScmConnectionAgainst(
-                "git://github.com/jenkinsci/scm-sync-configuration.git",
+                "git://github.com/jenkinsci/scm-sync-configuration.git",  // No "-plugin" suffix on a jenkinsci module
                 "",
                 "git://github.com/jenkinsci/scm-sync-configuration-plugin.git"
         );
@@ -28,7 +28,7 @@ public class ScmConnectionSpecialCasesTest {
     @Test
     public void shouldOldJavaNetSubversionRepoUrlBeenMigrated(){
         runComputeScmConnectionAgainst(
-                "https://guest@svn.dev.java.net/svn/hudson/tags/scm-sync-configuration/scm-sync-configuration-0.0.1",
+                "https://guest@svn.dev.java.net/svn/hudson/tags/scm-sync-configuration/scm-sync-configuration-0.0.1", // old java.net url
                 "",
                 "https://guest@svn.java.net/svn/hudson~svn/tags/scm-sync-configuration/scm-sync-configuration-0.0.1"
         );
@@ -37,7 +37,7 @@ public class ScmConnectionSpecialCasesTest {
     @Test
     public void shouldProjectArtifactIdCorrectlyReplacedInUrls(){
         runComputeScmConnectionAgainst(
-                "git://github.com/jenkinsci/${project.artifactId}.git",
+                "git://github.com/jenkinsci/${project.artifactId}.git", // ${project.artifactId}
                 "scm-sync-configuration-plugin",
                 "git://github.com/jenkinsci/scm-sync-configuration-plugin.git"
         );
@@ -46,9 +46,27 @@ public class ScmConnectionSpecialCasesTest {
     @Test
     public void shouldGithubUsernamedUrlBeFiltered(){
         runComputeScmConnectionAgainst(
-                "https://sikakura@github.com/jenkinsci/mail-commander-plugin.git",
+                "https://sikakura@github.com/jenkinsci/mail-commander-plugin.git", // user specific authent
                 "",
                 "git://github.com/jenkinsci/mail-commander-plugin.git"
+        );
+    }
+
+    @Test
+    public void shouldNonJenkinsCIProjectNotEndsWithPluginSuffix(){
+        runComputeScmConnectionAgainst(
+                "git://github.com/magnayn/Jenkins-AdaptivePlugin.git", // Not jenkinsci project => no -plugin suffix !
+                "",
+                "git://github.com/magnayn/Jenkins-AdaptivePlugin.git"
+        );
+    }
+
+    @Test
+    public void shouldGithubDotComBeFollowedBySlashes(){
+        runComputeScmConnectionAgainst(
+                "git://github.com:cittools/artifactdeployer-plugin.git", // No / after github.com
+                "",
+                "git://github.com/cittools/artifactdeployer-plugin.git"
         );
     }
 }
