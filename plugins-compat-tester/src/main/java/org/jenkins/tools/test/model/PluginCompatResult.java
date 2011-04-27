@@ -23,7 +23,7 @@ public class PluginCompatResult {
         this.status = status;
 
         this.errorMessage = errorMessage;
-        this.warningMessages = Collections.unmodifiableList(warningMessages);
+        this.warningMessages = warningMessages;
 
         this.compatTestExecutedOn = new Date(); // now !
     }
