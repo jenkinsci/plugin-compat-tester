@@ -233,7 +233,7 @@ th.version {
 	    </xsl:if>
 	</xsl:element>
 	<xsl:if test="not($error='_')">
-		<xsl:element name="div">
+		<xsl:element name="span">
 		    <xsl:attribute name="id"><xsl:value-of select="$id" />_dialog</xsl:attribute>
 		    <xsl:attribute name="title"><xsl:value-of select="$title" /></xsl:attribute>
 		    <xsl:attribute name="style">display:none</xsl:attribute>
