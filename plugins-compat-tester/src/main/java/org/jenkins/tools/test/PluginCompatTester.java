@@ -185,6 +185,7 @@ public class PluginCompatTester {
 		PomData pomData = remote.retrievePomData();
 		
 		try {
+            System.out.println("Checkouting from scm connection URL : "+pomData.getConnectionUrl());
 			ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
 			ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
             System.out.println("Checkouting from scm connection URL : "+pomData.getConnectionUrl());
