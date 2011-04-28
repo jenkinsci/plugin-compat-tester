@@ -208,9 +208,9 @@ th.version {
         <xsl:if test="count($warnings) &gt; 0">
             <xsl:call-template name="display-img">
                 <xsl:with-param name="id"><xsl:value-of select="$id"/>-warns</xsl:with-param>
-                <xsl:with-param name="title">Warnings : <xsl:value-of select="$warnings" /></xsl:with-param>
+                <xsl:with-param name="title">Warnings !</xsl:with-param>
                 <xsl:with-param name="img">document.gif</xsl:with-param>
-                <xsl:with-param name="error">_</xsl:with-param>
+                <xsl:with-param name="error"><xsl:value-of select="$warnings" /></xsl:with-param>
             </xsl:call-template>
         </xsl:if>
     </xsl:template>
