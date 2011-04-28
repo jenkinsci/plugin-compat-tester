@@ -115,6 +115,15 @@ public class ScmConnectionSpecialCasesTest {
         );
     }
 
+    @Test
+    public void shouldGitAtGithubReplaceByGitProtocol() throws Throwable {
+        runComputeScmConnectionAgainst(
+                "git@github.com:jenkinsci/jquery-plugin.git", // git@github.com
+                "",
+                "git://github.com/jenkinsci/jquery-plugin.git"
+        );
+    }
+
     @Test()
     public void shouldEmptyConnectionUrlImpliesGithubUrlGeneration() throws Throwable{
         runComputeScmConnectionAgainst(

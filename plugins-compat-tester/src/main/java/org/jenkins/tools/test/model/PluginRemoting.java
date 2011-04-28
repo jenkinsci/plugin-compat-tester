@@ -112,10 +112,10 @@ public class PluginRemoting {
         // ${project.artifactId}
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("\\$\\{project\\.artifactId\\}", pomData.artifactId);
 
-        // github url like https://<username>@github.com/...
+        // github url like [https://]<username>@github.com/...
         // => Replaced by git://github.com/...
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("http(s)?://[^@]+@github\\.com", "git://github.com");
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("(http(s)?://)?[^@]+@github\\.com", "git://github.com");
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl is using a github account instead of a read-only url git://github.com/...");
         }
