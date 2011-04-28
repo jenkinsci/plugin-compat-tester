@@ -9,6 +9,13 @@
 <html>
     <head>
         <title>Plugin compat tester report</title>
+        <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+        <script type="text/javascript">
+var latestDialog = null;
+      </script>
+
         <style type="text/css">
 th.pluginname{
     width: 200px;
@@ -100,74 +107,85 @@ th.version {
 
     <xsl:template name="display-cell">
         <xsl:param name="compatResult" />
-        <td>
+        <xsl:variable name="cellId"><xsl:value-of select="$compatResult/../../pluginInfos/pluginName" />-<xsl:value-of select="translate($compatResult/../../pluginInfos/pluginVersion, '.', '_')" />_<xsl:value-of select="translate($compatResult/coreCoordinates/groupId, '.', '_')" />_<xsl:value-of select="$compatResult/coreCoordinates/artifactId" />_<xsl:value-of select="translate($compatResult/coreCoordinates/version, '.', '_')" /></xsl:variable>
+        <xsl:element name="td">
+	  <xsl:attribute name="id"><xsl:value-of select="$cellId" /></xsl:attribute>
             <xsl:choose>
                 <xsl:when test="count($compatResult)=0">-----</xsl:when>
                 <xsl:otherwise>
 		<xsl:choose>
-			<xsl:when test="$compatResult/status = 'INTERNAL_ERROR'"><xsl:call-template name="display-internal-error"><xsl:with-param name="compatResult" select="$compatResult" /></xsl:call-template></xsl:when>
-			<xsl:when test="$compatResult/status = 'COMPILATION_ERROR'"><xsl:call-template name="display-compilation-error"><xsl:with-param name="compatResult" select="$compatResult" /></xsl:call-template></xsl:when>
-			<xsl:when test="$compatResult/status = 'TEST_FAILURES'"><xsl:call-template name="display-tests-failures"><xsl:with-param name="compatResult" select="$compatResult" /></xsl:call-template></xsl:when>
-			<xsl:when test="$compatResult/status = 'SUCCESS'"><xsl:call-template name="display-success"><xsl:with-param name="compatResult" select="$compatResult" /></xsl:call-template></xsl:when>
+			<xsl:when test="$compatResult/status = 'INTERNAL_ERROR'"><xsl:call-template name="display-internal-error"><xsl:with-param name="id" select="$cellId" /><xsl:with-param name="compatResult" select="$compatResult" /></xsl:call-template></xsl:when>
+			<xsl:when test="$compatResult/status = 'COMPILATION_ERROR'"><xsl:call-template name="display-compilation-error"><xsl:with-param name="id" select="$cellId" /><xsl:with-param name="compatResult" select="$compatResult" /></xsl:call-template></xsl:when>
+			<xsl:when test="$compatResult/status = 'TEST_FAILURES'"><xsl:call-template name="display-tests-failures"><xsl:with-param name="id" select="$cellId" /><xsl:with-param name="compatResult" select="$compatResult" /></xsl:call-template></xsl:when>
+			<xsl:when test="$compatResult/status = 'SUCCESS'"><xsl:call-template name="display-success"><xsl:with-param name="id" select="$cellId" /><xsl:with-param name="compatResult" select="$compatResult" /></xsl:call-template></xsl:when>
 		</xsl:choose>
                 </xsl:otherwise>
             </xsl:choose>
-        </td>
+        </xsl:element>
     </xsl:template>
 
     <xsl:template name="display-internal-error">
+	<xsl:param name="id" />
 	<xsl:param name="compatResult" />
 	<xsl:call-template name="display-result">
+		<xsl:with-param name="id" select="$id" />
 		<xsl:with-param name="compilation-title">Compilation : Internal error !</xsl:with-param>
 		<xsl:with-param name="compilation-img">red.png</xsl:with-param>
 		<xsl:with-param name="compilation-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
-        <xsl:with-param name="tests-title">Tests : Internal error !</xsl:with-param>
-        <xsl:with-param name="tests-img">red.png</xsl:with-param>
-        <xsl:with-param name="tests-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
-        <xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
+		<xsl:with-param name="tests-title">Tests : Internal error !</xsl:with-param>
+		<xsl:with-param name="tests-img">red.png</xsl:with-param>
+		<xsl:with-param name="tests-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
+		<xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
     
     <xsl:template name="display-compilation-error">
+	<xsl:param name="id" />
 	<xsl:param name="compatResult" />
-    <xsl:call-template name="display-result">
+	<xsl:call-template name="display-result">
+		<xsl:with-param name="id" select="$id" />
 		<xsl:with-param name="compilation-title">Compilation : failure !</xsl:with-param>
 		<xsl:with-param name="compilation-img">yellow.png</xsl:with-param>
 		<xsl:with-param name="compilation-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
-        <xsl:with-param name="tests-title">Tests : No tests executed !</xsl:with-param>
-        <xsl:with-param name="tests-img">red.png</xsl:with-param>
-        <xsl:with-param name="tests-error">Compilation failed => No tests executed !</xsl:with-param>
-        <xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
+		<xsl:with-param name="tests-title">Tests : No tests executed !</xsl:with-param>
+		<xsl:with-param name="tests-img">red.png</xsl:with-param>
+		<xsl:with-param name="tests-error">Compilation failed => No tests executed !</xsl:with-param>
+		<xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
 
     <xsl:template name="display-tests-failures">
+	<xsl:param name="id" />
 	<xsl:param name="compatResult" />
 	<xsl:call-template name="display-result">
+		<xsl:with-param name="id" select="$id" />
 		<xsl:with-param name="compilation-title">Compilation : Success !</xsl:with-param>
 		<xsl:with-param name="compilation-img">blue.png</xsl:with-param>
 		<xsl:with-param name="compilation-error">_</xsl:with-param>
-        <xsl:with-param name="tests-title">Tests : Some tests are in failure !</xsl:with-param>
-        <xsl:with-param name="tests-img">yellow.png</xsl:with-param>
-        <xsl:with-param name="tests-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
-        <xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
+		<xsl:with-param name="tests-title">Tests : Some tests are in failure !</xsl:with-param>
+		<xsl:with-param name="tests-img">yellow.png</xsl:with-param>
+		<xsl:with-param name="tests-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
+		<xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
     
     <xsl:template name="display-success">
+	<xsl:param name="id" />
 	<xsl:param name="compatResult" />
 	<xsl:call-template name="display-result">
+		<xsl:with-param name="id" select="$id" />
 		<xsl:with-param name="compilation-title">Compilation : Success !</xsl:with-param>
 		<xsl:with-param name="compilation-img">blue.png</xsl:with-param>
 		<xsl:with-param name="compilation-error">_</xsl:with-param>
-        <xsl:with-param name="tests-title">Tests : Success !</xsl:with-param>
-        <xsl:with-param name="tests-img">blue.png</xsl:with-param>
-        <xsl:with-param name="tests-error">_</xsl:with-param>
-        <xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
+		<xsl:with-param name="tests-title">Tests : Success !</xsl:with-param>
+		<xsl:with-param name="tests-img">blue.png</xsl:with-param>
+		<xsl:with-param name="tests-error">_</xsl:with-param>
+		<xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
 
     <xsl:template name="display-result">
+        <xsl:param name="id" />
         <xsl:param name="compilation-title"/>
         <xsl:param name="compilation-img" />
         <xsl:param name="compilation-error" />
@@ -176,17 +194,20 @@ th.version {
         <xsl:param name="tests-error" />
         <xsl:param name="warnings" />
         <xsl:call-template name="display-img">
+            <xsl:with-param name="id"><xsl:value-of select="$id"/>-compilation</xsl:with-param>
             <xsl:with-param name="title" select="$compilation-title" />
             <xsl:with-param name="img" select="$compilation-img" />
             <xsl:with-param name="error" select="$compilation-error" />
         </xsl:call-template>
         <xsl:call-template name="display-img">
+            <xsl:with-param name="id"><xsl:value-of select="$id"/>-tests</xsl:with-param>
             <xsl:with-param name="title" select="$tests-title" />
             <xsl:with-param name="img" select="$tests-img" />
             <xsl:with-param name="error" select="$tests-error" />
         </xsl:call-template>
         <xsl:if test="count($warnings) &gt; 0">
             <xsl:call-template name="display-img">
+                <xsl:with-param name="id"><xsl:value-of select="$id"/>-warns</xsl:with-param>
                 <xsl:with-param name="title">Warnings : <xsl:value-of select="$warnings" /></xsl:with-param>
                 <xsl:with-param name="img">document.gif</xsl:with-param>
                 <xsl:with-param name="error">_</xsl:with-param>
@@ -195,17 +216,30 @@ th.version {
     </xsl:template>
     
     <xsl:template name="display-img">
+        <xsl:param name="id" />
         <xsl:param name="title" />
         <xsl:param name="img" />
         <xsl:param name="error" />
 
 	<xsl:element name="img">
+	    <xsl:attribute name="id"><xsl:value-of select="$id" /></xsl:attribute>
 	    <xsl:attribute name="alt"><xsl:value-of select="$title" /></xsl:attribute>
 	    <xsl:attribute name="title"><xsl:value-of select="$title" /><xsl:if test="not($error='_')"><xsl:value-of select="$error" /></xsl:if></xsl:attribute>
 	    <xsl:attribute name="src">https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/<xsl:value-of select="$img" /></xsl:attribute>
 	    <xsl:attribute name="width">24</xsl:attribute>
 	    <xsl:attribute name="height">24</xsl:attribute>
+	    <xsl:if test="not($error='_')">
+		<xsl:attribute name="onclick">if(latestDialog!=null){ $(latestDialog).dialog('close'); } latestDialog="#<xsl:value-of select="$id" />_dialog"; $("#<xsl:value-of select="$id" />_dialog").dialog();</xsl:attribute>
+	    </xsl:if>
 	</xsl:element>
+	<xsl:if test="not($error='_')">
+		<xsl:element name="div">
+		    <xsl:attribute name="id"><xsl:value-of select="$id" />_dialog</xsl:attribute>
+		    <xsl:attribute name="title"><xsl:value-of select="$title" /></xsl:attribute>
+		    <xsl:attribute name="style">display:none</xsl:attribute>
+		    <pre><xsl:value-of select="$error" /></pre>
+		</xsl:element>
+	</xsl:if>
     </xsl:template>
 
     <xsl:template match="text()">
