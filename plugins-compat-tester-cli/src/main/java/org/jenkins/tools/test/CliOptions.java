@@ -49,6 +49,9 @@ public class CliOptions {
                     "Cache timeout is given in milliseconds")
     private Long testCacheTimeout = null;
 
+    @Parameter(names="-mavenProperties", description = "allow to load some maven properties which will be used a la -D")
+    private String mavenPropertiesFile;
+
 
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
@@ -84,5 +87,9 @@ public class CliOptions {
 
     public String getExcludePlugins() {
         return excludePlugins;
+    }
+
+    public String getMavenPropertiesFile() {
+        return mavenPropertiesFile;
     }
 }

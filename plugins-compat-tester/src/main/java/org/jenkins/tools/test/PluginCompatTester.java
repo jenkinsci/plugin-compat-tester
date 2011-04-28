@@ -7,6 +7,7 @@ import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
@@ -29,6 +30,8 @@ import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
@@ -176,7 +179,9 @@ public class PluginCompatTester {
         return new ClassPathResource("resultToReport.xsl");
     }
 	
-	public TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenEmbedder embedder) throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException {
+	public TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenEmbedder embedder)
+        throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
+    {
 		File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
@@ -226,6 +231,7 @@ public class PluginCompatTester {
 	}
 
     private MavenRequest buildMavenRequest(String rootDir,String settingsPath)
+        throws IOException
     {
 
         MavenRequest mavenRequest = new MavenRequest();
@@ -234,8 +240,29 @@ public class PluginCompatTester {
 
         mavenRequest.setUserSettingsFile(settingsPath);
 
+        // TODO REMOVE
         mavenRequest.getUserProperties().put( "failIfNoTests", "false" );
         mavenRequest.getUserProperties().put( "argLine", "-XX:MaxPermSize=128m" );
+
+        String mavenPropertiesFilePath = this.config.getMavenPropertiesFile();
+
+        if ( StringUtils.isNotBlank( mavenPropertiesFilePath )) {
+            File file = new File (mavenPropertiesFilePath);
+            if (file.exists()) {
+                FileInputStream fileInputStream = null;
+                try {
+                    fileInputStream = new FileInputStream( file );
+                    Properties properties = new Properties(  );
+                    properties.load( fileInputStream  );
+                    mavenRequest.getUserProperties().putAll( properties );
+                } finally {
+                    IOUtils.closeQuietly( fileInputStream );
+                }
+            } else {
+                System.out.println("File " + mavenPropertiesFilePath + " not exists" );
+            }
+
+        }
 
         return mavenRequest;
 

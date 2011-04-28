@@ -52,6 +52,9 @@ public class PluginCompatTesterConfig {
     // Only if reportFile is not null
     private boolean generateHtmlReport = true;
 
+
+    private String mavenPropertiesFile;
+
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this("http://updates.jenkins-ci.org/update-center.json?version=build", "org.jenkins-ci.plugins:plugin",
                 workDirectory, reportFile, m2SettingsFile);
@@ -140,5 +143,13 @@ public class PluginCompatTesterConfig {
 
     public void setExcludePlugins(List<String> excludePlugins) {
         this.excludePlugins = excludePlugins;
+    }
+
+    public String getMavenPropertiesFile() {
+        return mavenPropertiesFile;
+    }
+
+    public void setMavenPropertiesFiles( String mavenPropertiesFile ) {
+        this.mavenPropertiesFile = mavenPropertiesFile;
     }
 }
