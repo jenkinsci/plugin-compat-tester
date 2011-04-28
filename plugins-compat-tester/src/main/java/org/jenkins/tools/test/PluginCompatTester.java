@@ -130,6 +130,9 @@ public class PluginCompatTester {
                         }
                         errorMessage = e.getErrorMessage();
                         warningMessages.addAll(e.getPomWarningMessages());
+                    } catch (Error e){
+                        // Rethrow the error ... something is getting wrong !
+                        throw e;
                     } catch (Throwable t){
                         status = TestStatus.INTERNAL_ERROR;
                         errorMessage = t.getMessage();
