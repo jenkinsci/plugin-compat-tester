@@ -80,6 +80,13 @@ public class MavenPom {
         }
 
         if(!result.getExceptions().isEmpty()){
+            // If at least one OOME is thrown, rethrow it "as is"
+            // It must be treated a an internal error instead of a PomExecutionException !
+            for(Throwable t : result.getExceptions()){
+                if(t instanceof OutOfMemoryError){
+                    throw (OutOfMemoryError)t;
+                }
+            }
             throw new PomExecutionException("Error while executing pom goals : "+ Arrays.toString(mavenRequest.getGoals().toArray()), result.getExceptions(), succeededPlugins);
         }
 
