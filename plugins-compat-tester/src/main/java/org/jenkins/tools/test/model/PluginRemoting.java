@@ -96,7 +96,7 @@ public class PluginRemoting {
         // a bizarre repository url...)
         String oldUrl = transformedConnectionUrl;
         if(transformedConnectionUrl.isEmpty()){
-            transformedConnectionUrl = "git://github.com/jenkinsci/"+pomData.artifactId.replaceAll("jenkins", "")+"-plugin.git";
+            transformedConnectionUrl = "scm:git:git://github.com/jenkinsci/"+pomData.artifactId.replaceAll("jenkins", "")+"-plugin.git";
             if(!oldUrl.equals(transformedConnectionUrl)){
                 pomData.getWarningMessages().add("project.scm.connectionUrl is not present in plugin's pom .. isn't it residing somewhere on a parent pom ?");
             }
@@ -115,7 +115,7 @@ public class PluginRemoting {
         // github url like [https://]<username>@github.com/...
         // => Replaced by git://github.com/...
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("(http(s)?://)?[^@]+@github\\.com", "git://github.com");
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("(http(s)?://)?[^@:]+@github\\.com", "git://github.com");
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl is using a github account instead of a read-only url git://github.com/...");
         }

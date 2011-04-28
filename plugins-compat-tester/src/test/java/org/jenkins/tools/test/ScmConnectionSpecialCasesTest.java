@@ -20,88 +20,88 @@ public class ScmConnectionSpecialCasesTest {
     @Test
     public void shouldOldJavaNetSubversionRepoUrlBeenMigrated() throws Throwable{
         runComputeScmConnectionAgainst(
-                "https://guest@svn.dev.java.net/svn/hudson/tags/scm-sync-configuration/scm-sync-configuration-0.0.1", // old java.net url
+                "scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/scm-sync-configuration/scm-sync-configuration-0.0.1", // old java.net url
                 "",
-                "https://guest@svn.java.net/svn/hudson~svn/tags/scm-sync-configuration/scm-sync-configuration-0.0.1"
+                "scm:svn:https://guest@svn.java.net/svn/hudson~svn/tags/scm-sync-configuration/scm-sync-configuration-0.0.1"
         );
         runComputeScmConnectionAgainst(
-                "https://guest@hudson.dev.java.net/svn/hudson/tags/labeled-test-groups-publisher-1.2.6", // old java.net url
+                "scm:svn:https://guest@hudson.dev.java.net/svn/hudson/tags/labeled-test-groups-publisher-1.2.6", // old java.net url
                 "",
-                "https://guest@svn.java.net/svn/hudson~svn/tags/labeled-test-groups-publisher-1.2.6"
+                "scm:svn:https://guest@svn.java.net/svn/hudson~svn/tags/labeled-test-groups-publisher-1.2.6"
         );
     }
 
     @Test
     public void shouldProjectArtifactIdCorrectlyReplacedInUrls() throws Throwable{
         runComputeScmConnectionAgainst(
-                "git://github.com/jenkinsci/${project.artifactId}.git", // ${project.artifactId}
+                "scm:git:git://github.com/jenkinsci/${project.artifactId}.git", // ${project.artifactId}
                 "scm-sync-configuration-plugin",
-                "git://github.com/jenkinsci/scm-sync-configuration-plugin.git"
+                "scm:git:git://github.com/jenkinsci/scm-sync-configuration-plugin.git"
         );
     }
 
     @Test
     public void shouldGithubUsernamedUrlBeFiltered() throws Throwable{
         runComputeScmConnectionAgainst(
-                "https://sikakura@github.com/jenkinsci/mail-commander-plugin.git", // user specific authent
+                "scm:git:https://sikakura@github.com/jenkinsci/mail-commander-plugin.git", // user specific authent
                 "",
-                "git://github.com/jenkinsci/mail-commander-plugin.git"
+                "scm:git:git://github.com/jenkinsci/mail-commander-plugin.git"
         );
     }
 
     @Test
     public void shouldPluginSuffixOnlyAppliedOnScmSyncConfiguration() throws Throwable{
         runComputeScmConnectionAgainst(
-                "git://github.com/jenkinsci/scm-sync-configuration.git",  // special case of scm-sync-configuration
+                "scm:git:git://github.com/jenkinsci/scm-sync-configuration.git",  // special case of scm-sync-configuration
                 "scm-sync-configuration",
-                "git://github.com/jenkinsci/scm-sync-configuration-plugin.git"
+                "scm:git:git://github.com/jenkinsci/scm-sync-configuration-plugin.git"
         );
         runComputeScmConnectionAgainst(
-                "git://github.com/magnayn/Jenkins-AdaptivePlugin.git",
+                "scm:git:git://github.com/magnayn/Jenkins-AdaptivePlugin.git",
                 "Jenkins-AdaptivePlugin",
-                "git://github.com/magnayn/Jenkins-AdaptivePlugin.git"
+                "scm:git:git://github.com/magnayn/Jenkins-AdaptivePlugin.git"
         );
         runComputeScmConnectionAgainst(
-                "git://github.com/jenkinsci/copy-project-link.git",
+                "scm:git:git://github.com/jenkinsci/copy-project-link.git",
                 "copy-project-link",
-                "git://github.com/jenkinsci/copy-project-link.git"
+                "scm:git:git://github.com/jenkinsci/copy-project-link.git"
         );
     }
 
     @Test
     public void shouldGithubDotComBeFollowedBySlashes() throws Throwable{
         runComputeScmConnectionAgainst(
-                "git://github.com:cittools/artifactdeployer-plugin.git", // No / after github.com
+                "scm:git:git://github.com:cittools/artifactdeployer-plugin.git", // No / after github.com
                 "",
-                "git://github.com/cittools/artifactdeployer-plugin.git"
+                "scm:git:git://github.com/cittools/artifactdeployer-plugin.git"
         );
     }
 
     @Test
     public void shouldGithubBeAccessedWithGitProtocol() throws Throwable{
         runComputeScmConnectionAgainst(
-                "ssh://github.com/jenkinsci/artifactory-plugin.git", // ssh protocol requiring ssh host key
+                "scm:git:ssh://github.com/jenkinsci/artifactory-plugin.git", // ssh protocol requiring ssh host key
                 "",
-                "git://github.com/jenkinsci/artifactory-plugin.git"
+                "scm:git:git://github.com/jenkinsci/artifactory-plugin.git"
         );
         runComputeScmConnectionAgainst(
-                "http://github.com/jenkinsci/artifactory-plugin.git", // ssh protocol requiring ssh host key
+                "scm:git:http://github.com/jenkinsci/artifactory-plugin.git", // ssh protocol requiring ssh host key
                 "",
-                "git://github.com/jenkinsci/artifactory-plugin.git"
+                "scm:git:git://github.com/jenkinsci/artifactory-plugin.git"
         );
         runComputeScmConnectionAgainst(
-                "https://github.com/jenkinsci/cifs-plugin.git", // ssh protocol requiring ssh host key
+                "scm:git:https://github.com/jenkinsci/cifs-plugin.git", // ssh protocol requiring ssh host key
                 "",
-                "git://github.com/jenkinsci/cifs-plugin.git"
+                "scm:git:git://github.com/jenkinsci/cifs-plugin.git"
         );
     }
 
     @Test
     public void shouldGitHudsonRepoBeMigratedToJenkinsCI() throws Throwable{
         runComputeScmConnectionAgainst(
-                "git://github.com/hudson/hudson-clearcase-plugin.git", // hudson repository
+                "scm:git:git://github.com/hudson/hudson-clearcase-plugin.git", // hudson repository
                 "",
-                "git://github.com/jenkinsci/hudson-clearcase-plugin.git"
+                "scm:git:git://github.com/jenkinsci/hudson-clearcase-plugin.git"
         );
     }
 
@@ -109,18 +109,18 @@ public class ScmConnectionSpecialCasesTest {
     @Test
     public void shouldScmConnectionBeTrimed() throws Throwable{
         runComputeScmConnectionAgainst(
-                "\n   https://github.com/jenkinsci/cifs-plugin.git  \n   ", // ssh protocol requiring ssh host key
+                "\n   scm:git:https://github.com/jenkinsci/cifs-plugin.git  \n   ", // ssh protocol requiring ssh host key
                 "",
-                "git://github.com/jenkinsci/cifs-plugin.git"
+                "scm:git:git://github.com/jenkinsci/cifs-plugin.git"
         );
     }
 
     @Test
     public void shouldGitAtGithubReplaceByGitProtocol() throws Throwable {
         runComputeScmConnectionAgainst(
-                "git@github.com:jenkinsci/jquery-plugin.git", // git@github.com
+                "scm:git:git@github.com:jenkinsci/jquery-plugin.git", // git@github.com
                 "",
-                "git://github.com/jenkinsci/jquery-plugin.git"
+                "scm:git:git://github.com/jenkinsci/jquery-plugin.git"
         );
     }
 
@@ -129,12 +129,12 @@ public class ScmConnectionSpecialCasesTest {
         runComputeScmConnectionAgainst(
                 "", // ssh protocol requiring ssh host key
                 "hudsontrayapp",
-                "git://github.com/jenkinsci/hudsontrayapp-plugin.git"  // Special case
+                "scm:git:git://github.com/jenkinsci/hudsontrayapp-plugin.git"  // Special case
         );
         runComputeScmConnectionAgainst(
                 "", // ssh protocol requiring ssh host key
                 "jenkinswalldisplay",
-                "git://github.com/jenkinsci/walldisplay-plugin.git"   // Special case
+                "scm:git:git://github.com/jenkinsci/walldisplay-plugin.git"   // Special case
         );
     }
 }
