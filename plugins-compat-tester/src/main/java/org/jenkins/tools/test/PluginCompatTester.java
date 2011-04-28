@@ -186,6 +186,9 @@ public class PluginCompatTester {
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
 		File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
+        if(pluginCheckoutDir.exists()){
+            pluginCheckoutDir.delete();
+        }
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
 		
