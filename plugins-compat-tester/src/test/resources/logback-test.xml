@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d %-5p %c{2} : %m%n</pattern>
+    </encoder>
+  </appender>
+  <logger name="org.apache" level="DEBUG"/>
+  <logger name="org.jenkins" level="DEBUG"/>
+  <root level="DEBUG">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+</configuration>
