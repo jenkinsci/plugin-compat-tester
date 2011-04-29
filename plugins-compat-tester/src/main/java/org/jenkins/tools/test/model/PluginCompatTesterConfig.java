@@ -68,7 +68,7 @@ public class PluginCompatTesterConfig {
             assert gavChunks.length == 3 || gavChunks.length == 2;
             this.parentGroupId = gavChunks[0];
             this.parentArtifactId = gavChunks[1];
-            if(gavChunks.length == 3){
+            if(gavChunks.length == 3 && !"".equals(gavChunks[2])){
                 this.setParentVersion(gavChunks[2]);
             }
         }
