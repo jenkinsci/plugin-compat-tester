@@ -23,7 +23,6 @@ import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.PomTransformationException;
 import org.jenkins.tools.test.model.*;
-import org.jenkins.tools.test.model.comparators.MavenCoordinatesComparator;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.transform.*;
@@ -31,7 +30,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
@@ -51,7 +49,7 @@ public class PluginCompatTester {
         // If parent GroupId/Artifact are not null, this will be fast : we will only test
         // against 1 core coordinate
         if(config.getParentGroupId() != null && config.getParentArtifactId() != null){
-            coreCoordinatesToTest = new TreeSet<MavenCoordinates>(new MavenCoordinatesComparator());
+            coreCoordinatesToTest = new TreeSet<MavenCoordinates>();
 
             // If coreVersion is not provided in PluginCompatTesterConfig, let's use latest core
             // version used in update center

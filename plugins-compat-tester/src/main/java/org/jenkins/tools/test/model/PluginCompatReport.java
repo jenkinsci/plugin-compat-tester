@@ -2,7 +2,6 @@ package org.jenkins.tools.test.model;
 
 import com.thoughtworks.xstream.XStream;
 import org.codehaus.plexus.util.FileUtils;
-import org.jenkins.tools.test.model.comparators.MavenCoordinatesComparator;
 
 import java.io.*;
 import java.util.*;
@@ -12,8 +11,8 @@ public class PluginCompatReport {
     private SortedSet<MavenCoordinates> testedCoreCoordinates;
 
     public PluginCompatReport(){
-        this.pluginCompatTests = new HashMap<PluginInfos, List<PluginCompatResult>>();
-        this.testedCoreCoordinates = new TreeSet<MavenCoordinates>(new MavenCoordinatesComparator());
+        this.pluginCompatTests = new TreeMap<PluginInfos, List<PluginCompatResult>>();
+        this.testedCoreCoordinates = new TreeSet<MavenCoordinates>();
     }
 
     public void add(PluginInfos infos, PluginCompatResult result){
@@ -35,6 +34,11 @@ public class PluginCompatReport {
     }
 
     public void save(File reportPath) throws IOException {
+        // Ensuring every PluginCompatResult list is sorted
+        for(List<PluginCompatResult> results : this.pluginCompatTests.values()){
+            Collections.sort(results);
+        }
+
         // Writing to a temporary report file ...
         File tempReportPath = new File(reportPath.getAbsolutePath()+".tmp");
         Writer out = new FileWriter(tempReportPath);
@@ -109,6 +113,13 @@ public class PluginCompatReport {
         } catch (FileNotFoundException e) {
             // Path doesn't exist => create a new report object
             report = new PluginCompatReport();
+        }
+
+        // Ensuring we are using a TreeMap for pluginCompatTests
+        if(!(report.pluginCompatTests instanceof SortedMap)){
+            TreeMap<PluginInfos, List<PluginCompatResult>> sortedMap = new TreeMap<PluginInfos, List<PluginCompatResult>>();
+            sortedMap.putAll(report.pluginCompatTests);
+            report.pluginCompatTests = sortedMap;
         }
 
         return report;
