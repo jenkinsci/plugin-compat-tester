@@ -205,6 +205,14 @@ public class PluginCompatTester {
 	public TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenEmbedder embedder)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
+        System.out.println(String.format("%n%n%n%n%n"));
+        System.out.println(String.format("#############################################"));
+        System.out.println(String.format("#############################################"));
+        System.out.println(String.format("##%n## Starting to test plugin %s v%s%n## against %s%n##", plugin.name, plugin.version, coreCoordinates));
+        System.out.println(String.format("#############################################"));
+        System.out.println(String.format("#############################################"));
+        System.out.println(String.format("%n%n%n%n%n"));
+
 		File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
         if(pluginCheckoutDir.exists()){
             pluginCheckoutDir.delete();
