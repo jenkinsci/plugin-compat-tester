@@ -8,7 +8,6 @@ import hudson.model.UpdateSite.Plugin;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.cli.MavenLoggerManager;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
@@ -18,18 +17,28 @@ import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.slf4j.Slf4jLogger;
-import org.codehaus.plexus.logging.slf4j.Slf4jLoggerManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.PomTransformationException;
-import org.jenkins.tools.test.model.*;
-import org.slf4j.LoggerFactory;
+import org.jenkins.tools.test.model.MavenCoordinates;
+import org.jenkins.tools.test.model.MavenPom;
+import org.jenkins.tools.test.model.PluginCompatReport;
+import org.jenkins.tools.test.model.PluginCompatResult;
+import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.PluginInfos;
+import org.jenkins.tools.test.model.PluginRemoting;
+import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.TestExecutionResult;
+import org.jenkins.tools.test.model.TestStatus;
 import org.springframework.core.io.ClassPathResource;
 
-import javax.xml.transform.*;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
@@ -37,8 +46,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class PluginCompatTester {
 
@@ -94,7 +108,7 @@ public class PluginCompatTester {
         //mavenRequest.setMavenLoggerManager( new MavenLoggerManager( new Slf4jLogger( mavenRequest.getLoggingLevel(),
         //                                                                             LoggerFactory.getLogger( getClass() ) ) ));
         //
-        mavenRequest.setMavenLoggerManager( LoggerManagerSlf4jWrapper.getInstance() );
+        mavenRequest.setMavenLoggerManager( PluginCompatTesterLoggerManager.getInstance() );
         MavenEmbedder embedder = new MavenEmbedder(Thread.currentThread().getContextClassLoader(), mavenRequest);
 
 		SCMManagerFactory.getInstance().start();

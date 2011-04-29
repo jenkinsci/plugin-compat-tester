@@ -5,7 +5,6 @@ import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.slf4j.Slf4jLoggerManager;
 
 public class SCMManagerFactory {
 
@@ -19,7 +18,7 @@ public class SCMManagerFactory {
 	public void start() throws PlexusContainerException {
 		if(plexus == null){
 			this.plexus = new DefaultPlexusContainer();
-            this.plexus.setLoggerManager( LoggerManagerSlf4jWrapper.getInstance() );
+            this.plexus.setLoggerManager( PluginCompatTesterLoggerManager.getInstance() );
 			try {
 				// These will only be useful for Hudson v1.395 and under
 				// ... Since the use of sisu-plexus-inject will initialize

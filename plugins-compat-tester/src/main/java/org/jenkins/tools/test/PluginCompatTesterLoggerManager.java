@@ -22,22 +22,23 @@ package org.jenkins.tools.test;
 import org.codehaus.plexus.logging.BaseLoggerManager;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.slf4j.Slf4jLogger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Olivier Lamy
  */
-public class LoggerManagerSlf4jWrapper
+public class PluginCompatTesterLoggerManager
     extends BaseLoggerManager
 {
 
-    private static LoggerManagerSlf4jWrapper instance = new LoggerManagerSlf4jWrapper();
+    private static PluginCompatTesterLoggerManager instance = new PluginCompatTesterLoggerManager();
 
     protected Logger createLogger( String key )
     {
-        return new Slf4jLogger( getThreshold(), org.slf4j.LoggerFactory.getLogger( key ) );
+        return new Slf4jLogger( getThreshold(), LoggerFactory.getLogger( key ) );
     }
 
-    public static LoggerManagerSlf4jWrapper getInstance() {
+    public static PluginCompatTesterLoggerManager getInstance() {
         return instance;
     }
 
