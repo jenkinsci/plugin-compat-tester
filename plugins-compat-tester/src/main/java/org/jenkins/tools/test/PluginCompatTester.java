@@ -8,6 +8,7 @@ import hudson.model.UpdateSite.Plugin;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.cli.MavenLoggerManager;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
@@ -17,12 +18,15 @@ import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.logging.slf4j.Slf4jLogger;
+import org.codehaus.plexus.logging.slf4j.Slf4jLoggerManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.PomTransformationException;
 import org.jenkins.tools.test.model.*;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.transform.*;
@@ -87,6 +91,10 @@ public class PluginCompatTester {
 
         //here we don't care about paths for build the embedder
         MavenRequest mavenRequest = buildMavenRequest( null, null );
+        //mavenRequest.setMavenLoggerManager( new MavenLoggerManager( new Slf4jLogger( mavenRequest.getLoggingLevel(),
+        //                                                                             LoggerFactory.getLogger( getClass() ) ) ));
+        //
+        mavenRequest.setMavenLoggerManager( new LoggerManagerSlf4jWrapper() );
         MavenEmbedder embedder = new MavenEmbedder(Thread.currentThread().getContextClassLoader(), mavenRequest);
 
 		SCMManagerFactory.getInstance().start();
