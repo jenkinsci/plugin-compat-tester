@@ -5,9 +5,9 @@
       <pattern>%d %-5p %c{2} : %m%n</pattern>
     </encoder>
   </appender>
-  <logger name="org.apache" level="DEBUG"/>
-  <logger name="org.jenkins" level="DEBUG"/>
-  <root level="DEBUG">
+  <logger name="org.apache" level="INFO"/>
+  <logger name="org.jenkins" level="INFO"/>
+  <root level="INFO">
     <appender-ref ref="CONSOLE"/>
   </root>
 </configuration>
