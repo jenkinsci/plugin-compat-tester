@@ -30,9 +30,15 @@ public class LoggerManagerSlf4jWrapper
     extends BaseLoggerManager
 {
 
+    private static LoggerManagerSlf4jWrapper instance = new LoggerManagerSlf4jWrapper();
+
     protected Logger createLogger( String key )
     {
         return new Slf4jLogger( getThreshold(), org.slf4j.LoggerFactory.getLogger( key ) );
+    }
+
+    public static LoggerManagerSlf4jWrapper getInstance() {
+        return instance;
     }
 
 }

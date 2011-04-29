@@ -94,7 +94,7 @@ public class PluginCompatTester {
         //mavenRequest.setMavenLoggerManager( new MavenLoggerManager( new Slf4jLogger( mavenRequest.getLoggingLevel(),
         //                                                                             LoggerFactory.getLogger( getClass() ) ) ));
         //
-        mavenRequest.setMavenLoggerManager( new LoggerManagerSlf4jWrapper() );
+        mavenRequest.setMavenLoggerManager( LoggerManagerSlf4jWrapper.getInstance() );
         MavenEmbedder embedder = new MavenEmbedder(Thread.currentThread().getContextClassLoader(), mavenRequest);
 
 		SCMManagerFactory.getInstance().start();
