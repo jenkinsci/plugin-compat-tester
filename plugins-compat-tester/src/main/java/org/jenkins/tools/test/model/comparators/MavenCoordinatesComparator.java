@@ -7,7 +7,7 @@ import java.util.Comparator;
 /**
  * @deprecated For backward compatibility only..
  */
-public class MavenCoordinatesComparator implements Comparator<MavenCoordinates {
+public class MavenCoordinatesComparator implements Comparator<MavenCoordinates> {
     public int compare(MavenCoordinates o1, MavenCoordinates o2) {
         return o1.compareTo(o2);
     }
