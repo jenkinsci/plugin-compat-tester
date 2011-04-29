@@ -4,7 +4,7 @@ import hudson.model.UpdateSite;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-public class PluginInfos {
+public class PluginInfos implements Comparable<PluginInfos> {
     public final String pluginName;
     public final String pluginVersion;
     public final String pluginUrl;
@@ -29,5 +29,13 @@ public class PluginInfos {
 
     public int hashCode(){
         return new HashCodeBuilder().append(pluginName).append(pluginVersion).toHashCode();
+    }
+
+    public int compareTo(PluginInfos o) {
+        if(pluginName.equals(o.pluginName)){
+            return pluginVersion.compareTo(o.pluginVersion);
+        }else{
+            return pluginName.compareTo(o.pluginName);
+        }
     }
 }

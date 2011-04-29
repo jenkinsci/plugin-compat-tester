@@ -2,8 +2,9 @@ package org.jenkins.tools.test.model;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.jenkins.tools.test.model.comparators.VersionComparator;
 
-public class MavenCoordinates {
+public class MavenCoordinates implements Comparable<MavenCoordinates> {
     public final String groupId;
     public final String artifactId;
     public final String version;
@@ -28,5 +29,13 @@ public class MavenCoordinates {
 
     public String toString(){
         return "MavenCoordinates[groupId="+groupId+", artifactId="+artifactId+", version="+version+"]";
+    }
+
+    public int compareTo(MavenCoordinates o) {
+        if((groupId+":"+artifactId).equals(o.groupId+":"+o.artifactId)){
+            return new VersionComparator().compare(version, o.version);
+        } else {
+            return (groupId+":"+artifactId).compareTo(o.groupId+":"+o.artifactId);
+        }
     }
 }

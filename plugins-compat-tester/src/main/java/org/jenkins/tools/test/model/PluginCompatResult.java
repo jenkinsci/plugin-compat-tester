@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class PluginCompatResult {
+public class PluginCompatResult implements Comparable<PluginCompatResult> {
     public final MavenCoordinates coreCoordinates;
 
     public final TestStatus status;
@@ -38,5 +38,9 @@ public class PluginCompatResult {
 
     public int hashCode(){
         return new HashCodeBuilder().append(coreCoordinates).toHashCode();
+    }
+
+    public int compareTo(PluginCompatResult o) {
+        return coreCoordinates.compareTo(o.coreCoordinates);
     }
 }
