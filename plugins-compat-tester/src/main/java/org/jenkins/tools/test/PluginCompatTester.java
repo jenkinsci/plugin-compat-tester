@@ -8,6 +8,8 @@ import hudson.model.UpdateSite.Plugin;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.execution.AbstractExecutionListener;
+import org.apache.maven.execution.ExecutionEvent;
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
@@ -245,6 +247,7 @@ public class PluginCompatTester {
 
 
 
+        final List<String> succeededPlugins = new ArrayList<String>();
 		// Calling maven
         try {
 
@@ -254,12 +257,18 @@ public class PluginCompatTester {
                                                                : config.getM2SettingsFile().getAbsolutePath() );
             mavenRequest.setGoals(Arrays.asList( "clean","install"));
             mavenRequest.setPom(pluginCheckoutDir.getAbsolutePath()+"/pom.xml");
+            AbstractExecutionListener mavenListener = new AbstractExecutionListener(){
+                public void mojoSucceeded(ExecutionEvent event){
+                     succeededPlugins.add(event.getMojoExecution().getArtifactId());
+                }
+            };
+            mavenRequest.setExecutionListener(mavenListener);
+
             MavenExecutionResult mavenResult = pom.executeGoals(embedder, mavenRequest);
 
             return new TestExecutionResult(mavenResult, pomData.getWarningMessages());
         }catch(PomExecutionException e){
-            e.setPomWarningMessages(pomData.getWarningMessages());
-            throw e;
+            throw new PomExecutionException(e, succeededPlugins, pomData.getWarningMessages());
         }
 	}
 

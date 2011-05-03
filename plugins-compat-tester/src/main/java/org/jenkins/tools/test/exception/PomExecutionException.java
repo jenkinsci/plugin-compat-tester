@@ -1,21 +1,28 @@
 package org.jenkins.tools.test.exception;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class PomExecutionException extends Exception {
     public final List<Throwable> exceptionsThrown;
     public final List<String> succeededPluginArtifactIds;
-    private List<String> pomWarningMessages;
+    public final List<String> pomWarningMessages;
 
-    public PomExecutionException(String message, List<Throwable> exceptionsThrown, List<String> succeededPluginArtifactIds){
+    public PomExecutionException(PomExecutionException exceptionToCopy, List<String> succeededPluginArtifactIds, List<String> pomWarningMessages){
+        this(exceptionToCopy.getMessage(), exceptionToCopy.exceptionsThrown);
+        this.succeededPluginArtifactIds.addAll(succeededPluginArtifactIds);
+        this.pomWarningMessages.addAll(pomWarningMessages);
+    }
+
+    public PomExecutionException(String message, List<Throwable> exceptionsThrown){
         super(message, exceptionsThrown.iterator().next());
         this.exceptionsThrown = exceptionsThrown;
-        this.succeededPluginArtifactIds = succeededPluginArtifactIds;
+        this.succeededPluginArtifactIds = new ArrayList<String>();
+        this.pomWarningMessages = new ArrayList<String>();
     }
 
     public String getErrorMessage(){
@@ -33,9 +40,5 @@ public class PomExecutionException extends Exception {
 
     public List<String> getPomWarningMessages() {
         return pomWarningMessages;
-    }
-
-    public void setPomWarningMessages(List<String> pomWarningMessages) {
-        this.pomWarningMessages = pomWarningMessages;
     }
 }

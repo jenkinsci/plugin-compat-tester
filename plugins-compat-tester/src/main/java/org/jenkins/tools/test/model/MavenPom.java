@@ -63,16 +63,8 @@ public class MavenPom {
 
     public MavenExecutionResult executeGoals(MavenEmbedder mavenEmbedder, MavenRequest mavenRequest) throws PomExecutionException {
 
-        final List<String> succeededPlugins = new ArrayList<String>();
-
-        AbstractExecutionListener mavenListener = new AbstractExecutionListener(){
-            public void mojoSucceeded(ExecutionEvent event){
-                 succeededPlugins.add(event.getMojoExecution().getArtifactId());
-            }
-        };
         MavenExecutionResult result;
         try {
-
             result = mavenEmbedder.execute(mavenRequest);
         }catch(MavenEmbedderException e){
             // TODO: better manage this exception
@@ -87,7 +79,7 @@ public class MavenPom {
                     throw (OutOfMemoryError)t;
                 }
             }
-            throw new PomExecutionException("Error while executing pom goals : "+ Arrays.toString(mavenRequest.getGoals().toArray()), result.getExceptions(), succeededPlugins);
+            throw new PomExecutionException("Error while executing pom goals : "+ Arrays.toString(mavenRequest.getGoals().toArray()), result.getExceptions());
         }
 
         return result;

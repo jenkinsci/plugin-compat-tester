@@ -29,12 +29,13 @@ public class PluginCompatTesterTest {
 	
 	@Test
 	public void testWithUrl() throws Throwable {
-        List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("scm-sync-configuration"); }};
+        List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("libvirt-slave"); }};
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                 new File("./target/report.xml"),
                 new ClassPathResource("m2-settings.xml").getFile());
 		config.setIncludePlugins(includedPlugins);
+        config.setSkipTestCache(true);
 
         PluginCompatTester tester = new PluginCompatTester(config);
 		tester.testPlugins();
