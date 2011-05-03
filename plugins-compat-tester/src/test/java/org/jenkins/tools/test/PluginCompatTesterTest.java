@@ -37,6 +37,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Main test class for plugin compatibility test frontend
+ * @author Frederic Camblor
+ */
 public class PluginCompatTesterTest {
 
     @Rule

@@ -34,6 +34,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+/**
+ * Tests about scm connection url transformations
+ * @author Frederic Camblor
+ */
 public class ScmConnectionSpecialCasesTest {
 
     private static void runComputeScmConnectionAgainst(String scmUrlToTest, String artifactId, String expectedComputedScmUrl) {

@@ -30,6 +30,10 @@ import com.beust.jcommander.Parameter;
 import java.io.File;
 import java.util.List;
 
+/**
+ * POJO containing CLI arguments & help
+ * @author Frederic Camblor
+ */
 public class CliOptions {
     @Parameter(names = "-updateCenterUrl",
             description = "Update center JSON file URL")

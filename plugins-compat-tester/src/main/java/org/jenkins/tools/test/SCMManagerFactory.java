@@ -31,6 +31,10 @@ import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 
+/**
+ * Utility class to start plexus
+ * @author Frederic Camblor, Olivier Lamy
+ */
 public class SCMManagerFactory {
 
 	private static final SCMManagerFactory INSTANCE = new SCMManagerFactory();

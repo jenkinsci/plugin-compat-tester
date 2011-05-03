@@ -31,6 +31,10 @@ import org.codehaus.plexus.util.FileUtils;
 import java.io.*;
 import java.util.*;
 
+/**
+ * POJO allowing to store the PluginCompatTester report
+ * @author Frederic Camblor
+ */
 public class PluginCompatReport {
     private Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests;
     private SortedSet<MavenCoordinates> testedCoreCoordinates;

@@ -29,10 +29,15 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
 
+/**
+ * Class representing Maven GAV
+ * @author Frederic Camblor
+ */
 public class MavenCoordinates implements Comparable<MavenCoordinates> {
     public final String groupId;
     public final String artifactId;
     public final String version;
+    // No classifier/type for the moment...
 
     public MavenCoordinates(String groupId, String artifactId, String version){
         this.groupId = groupId;

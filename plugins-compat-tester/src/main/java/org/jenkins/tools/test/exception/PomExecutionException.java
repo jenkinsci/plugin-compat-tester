@@ -32,6 +32,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Exception thrown during a plugin's maven executionn
+ * @author Frederic Camblor
+ */
 public class PomExecutionException extends Exception {
     public final List<Throwable> exceptionsThrown;
     public final List<String> succeededPluginArtifactIds;

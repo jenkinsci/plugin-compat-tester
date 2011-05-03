@@ -28,6 +28,10 @@ package org.jenkins.tools.test.model;
 import java.io.File;
 import java.util.List;
 
+/**
+ * POJO used to configure PluginCompatTester execution
+ * @author Frederic Camblor
+ */
 public class PluginCompatTesterConfig {
 
     // Update center used to retrieve plugins informations

@@ -32,6 +32,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * POJO storing a plugin compatibiliy test result
+ * @author Frederic Camblor
+ */
 public class PluginCompatResult implements Comparable<PluginCompatResult> {
     public final MavenCoordinates coreCoordinates;
 

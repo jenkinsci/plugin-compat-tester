@@ -30,7 +30,9 @@ import org.jenkins.tools.test.model.MavenCoordinates;
 import java.util.Comparator;
 
 /**
- * @deprecated For backward compatibility only..
+ * Class used to compare MavenCoordinates
+ * @deprecated For backward compatibility only.. Use MavenCoordinates.compareTo() instead of this.
+ * @author Frederic Camblor
  */
 public class MavenCoordinatesComparator implements Comparator<MavenCoordinates> {
     public int compare(MavenCoordinates o1, MavenCoordinates o2) {

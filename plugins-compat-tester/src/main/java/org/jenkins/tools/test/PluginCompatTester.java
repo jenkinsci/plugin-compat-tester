@@ -81,6 +81,10 @@ import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+/**
+ * Frontend for plugin compatibility tests
+ * @author Frederic Camblor, Olivier Lamy
+ */
 public class PluginCompatTester {
 
 	private PluginCompatTesterConfig config;

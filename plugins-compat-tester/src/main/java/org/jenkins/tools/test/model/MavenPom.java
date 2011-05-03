@@ -48,6 +48,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Class encapsulating business around maven poms
+ * @author Frederic Camblor
+ */
 public class MavenPom {
 
 	private File rootDir;

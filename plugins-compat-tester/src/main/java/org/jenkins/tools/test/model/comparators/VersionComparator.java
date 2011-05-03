@@ -28,6 +28,10 @@ package org.jenkins.tools.test.model.comparators;
 import java.text.ParseException;
 import java.util.Comparator;
 
+/**
+ * Class used to compare 2 plugin versions
+ * @author Frederic Camblor
+ */
 public class VersionComparator implements Comparator<String> {
     public int compare(String o1, String o2) {
 

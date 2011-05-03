@@ -28,6 +28,10 @@ package org.jenkins.tools.test.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * POJO containing important data residing in plugin's pom
+ * @author Frederic Camblor
+ */
 public class PomData {
     public final String artifactId;
     private String connectionUrl;

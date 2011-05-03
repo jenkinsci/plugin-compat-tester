@@ -29,6 +29,10 @@ import hudson.model.UpdateSite;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+/**
+ * POJO describing a versioned plugin
+ * @author Frederic Camblor
+ */
 public class PluginInfos implements Comparable<PluginInfos> {
     public final String pluginName;
     public final String pluginVersion;

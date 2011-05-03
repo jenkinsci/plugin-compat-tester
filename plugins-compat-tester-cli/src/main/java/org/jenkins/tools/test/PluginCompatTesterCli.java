@@ -34,6 +34,10 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * Plugin compatibility tester frontend for the CLI
+ * @author Frederic Camblor
+ */
 public class PluginCompatTesterCli {
 
     public static void main(String[] args) throws IOException, PlexusContainerException, MavenEmbedderException {

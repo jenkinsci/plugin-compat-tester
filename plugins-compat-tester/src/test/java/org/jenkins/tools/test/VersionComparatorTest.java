@@ -35,6 +35,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+/**
+ * Tests for plugin version comparisons
+ * @author Frederic Camblor
+ */
 public class VersionComparatorTest {
 
     private static final Map<String, Integer> OPERAND_CONVERSION = new HashMap<String, Integer>(){{

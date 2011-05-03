@@ -25,6 +25,10 @@
  */
 package org.jenkins.tools.test.model;
 
+/**
+ * Various possible compatibility test results
+ * @author Frederic Camblor
+ */
 public enum TestStatus {
     INTERNAL_ERROR, COMPILATION_ERROR, TEST_FAILURES, SUCCESS
 }

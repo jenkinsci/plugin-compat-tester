@@ -42,6 +42,10 @@ import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+/**
+ * Utility class providing business for retrieving plugin scm data
+ * @author Frederic Camblor
+ */
 public class PluginRemoting {
 
 	private String hpiRemoteUrl;

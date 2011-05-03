@@ -30,6 +30,10 @@ import org.apache.maven.execution.MavenExecutionResult;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * POJO containing plugin compatibility test result
+ * @author Frederic Camblor
+ */
 public class TestExecutionResult {
     public final MavenExecutionResult mavenResult;
     public final List<String> pomWarningMessages;

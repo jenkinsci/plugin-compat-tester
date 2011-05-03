@@ -25,6 +25,10 @@
  */
 package org.jenkins.tools.test.exception;
 
+/**
+ * Exception thrown during plugin's initial pom.xml transformation
+ * @author Frederic Camblor
+ */
 public class PomTransformationException extends Exception {
 
 	public PomTransformationException(String message, Throwable cause){
