@@ -26,6 +26,7 @@
 package org.jenkins.tools.test;
 
 import com.beust.jcommander.Parameter;
+import org.jenkins.tools.test.model.TestStatus;
 
 import java.io.File;
 import java.util.List;
@@ -78,6 +79,12 @@ public class CliOptions {
                     "Cache timeout is given in milliseconds")
     private Long testCacheTimeout = null;
 
+    @Parameter(names = "-cacheThresholdStatus",
+            description = "Allows to define a minimal cache threshold for test status.\n" +
+                    "That is to say, every results lower than this threshold won't be considered\n" +
+                    "as part of the cache")
+    private String cacheThresholdStatus = TestStatus.COMPILATION_ERROR.toString();
+
     @Parameter(names="-mavenProperties", description = "allow to load some maven properties which will be used a la -D")
     private String mavenPropertiesFile;
 
@@ -120,5 +127,13 @@ public class CliOptions {
 
     public String getMavenPropertiesFile() {
         return mavenPropertiesFile;
+    }
+
+    public String getCacheThresholdStatus() {
+        return cacheThresholdStatus;
+    }
+
+    public void setCacheThresholdStatus(String cacheThresholdStatus) {
+        this.cacheThresholdStatus = cacheThresholdStatus;
     }
 }

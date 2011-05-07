@@ -30,6 +30,7 @@ import com.beust.jcommander.ParameterException;
 import hudson.maven.MavenEmbedderException;
 import org.codehaus.plexus.PlexusContainerException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.TestStatus;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -70,6 +71,9 @@ public class PluginCompatTesterCli {
         }
         if(options.getTestCacheTimeout() != null){
             config.setTestCacheTimeout(options.getTestCacheTimeout().longValue());
+        }
+        if(options.getCacheThresholdStatus() != null){
+            config.setCacheThresholStatus(TestStatus.valueOf(options.getCacheThresholdStatus()));
         }
 
         PluginCompatTester tester = new PluginCompatTester(config);

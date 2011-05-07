@@ -71,7 +71,10 @@ public class PluginCompatTesterConfig {
     private long testCacheTimeout = 1000*60*60*24*100;
     // Skips test cache : plugin will be tested, no matter the test cache is
     private boolean skipTestCache = false;
-
+    // Allows to define a minimal cache threshold for TestStatus
+    // That is to say, every results lower than this threshold won't be put
+    // into the cache
+    private TestStatus cacheThresholStatus = TestStatus.COMPILATION_ERROR;
 
     // Allows to provide XSL report file near XML report file
     // Only if reportFile is not null
@@ -80,7 +83,6 @@ public class PluginCompatTesterConfig {
     // Allows to generate HTML Report file
     // Only if reportFile is not null
     private boolean generateHtmlReport = true;
-
 
     private String mavenPropertiesFile;
 
@@ -180,5 +182,13 @@ public class PluginCompatTesterConfig {
 
     public void setMavenPropertiesFiles( String mavenPropertiesFile ) {
         this.mavenPropertiesFile = mavenPropertiesFile;
+    }
+
+    public TestStatus getCacheThresholStatus() {
+        return cacheThresholStatus;
+    }
+
+    public void setCacheThresholStatus(TestStatus cacheThresholStatus) {
+        this.cacheThresholStatus = cacheThresholStatus;
     }
 }

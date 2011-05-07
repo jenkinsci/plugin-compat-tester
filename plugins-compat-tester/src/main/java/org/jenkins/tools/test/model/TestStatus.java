@@ -30,5 +30,15 @@ package org.jenkins.tools.test.model;
  * @author Frederic Camblor
  */
 public enum TestStatus {
-    INTERNAL_ERROR, COMPILATION_ERROR, TEST_FAILURES, SUCCESS
+    INTERNAL_ERROR(0.0), COMPILATION_ERROR(1.0), TEST_FAILURES(2.0), SUCCESS(3.0);
+
+    private double weight;
+
+    TestStatus(double weight){
+        this.weight = weight;
+    }
+
+    public boolean isLowerThan(TestStatus s){
+        return weight < s.weight;
+    }
 }

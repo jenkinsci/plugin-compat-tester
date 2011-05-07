@@ -102,7 +102,7 @@ public class PluginCompatReport {
         return reportPath.getName().split("\\.")[0];
     }
 
-    public boolean isCompatTestResultAlreadyInCache(PluginInfos pluginInfos, MavenCoordinates coreCoord, long cacheTimeout){
+    public boolean isCompatTestResultAlreadyInCache(PluginInfos pluginInfos, MavenCoordinates coreCoord, long cacheTimeout, TestStatus cacheThresholdStatus){
         // Retrieving plugin compat results corresponding to pluginsInfos + coreCoord
         if(!pluginCompatTests.containsKey(pluginInfos)){
             // No data for this plugin version ? => no cache !
@@ -122,8 +122,8 @@ public class PluginCompatReport {
             return false;
         }
 
-        if(resultCorrespondingToGivenCoreCoords.status == TestStatus.INTERNAL_ERROR){
-            // Status was INTERNAL_ERROR ? => no cache !
+        if(resultCorrespondingToGivenCoreCoords.status.isLowerThan(cacheThresholdStatus)){
+            // Status was lower than cacheThresholdStatus ? => no cache !
             return false;
         }
 
