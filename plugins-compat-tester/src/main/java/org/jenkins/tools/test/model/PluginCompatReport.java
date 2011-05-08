@@ -122,14 +122,14 @@ public class PluginCompatReport {
             return false;
         }
 
-        if(resultCorrespondingToGivenCoreCoords.status.isLowerThan(cacheThresholdStatus)){
-            // Status was lower than cacheThresholdStatus ? => no cache !
-            return false;
-        }
-
         // Is the latest execution on this plugin compliant with the given cache timeout ?
         // If so, then cache will be activated !
-        return new Date().before(new Date(resultCorrespondingToGivenCoreCoords.compatTestExecutedOn.getTime() + cacheTimeout));
+        if(new Date().before(new Date(resultCorrespondingToGivenCoreCoords.compatTestExecutedOn.getTime() + cacheTimeout))){
+            return true;
+        }
+
+        // Status was lower than cacheThresholdStatus ? => no cache !
+        return (!resultCorrespondingToGivenCoreCoords.status.isLowerThan(cacheThresholdStatus));
     }
 
     public static PluginCompatReport fromXml(File reportPath) {
