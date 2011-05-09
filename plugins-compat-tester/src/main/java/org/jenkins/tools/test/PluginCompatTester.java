@@ -246,7 +246,8 @@ public class PluginCompatTester {
 
 		File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
         if(pluginCheckoutDir.exists()){
-            pluginCheckoutDir.delete();
+            System.out.println("Deleting working directory "+pluginCheckoutDir.getAbsolutePath());
+            FileUtils.deleteDirectory(pluginCheckoutDir);
         }
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
