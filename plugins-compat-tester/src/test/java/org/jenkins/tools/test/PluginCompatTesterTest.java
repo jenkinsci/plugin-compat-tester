@@ -70,6 +70,8 @@ public class PluginCompatTesterTest {
         config.setCacheThresholStatus(TestStatus.TEST_FAILURES);
         config.setTestCacheTimeout(345600000);
         config.setParentVersion("1.410");
+        // We have problem on build log existence otherwise
+        config.setGenerateHtmlReport(false);
 
 
         PluginCompatTester tester = new PluginCompatTester(config);
