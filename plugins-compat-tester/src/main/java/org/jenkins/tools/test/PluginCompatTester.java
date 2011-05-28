@@ -303,7 +303,7 @@ public class PluginCompatTester {
             FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
             FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
-            mavenRequest.setLoggingLevel(Logger.LEVEL_DEBUG);
+            mavenRequest.setLoggingLevel(Logger.LEVEL_INFO);
 
             final PrintStream originalOut = System.out;
             final PrintStream originalErr = System.err;
