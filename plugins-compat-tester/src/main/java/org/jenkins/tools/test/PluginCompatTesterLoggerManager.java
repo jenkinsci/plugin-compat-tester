@@ -19,27 +19,46 @@ package org.jenkins.tools.test;
  * under the License.
  */
 
+import org.apache.maven.cli.PrintStreamLogger;
 import org.codehaus.plexus.logging.BaseLoggerManager;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.slf4j.Slf4jLogger;
+import org.jenkins.tools.test.logger.ForkedLogger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * @author Olivier Lamy
+ * @author Olivier Lamy & Frederic Camblor
  */
-public class PluginCompatTesterLoggerManager
-    extends BaseLoggerManager
+public class PluginCompatTesterLoggerManager extends BaseLoggerManager
 {
 
-    private static PluginCompatTesterLoggerManager instance = new PluginCompatTesterLoggerManager();
+    private File logFile;
 
-    protected Logger createLogger( String key )
-    {
-        return new Slf4jLogger( getThreshold(), LoggerFactory.getLogger( key ) );
+    public PluginCompatTesterLoggerManager(){
+        this(null);
     }
 
-    public static PluginCompatTesterLoggerManager getInstance() {
-        return instance;
+    public PluginCompatTesterLoggerManager(File logFile){
+        this.logFile = logFile;
     }
 
+    @Override
+    protected Logger createLogger(String name) {
+        List<Logger> loggers = new ArrayList();
+        try {
+            if(logFile != null){
+                loggers.add(new PrintStreamLogger(new PrintStream(logFile)));
+            }
+        } catch (FileNotFoundException e) {
+            new IllegalStateException(e);
+        }
+        loggers.add(new Slf4jLogger( getThreshold(), LoggerFactory.getLogger( name ) ));
+        return new ForkedLogger(loggers, getThreshold(), name);
+    }
 }

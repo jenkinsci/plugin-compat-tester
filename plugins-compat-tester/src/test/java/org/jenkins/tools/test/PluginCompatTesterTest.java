@@ -26,6 +26,7 @@
 package org.jenkins.tools.test;
 
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.TestStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,13 +59,18 @@ public class PluginCompatTesterTest {
 	
 	@Test
 	public void testWithUrl() throws Throwable {
-        List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("libvirt-slave"); }};
+        List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("accurev"); /*add("active-directory"); add("analysis-collector");*/ }};
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File("./target/report.xml"),
+                new File("../reports/PluginCompatReport.xml"),
                 new ClassPathResource("m2-settings.xml").getFile());
+
 		config.setIncludePlugins(includedPlugins);
         config.setSkipTestCache(true);
+        config.setCacheThresholStatus(TestStatus.TEST_FAILURES);
+        config.setTestCacheTimeout(345600000);
+        config.setParentVersion("1.410");
+
 
         PluginCompatTester tester = new PluginCompatTester(config);
 		tester.testPlugins();

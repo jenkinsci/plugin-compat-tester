@@ -33,6 +33,7 @@ import hudson.model.UpdateSite.Plugin;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.cli.MavenLoggerManager;
 import org.apache.maven.execution.AbstractExecutionListener;
 import org.apache.maven.execution.ExecutionEvent;
 import org.apache.maven.execution.MavenExecutionResult;
@@ -42,8 +43,12 @@ import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
+import org.codehaus.plexus.DefaultPlexusContainer;
+import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
@@ -72,6 +77,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -139,7 +145,7 @@ public class PluginCompatTester {
         //mavenRequest.setMavenLoggerManager( new MavenLoggerManager( new Slf4jLogger( mavenRequest.getLoggingLevel(),
         //                                                                             LoggerFactory.getLogger( getClass() ) ) ));
         //
-        mavenRequest.setMavenLoggerManager( PluginCompatTesterLoggerManager.getInstance() );
+        mavenRequest.setMavenLoggerManager( new PluginCompatTesterLoggerManager() );
         MavenEmbedder embedder = new MavenEmbedder(Thread.currentThread().getContextClassLoader(), mavenRequest);
 
 		SCMManagerFactory.getInstance().start();
@@ -232,6 +238,10 @@ public class PluginCompatTester {
     private static ClassPathResource getXslTransformerResource(){
         return new ClassPathResource("resultToReport.xsl");
     }
+
+    private static String createBuildLogFilePathFor(String pluginName, String pluginVersion, MavenCoordinates coreCoords){
+        return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
+    }
 	
 	public TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenEmbedder embedder)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
@@ -293,6 +303,30 @@ public class PluginCompatTester {
                 }
             };
             mavenRequest.setExecutionListener(mavenListener);
+
+            File buildLogFile = new File(config.reportFile.getParentFile().getAbsolutePath()
+                    +"/"+createBuildLogFilePathFor(plugin.name, plugin.version, coreCoordinates));
+            FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
+            FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
+
+            LoggerManager logger = new PluginCompatTesterLoggerManager(buildLogFile);
+            logger.setThreshold(Logger.LEVEL_DEBUG);
+
+            // useless (mavenloggermanager used is the one bundled in embedder
+            mavenRequest.setMavenLoggerManager(logger);
+
+            mavenRequest.setLoggingLevel(Logger.LEVEL_DEBUG);
+
+            try {
+                Field embedderPlexus = MavenEmbedder.class.getDeclaredField("plexusContainer");
+                embedderPlexus.setAccessible(true);
+                DefaultPlexusContainer plexus = (DefaultPlexusContainer) embedderPlexus.get(embedder);
+                plexus.setLoggerManager(logger);
+            } catch (NoSuchFieldException e) {
+                throw new IllegalStateException(e);
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException(e);
+            }
 
             MavenExecutionResult mavenResult = pom.executeGoals(embedder, mavenRequest);
 
