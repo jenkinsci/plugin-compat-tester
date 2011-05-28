@@ -189,7 +189,8 @@ public class PluginCompatTester {
                         errorMessage = t.getMessage();
                     }
 
-                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, status, errorMessage, warningMessages);
+                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, status, errorMessage, warningMessages,
+                            createBuildLogFilePathFor(pluginInfos.pluginName, pluginInfos.pluginVersion, coreCoordinates));
                     report.add(pluginInfos, result);
 
                     if(config.reportFile != null){
@@ -323,6 +324,7 @@ public class PluginCompatTester {
                 MavenExecutionResult mavenResult = pom.executeGoals(embedder, mavenRequest);
                 return new TestExecutionResult(mavenResult, pomData.getWarningMessages());
             }finally{
+                // Setting back System.out/err
                 System.setOut(originalOut);
                 System.setErr(originalErr);
             }

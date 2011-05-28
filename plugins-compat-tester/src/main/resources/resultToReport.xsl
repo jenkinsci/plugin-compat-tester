@@ -115,21 +115,24 @@ th.version {
            <td><xsl:value-of select="pluginInfos/pluginVersion/text()"/></td>
            <!-- Displaying plugin compilation / test result for every tested core coordinates -->
             <xsl:for-each select="$testedJenkinsCoordinates">
+                 <xsl:variable name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
                  <xsl:call-template name="display-cell">
-                     <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
-                     <xsl:with-param name="pluginInfos" select="pluginInfos" />
+                     <xsl:with-param name="compatResult" select="$compatResult" />
+                     <xsl:with-param name="pluginInfos" select="$compatResult/../../pluginInfos" />
                  </xsl:call-template>
             </xsl:for-each>
             <xsl:for-each select="$testedHudsonCoordinates">
+                 <xsl:variable name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
                  <xsl:call-template name="display-cell">
-                     <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
-                     <xsl:with-param name="pluginInfos" select="pluginInfos" />
-                 </xsl:call-template>
+                     <xsl:with-param name="compatResult" select="$compatResult" />
+                     <xsl:with-param name="pluginInfos" select="$compatResult/../../pluginInfos" />
+                   </xsl:call-template>
             </xsl:for-each>
            <xsl:for-each select="$otherCoreCoordinates">
+                <xsl:variable name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
                 <xsl:call-template name="display-cell">
-                    <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
-                    <xsl:with-param name="pluginInfos" select="pluginInfos" />
+                    <xsl:with-param name="compatResult" select="$compatResult" />
+                    <xsl:with-param name="pluginInfos" select="$compatResult/../../pluginInfos" />
                 </xsl:call-template>
            </xsl:for-each>
         </tr>
@@ -156,19 +159,18 @@ th.version {
                 <xsl:call-template name="display-img">
                     <xsl:with-param name="id"><xsl:value-of select="$cellId"/>-warns</xsl:with-param>
                     <xsl:with-param name="title">Warnings !</xsl:with-param>
-                    <xsl:with-param name="img">document.gif</xsl:with-param>
+                    <xsl:with-param name="img">document.png</xsl:with-param>
                     <xsl:with-param name="error"><xsl:value-of select="$compatResult/warningMessages//string" /></xsl:with-param>
                 </xsl:call-template>
             </xsl:if>
-            <xsl:variable name="logFile" select="string(concat('./logs/', $pluginInfos/pluginName, '/v', $pluginInfos/pluginVersion, '_against_', $compatResult/coreCoordinates/groupId, '_', $compatResult/coreCoordinates/artifactId, '_', $compatResult/coreCoordinates/version, '.log'))" />
-            <xsl:if test="$compatResult/buildLogAvailable">
+            <xsl:if test="$compatResult/buildLogPath != ''">
                 <xsl:element name="a">
-                    <xsl:attribute name="href"><xsl:value-of select="$logFile" /></xsl:attribute>
+                    <xsl:attribute name="href"><xsl:value-of select="$compatResult/buildLogPath" /></xsl:attribute>
                     <xsl:call-template name="display-img">
                         <xsl:with-param name="id"><xsl:value-of select="$cellId"/>-logs</xsl:with-param>
                         <xsl:with-param name="title">Logs</xsl:with-param>
-                        <xsl:with-param name="img">document.gif</xsl:with-param>
-                        <xsl:with-param name="error" />
+                        <xsl:with-param name="img">terminal.png</xsl:with-param>
+                        <xsl:with-param name="error">_</xsl:with-param>
                     </xsl:call-template>
                 </xsl:element>
             </xsl:if>

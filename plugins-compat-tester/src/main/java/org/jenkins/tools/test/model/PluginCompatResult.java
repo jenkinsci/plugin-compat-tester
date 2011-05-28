@@ -28,7 +28,6 @@ package org.jenkins.tools.test.model;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -45,12 +44,11 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
     public final String errorMessage;
     public final List<String> warningMessages;
 
-    // Just for backward compatibility
-    // XStream will use this default value when deserializing things
-    public boolean buildLogAvailable = false;
+    private String buildLogPath = "";
 
     public PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
-                              String errorMessage, List<String> warningMessages){
+                              String errorMessage, List<String> warningMessages,
+                              String buildLogPath){
         this.coreCoordinates = coreCoordinates;
 
         this.status = status;
@@ -58,9 +56,7 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
         this.errorMessage = errorMessage;
         this.warningMessages = warningMessages;
 
-        // Log will always be availables
-        // ... except on old reports !
-        this.buildLogAvailable = true;
+        this.buildLogPath = buildLogPath;
 
         this.compatTestExecutedOn = new Date(); // now !
     }
@@ -79,5 +75,13 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
 
     public int compareTo(PluginCompatResult o) {
         return coreCoordinates.compareTo(o.coreCoordinates);
+    }
+
+    public String getBuildLogPath() {
+        return buildLogPath;
+    }
+
+    public void setBuildLogPath(String buildLogPath) {
+        this.buildLogPath = buildLogPath;
     }
 }
