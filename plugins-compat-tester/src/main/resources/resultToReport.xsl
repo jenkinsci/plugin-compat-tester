@@ -157,7 +157,6 @@ th.version {
                 </xsl:call-template>
             </xsl:if>
             <xsl:variable name="logFile" select="string(concat('./logs/', $compatResult/../../pluginInfos/pluginName, '/v', $compatResult/../../pluginInfos/pluginVersion, '_against_', $compatResult/coreCoordinates/groupId, '_', $compatResult/coreCoordinates/artifactId, '_', $compatResult/coreCoordinates/version, '.log'))" />
-            Test : <xsl:value-of select="$logFile" />
             <xsl:if test="boolean(document($logFile))">
                 <xsl:element name="a">
                     <xsl:attribute name="href"><xsl:value-of select="$logFile" /></xsl:attribute>
