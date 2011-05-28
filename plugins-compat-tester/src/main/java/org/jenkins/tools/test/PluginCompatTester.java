@@ -33,7 +33,6 @@ import hudson.model.UpdateSite.Plugin;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.cli.MavenLoggerManager;
 import org.apache.maven.execution.AbstractExecutionListener;
 import org.apache.maven.execution.ExecutionEvent;
 import org.apache.maven.execution.MavenExecutionResult;
@@ -43,8 +42,6 @@ import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
-import org.codehaus.plexus.DefaultPlexusContainer;
-import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
@@ -54,6 +51,7 @@ import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.PomTransformationException;
+import org.jenkins.tools.test.logging.SystemIOLoggerFilter;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginCompatReport;
@@ -76,8 +74,8 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -142,10 +140,6 @@ public class PluginCompatTester {
 
         //here we don't care about paths for build the embedder
         MavenRequest mavenRequest = buildMavenRequest( null, null );
-        //mavenRequest.setMavenLoggerManager( new MavenLoggerManager( new Slf4jLogger( mavenRequest.getLoggingLevel(),
-        //                                                                             LoggerFactory.getLogger( getClass() ) ) ));
-        //
-        mavenRequest.setMavenLoggerManager( new PluginCompatTesterLoggerManager() );
         MavenEmbedder embedder = new MavenEmbedder(Thread.currentThread().getContextClassLoader(), mavenRequest);
 
 		SCMManagerFactory.getInstance().start();
@@ -309,28 +303,29 @@ public class PluginCompatTester {
             FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
             FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
-            LoggerManager logger = new PluginCompatTesterLoggerManager(buildLogFile);
-            logger.setThreshold(Logger.LEVEL_DEBUG);
-
-            // useless (mavenloggermanager used is the one bundled in embedder
-            mavenRequest.setMavenLoggerManager(logger);
-
             mavenRequest.setLoggingLevel(Logger.LEVEL_DEBUG);
 
+            final PrintStream originalOut = System.out;
+            final PrintStream originalErr = System.err;
+            SystemIOLoggerFilter loggerFilter = new SystemIOLoggerFilter(buildLogFile);
+
+            // Since here, we are replacing System.out & System.err by
+            // wrappers logging things in the build log file
+            // We can't do this by using maven embedder's logger (or plexus logger)
+            // since :
+            // - It would imply to Instantiate a new MavenEmbedder for every test (which have a performance/memory cost !)
+            // - Plus it looks like there are lots of System.out/err.println() in maven
+            // plugin (instead of using maven logger)
+            System.setOut(new SystemIOLoggerFilter.SystemIOWrapper(loggerFilter, originalOut));
+            System.setErr(new SystemIOLoggerFilter.SystemIOWrapper(loggerFilter, originalErr));
+
             try {
-                Field embedderPlexus = MavenEmbedder.class.getDeclaredField("plexusContainer");
-                embedderPlexus.setAccessible(true);
-                DefaultPlexusContainer plexus = (DefaultPlexusContainer) embedderPlexus.get(embedder);
-                plexus.setLoggerManager(logger);
-            } catch (NoSuchFieldException e) {
-                throw new IllegalStateException(e);
-            } catch (IllegalAccessException e) {
-                throw new IllegalStateException(e);
+                MavenExecutionResult mavenResult = pom.executeGoals(embedder, mavenRequest);
+                return new TestExecutionResult(mavenResult, pomData.getWarningMessages());
+            }finally{
+                System.setOut(originalOut);
+                System.setErr(originalErr);
             }
-
-            MavenExecutionResult mavenResult = pom.executeGoals(embedder, mavenRequest);
-
-            return new TestExecutionResult(mavenResult, pomData.getWarningMessages());
         }catch(PomExecutionException e){
             throw new PomExecutionException(e, succeededPlugins, pomData.getWarningMessages());
         }
