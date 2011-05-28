@@ -161,7 +161,7 @@ th.version {
                 </xsl:call-template>
             </xsl:if>
             <xsl:variable name="logFile" select="string(concat('./logs/', $pluginInfos/pluginName, '/v', $pluginInfos/pluginVersion, '_against_', $compatResult/coreCoordinates/groupId, '_', $compatResult/coreCoordinates/artifactId, '_', $compatResult/coreCoordinates/version, '.log'))" />
-            <xsl:if test="boolean(document($logFile))">
+            <xsl:if test="$compatResult/buildLogAvailable">
                 <xsl:element name="a">
                     <xsl:attribute name="href"><xsl:value-of select="$logFile" /></xsl:attribute>
                     <xsl:call-template name="display-img">

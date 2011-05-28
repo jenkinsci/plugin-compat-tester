@@ -45,6 +45,10 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
     public final String errorMessage;
     public final List<String> warningMessages;
 
+    // Just for backward compatibility
+    // XStream will use this default value when deserializing things
+    public boolean buildLogAvailable = false;
+
     public PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
                               String errorMessage, List<String> warningMessages){
         this.coreCoordinates = coreCoordinates;
@@ -53,6 +57,10 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
 
         this.errorMessage = errorMessage;
         this.warningMessages = warningMessages;
+
+        // Log will always be availables
+        // ... except on old reports !
+        this.buildLogAvailable = true;
 
         this.compatTestExecutedOn = new Date(); // now !
     }
