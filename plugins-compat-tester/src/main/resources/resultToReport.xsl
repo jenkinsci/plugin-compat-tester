@@ -117,16 +117,19 @@ th.version {
             <xsl:for-each select="$testedJenkinsCoordinates">
                  <xsl:call-template name="display-cell">
                      <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
+                     <xsl:with-param name="pluginInfos" select="pluginInfos" />
                  </xsl:call-template>
             </xsl:for-each>
             <xsl:for-each select="$testedHudsonCoordinates">
                  <xsl:call-template name="display-cell">
                      <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
+                     <xsl:with-param name="pluginInfos" select="pluginInfos" />
                  </xsl:call-template>
             </xsl:for-each>
            <xsl:for-each select="$otherCoreCoordinates">
                 <xsl:call-template name="display-cell">
                     <xsl:with-param name="compatResult" select="$currentEntry/list/compatResult[./coreCoordinates/version = current()/version and ./coreCoordinates/groupId = current()/groupId and ./coreCoordinates/artifactId = current()/artifactId]" />
+                    <xsl:with-param name="pluginInfos" select="pluginInfos" />
                 </xsl:call-template>
            </xsl:for-each>
         </tr>
@@ -134,7 +137,8 @@ th.version {
 
     <xsl:template name="display-cell">
         <xsl:param name="compatResult" />
-        <xsl:variable name="cellId"><xsl:value-of select="$compatResult/../../pluginInfos/pluginName" />-<xsl:value-of select="translate($compatResult/../../pluginInfos/pluginVersion, '.', '_')" />_<xsl:value-of select="translate($compatResult/coreCoordinates/groupId, '.', '_')" />_<xsl:value-of select="$compatResult/coreCoordinates/artifactId" />_<xsl:value-of select="translate($compatResult/coreCoordinates/version, '.', '_')" /></xsl:variable>
+        <xsl:param name="pluginInfos" />
+        <xsl:variable name="cellId"><xsl:value-of select="$pluginInfos/pluginName" />-<xsl:value-of select="translate($pluginInfos/pluginVersion, '.', '_')" />_<xsl:value-of select="translate($compatResult/coreCoordinates/groupId, '.', '_')" />_<xsl:value-of select="$compatResult/coreCoordinates/artifactId" />_<xsl:value-of select="translate($compatResult/coreCoordinates/version, '.', '_')" /></xsl:variable>
         <xsl:element name="td">
 	  <xsl:attribute name="id"><xsl:value-of select="$cellId" /></xsl:attribute>
             <xsl:choose>
@@ -156,7 +160,7 @@ th.version {
                     <xsl:with-param name="error"><xsl:value-of select="$compatResult/warningMessages//string" /></xsl:with-param>
                 </xsl:call-template>
             </xsl:if>
-            <xsl:variable name="logFile" select="string(concat('./logs/', $compatResult/../../pluginInfos/pluginName, '/v', $compatResult/../../pluginInfos/pluginVersion, '_against_', $compatResult/coreCoordinates/groupId, '_', $compatResult/coreCoordinates/artifactId, '_', $compatResult/coreCoordinates/version, '.log'))" />
+            <xsl:variable name="logFile" select="string(concat('./logs/', $pluginInfos/pluginName, '/v', $pluginInfos/pluginVersion, '_against_', $compatResult/coreCoordinates/groupId, '_', $compatResult/coreCoordinates/artifactId, '_', $compatResult/coreCoordinates/version, '.log'))" />
             <xsl:if test="boolean(document($logFile))">
                 <xsl:element name="a">
                     <xsl:attribute name="href"><xsl:value-of select="$logFile" /></xsl:attribute>
