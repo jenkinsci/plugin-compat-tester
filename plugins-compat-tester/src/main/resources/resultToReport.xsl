@@ -148,6 +148,14 @@ th.version {
 		</xsl:choose>
                 </xsl:otherwise>
             </xsl:choose>
+            <xsl:if test="count($compatResult/warningMessages//string) &gt; 0">
+                <xsl:call-template name="display-img">
+                    <xsl:with-param name="id"><xsl:value-of select="$cellId"/>-warns</xsl:with-param>
+                    <xsl:with-param name="title">Warnings !</xsl:with-param>
+                    <xsl:with-param name="img">document.gif</xsl:with-param>
+                    <xsl:with-param name="error"><xsl:value-of select="$compatResult/warningMessages//string" /></xsl:with-param>
+                </xsl:call-template>
+            </xsl:if>
         </xsl:element>
     </xsl:template>
 
@@ -162,7 +170,6 @@ th.version {
 		<xsl:with-param name="tests-title">Tests : Internal error !</xsl:with-param>
 		<xsl:with-param name="tests-img">red.png</xsl:with-param>
 		<xsl:with-param name="tests-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
-		<xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
     
@@ -177,7 +184,6 @@ th.version {
 		<xsl:with-param name="tests-title">Tests : No tests executed !</xsl:with-param>
 		<xsl:with-param name="tests-img">red.png</xsl:with-param>
 		<xsl:with-param name="tests-error">Compilation failed => No tests executed !</xsl:with-param>
-		<xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
 
@@ -192,7 +198,6 @@ th.version {
 		<xsl:with-param name="tests-title">Tests : Some tests are in failure !</xsl:with-param>
 		<xsl:with-param name="tests-img">yellow.png</xsl:with-param>
 		<xsl:with-param name="tests-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
-		<xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
     
@@ -207,7 +212,6 @@ th.version {
 		<xsl:with-param name="tests-title">Tests : Success !</xsl:with-param>
 		<xsl:with-param name="tests-img">blue.png</xsl:with-param>
 		<xsl:with-param name="tests-error">_</xsl:with-param>
-		<xsl:with-param name="warnings" select="$compatResult/warningMessages//string" />
 	</xsl:call-template>
     </xsl:template>
 
@@ -219,7 +223,6 @@ th.version {
         <xsl:param name="tests-title" />
         <xsl:param name="tests-img" />
         <xsl:param name="tests-error" />
-        <xsl:param name="warnings" />
         <xsl:call-template name="display-img">
             <xsl:with-param name="id"><xsl:value-of select="$id"/>-compilation</xsl:with-param>
             <xsl:with-param name="title" select="$compilation-title" />
@@ -232,14 +235,6 @@ th.version {
             <xsl:with-param name="img" select="$tests-img" />
             <xsl:with-param name="error" select="$tests-error" />
         </xsl:call-template>
-        <xsl:if test="count($warnings) &gt; 0">
-            <xsl:call-template name="display-img">
-                <xsl:with-param name="id"><xsl:value-of select="$id"/>-warns</xsl:with-param>
-                <xsl:with-param name="title">Warnings !</xsl:with-param>
-                <xsl:with-param name="img">document.gif</xsl:with-param>
-                <xsl:with-param name="error"><xsl:value-of select="$warnings" /></xsl:with-param>
-            </xsl:call-template>
-        </xsl:if>
     </xsl:template>
     
     <xsl:template name="display-img">
