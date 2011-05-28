@@ -156,6 +156,19 @@ th.version {
                     <xsl:with-param name="error"><xsl:value-of select="$compatResult/warningMessages//string" /></xsl:with-param>
                 </xsl:call-template>
             </xsl:if>
+            <xsl:variable name="logFile" select="string(concat('./logs/', $compatResult/../../pluginInfos/pluginName, '/v', $compatResult/../../pluginInfos/pluginVersion, '_against_', $compatResult/coreCoordinates/groupId, '_', $compatResult/coreCoordinates/artifactId, '_', $compatResult/coreCoordinates/version, '.log'))" />
+            Test : <xsl:value-of select="$logFile" />
+            <xsl:if test="boolean(document($logFile))">
+                <xsl:element name="a">
+                    <xsl:attribute name="href"><xsl:value-of select="$logFile" /></xsl:attribute>
+                    <xsl:call-template name="display-img">
+                        <xsl:with-param name="id"><xsl:value-of select="$cellId"/>-logs</xsl:with-param>
+                        <xsl:with-param name="title">Logs</xsl:with-param>
+                        <xsl:with-param name="img">document.gif</xsl:with-param>
+                        <xsl:with-param name="error" />
+                    </xsl:call-template>
+                </xsl:element>
+            </xsl:if>
         </xsl:element>
     </xsl:template>
 
