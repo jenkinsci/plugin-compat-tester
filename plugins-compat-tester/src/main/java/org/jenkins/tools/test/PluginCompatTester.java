@@ -189,8 +189,13 @@ public class PluginCompatTester {
                         errorMessage = t.getMessage();
                     }
 
-                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, status, errorMessage, warningMessages,
-                            createBuildLogFilePathFor(pluginInfos.pluginName, pluginInfos.pluginVersion, coreCoordinates));
+
+                    File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
+                    String buildLogFilePath = "";
+                    if(buildLogFile.exists()){
+                        buildLogFilePath = createBuildLogFilePathFor(pluginInfos.pluginName, pluginInfos.pluginVersion, coreCoordinates);
+                    }
+                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, status, errorMessage, warningMessages, buildLogFilePath);
                     report.add(pluginInfos, result);
 
                     if(config.reportFile != null){
@@ -234,6 +239,11 @@ public class PluginCompatTester {
         return new ClassPathResource("resultToReport.xsl");
     }
 
+    private static File createBuildLogFile(File reportFile, String pluginName, String pluginVersion, MavenCoordinates coreCoords){
+        return new File(reportFile.getParentFile().getAbsolutePath()
+                            +"/"+createBuildLogFilePathFor(pluginName, pluginVersion, coreCoords));
+    }
+
     private static String createBuildLogFilePathFor(String pluginName, String pluginVersion, MavenCoordinates coreCoords){
         return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
     }
@@ -267,7 +277,12 @@ public class PluginCompatTester {
 			CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
 			
 			if(!result.isSuccess()){
-				throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
+                if(result.getCommandOutput().contains("error: pathspec") && result.getCommandOutput().contains("did not match any file(s) known to git.")){
+                    // Trying to look for existing branch that looks like the one we are looking for
+                    // TODO ???
+                } else {
+                    throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
+                }
 			}
 		} catch (ComponentLookupException e) {
 			System.err.println("Error : " + e.getMessage());
@@ -299,8 +314,7 @@ public class PluginCompatTester {
             };
             mavenRequest.setExecutionListener(mavenListener);
 
-            File buildLogFile = new File(config.reportFile.getParentFile().getAbsolutePath()
-                    +"/"+createBuildLogFilePathFor(plugin.name, plugin.version, coreCoordinates));
+            File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
             FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
             FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
