@@ -148,7 +148,7 @@ public class PluginCompatTester {
             for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
                 Plugin plugin = pluginEntry.getValue();
                 if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
-                    PluginInfos pluginInfos = new PluginInfos(plugin);
+                    PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
 
                     if(config.getExcludePlugins()!=null && config.getExcludePlugins().contains(plugin.name.toLowerCase())){
                         System.out.println("Plugin "+plugin.name+" is in excluded plugins => test skipped !");
