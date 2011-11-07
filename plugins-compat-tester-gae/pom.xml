@@ -10,10 +10,12 @@
   <groupId>org.jenkins-ci.tests</groupId>
   <artifactId>plugins-compat-tester-gae</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
   <name>Plugins compatibility tester for Google App Engine</name>
   <description>Hudson/Jenkins Plugin compatibility tester against latest released version - GAE app</description>
   
   <properties>
+      <powermock.version>1.4.8</powermock.version>
   </properties>
   
   <build>
@@ -40,164 +42,18 @@
   </build>
   
   <dependencies>
-  	<dependency>
-	    <groupId>org.jenkins-ci.main</groupId>
-		<artifactId>jenkins-core</artifactId>
-	  	<version>1.404</version>
-  	</dependency>
-  	<dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-manager-plexus</artifactId>
-      <version>1.5</version>
-      <exclusions>
-          <exclusion>
-              <groupId>org.codehaus.plexus</groupId>
-              <artifactId>plexus-container-default</artifactId>
-          </exclusion>
-      </exclusions>
-  	</dependency>
-    <!-- Dependencies needed to launch embedded maven process
-  	<dependency>
-	    <groupId>org.apache.maven</groupId>
-	    <artifactId>maven-embedder</artifactId>
-	    <version>3.0.3</version>
-	</dependency>
+    <!-- Google App Engine API -->
     <dependency>
-        <groupId>org.sonatype.aether</groupId>
-        <artifactId>aether-connector-wagon</artifactId>
-        <version>1.11</version>
+      <groupId>com.google.appengine</groupId>
+      <artifactId>appengine-api-1.0-sdk</artifactId>
+      <version>1.5.5</version>
     </dependency>
     <dependency>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-http</artifactId>
-        <version>1.0-beta-6</version>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-provider-api</artifactId>
-        <version>1.0-beta-7</version>
-    </dependency>
-    -->
-    <dependency>
-      <groupId>org.jenkins-ci.lib</groupId>
-      <artifactId>lib-jenkins-maven-embedder</artifactId>
-      <version>3.6-SNAPSHOT</version>
+      <groupId>org.jenkins-ci.tests</groupId>
+      <artifactId>plugins-compat-tester-model</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
     </dependency>
 
-    <!-- scm providers declaration -->
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-accurev</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-bazaar</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-clearcase</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-cvsexe</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-cvsjava</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-gitexe</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-hg</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-local</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-perforce</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-starteam</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.maven-scm-provider-svnjava</groupId>
-      <artifactId>maven-scm-provider-svnjava</artifactId>
-      <version>1.12</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-synergy</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-vss</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-tfs</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <!-- end providers declaration -->
-
-    <dependency>
-      <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>xstream</artifactId>
-      <version>1.3.1</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-slf4j-logging</artifactId>
-      <version>1.1</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.codehaus.plexus</groupId>
-          <artifactId>plexus-container-default</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-access</artifactId>
-      <scope>test</scope>
-    </dependency>
-    
   	<dependency>
 	    <groupId>junit</groupId>
 		<artifactId>junit</artifactId>
