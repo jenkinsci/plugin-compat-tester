@@ -9,9 +9,17 @@
         <servlet-name>HelloWorldServlet</servlet-name>
         <servlet-class>org.jenkins.tools.test.servlets.HelloWorldServlet</servlet-class>
     </servlet>
-    
+    <servlet>
+        <servlet-name>initToken</servlet-name>
+        <servlet-class>org.jenkins.tools.test.servlets.InitTokenServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>HelloWorldServlet</servlet-name>
         <url-pattern>/hello</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>initToken</servlet-name>
+        <url-pattern>/initToken</url-pattern>
     </servlet-mapping>
 </web-app>
