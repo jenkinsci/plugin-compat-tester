@@ -12,23 +12,23 @@ public enum SecurityTokenDAO {
 
     private static final Logger log = Logger.getLogger(PluginCompatResultDAO.class.getName());
 
-    private static final String SECURITY_TOKEN_KIND = "securityToken";
     private static enum SecurityProperties {
-        value, activated
+        value, activated;
+        public static final String KIND = "securityToken";
     }
 
     public void initializeUniqueToken(){
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         // Ensuring there isn't any token yet in DB...
         int tokenCount = datastore.prepare(
-                new Query(SECURITY_TOKEN_KIND)
+                new Query(SecurityProperties.KIND)
         ).asList(FetchOptions.Builder.withDefaults()).size();
         if(tokenCount != 0){
             throw new IllegalStateException(String.format(
                     "Attempting to create a new token whereas %d tokens are present in datastore !", tokenCount));
         }
 
-        Entity token = new Entity(SECURITY_TOKEN_KIND);
+        Entity token = new Entity(SecurityProperties.KIND);
         token.setProperty(SecurityProperties.value.name(), "xxxxx");
         // Created token is deactivated by default :
         // you will have to manually edit your generated token value / activated flag
@@ -42,7 +42,7 @@ public enum SecurityTokenDAO {
     public boolean isTokenValid(String token){
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         int tokenCount = datastore.prepare(
-                new Query(SECURITY_TOKEN_KIND)
+                new Query(SecurityProperties.KIND)
                     .addFilter(SecurityProperties.value.name(), Query.FilterOperator.EQUAL, token)
                     .addFilter(SecurityProperties.activated.name(), Query.FilterOperator.EQUAL, true)
         ).asList(FetchOptions.Builder.withDefaults()).size();
