@@ -31,7 +31,10 @@ public class WritePCTResultServlet extends HttpServlet {
         String pluginUrl = req.getParameter("pluginUrl");
         TestStatus status = TestStatus.valueOf(req.getParameter("status"));
         String errorMessages = req.getParameter("errMsg");
-        List<String> warningMessages = Arrays.asList(req.getParameterValues("warnMsgs"));
+        List<String> warningMessages = null;
+        if(req.getParameterValues("warnMsgs") != null){
+            warningMessages = Arrays.asList(req.getParameterValues("warnMsgs"));
+        }
         String dateTimestampStr = req.getParameter("timestamp");
         Date date = null;
         if(dateTimestampStr == null){
