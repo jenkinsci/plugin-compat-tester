@@ -29,10 +29,6 @@ public class WritePCTResultServlet extends HttpServlet {
         String pluginName = req.getParameter("pluginName");
         String pluginVersion = req.getParameter("pluginVersion");
         String pluginUrl = req.getParameter("pluginUrl");
-        String[] gav = req.getParameter("mavenGAV").split(":");
-        String groupId = gav[0];
-        String artifactId = gav[1];
-        String version = gav[2];
         TestStatus status = TestStatus.valueOf(req.getParameter("status"));
         String errorMessages = req.getParameter("errMsg");
         List<String> warningMessages = Arrays.asList(req.getParameterValues("warnMsgs"));
@@ -45,7 +41,7 @@ public class WritePCTResultServlet extends HttpServlet {
         }
 
         PluginInfos pluginInfos = new PluginInfos(pluginName, pluginVersion, pluginUrl);
-        MavenCoordinates mavenCoords = new MavenCoordinates(groupId, artifactId, version);
+        MavenCoordinates mavenCoords = MavenCoordinates.fromGAV(req.getParameter("mavenGAV"));
         PluginCompatResult result = new PluginCompatResult(mavenCoords, status, errorMessages, warningMessages, null, date);
 
         // Now, persisting result data into datastore !
