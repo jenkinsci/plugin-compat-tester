@@ -49,17 +49,15 @@ public enum PluginCompatResultDAO {
         }
 
         // Transforming warning messages into text
-        Text[] textWarnMsg = null;
+        List<Text> textWarnMsg = null;
         if(result.warningMessages != null){
-            textWarnMsg = new Text[result.warningMessages.size()];
-            int i=0;
+            textWarnMsg = new ArrayList<Text>();
             for(String warnMsg : result.warningMessages){
                 if(warnMsg == null){
-                    textWarnMsg[i] = null;
+                    textWarnMsg.add(null);
                 }else{
-                    textWarnMsg[i] = new Text(warnMsg);
+                    textWarnMsg.add(new Text(warnMsg));
                 }
-                i++;
             }
         }
         resultToPersist.setProperty(PluginCompatResultProperties.warningMessages.name(), textWarnMsg);
