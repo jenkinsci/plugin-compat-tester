@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author fcamblor
@@ -23,6 +25,8 @@ public class DataImporter {
         new DataImporter(args[1], args[2]).importExistingReport(reportFile);
     }
 
+    private static final Pattern ID_EXTRACTOR = Pattern.compile("id=(.+)");
+
     private String baseGAEUrl;
     private String securityToken;
     public DataImporter(String baseGAEUrl, String securityToken){
@@ -30,7 +34,7 @@ public class DataImporter {
         this.securityToken = securityToken;
     }
 
-    public void importPluginCompatResult(PluginInfos pluginInfos, PluginCompatResult pluginCompatResult) throws IOException {
+    public String importPluginCompatResult(PluginInfos pluginInfos, PluginCompatResult pluginCompatResult) throws IOException {
         HttpClient httpClient = new HttpClient();
         httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(5000);
         String url = baseGAEUrl+"/writePctResult";
@@ -57,6 +61,14 @@ public class DataImporter {
         method.setQueryString(parameters.toArray(new NameValuePair[0]));
 
         httpClient.executeMethod(method);
+
+        String responseBody = method.getResponseBodyAsString();
+        Matcher responseMatcher = ID_EXTRACTOR.matcher(responseBody);
+        String key = null;
+        if(responseMatcher.matches()){
+            key = responseMatcher.group(1);
+        }
+        return key;
     }
 
     public void importExistingReport(File reportFile) throws IOException {
