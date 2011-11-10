@@ -17,15 +17,15 @@ import java.util.Map;
 /**
  * @author fcamblor
  */
-public class ExistingDataImporter {
+public class DataImporter {
     public static void main(String[] args) throws IOException {
         File reportFile = new File(args[0]);
-        new ExistingDataImporter(args[1], args[2]).importExistingReport(reportFile);
+        new DataImporter(args[1], args[2]).importExistingReport(reportFile);
     }
 
     private String baseGAEUrl;
     private String securityToken;
-    public ExistingDataImporter(String baseGAEUrl, String securityToken){
+    public DataImporter(String baseGAEUrl, String securityToken){
         this.baseGAEUrl = baseGAEUrl;
         this.securityToken = securityToken;
     }
