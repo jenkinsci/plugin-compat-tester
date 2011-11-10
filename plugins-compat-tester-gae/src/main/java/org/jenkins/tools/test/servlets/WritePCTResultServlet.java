@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.servlets;
 
+import com.google.appengine.api.datastore.Key;
 import org.jenkins.tools.test.dao.PluginCompatResultDAO;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PluginCompatResult;
@@ -48,6 +49,7 @@ public class WritePCTResultServlet extends HttpServlet {
         PluginCompatResult result = new PluginCompatResult(mavenCoords, status, errorMessages, warningMessages, null, date);
 
         // Now, persisting result data into datastore !
-        PluginCompatResultDAO.INSTANCE.persist(pluginInfos, result);
+        Key resultKey = PluginCompatResultDAO.INSTANCE.persist(pluginInfos, result);
+        resp.getWriter().print(String.format("id=%d", resultKey.getId()));
     }
 }

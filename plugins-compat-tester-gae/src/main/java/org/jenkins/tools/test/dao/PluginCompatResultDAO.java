@@ -32,7 +32,7 @@ public enum PluginCompatResultDAO {
 
     private static final Logger log = Logger.getLogger(PluginCompatResultDAO.class.getName());
 
-    public void persist(PluginInfos pluginInfos, PluginCompatResult result){
+    public Key persist(PluginInfos pluginInfos, PluginCompatResult result){
 
         Key coreCoordinatesEntityKey = createCoreCoordsIfNotExist(result.coreCoordinates);
         Key pluginInfosEntityKey = createPluginInfosIfNotExist(pluginInfos);
@@ -66,6 +66,8 @@ public enum PluginCompatResultDAO {
         Key resultKey = datastore.put(resultToPersist);
 
         log.info("Plugin compat result stored with key : "+resultKey);
+
+        return resultKey;
     }
 
     private Key createPluginInfosIfNotExist(PluginInfos pluginInfos) {
