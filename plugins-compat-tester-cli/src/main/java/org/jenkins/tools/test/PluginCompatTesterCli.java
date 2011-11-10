@@ -32,6 +32,7 @@ import org.codehaus.plexus.PlexusContainerException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.TestStatus;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -57,8 +58,13 @@ public class PluginCompatTesterCli {
 
         options.getWorkDirectory().mkdirs();
 
+        File reportFile = null;
+        if(!"NOREPORT".equals(options.getReportFile().getName())){
+            reportFile = options.getReportFile();
+        }
+
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(options.getUpdateCenterUrl(), options.getParentCoord(),
-                options.getWorkDirectory(), options.getReportFile(), options.getM2SettingsFile());
+                options.getWorkDirectory(), reportFile, options.getM2SettingsFile());
 
         if(options.getIncludePlugins() != null && !options.getIncludePlugins().isEmpty()){
             config.setIncludePlugins(Arrays.asList(options.getIncludePlugins().toLowerCase().split(",")));
@@ -74,6 +80,12 @@ public class PluginCompatTesterCli {
         }
         if(options.getCacheThresholdStatus() != null){
             config.setCacheThresholStatus(TestStatus.valueOf(options.getCacheThresholdStatus()));
+        }
+        if(options.getGaeBaseUrl() != null){
+            config.setGaeBaseUrl(options.getGaeBaseUrl());
+        }
+        if(options.getGaeSecurityToken() != null){
+            config.setGaeSecurityToken(options.getGaeSecurityToken());
         }
 
         PluginCompatTester tester = new PluginCompatTester(config);

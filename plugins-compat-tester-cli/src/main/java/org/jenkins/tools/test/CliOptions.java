@@ -88,6 +88,11 @@ public class CliOptions {
     @Parameter(names="-mavenProperties", description = "allow to load some maven properties which will be used a la -D")
     private String mavenPropertiesFile;
 
+    @Parameter(names="-gaeSecurityToken", description = "Allows to pass GAE Security token needed to write data")
+    private String gaeSecurityToken;
+    @Parameter(names="-gaeBaseUrl", description = "Allows to pass GAE plugin compat tester base url")
+    private String gaeBaseUrl;
+
 
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
@@ -133,7 +138,11 @@ public class CliOptions {
         return cacheThresholdStatus;
     }
 
-    public void setCacheThresholdStatus(String cacheThresholdStatus) {
-        this.cacheThresholdStatus = cacheThresholdStatus;
+    public String getGaeSecurityToken() {
+        return gaeSecurityToken;
+    }
+
+    public String getGaeBaseUrl() {
+        return gaeBaseUrl;
     }
 }

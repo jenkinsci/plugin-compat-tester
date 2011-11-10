@@ -86,6 +86,11 @@ public class PluginCompatTesterConfig {
 
     private String mavenPropertiesFile;
 
+    // GoogleAppEngine property allowing to provide a security token to be able to write data
+    private String gaeSecurityToken;
+    // GoogleAppEngin base url for plugin compat tester
+    private String gaeBaseUrl;
+
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this("http://updates.jenkins-ci.org/update-center.json?version=build", "org.jenkins-ci.plugins:plugin",
                 workDirectory, reportFile, m2SettingsFile);
@@ -190,5 +195,21 @@ public class PluginCompatTesterConfig {
 
     public void setCacheThresholStatus(TestStatus cacheThresholStatus) {
         this.cacheThresholStatus = cacheThresholStatus;
+    }
+
+    public String getGaeSecurityToken() {
+        return gaeSecurityToken;
+    }
+
+    public void setGaeSecurityToken(String gaeSecurityToken) {
+        this.gaeSecurityToken = gaeSecurityToken;
+    }
+
+    public String getGaeBaseUrl() {
+        return gaeBaseUrl;
+    }
+
+    public void setGaeBaseUrl(String gaeBaseUrl) {
+        this.gaeBaseUrl = gaeBaseUrl;
     }
 }
