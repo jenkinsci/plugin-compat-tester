@@ -133,6 +133,12 @@ public class PluginCompatTester {
             }
         }
 
+        DataImporter dataImporter = null;
+        if(config.getGaeBaseUrl() != null && config.getGaeSecurityToken() != null){
+            dataImporter = new DataImporter(config.getGaeBaseUrl(), config.getGaeSecurityToken());
+        }
+
+
         UpdateSite.Data data = extractUpdateCenterData();
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
@@ -197,6 +203,12 @@ public class PluginCompatTester {
                     }
                     PluginCompatResult result = new PluginCompatResult(coreCoordinates, status, errorMessage, warningMessages, buildLogFilePath);
                     report.add(pluginInfos, result);
+
+                    // Adding result to GAE
+                    if(dataImporter != null){
+                        dataImporter.importPluginCompatResult(pluginInfos, result);
+                        // TODO: import log files
+                    }
 
                     if(config.reportFile != null){
                         if(!config.reportFile.exists()){

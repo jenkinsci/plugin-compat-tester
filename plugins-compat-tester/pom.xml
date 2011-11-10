@@ -43,9 +43,14 @@
   
   <dependencies>
     <dependency>
-        <groupId>org.jenkins-ci.tests</groupId>
-        <artifactId>plugins-compat-tester-model</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+      <groupId>org.jenkins-ci.tests</groupId>
+      <artifactId>plugins-compat-tester-model</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.tests</groupId>
+      <artifactId>plugins-compat-tester-gae-client</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
     </dependency>
   	<dependency>
 	    <groupId>org.jenkins-ci.main</groupId>
