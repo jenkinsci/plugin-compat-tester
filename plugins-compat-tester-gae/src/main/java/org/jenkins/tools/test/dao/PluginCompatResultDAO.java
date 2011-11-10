@@ -6,6 +6,7 @@ import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginInfos;
 import org.jenkins.tools.test.model.TestStatus;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
@@ -41,8 +42,27 @@ public enum PluginCompatResultDAO {
         resultToPersist.setProperty(PluginCompatResultProperties.pluginInfosKey.name(), pluginInfosEntityKey);
         resultToPersist.setProperty(PluginCompatResultProperties.status.name(), result.status.toString());
         resultToPersist.setProperty(PluginCompatResultProperties.compatTestExecutedOn.name(), result.compatTestExecutedOn);
-        resultToPersist.setProperty(PluginCompatResultProperties.errorMessage.name(), result.errorMessage);
-        resultToPersist.setProperty(PluginCompatResultProperties.warningMessages.name(), result.warningMessages);
+        if(result.errorMessage == null){
+            resultToPersist.setProperty(PluginCompatResultProperties.errorMessage.name(), null);
+        }else{
+            resultToPersist.setProperty(PluginCompatResultProperties.errorMessage.name(), new Text(result.errorMessage));
+        }
+
+        // Transforming warning messages into text
+        Text[] textWarnMsg = null;
+        if(result.warningMessages != null){
+            textWarnMsg = new Text[result.warningMessages.size()];
+            int i=0;
+            for(String warnMsg : result.warningMessages){
+                if(warnMsg == null){
+                    textWarnMsg[i] = null;
+                }else{
+                    textWarnMsg[i] = new Text(warnMsg);
+                }
+                i++;
+            }
+        }
+        resultToPersist.setProperty(PluginCompatResultProperties.warningMessages.name(), textWarnMsg);
 
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         Key resultKey = datastore.put(resultToPersist);
