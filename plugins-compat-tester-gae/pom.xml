@@ -44,10 +44,16 @@
   <dependencies>
     <!-- Google App Engine API -->
     <dependency>
-      <groupId>com.google.appengine</groupId>
-      <artifactId>appengine-api-1.0-sdk</artifactId>
-      <version>1.5.5</version>
+        <groupId>com.google.appengine</groupId>
+        <artifactId>appengine-api-1.0-sdk</artifactId>
+        <version>1.5.5</version>
     </dependency>
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+        <version>2.5</version>
+    </dependency>
+
     <dependency>
       <groupId>org.jenkins-ci.tests</groupId>
       <artifactId>plugins-compat-tester-model</artifactId>
