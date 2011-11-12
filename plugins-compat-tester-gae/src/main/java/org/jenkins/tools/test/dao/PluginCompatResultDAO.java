@@ -5,6 +5,7 @@ import org.jenkins.tools.test.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -20,7 +21,7 @@ public enum PluginCompatResultDAO {
         Key coreCoordinatesEntityKey = createCoreCoordsIfNotExist(result.coreCoordinates);
         Key pluginInfosEntityKey = createPluginInfosIfNotExist(pluginInfos);
 
-        Entity resultToPersist = Mappings.toEntity(result, coreCoordinatesEntityKey, pluginInfosEntityKey);
+        Entity resultToPersist = Mappings.toEntity(result, result.coreCoordinates, coreCoordinatesEntityKey, pluginInfos, pluginInfosEntityKey);
 
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         Key resultKey = datastore.put(resultToPersist);

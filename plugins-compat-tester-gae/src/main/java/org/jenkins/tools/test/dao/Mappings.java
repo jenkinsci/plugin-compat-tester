@@ -3,19 +3,17 @@ package org.jenkins.tools.test.dao;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
-import org.jenkins.tools.test.model.MavenCoordinates;
-import org.jenkins.tools.test.model.PluginCompatResult;
-import org.jenkins.tools.test.model.PluginInfos;
+import org.jenkins.tools.test.model.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author fcamblor
  */
 public class Mappings {
     public static enum PluginCompatResultProperties {
-        coreCoordsKey, pluginInfosKey, compatTestExecutedOn, status, errorMessage, warningMessages;
+        compatTestExecutedOn, status, errorMessage, warningMessages,
+        coreCoordsKey, pluginInfosKey, computedCoreAndPlugin;
         public static final String KIND = "pluginCompatResult";
     }
     public static enum PluginInfosProperties {
@@ -27,10 +25,12 @@ public class Mappings {
     }
     public static final String CORE_MAVEN_COORDS_KIND = "coreCoordinates";
 
-    public static Entity toEntity(PluginCompatResult result, Key coreCoordinatesEntityKey, Key pluginInfosEntityKey){
+    public static Entity toEntity(PluginCompatResult result, MavenCoordinates coreCoordinates, Key coreCoordinatesEntityKey,
+                                  PluginInfos pluginInfos, Key pluginInfosEntityKey){
         Entity resultEntity = new Entity(PluginCompatResultProperties.KIND);
         resultEntity.setProperty(PluginCompatResultProperties.coreCoordsKey.name(), coreCoordinatesEntityKey);
         resultEntity.setProperty(PluginCompatResultProperties.pluginInfosKey.name(), pluginInfosEntityKey);
+        resultEntity.setProperty(PluginCompatResultProperties.computedCoreAndPlugin.name(), computeCoreAndPlugin(coreCoordinates, pluginInfos));
         resultEntity.setProperty(PluginCompatResultProperties.status.name(), result.status.toString());
         resultEntity.setProperty(PluginCompatResultProperties.compatTestExecutedOn.name(), result.compatTestExecutedOn);
         if(result.errorMessage == null){
@@ -53,6 +53,10 @@ public class Mappings {
         }
         resultEntity.setProperty(PluginCompatResultProperties.warningMessages.name(), textWarnMsg);
         return resultEntity;
+    }
+
+    public static String computeCoreAndPlugin(MavenCoordinates coreCoords, PluginInfos pluginInfos){
+        return pluginInfos.pluginName+"_"+coreCoords.toGAV();
     }
 
     public static Entity toEntity(PluginInfos pluginInfos){
