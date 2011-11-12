@@ -1,18 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <datastore-indexes autoGenerate="true">
-    <datastore-index kind="pluginCompatResult" ancestor="false">
-        <property name="coreCoordsKey" direction="asc" />
-    </datastore-index>
-    <datastore-index kind="pluginCompatResult" ancestor="false">
-        <property name="pluginInfosKey" direction="asc" />
-    </datastore-index>
-    <datastore-index kind="pluginCompatResult" ancestor="false">
-        <property name="computedCoreAndPlugin" direction="asc" />
-    </datastore-index>
-    <datastore-index kind="coreCoordinates" ancestor="false">
-        <property name="gav" direction="asc" />
-    </datastore-index>
-    <datastore-index kind="pluginInfos" ancestor="false">
-        <property name="pluginName" direction="asc" />
-    </datastore-index>
+    
 </datastore-indexes>
