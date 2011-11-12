@@ -94,12 +94,12 @@ public enum PluginCompatResultDAO {
 
         Query searchCoresQuery = new Query(Mappings.CORE_MAVEN_COORDS_KIND);
         searchCoresQuery = coreMatcher.enhanceSearchCoreQuery(searchCoresQuery);
-        List<Entity> coreEntities = datastore.prepare(searchCoresQuery).asList(FetchOptions.Builder.withLimit(10000));
+        List<Entity> coreEntities = datastore.prepare(searchCoresQuery).asList(FetchOptions.Builder.withLimit(0));
         Map<Key, MavenCoordinates> cores = Mappings.mavenCoordsFromEntity(coreEntities);
 
         Query searchPluginsQuery = new Query(Mappings.PluginInfosProperties.KIND);
         searchPluginsQuery = pluginMatcher.enhanceSearchPluginQuery(searchPluginsQuery);
-        List<Entity> pluginInfoEntities = datastore.prepare(searchPluginsQuery).asList(FetchOptions.Builder.withLimit(10000));
+        List<Entity> pluginInfoEntities = datastore.prepare(searchPluginsQuery).asList(FetchOptions.Builder.withLimit(0));
         Map<Key, PluginInfos> pluginInfos = Mappings.pluginInfosFromEntity(pluginInfoEntities);
 
         Query searchResultsQuery = new Query(Mappings.PluginCompatResultProperties.KIND);
@@ -114,7 +114,7 @@ public enum PluginCompatResultDAO {
             searchResultsQuery.addFilter(Mappings.PluginCompatResultProperties.computedCoreAndPlugin.name(),
                     Query.FilterOperator.IN, cartesianProductOfCoreAndPlugins(cores, pluginInfos));
         }
-        List<Entity> results = datastore.prepare(searchResultsQuery).asList(FetchOptions.Builder.withLimit(10000));
+        List<Entity> results = datastore.prepare(searchResultsQuery).asList(FetchOptions.Builder.withLimit(0));
         PluginCompatReport report = Mappings.pluginCompatReportFromResultsEntities(results, cores, pluginInfos);
 
         return report;
@@ -125,15 +125,15 @@ public enum PluginCompatResultDAO {
 
         long deletedLines = 0;
 
-        List<Key> coreKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.CORE_MAVEN_COORDS_KIND)).asList(FetchOptions.Builder.withLimit(10000)));
+        List<Key> coreKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.CORE_MAVEN_COORDS_KIND)).asList(FetchOptions.Builder.withLimit(0)));
         datastoreService.delete(coreKeys);
         deletedLines += coreKeys.size();
 
-        List<Key> pluginInfosKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.PluginInfosProperties.KIND)).asList(FetchOptions.Builder.withLimit(10000)));
+        List<Key> pluginInfosKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.PluginInfosProperties.KIND)).asList(FetchOptions.Builder.withLimit(0)));
         datastoreService.delete(pluginInfosKeys);
         deletedLines += pluginInfosKeys.size();
 
-        List<Key> resultKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.PluginCompatResultProperties.KIND)).asList(FetchOptions.Builder.withLimit(10000)));
+        List<Key> resultKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.PluginCompatResultProperties.KIND)).asList(FetchOptions.Builder.withLimit(0)));
         datastoreService.delete(resultKeys);
         deletedLines += resultKeys.size();
 
