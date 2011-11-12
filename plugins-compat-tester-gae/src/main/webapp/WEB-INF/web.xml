@@ -25,6 +25,10 @@
         <servlet-name>PurgeResultsServlet</servlet-name>
         <servlet-class>org.jenkins.tools.test.servlets.PurgeResultsServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>DataProviderServlet</servlet-name>
+        <servlet-class>org.jenkins.tools.test.servlets.DataProviderServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>HelloWorldServlet</servlet-name>
@@ -45,5 +49,9 @@
     <servlet-mapping>
         <servlet-name>PurgeResultsServlet</servlet-name>
         <url-pattern>/purgeResults</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DataProviderServlet</servlet-name>
+        <url-pattern>/getData</url-pattern>
     </servlet-mapping>
 </web-app>
