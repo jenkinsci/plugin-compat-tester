@@ -118,6 +118,35 @@ public enum PluginCompatResultDAO {
         return report;
     }
 
+    public SortedSet<MavenCoordinates> findAllCores(){
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+        Query searchCoresQuery = new Query(Mappings.CORE_MAVEN_COORDS_KIND);
+        List<Entity> coreEntities = datastore.prepare(searchCoresQuery).asList(FetchOptions.Builder.withLimit(10000));
+        Map<Key, MavenCoordinates> cores = Mappings.mavenCoordsFromEntity(coreEntities);
+
+        return new TreeSet<MavenCoordinates>(cores.values());
+    }
+
+    public SortedSet<String> findAllPluginInfoNames(){
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+        Query searchPluginInfosQuery = new Query(Mappings.PluginInfosProperties.KIND);
+        List<Entity> pluginInfosEntities = datastore.prepare(searchPluginInfosQuery).asList(FetchOptions.Builder.withLimit(10000));
+        Map<Key, PluginInfos> pluginInfos = Mappings.pluginInfosFromEntity(pluginInfosEntities);
+
+        SortedSet<String> names = new TreeSet<String>(new Comparator<String>() {
+            public int compare(String s, String s1) {
+                return s.compareToIgnoreCase(s1);
+            }
+        });
+        for(PluginInfos pi : pluginInfos.values()){
+            names.add(pi.pluginName);
+        }
+
+        return names;
+    }
+
     public long purgeResults(){
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
 
