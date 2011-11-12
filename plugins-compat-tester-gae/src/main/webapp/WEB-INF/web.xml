@@ -17,6 +17,10 @@
         <servlet-name>writePctResult</servlet-name>
         <servlet-class>org.jenkins.tools.test.servlets.WritePCTResultServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>RetrieveResultsServlet</servlet-name>
+        <servlet-class>org.jenkins.tools.test.servlets.RetrieveResultsServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>HelloWorldServlet</servlet-name>
@@ -29,5 +33,9 @@
     <servlet-mapping>
         <servlet-name>writePctResult</servlet-name>
         <url-pattern>/writePctResult</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RetrieveResultsServlet</servlet-name>
+        <url-pattern>/getResults</url-pattern>
     </servlet-mapping>
 </web-app>
