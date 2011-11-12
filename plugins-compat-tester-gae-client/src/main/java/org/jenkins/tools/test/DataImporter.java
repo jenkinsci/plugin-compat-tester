@@ -1,15 +1,18 @@
 package org.jenkins.tools.test;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.jenkins.tools.test.model.PluginCompatReport;
 import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginInfos;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,34 +38,45 @@ public class DataImporter {
     }
 
     public String importPluginCompatResult(PluginInfos pluginInfos, PluginCompatResult pluginCompatResult) throws IOException {
-        HttpClient httpClient = new HttpClient();
-        httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(5000);
+        HttpClient httpClient = new DefaultHttpClient();
         String url = baseGAEUrl+"/writePctResult";
 
-        HttpMethod method = new GetMethod(url);
-        List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-        parameters.add(new NameValuePair("token", securityToken));
-        parameters.add(new NameValuePair("pluginName", pluginInfos.pluginName));
-        parameters.add(new NameValuePair("pluginVersion", pluginInfos.pluginVersion));
-        parameters.add(new NameValuePair("pluginUrl", pluginInfos.pluginUrl));
-        parameters.add(new NameValuePair("mavenGAV", pluginCompatResult.coreCoordinates.toGAV()));
-        parameters.add(new NameValuePair("status", pluginCompatResult.status.name()));
+        HttpPost method = new HttpPost(url);
+        List <NameValuePair> nvps = new ArrayList <NameValuePair>();
+        nvps.add(new BasicNameValuePair("token", securityToken));
+        nvps.add(new BasicNameValuePair("pluginName", pluginInfos.pluginName));
+        nvps.add(new BasicNameValuePair("pluginVersion", pluginInfos.pluginVersion));
+        nvps.add(new BasicNameValuePair("pluginUrl", pluginInfos.pluginUrl));
+        nvps.add(new BasicNameValuePair("mavenGAV", pluginCompatResult.coreCoordinates.toGAV()));
+        nvps.add(new BasicNameValuePair("status", pluginCompatResult.status.name()));
         if(pluginCompatResult.compatTestExecutedOn != null){
-            parameters.add(new NameValuePair("timestamp", String.valueOf(pluginCompatResult.compatTestExecutedOn.getTime())));
+            nvps.add(new BasicNameValuePair("timestamp", String.valueOf(pluginCompatResult.compatTestExecutedOn.getTime())));
         }
         if(pluginCompatResult.errorMessage != null){
-            parameters.add(new NameValuePair("errMsg", pluginCompatResult.errorMessage));
+            nvps.add(new BasicNameValuePair("errMsg", pluginCompatResult.errorMessage));
         }
         if(pluginCompatResult.warningMessages != null){
             for(String warnMsg : pluginCompatResult.warningMessages){
-                parameters.add(new NameValuePair("warnMsgs", warnMsg));
+                nvps.add(new BasicNameValuePair("warnMsgs", warnMsg));
             }
         }
-        method.setQueryString(parameters.toArray(new NameValuePair[0]));
+        method.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
 
-        httpClient.executeMethod(method);
+        HttpResponse res = httpClient.execute(method);
+        InputStream is = res.getEntity().getContent();
+        StringWriter sw = new StringWriter();
+        char[] buffer = new char[1024];
+        try {
+            Reader r = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            int n;
+            while((n = r.read(buffer)) != -1){
+                sw.write(buffer, 0, n);
+            }
+        }finally{
+            is.close();
+        }
+        String responseBody = sw.toString();
 
-        String responseBody = method.getResponseBodyAsString();
         Matcher responseMatcher = ID_EXTRACTOR.matcher(responseBody);
         String key = null;
         if(responseMatcher.matches()){
