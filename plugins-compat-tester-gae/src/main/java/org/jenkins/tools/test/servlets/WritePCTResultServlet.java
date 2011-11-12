@@ -22,7 +22,7 @@ import java.util.List;
 public class WritePCTResultServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         // Current servlet is secured !
         SecuritySupport.ensureTokenIsValid(req);
 
