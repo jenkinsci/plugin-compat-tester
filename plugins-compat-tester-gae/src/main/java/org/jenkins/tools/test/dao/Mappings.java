@@ -55,6 +55,35 @@ public class Mappings {
         return resultEntity;
     }
 
+    public static PluginCompatResult pluginCompatResultFromEntity(Entity entity, Map<Key, MavenCoordinates> cores) {
+
+        MavenCoordinates coreCoords = cores.get((Key)entity.getProperty(PluginCompatResultProperties.coreCoordsKey.name()));
+        TestStatus status = TestStatus.valueOf((String)entity.getProperty(PluginCompatResultProperties.status.name()));
+        Date compatTestExecutedOn = (Date)entity.getProperty(PluginCompatResultProperties.compatTestExecutedOn.name());
+        Text errMsg = (Text)entity.getProperty(PluginCompatResultProperties.errorMessage.name());
+        String errMsgStr = null;
+        if(errMsg != null){
+            errMsgStr = errMsg.getValue();
+        }
+        List<Text> warnMsgs = (List<Text>)entity.getProperty(PluginCompatResultProperties.warningMessages.name());
+
+        // Transforming warning messages from text
+        List<String> strWarnMsg = null;
+        if(warnMsgs != null){
+            strWarnMsg = new ArrayList<String>();
+            for(Text warnMsg : warnMsgs){
+                if(warnMsg == null){
+                    strWarnMsg.add(null);
+                }else{
+                    strWarnMsg.add(warnMsg.getValue());
+                }
+            }
+        }
+
+        PluginCompatResult result = new PluginCompatResult(coreCoords, status, errMsgStr, strWarnMsg, /* FIXME */ null, compatTestExecutedOn);
+        return result;
+    }
+
     public static String computeCoreAndPlugin(MavenCoordinates coreCoords, PluginInfos pluginInfos){
         return pluginInfos.pluginName+"_"+coreCoords.toGAV();
     }
@@ -67,6 +96,22 @@ public class Mappings {
         return pluginInfoEntity;
     }
 
+    public static PluginInfos pluginInfosFromEntity(Entity entity){
+        PluginInfos infos = new PluginInfos(
+                (String)entity.getProperty(PluginInfosProperties.pluginName.name()),
+                (String)entity.getProperty(PluginInfosProperties.pluginVersion.name()),
+                (String)entity.getProperty(PluginInfosProperties.pluginUrl.name()));
+        return infos;
+    }
+
+    public static Map<Key, PluginInfos> pluginInfosFromEntity(List<Entity> entities){
+        Map<Key, PluginInfos> pluginInfos = new HashMap<Key, PluginInfos> (entities.size());
+        for(Entity e : entities){
+            pluginInfos.put(e.getKey(), pluginInfosFromEntity(e));
+        }
+        return pluginInfos;
+    }
+
     public static Entity toEntity(MavenCoordinates coords, String kind){
         Entity coordsEntity = new Entity(kind);
         coordsEntity.setProperty(MavenCoordinatesProperties.gav.name(), coords.toGAV());
@@ -74,5 +119,30 @@ public class Mappings {
         coordsEntity.setProperty(MavenCoordinatesProperties.artifactId.name(), coords.artifactId);
         coordsEntity.setProperty(MavenCoordinatesProperties.version.name(), coords.version);
         return coordsEntity;
+    }
+
+    public static MavenCoordinates mavenCoordsFromEntity(Entity entity){
+        MavenCoordinates coords = MavenCoordinates.fromGAV((String)entity.getProperty(MavenCoordinatesProperties.gav.name()));
+        return coords;
+    }
+
+    public static Map<Key, MavenCoordinates> mavenCoordsFromEntity(List<Entity> entities){
+        Map<Key, MavenCoordinates> coords = new HashMap<Key, MavenCoordinates> (entities.size());
+        for(Entity e : entities){
+            coords.put(e.getKey(), mavenCoordsFromEntity(e));
+        }
+        return coords;
+    }
+
+    public static PluginCompatReport pluginCompatReportFromResultsEntities(List<Entity> results, Map<Key, MavenCoordinates> cores, Map<Key, PluginInfos> pluginInfos) {
+        PluginCompatReport report = new PluginCompatReport();
+        for(Entity e : results){
+            PluginCompatResult result = pluginCompatResultFromEntity(e, cores);
+            PluginInfos pi = pluginInfos.get((Key)e.getProperty(PluginCompatResultProperties.pluginInfosKey.name()));
+
+            report.add(pi, result);
+        }
+
+        return report;
     }
 }
