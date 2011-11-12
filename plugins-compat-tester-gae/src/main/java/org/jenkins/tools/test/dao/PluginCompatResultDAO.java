@@ -3,9 +3,7 @@ package org.jenkins.tools.test.dao;
 import com.google.appengine.api.datastore.*;
 import org.jenkins.tools.test.model.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -94,12 +92,12 @@ public enum PluginCompatResultDAO {
 
         Query searchCoresQuery = new Query(Mappings.CORE_MAVEN_COORDS_KIND);
         searchCoresQuery = coreMatcher.enhanceSearchCoreQuery(searchCoresQuery);
-        List<Entity> coreEntities = datastore.prepare(searchCoresQuery).asList(FetchOptions.Builder.withLimit(0));
+        List<Entity> coreEntities = datastore.prepare(searchCoresQuery).asList(FetchOptions.Builder.withLimit(10000));
         Map<Key, MavenCoordinates> cores = Mappings.mavenCoordsFromEntity(coreEntities);
 
         Query searchPluginsQuery = new Query(Mappings.PluginInfosProperties.KIND);
         searchPluginsQuery = pluginMatcher.enhanceSearchPluginQuery(searchPluginsQuery);
-        List<Entity> pluginInfoEntities = datastore.prepare(searchPluginsQuery).asList(FetchOptions.Builder.withLimit(0));
+        List<Entity> pluginInfoEntities = datastore.prepare(searchPluginsQuery).asList(FetchOptions.Builder.withLimit(10000));
         Map<Key, PluginInfos> pluginInfos = Mappings.pluginInfosFromEntity(pluginInfoEntities);
 
         Query searchResultsQuery = new Query(Mappings.PluginCompatResultProperties.KIND);
@@ -114,7 +112,7 @@ public enum PluginCompatResultDAO {
             searchResultsQuery.addFilter(Mappings.PluginCompatResultProperties.computedCoreAndPlugin.name(),
                     Query.FilterOperator.IN, cartesianProductOfCoreAndPlugins(cores, pluginInfos));
         }
-        List<Entity> results = datastore.prepare(searchResultsQuery).asList(FetchOptions.Builder.withLimit(0));
+        List<Entity> results = datastore.prepare(searchResultsQuery).asList(FetchOptions.Builder.withLimit(10000));
         PluginCompatReport report = Mappings.pluginCompatReportFromResultsEntities(results, cores, pluginInfos);
 
         return report;
@@ -125,15 +123,15 @@ public enum PluginCompatResultDAO {
 
         long deletedLines = 0;
 
-        List<Key> coreKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.CORE_MAVEN_COORDS_KIND)).asList(FetchOptions.Builder.withLimit(0)));
+        List<Key> coreKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.CORE_MAVEN_COORDS_KIND)).asList(FetchOptions.Builder.withLimit(10000)));
         datastoreService.delete(coreKeys);
         deletedLines += coreKeys.size();
 
-        List<Key> pluginInfosKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.PluginInfosProperties.KIND)).asList(FetchOptions.Builder.withLimit(0)));
+        List<Key> pluginInfosKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.PluginInfosProperties.KIND)).asList(FetchOptions.Builder.withLimit(10000)));
         datastoreService.delete(pluginInfosKeys);
         deletedLines += pluginInfosKeys.size();
 
-        List<Key> resultKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.PluginCompatResultProperties.KIND)).asList(FetchOptions.Builder.withLimit(0)));
+        List<Key> resultKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.PluginCompatResultProperties.KIND)).asList(FetchOptions.Builder.withLimit(10000)));
         datastoreService.delete(resultKeys);
         deletedLines += resultKeys.size();
 
