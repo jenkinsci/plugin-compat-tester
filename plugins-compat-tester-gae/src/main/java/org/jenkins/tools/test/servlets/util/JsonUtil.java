@@ -37,9 +37,11 @@ public class JsonUtil {
 
         StringBuilder sb = new StringBuilder("[");
         for(PluginCompatResult res : pluginCompatResults){
-            sb.append(String.format("{\"core\":\"%s\",\"status\":\"%s\",\"date\":%s,%s%s%s%s},",res.coreCoordinates.toGAV(),res.status.name(),
-                    res.compatTestExecutedOn.getTime(), displayMessage("err", res.errorMessage), res.errorMessage==null?"":",",
+            sb.append(String.format("{\"core\":\"%s\",\"status\":\"%s\",\"date\":\"%s\",%s%s%s%s},",
+                    res.coreCoordinates.toGAV(), res.status.name(), res.compatTestExecutedOn.getTime(),
+                    displayMessage("err", res.errorMessage), res.errorMessage==null?"":",",
                     displayMessages("warn", res.warningMessages), res.warningMessages==null?"":","));
+            sb.deleteCharAt(sb.length() - 3); // Removing last comma
         }
         if(pluginCompatResults.size()!=0){
             sb.deleteCharAt(sb.length()-1); // Removing last comma
