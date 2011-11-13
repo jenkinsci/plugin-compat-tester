@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
       <title>Plugin compatibility tester</title>
@@ -49,8 +50,62 @@ fieldset legend {
       <script type="text/javascript">
 function ajaxSubmitForm(form){
     $("#searchSpinner").show();
-    $.getJSON("/getResults", $(form).serializeObject(), function(results){
+    $.getJSON("/getResults", $(form).serializeObject(), function(pctReport){
         $("#searchSpinner").hide();
+
+        var numberOfJenkinsColumns = 0;
+        var numberOfHudsonColumns = 0;
+        $.each(pctReport.coreCoordinates, function(){
+            numberOfJenkinsColumns += this.g==="org.jenkins-ci.plugins"?1:0;
+            numberOfHudsonColumns += this.g==="org.jenkins-ci.plugins"?0:1;
+        });
+        $.tmpl("resultsTpl", {
+            numberOfJenkinsColumns: numberOfJenkinsColumns,
+            numberOfHudsonColumns: numberOfHudsonColumns,
+            coreCoordinates: pctReport.coreCoordinates
+        }).appendTo("#results");
+
+        var previousPluginName = "";
+        $.each(pctReport.results, function(pctResultsIndex){
+            var pluginResult = this;
+            var pluginName = pluginResult.plugin.split(":")[0];
+            var pluginVersion = pluginResult.plugin.split(":")[1];
+            var cellResults = [];
+            var currentPluginReportResultIndex = 0;
+            $.each(pctReport.coreCoordinates, function(){
+                var gav = this.g+":"+this.a+":"+this.v;
+                if(pluginResult.results && currentPluginReportResultIndex < pluginResult.results.length
+                        && gav===pluginResult.results[currentPluginReportResultIndex].core){
+                    cellResults.push($.extend(pluginResult.results[currentPluginReportResultIndex], { empty: false }));
+                    currentPluginReportResultIndex++;
+                } else {
+                    cellResults.push({ empty: true });
+                }
+            });
+
+            var tmplParams = {
+                pluginName: pluginName,
+                pluginVersion: pluginVersion,
+                results: cellResults
+            };
+
+            if(previousPluginName === pluginName){
+                $("#resultOtherPluginLineTpl").tmpl(tmplParams).appendTo("#results #resultBody");
+            } else {
+                // Counting next results having the same plugin name
+                var i = pctResultsIndex+1;
+                while(i < pctReport.results.length &&
+                        pluginName === pctReport.results[i].plugin.split(":")[0]){
+                    i++;
+                }
+
+                $("#resultFirstPluginLineTpl").tmpl($.extend(tmplParams, {
+                    pluginResultsCount: i - pctResultsIndex
+                })).appendTo("#results #resultBody");
+            }
+
+            previousPluginName = pluginName;
+        });
     });
 }
 
@@ -72,6 +127,7 @@ $(function(){
         });
         $("#plugins").trigger("liszt:updated");
     });
+    $("#resultsTpl").template("resultsTpl");
 });
       </script>
   </head>
@@ -122,6 +178,51 @@ $(function(){
             <input type="submit" class="btn primary" value="Search" />
             <img height="28" id="searchSpinner" class="spinner" src="img/pct/spinner.gif" alt="Spinner" style="vertical-align: middle; display: none" />
         </form>
+        <div id="results">
+            <script id="resultCellContentTpl" type="text/x-jquery-tmpl">
+                {{if empty}}
+                <td>-----</td>
+                {{else}}
+                <td>${status}</td>
+                {{/if}}
+            </script>
+            <script id="resultFirstPluginLineTpl" type="text/x-jquery-tmpl">
+                <tr>
+                    <td rowspan="${pluginResultsCount}" style="vertical-align: middle">${pluginName}</td>
+                    <td>${pluginVersion}</td>
+                    {{tmpl(results) "#resultCellContentTpl"}}
+                </tr>
+            </script>
+            <script id="resultOtherPluginLineTpl" type="text/x-jquery-tmpl">
+                <tr>
+                    <td>${pluginVersion}</td>
+                    {{tmpl(results) "#resultCellContentTpl"}}
+                </tr>
+            </script>
+            <script id="resultsHeadingTpl" type="text/x-jquery-tmpl">
+                <th style="text-align: center">${v}</th>
+            </script>
+            <script id="resultsTpl" type="text/x-jquery-tmpl">
+                <table class="condensed-table bordered-table">
+                    <thead id="resultHeading">
+                        <tr>
+                            <th rowspan="2" colspan="2">Plugin name & version</th>
+                            {{if numberOfJenkinsColumns > 0}}
+                            <th colspan="${numberOfJenkinsColumns}" style="text-align: center">Jenkins</th>
+                            {{/if}}
+                            {{if numberOfHudsonColumns > 0}}
+                            <th colspan="${numberOfHudsonColumns}" style="text-align: center">Hudson</th>
+                            {{/if}}
+                        </tr>
+                        <tr>
+                            {{tmpl(coreCoordinates) "#resultsHeadingTpl"}}
+                        </tr>
+                    </thead>
+                    <tbody id="resultBody">
+                    </tbody>
+                </table>
+            </script>
+        </div>
     </div>
   </body>
 </html>
