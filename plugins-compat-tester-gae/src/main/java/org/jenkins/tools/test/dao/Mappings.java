@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class Mappings {
     public static enum PluginCompatResultProperties {
-        compatTestExecutedOn, status, errorMessage, warningMessages,
+        compatTestExecutedOn, status, errorMessage, warningMessages, buildLogPath,
         coreCoordsKey, pluginInfosKey, computedCoreAndPlugin;
         public static final String KIND = "pluginCompatResult";
     }
@@ -24,6 +24,10 @@ public class Mappings {
         gav, groupId, artifactId, version;
     }
     public static final String CORE_MAVEN_COORDS_KIND = "coreCoordinates";
+    public static enum LogProperties {
+        resultKey, buildLogPath, logContent;
+        public static final String KIND = "logs";
+    }
 
     public static Entity toEntity(PluginCompatResult result, MavenCoordinates coreCoordinates, Key coreCoordinatesEntityKey,
                                   PluginInfos pluginInfos, Key pluginInfosEntityKey){
@@ -37,6 +41,11 @@ public class Mappings {
             resultEntity.setProperty(PluginCompatResultProperties.errorMessage.name(), null);
         }else{
             resultEntity.setProperty(PluginCompatResultProperties.errorMessage.name(), new Text(result.errorMessage));
+        }
+        if(result.getBuildLogPath() == null){
+            resultEntity.setProperty(PluginCompatResultProperties.buildLogPath.name(), null);
+        }else{
+            resultEntity.setProperty(PluginCompatResultProperties.buildLogPath.name(), result.getBuildLogPath());
         }
 
         // Transforming warning messages into text
@@ -60,13 +69,13 @@ public class Mappings {
         MavenCoordinates coreCoords = cores.get((Key)entity.getProperty(PluginCompatResultProperties.coreCoordsKey.name()));
         TestStatus status = TestStatus.valueOf((String)entity.getProperty(PluginCompatResultProperties.status.name()));
         Date compatTestExecutedOn = (Date)entity.getProperty(PluginCompatResultProperties.compatTestExecutedOn.name());
+        String buildLogPathStr = (String)entity.getProperty(PluginCompatResultProperties.buildLogPath.name());
         Text errMsg = (Text)entity.getProperty(PluginCompatResultProperties.errorMessage.name());
         String errMsgStr = null;
         if(errMsg != null){
             errMsgStr = errMsg.getValue();
         }
         List<Text> warnMsgs = (List<Text>)entity.getProperty(PluginCompatResultProperties.warningMessages.name());
-
         // Transforming warning messages from text
         List<String> strWarnMsg = null;
         if(warnMsgs != null){
@@ -80,7 +89,7 @@ public class Mappings {
             }
         }
 
-        PluginCompatResult result = new PluginCompatResult(coreCoords, status, errMsgStr, strWarnMsg, /* FIXME */ null, compatTestExecutedOn);
+        PluginCompatResult result = new PluginCompatResult(coreCoords, status, errMsgStr, strWarnMsg, buildLogPathStr, compatTestExecutedOn);
         return result;
     }
 
@@ -144,5 +153,17 @@ public class Mappings {
         }
 
         return report;
+    }
+
+    public static Entity toEntity(String buildLogPath, String logContent, Key pluginCompatResultKey) {
+        Entity logEntity = new Entity(LogProperties.KIND);
+        logEntity.setProperty(LogProperties.buildLogPath.name(), buildLogPath);
+        logEntity.setProperty(LogProperties.logContent.name(), new Text(logContent));
+        logEntity.setProperty(LogProperties.resultKey.name(), pluginCompatResultKey);
+        return logEntity;
+    }
+
+    public static String logContentFromEntity(Entity log) {
+        return ((Text)log.getProperty(LogProperties.logContent.name())).getValue();
     }
 }

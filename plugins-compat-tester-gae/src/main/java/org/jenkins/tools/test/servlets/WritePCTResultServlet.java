@@ -1,6 +1,7 @@
 package org.jenkins.tools.test.servlets;
 
 import com.google.appengine.api.datastore.Key;
+import org.jenkins.tools.test.dao.LogsDAO;
 import org.jenkins.tools.test.dao.PluginCompatResultDAO;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PluginCompatResult;
@@ -43,13 +44,20 @@ public class WritePCTResultServlet extends HttpServlet {
         } else {
             date = new Date(Long.valueOf(dateTimestampStr));
         }
+        String buildLogPath = req.getParameter("buildLogPath");
 
         PluginInfos pluginInfos = new PluginInfos(pluginName, pluginVersion, pluginUrl);
         MavenCoordinates mavenCoords = MavenCoordinates.fromGAV(req.getParameter("mavenGAV"));
-        PluginCompatResult result = new PluginCompatResult(mavenCoords, status, errorMessages, warningMessages, null, date);
+        PluginCompatResult result = new PluginCompatResult(mavenCoords, status, errorMessages, warningMessages, buildLogPath, date);
 
         // Now, persisting result data into datastore !
         Key resultKey = PluginCompatResultDAO.INSTANCE.persist(pluginInfos, result);
+
+        String logContent = req.getParameter("logContent");
+        if(logContent != null && buildLogPath != null){
+            LogsDAO.INSTANCE.persistBuildLog(buildLogPath, logContent, resultKey);
+        }
+
         resp.getWriter().print(String.format("id=%d", resultKey.getId()));
     }
 }
