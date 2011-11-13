@@ -168,27 +168,11 @@ public enum PluginCompatResultDAO {
 
         long deletedLines = 0;
 
-        List<Key> coreKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.CORE_MAVEN_COORDS_KIND)).asList(FetchOptions.Builder.withLimit(10000)));
-        datastoreService.delete(coreKeys);
-        deletedLines += coreKeys.size();
-
-        List<Key> pluginInfosKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.PluginInfosProperties.KIND)).asList(FetchOptions.Builder.withLimit(10000)));
-        datastoreService.delete(pluginInfosKeys);
-        deletedLines += pluginInfosKeys.size();
-
-        List<Key> resultKeys = translateToKeyList(datastoreService.prepare(new Query(Mappings.PluginCompatResultProperties.KIND)).asList(FetchOptions.Builder.withLimit(10000)));
-        datastoreService.delete(resultKeys);
-        deletedLines += resultKeys.size();
+        deletedLines += DAOUtils.purgeEntities(Mappings.CORE_MAVEN_COORDS_KIND);
+        deletedLines += DAOUtils.purgeEntities(Mappings.PluginInfosProperties.KIND);
+        deletedLines += DAOUtils.purgeEntities(Mappings.PluginCompatResultProperties.KIND);
 
         return deletedLines;
-    }
-
-    private List<Key> translateToKeyList(List<Entity> entities){
-        List<Key> keys = new ArrayList<Key>(entities.size());
-        for(Entity e : entities){
-            keys.add(e.getKey());
-        }
-        return keys;
     }
 
     private List<String> cartesianProductOfCoreAndPlugins(Map<Key, MavenCoordinates> cores, Map<Key, PluginInfos> pluginInfos) {
