@@ -206,7 +206,7 @@ public class PluginCompatTester {
 
                     // Adding result to GAE
                     if(dataImporter != null){
-                        dataImporter.importPluginCompatResult(pluginInfos, result);
+                        dataImporter.importPluginCompatResult(result, pluginInfos, config.reportFile.getParentFile());
                         // TODO: import log files
                     }
 
