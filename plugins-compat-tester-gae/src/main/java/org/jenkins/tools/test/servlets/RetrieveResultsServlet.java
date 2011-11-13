@@ -58,12 +58,13 @@ public class RetrieveResultsServlet extends HttpServlet {
         }
     }
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         PluginCompatReport report = PluginCompatResultDAO.INSTANCE.search(
                 PluginMatcherFactory.create(request), CoreMatcherFactory.create(request));
 
         response.setContentType("application/json");
-        response.getWriter().println(JsonUtil.toJson(report));
+        response.getWriter().append(JsonUtil.toJson(report));
+        response.getWriter().flush();
     }
 }
