@@ -53,6 +53,8 @@ function ajaxSubmitForm(form){
     $.getJSON("/getResults", $(form).serializeObject(), function(pctReport){
         $("#searchSpinner").hide();
 
+        $("#results > table").remove();
+
         var numberOfJenkinsColumns = 0;
         var numberOfHudsonColumns = 0;
         $.each(pctReport.coreCoordinates, function(){
