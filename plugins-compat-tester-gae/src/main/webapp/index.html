@@ -27,24 +27,21 @@ div.input ul li label span {
       <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
       <script type="text/javascript" src="./js/chosen/chosen.jquery-0.9.5.min.js"></script>
       <script type="text/javascript">
-var ROOT_URL = "http://localhost:8080";
-
 function ajaxSubmitForm(form){
-
 }
 
 $(function(){
     $("#searchForm").submit(function(){ ajaxSubmitForm(this); return false; });
     $("#cores").chosen();
     $("#pluginInfos").chosen();
-    $.getJSON(ROOT_URL+"/getData?type=cores", function(results){
+    $.getJSON("/getData?type=cores", function(results){
         $("#cores").empty();
         $.each(results.cores, function(){
             $("<option value=\""+this.g+":"+this.a+":"+this.v+"\">"+(this.g=="org.jenkins-ci.plugins"?"Jenkins":"Hudson")+" v"+this.v+"</option>").appendTo($("#cores"));
         });
         $("#cores").trigger("liszt:updated");
     });
-    $.getJSON(ROOT_URL+"/getData?type=pluginInfos", function(results){
+    $.getJSON("/getData?type=pluginInfos", function(results){
         $("#pluginInfos").empty();
         $.each(results.pluginInfos, function(){
             $("<option value=\""+this+"\">"+this+"</option>").appendTo($("#pluginInfos"));
