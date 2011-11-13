@@ -35,7 +35,7 @@ function ajaxSubmitForm(form){
 $(function(){
     $("#searchForm").submit(function(){ ajaxSubmitForm(this); return false; });
     $("#cores").chosen();
-    $("#pluginInfos").chosen();
+    $("#plugins").chosen();
     $.getJSON("/getData?type=cores", function(results){
         $("#cores").empty();
         $.each(results.cores, function(){
@@ -44,11 +44,11 @@ $(function(){
         $("#cores").trigger("liszt:updated");
     });
     $.getJSON("/getData?type=pluginInfos", function(results){
-        $("#pluginInfos").empty();
+        $("#plugins").empty();
         $.each(results.pluginInfos, function(){
-            $("<option value=\""+this+"\">"+this+"</option>").appendTo($("#pluginInfos"));
+            $("<option value=\""+this+"\">"+this+"</option>").appendTo($("#plugins"));
         });
-        $("#pluginInfos").trigger("liszt:updated");
+        $("#plugins").trigger("liszt:updated");
     });
 });
       </script>
@@ -58,7 +58,7 @@ $(function(){
         <h2>Plugin compatibility criteria</h2>
         <form id="searchForm" action="/getResults" method="post">
             <fieldset>
-                    <label for="pluginInfos">Target core versions :</label>
+                    <label for="cores">Target core versions :</label>
                     <div class="input">
                         <ul class="inputs-list">
                             <li>
@@ -77,7 +77,7 @@ $(function(){
                             </li>
                         </ul>
                     </div>
-                    <label for="pluginInfos">Target plugins :</label>
+                    <label for="plugins">Target plugins :</label>
                     <div class="input">
                         <ul class="inputs-list">
                             <li>
@@ -90,7 +90,7 @@ $(function(){
                                 <label>
                                     <input type="radio" id="selectedPlugins" name="everyPlugins" value="false" />
                                     <span>Selected plugins :</span>
-                                    <select id="pluginInfos" name="pluginInfos" class="chzn-select" style="width: 635px" multiple>
+                                    <select id="plugins" name="plugins" class="chzn-select" style="width: 635px" multiple>
                                     </select>
                                 </label>
                             </li>
