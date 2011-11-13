@@ -66,11 +66,14 @@ public class JsonUtil {
         return sb.toString();
     }
 
-    public static String displayMessage(String label, String errorMessage) {
-        if(errorMessage == null){
+    public static String displayMessage(String label, String message) {
+        if(message == null){
             return "";
         }
-        return String.format("%s\"%s\"", label==null?"":"\""+label+"\":", errorMessage.replaceAll("\"", "\\\\\"").replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n"));
+
+        message = message.replaceAll("\"", "\\\\\"").replaceAll("\r", "\\\\r")
+                         .replaceAll("\n", "\\\\n").replaceAll("\t", "\\\\t");
+        return String.format("%s\"%s\"", label==null?"":"\""+label+"\":", message);
     }
 
     public static String toJson(Set<PluginInfos> pluginInfos) {
