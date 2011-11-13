@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.servlets;
 
+import org.jenkins.tools.test.dao.LogsDAO;
 import org.jenkins.tools.test.dao.PluginCompatResultDAO;
 
 import javax.servlet.ServletException;
@@ -17,6 +18,7 @@ public class PurgeResultsServlet extends HttpServlet {
         SecuritySupport.ensureTokenIsValid(request);
 
         long deletedLines = PluginCompatResultDAO.INSTANCE.purgeResults();
+        deletedLines += LogsDAO.INSTANCE.purgeResults();
 
         response.getWriter().println(String.format("%d lines deleted !", deletedLines));
     }
