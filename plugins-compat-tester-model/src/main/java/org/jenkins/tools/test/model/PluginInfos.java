@@ -59,7 +59,7 @@ public class PluginInfos implements Comparable<PluginInfos> {
         if(pluginName.equals(o.pluginName)){
             return pluginVersion.compareTo(o.pluginVersion);
         }else{
-            return pluginName.compareTo(o.pluginName);
+            return pluginName.compareToIgnoreCase(o.pluginName);
         }
     }
 }
