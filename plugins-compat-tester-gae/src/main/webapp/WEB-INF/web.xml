@@ -29,6 +29,10 @@
         <servlet-name>DataProviderServlet</servlet-name>
         <servlet-class>org.jenkins.tools.test.servlets.DataProviderServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>RetrieveBuildLogServlet</servlet-name>
+        <servlet-class>org.jenkins.tools.test.servlets.RetrieveBuildLogServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>HelloWorldServlet</servlet-name>
@@ -45,6 +49,10 @@
     <servlet-mapping>
         <servlet-name>RetrieveResultsServlet</servlet-name>
         <url-pattern>/getResults</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RetrieveBuildLogServlet</servlet-name>
+        <url-pattern>/getLog</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PurgeResultsServlet</servlet-name>
