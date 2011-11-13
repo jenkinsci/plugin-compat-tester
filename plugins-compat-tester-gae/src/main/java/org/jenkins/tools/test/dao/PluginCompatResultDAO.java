@@ -30,6 +30,10 @@ public enum PluginCompatResultDAO {
             }
 
             public Query enhanceSearchCoreQuery(Query query){
+                if(this.cores.size() == 0){
+                    return query;
+                }
+
                 List<String> gavs = new ArrayList<String>(cores.size());
                 for(MavenCoordinates coord : cores){
                     gavs.add(coord.toGAV());
@@ -38,8 +42,12 @@ public enum PluginCompatResultDAO {
             }
 
             public Query enhanceSearchResultQuery(Query query, Map<Key, MavenCoordinates> coords){
-                return query.addFilter(Mappings.PluginCompatResultProperties.coreCoordsKey.name(),
-                        Query.FilterOperator.IN, new ArrayList<Key>(coords.keySet()));
+                if(coords.size() == 0){
+                    return query;
+                } else {
+                    return query.addFilter(Mappings.PluginCompatResultProperties.coreCoordsKey.name(),
+                            Query.FilterOperator.IN, new ArrayList<Key>(coords.keySet()));
+                }
             }
         }
     }
@@ -60,11 +68,19 @@ public enum PluginCompatResultDAO {
                 this.pluginNames = pluginNames;
             }
             public Query enhanceSearchPluginQuery(Query query){
+                if(this.pluginNames.size() == 0){
+                    return query;
+                }
+
                 return query.addFilter(Mappings.PluginInfosProperties.pluginName.name(), Query.FilterOperator.IN, pluginNames);
             }
             public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos){
-                return query.addFilter(Mappings.PluginCompatResultProperties.pluginInfosKey.name(),
-                        Query.FilterOperator.IN, new ArrayList<Key>(pluginInfos.keySet()));
+                if(pluginInfos.size() == 0){
+                    return query;
+                } else {
+                    return query.addFilter(Mappings.PluginCompatResultProperties.pluginInfosKey.name(),
+                            Query.FilterOperator.IN, new ArrayList<Key>(pluginInfos.keySet()));
+                }
             }
         }
     }

@@ -28,7 +28,8 @@ public class RetrieveResultsServlet extends HttpServlet {
                 pluginMatcher = PluginCompatResultDAO.PluginMatcher.All.INSTANCE;
             } else {
                 // Fixing JQuery parameters encoding (it suffixes arrayed parameter with [])
-                String[] paramValues = req.getParameterValues("plugins")!=null?req.getParameterValues("plugins"):req.getParameterValues("plugins[]");
+                String[] paramValues = req.getParameterValues("plugins")!=null?req.getParameterValues("plugins")
+                        :req.getParameterValues("plugins[]")!=null?req.getParameterValues("plugins[]"):new String[0];
                 List<String> plugins = Arrays.asList(paramValues);
                 pluginMatcher = new PluginCompatResultDAO.PluginMatcher.Parameterized(plugins);
             }
@@ -45,7 +46,8 @@ public class RetrieveResultsServlet extends HttpServlet {
                 coreMatcher = PluginCompatResultDAO.CoreMatcher.All.INSTANCE;
             } else {
                 // Fixing JQuery parameters encoding (it suffixes arrayed parameter with [])
-                String[] paramValues = req.getParameterValues("cores")!=null?req.getParameterValues("cores"):req.getParameterValues("cores[]");
+                String[] paramValues = req.getParameterValues("cores")!=null?req.getParameterValues("cores")
+                        :req.getParameterValues("cores[]")!=null?req.getParameterValues("cores[]"):new String[0];
                 List<String> coreGAV = Arrays.asList(paramValues);
                 // Converting GAVs into MavenCoordinates
                 List<MavenCoordinates> coreCoords = new ArrayList<MavenCoordinates>(coreGAV.size());
