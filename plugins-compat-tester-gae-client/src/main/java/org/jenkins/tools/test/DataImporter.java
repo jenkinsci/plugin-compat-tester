@@ -1,5 +1,7 @@
 package org.jenkins.tools.test;
 
+import com.google.common.io.Files;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -12,7 +14,9 @@ import org.jenkins.tools.test.model.PluginCompatReport;
 import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginInfos;
 
+import javax.jnlp.FileSaveService;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +41,7 @@ public class DataImporter {
         this.securityToken = securityToken;
     }
 
-    public String importPluginCompatResult(PluginInfos pluginInfos, PluginCompatResult pluginCompatResult) throws IOException {
+    public String importPluginCompatResult(PluginCompatResult pluginCompatResult, PluginInfos pluginInfos, File logsBaseDir) throws IOException {
         HttpClient httpClient = new DefaultHttpClient();
         String url = baseGAEUrl+"/writePctResult";
 
@@ -60,6 +64,12 @@ public class DataImporter {
                 nvps.add(new BasicNameValuePair("warnMsgs", warnMsg));
             }
         }
+        if(pluginCompatResult.getBuildLogPath() != null && !"".equals(pluginCompatResult.getBuildLogPath())){
+            nvps.add(new BasicNameValuePair("buildLogPath", pluginCompatResult.getBuildLogPath()));
+            String logContent = Files.toString(new File(logsBaseDir.getAbsolutePath()+File.separator+pluginCompatResult.getBuildLogPath()), Charset.forName("UTF-8"));
+            nvps.add(new BasicNameValuePair("logContent", logContent));
+        }
+        
         method.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
 
         HttpResponse res = httpClient.execute(method);
@@ -96,7 +106,7 @@ public class DataImporter {
         int i = 0;
         for (Map.Entry<PluginInfos, List<PluginCompatResult>> test : report.getPluginCompatTests().entrySet()){
             for (PluginCompatResult pluginCompatResult : test.getValue()) {
-                importPluginCompatResult(test.getKey(), pluginCompatResult);
+                importPluginCompatResult(pluginCompatResult, test.getKey(), reportFile.getParentFile());
                 i++;
                 System.out.println(String.format("Executed request %d / %d", i, plannedRequestsCount));
             }
