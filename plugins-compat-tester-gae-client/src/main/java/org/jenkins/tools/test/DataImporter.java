@@ -66,9 +66,13 @@ public class DataImporter {
             }
         }
         if(pluginCompatResult.getBuildLogPath() != null && !"".equals(pluginCompatResult.getBuildLogPath())){
-            nvps.add(new BasicNameValuePair("buildLogPath", pluginCompatResult.getBuildLogPath()));
             String logContent = Files.toString(new File(logsBaseDir.getAbsolutePath()+File.separator+pluginCompatResult.getBuildLogPath()), Charset.forName("UTF-8"));
-            nvps.add(new BasicNameValuePair("logContent", logContent));
+            logContent = logContent.trim();
+            // Only uploading non empty files
+            if(!"".equals(logContent)){
+                nvps.add(new BasicNameValuePair("buildLogPath", pluginCompatResult.getBuildLogPath()));
+                nvps.add(new BasicNameValuePair("logContent", logContent));
+            }
         }
         
         method.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
