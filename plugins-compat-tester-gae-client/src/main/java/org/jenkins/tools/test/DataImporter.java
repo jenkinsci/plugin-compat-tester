@@ -112,9 +112,9 @@ public class DataImporter {
             for (PluginCompatResult pluginCompatResult : test.getValue()) {
                 if(i >= startingOffset.longValue()){
                     importPluginCompatResult(pluginCompatResult, test.getKey(), reportFile.getParentFile());
-                    i++;
                     System.out.println(String.format("Executed request %d / %d", i, plannedRequestsCount));
                 }
+                i++;
             }
         }
     }
