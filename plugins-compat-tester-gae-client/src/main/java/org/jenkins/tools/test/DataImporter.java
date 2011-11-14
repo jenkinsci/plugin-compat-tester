@@ -29,7 +29,8 @@ import java.util.regex.Pattern;
 public class DataImporter {
     public static void main(String[] args) throws IOException {
         File reportFile = new File(args[0]);
-        new DataImporter(args[1], args[2]).importExistingReport(reportFile);
+        Long startingOffset = args.length>3?Long.valueOf(args[3]):Long.valueOf(0);
+        new DataImporter(args[1], args[2]).importExistingReport(reportFile, startingOffset);
     }
 
     private static final Pattern ID_EXTRACTOR = Pattern.compile("id=(.+)");
@@ -95,7 +96,7 @@ public class DataImporter {
         return key;
     }
 
-    public void importExistingReport(File reportFile) throws IOException {
+    public void importExistingReport(File reportFile, Long startingOffset) throws IOException {
         PluginCompatReport report = PluginCompatReport.fromXml(reportFile);
 
         int plannedRequestsCount = 0;
@@ -103,12 +104,14 @@ public class DataImporter {
             plannedRequestsCount += test.getValue().size();
         }
 
-        int i = 0;
+        long i = 0;
         for (Map.Entry<PluginInfos, List<PluginCompatResult>> test : report.getPluginCompatTests().entrySet()){
             for (PluginCompatResult pluginCompatResult : test.getValue()) {
-                importPluginCompatResult(pluginCompatResult, test.getKey(), reportFile.getParentFile());
-                i++;
-                System.out.println(String.format("Executed request %d / %d", i, plannedRequestsCount));
+                if(i >= startingOffset.longValue()){
+                    importPluginCompatResult(pluginCompatResult, test.getKey(), reportFile.getParentFile());
+                    i++;
+                    System.out.println(String.format("Executed request %d / %d", i, plannedRequestsCount));
+                }
             }
         }
     }
