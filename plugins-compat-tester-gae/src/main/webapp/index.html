@@ -4,6 +4,7 @@
       <title>Plugin compatibility tester</title>
 
       <link rel="stylesheet" type="text/css" href="./css/chosen/chosen-0.9.5.css" />
+      <link rel="stylesheet" type="text/css" href="./css/jquery-ui/jquery-ui-1.8.16.custom.css" />
       <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
       <style type="text/css">
 .input .input-list li {
@@ -40,14 +41,57 @@ fieldset {
 fieldset legend {
     padding-left: 30px;
 }
+td {
+    vertical-align: middle;
+}
+td.cellResult {
+    white-space: nowrap;
+}
+table.progressBar {
+    margin-bottom: 0px;
+}
+table.progressBar td{
+    padding:  0px;
+}
+table.progressBar img.pgChunk{
+    width: 30px;
+    height: 8px;
+}
+table.progressBar img.terminal{
+    width: 20px;
+    border: 0px;
+}
+table.progressBar td.notProcessed {
+    background-color: #BBB;
+}
+table.progressBar td.error {
+    background-color: #900;
+}
+table.progressBar td.failure {
+    background-color: #EC8E00;
+}
+table.progressBar td.success {
+    background-color: #51A825;
+}
       </style>
 
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
       <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
       <script type="text/javascript" src="./js/chosen/chosen.jquery-0.9.5.min.js"></script>
+      <script type="text/javascript" src="./js/jquery-ui/jquery-ui-1.8.16.custom.min.js"></script>
       <script type="text/javascript" src="./js/json/json2.js"></script>
       <script type="text/javascript" src="./js/utils/ajax-utils.js"></script>
       <script type="text/javascript">
+var CURRENT_DIALOG = null;
+function displayLog(title, buildLogPath){
+    $.get("/getLog", { buildLogPath: buildLogPath }, function(result){
+        $("#dialogContent pre").empty();
+        $(result).appendTo($("#dialogContent pre"));
+        CURRENT_DIALOG.dialog('option', 'title', title);
+        CURRENT_DIALOG.dialog('open');
+    });
+
+}
 function ajaxSubmitForm(form){
     $("#searchSpinner").show();
     $.getJSON("/getResults", $(form).serializeObject(), function(pctReport){
@@ -130,6 +174,15 @@ $(function(){
         $("#plugins").trigger("liszt:updated");
     });
     $("#resultsTpl").template("resultsTpl");
+    CURRENT_DIALOG = $("#dialogContent").dialog({
+        modal: true,
+        height: 600,
+        resizable: true,
+        width: 800,
+        show: 'fade',
+        hide: 'fade',
+        autoOpen: false
+    });
 });
       </script>
   </head>
@@ -183,14 +236,81 @@ $(function(){
         <div id="results">
             <script id="resultCellContentTpl" type="text/x-jquery-tmpl">
                 {{if empty}}
-                <td>-----</td>
+                <td class="cellResult">
+                    <table class="progressBar" cellspacing="0" height="15px">
+                        <tbody>
+                            <tr>
+                                <td class="notProcessed"><img src="img/pct/spacer.gif" class="pgChunk" /></td>
+                                <td class="notProcessed"><img src="img/pct/spacer.gif" class="pgChunk" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                {{else status == "INTERNAL_ERROR"}}
+                <td class="cellResult">
+                    <table class="progressBar" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td class="error"><img src="img/pct/spacer.gif" class="pgChunk" /></td>
+                                <td class="error"><img src="img/pct/spacer.gif" class="pgChunk" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {{if buildLogPath != ""}}
+                    <a href="#" onclick="javascript:displayLog('blah', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    {{/if}}
+                </td>
+                {{else status == "COMPILATION_ERROR"}}
+                <td class="cellResult">
+                    <table class="progressBar" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td class="failure"><img src="img/pct/spacer.gif" class="pgChunk" /></td>
+                                <td class="notProcessed"><img src="img/pct/spacer.gif" class="pgChunk" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {{if buildLogPath != ""}}
+                    <a href="#" onclick="javascript:displayLog('blah', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    {{/if}}
+                </td>
+                {{else status == "TEST_FAILURES"}}
+                <td class="cellResult">
+                    <table class="progressBar" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td class="success"><img src="img/pct/spacer.gif" class="pgChunk" /></td>
+                                <td class="failure"><img src="img/pct/spacer.gif" class="pgChunk" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {{if buildLogPath != ""}}
+                    <a href="#" onclick="javascript:displayLog('blah', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    {{/if}}
+                </td>
+                {{else status == "SUCCESS"}}
+                <td class="cellResult">
+                    <table class="progressBar" cellspacing="0">
+                        <tbody>
+                            <tr>
+                                <td class="success"><img src="img/pct/spacer.gif" class="pgChunk" /></td>
+                                <td class="success"><img src="img/pct/spacer.gif" class="pgChunk" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {{if buildLogPath != ""}}
+                    <a href="#" onclick="javascript:displayLog('blah', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    {{/if}}
+                </td>
                 {{else}}
-                <td>${status}</td>
+                <td class="cellResult">
+                    Unknown tags (${empty}, ${status})
+                </td>
                 {{/if}}
             </script>
             <script id="resultFirstPluginLineTpl" type="text/x-jquery-tmpl">
                 <tr>
-                    <td rowspan="${pluginResultsCount}" style="vertical-align: middle">${pluginName}</td>
+                    <td rowspan="${pluginResultsCount}">${pluginName}</td>
                     <td>${pluginVersion}</td>
                     {{tmpl(results) "#resultCellContentTpl"}}
                 </tr>
@@ -225,6 +345,9 @@ $(function(){
                 </table>
             </script>
         </div>
+    </div>
+    <div style="display:none" id="dialogContent">
+        <pre></pre>
     </div>
   </body>
 </html>
