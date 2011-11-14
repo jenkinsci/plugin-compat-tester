@@ -13,6 +13,7 @@ import org.apache.http.protocol.HTTP;
 import org.jenkins.tools.test.model.PluginCompatReport;
 import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginInfos;
+import org.jenkins.tools.test.model.utils.IOUtils;
 
 import javax.jnlp.FileSaveService;
 import java.io.*;
@@ -78,19 +79,7 @@ public class DataImporter {
         method.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
 
         HttpResponse res = httpClient.execute(method);
-        InputStream is = res.getEntity().getContent();
-        StringWriter sw = new StringWriter();
-        char[] buffer = new char[1024];
-        try {
-            Reader r = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            int n;
-            while((n = r.read(buffer)) != -1){
-                sw.write(buffer, 0, n);
-            }
-        }finally{
-            is.close();
-        }
-        String responseBody = sw.toString();
+        String responseBody = IOUtils.streamToString(res.getEntity().getContent());
         if(res.getStatusLine().getStatusCode() != 200){
             throw new IllegalStateException("Error while importing data : "+responseBody+" ("+res.getStatusLine().getStatusCode()+")");
         }
