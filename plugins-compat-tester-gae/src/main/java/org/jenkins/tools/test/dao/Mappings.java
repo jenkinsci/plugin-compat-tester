@@ -4,7 +4,9 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
 import org.jenkins.tools.test.model.*;
+import org.jenkins.tools.test.model.utils.IOUtils;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -164,6 +166,15 @@ public class Mappings {
     }
 
     public static String logContentFromEntity(Entity log) {
-        return ((Text)log.getProperty(LogProperties.logContent.name())).getValue();
+        String compressedLogContent = ((Text)log.getProperty(LogProperties.logContent.name())).getValue();
+        String logContent = null;
+        try {
+            logContent = IOUtils.gunzipString(compressedLogContent);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return logContent;
     }
 }

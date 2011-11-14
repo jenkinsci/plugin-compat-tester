@@ -72,7 +72,8 @@ public class DataImporter {
             // Only uploading non empty files
             if(!"".equals(logContent)){
                 nvps.add(new BasicNameValuePair("buildLogPath", pluginCompatResult.getBuildLogPath()));
-                nvps.add(new BasicNameValuePair("logContent", logContent));
+                String compressedLogContent = IOUtils.gzipString(logContent);
+                nvps.add(new BasicNameValuePair("logContent", compressedLogContent));
             }
         }
         
