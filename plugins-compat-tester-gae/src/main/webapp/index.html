@@ -276,7 +276,8 @@ $(function(){
                         </tbody>
                     </table>
                     {{if buildLogPath != ""}}
-                    <a href="#" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    <a name="${pluginName}_${pluginVersion}_${core}" />
+                    <a href="#${pluginName}_${pluginVersion}_${core}" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
                     {{/if}}
                 </td>
                 {{else status == "COMPILATION_ERROR"}}
@@ -290,7 +291,8 @@ $(function(){
                         </tbody>
                     </table>
                     {{if buildLogPath != ""}}
-                    <a href="#" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    <a name="${pluginName}_${pluginVersion}_${core}" />
+                    <a href="#${pluginName}_${pluginVersion}_${core}" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
                     {{/if}}
                 </td>
                 {{else status == "TEST_FAILURES"}}
@@ -304,7 +306,8 @@ $(function(){
                         </tbody>
                     </table>
                     {{if buildLogPath != ""}}
-                    <a href="#" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    <a name="${pluginName}_${pluginVersion}_${core}" />
+                    <a href="#${pluginName}_${pluginVersion}_${core}" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
                     {{/if}}
                 </td>
                 {{else status == "SUCCESS"}}
@@ -318,7 +321,8 @@ $(function(){
                         </tbody>
                     </table>
                     {{if buildLogPath != ""}}
-                    <a href="#" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    <a name="${pluginName}_${pluginVersion}_${core}" />
+                    <a href="#${pluginName}_${pluginVersion}_${core}" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
                     {{/if}}
                 </td>
                 {{else}}
