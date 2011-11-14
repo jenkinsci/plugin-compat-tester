@@ -1,0 +1,1495 @@
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.jenkins-ci.plugins:labeled-test-groups-publisher:hpi:1.2.6
+[WARNING] 'build.plugins.plugin.version' for org.apache.maven.plugins:maven-compiler-plugin is missing. @ org.jenkins-ci:jenkins:1.10, /home/jenkins/.m2/repository/org/jenkins-ci/jenkins/1.10/jenkins-1.10.pom, line 115, column 15
+[WARNING] 'build.plugins.plugin.version' for org.apache.maven.plugins:maven-surefire-plugin is missing. @ org.jenkins-ci.plugins:plugin:1.396, /home/jenkins/.m2/repository/org/jenkins-ci/plugins/plugin/1.396/plugin-1.396.pom, line 188, column 15
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] Maven Version: 3.0.3
+[INFO] JDK Version: 1.6.0_24 normalized as: 1.6.0-24
+[INFO] OS Info: Arch: amd64 Family: unix Name: linux Version: 2.6.35-25-server
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 9 resources
+[INFO] Compiling 11 source files to /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/classes
+Note: Generating hudson/plugins/labeledgroupedtests/LabeledTestResultGroup.javadoc
+Note: Generating hudson/plugins/labeledgroupedtests/MetaLabeledTestResultGroup.javadoc
+Note: Generating hudson/plugins/labeledgroupedtests/LabeledTestResultGroupPublisher.stapler
+Note: Generating hudson/plugins/labeledgroupedtests/LabeledTestGroupConfiguration.stapler
+Note: hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher.DescriptorImpl indexed under hudson.Extension
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+[INFO] Checking unresolved references to org.jvnet.animal-sniffer:java1.5:1.0
+[INFO]  No sources found for Java stub generation
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 139 resources
+[INFO] Compiling 8 source files to /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/test-classes
+[INFO] Generating /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/test-classes/the.hpl
+[INFO]  No sources found to compile
+[INFO] Surefire report directory: /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running hudson.plugins.labeledandgroupedtests.MigrationTest
+Exploding jenkins.war at /home/jenkins/.m2/repository/org/jenkins-ci/main/jenkins-war/1.396/jenkins-war-1.396-war-for-test.jar
+2011-05-30 15:22:16.430::INFO:  Logging to STDERR via org.mortbay.log.StdErrLog
+2011-05-30 15:22:16.444::INFO:  jetty-6.1.11
+2011-05-30 15:22:16.543::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:16 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:16.779::INFO:  Started SocketConnector@0.0.0.0:52667
+May 30, 2011 3:22:16 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:17 PM hudson.PluginManager$1$3$1 isDuplicate
+INFO: Ignoring /tmp/hudson2874345917788148330tmp/the.hpl because /tmp/hudson2874345917788148330tmp/the.hpl is already loaded
+May 30, 2011 3:22:17 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:17 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:17 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:17 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:18 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:20 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:21 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:21 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 41921
+2011-05-30 15:22:21.381::INFO:  jetty-6.1.11
+2011-05-30 15:22:21.382::INFO:  Started SocketConnector@0.0.0.0:40045
+=== Starting MigrationTest.testAutomatedJUnitMigration
+May 30, 2011 3:22:21 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:22:21 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:22:21 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:22:21 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:22:21 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:22:21 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:22:21 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+2011-05-30 15:22:21.630::INFO:  jetty-6.1.11
+2011-05-30 15:22:21.640::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:21 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:21.652::INFO:  Started SocketConnector@0.0.0.0:44733
+May 30, 2011 3:22:21 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:21 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:21 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:21 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:21 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:21 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:22 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:22 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 53089
+=== Starting MigrationTest.testTrivial
+May 30, 2011 3:22:22 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:22:22 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:22:22 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:22:22 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:22:22 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:22:22 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:22:22 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.458 sec
+Running hudson.plugins.labeledandgroupedtests.AntiDestructionTest
+2011-05-30 15:22:22.463::INFO:  jetty-6.1.11
+2011-05-30 15:22:22.471::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:22 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:22.476::INFO:  Started SocketConnector@0.0.0.0:45730
+May 30, 2011 3:22:22 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:22 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:22 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:22 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:22 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:22 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:22 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:22 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 42351
+=== Starting AntiDestructionTest.testSavingJUnitConfiguration
+We converted it: <hudson.tasks.junit.JUnitResultArchiver>
+  <testResults>**/*.xml</testResults>
+  <testDataPublishers/>
+</hudson.tasks.junit.JUnitResultArchiver>
+May 30, 2011 3:22:23 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.722 sec
+Running hudson.plugins.labeledandgroupedtests.EnhancedHudsonTestCase
+2011-05-30 15:22:23.189::INFO:  jetty-6.1.11
+2011-05-30 15:22:23.198::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:23 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:23.203::INFO:  Started SocketConnector@0.0.0.0:56778
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:23 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 56009
+=== Starting EnhancedHudsonTestCase.testTrivial
+May 30, 2011 3:22:23 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:22:23 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.685 sec
+Running hudson.plugins.labeledandgroupedtests.CountingTest
+2011-05-30 15:22:23.876::INFO:  jetty-6.1.11
+2011-05-30 15:22:23.883::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:23 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:23.887::INFO:  Started SocketConnector@0.0.0.0:54040
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:23 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:24 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:24 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 55534
+=== Starting CountingTest.testTrivial
+May 30, 2011 3:22:24 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:22:24 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:22:24 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:22:24 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:22:24 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:22:24 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:22:24 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.64 sec
+Running hudson.plugins.labeledandgroupedtests.FindMyStuffTest
+2011-05-30 15:22:24.518::INFO:  jetty-6.1.11
+2011-05-30 15:22:24.525::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:24 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:24.529::INFO:  Started SocketConnector@0.0.0.0:50364
+May 30, 2011 3:22:24 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:24 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:24 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:24 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:24 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:24 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:24 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:25 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 40534
+=== Starting FindMyStuffTest.testFindingParsers
+hudson.tasks.test.TestResultParser extensions: 
+ --> hudson.tasks.junit.JUnitParser
+
+May 30, 2011 3:22:25 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:22:25 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:22:25 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:22:25 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:22:25 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:22:25 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:22:25 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.662 sec
+Running hudson.plugins.labeledandgroupedtests.ConfigurationConversionTest
+May 30, 2011 3:22:25 PM hudson.plugins.labeledgroupedtests.converters.JUnitResultArchiverConverter unmarshal
+SEVERE: Encountered a configuration of JUnitResultArchiver that this converter does not know how to deal with. Aborting conversion.. Node name is 'testDataPublishers'
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 sec
+Running hudson.plugins.labeledandgroupedtests.CombinationOfParsersAndLabelsTest
+2011-05-30 15:22:25.158::INFO:  jetty-6.1.11
+2011-05-30 15:22:25.164::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:25 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:25.168::INFO:  Started SocketConnector@0.0.0.0:48359
+May 30, 2011 3:22:25 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:25 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:25 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:25 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:25 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:25 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:25 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:25 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:25 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:25 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 45712
+=== Starting CombinationOfParsersAndLabelsTest.testJustJavaGrouping
+May 30, 2011 3:22:26 PM hudson.model.Run run
+INFO: just_java_groups #1 main build action completed: SUCCESS
+May 30, 2011 3:22:26 PM hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher perform
+INFO: Test results parsed: hudson.plugins.labeledgroupedtests.MetaLabeledTestResultGroup@fd50fd2
+May 30, 2011 3:22:26 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:22:26 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:22:26 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:22:26 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:22:26 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:22:26 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:22:26 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+2011-05-30 15:22:26.600::INFO:  jetty-6.1.11
+2011-05-30 15:22:26.607::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:26 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:26.612::INFO:  Started SocketConnector@0.0.0.0:54232
+May 30, 2011 3:22:26 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:26 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:26 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:26 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:26 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:26 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:26 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:27 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:27 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:27 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 51074
+=== Starting CombinationOfParsersAndLabelsTest.testRemoteJavaGrouping
+May 30, 2011 3:22:29 PM hudson.slaves.CommandLauncher launch
+INFO: slave agent launched for slave0
+May 30, 2011 3:22:31 PM hudson.model.Run run
+INFO: just_java_groups #1 main build action completed: SUCCESS
+May 30, 2011 3:22:32 PM hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher perform
+INFO: Test results parsed: hudson.plugins.labeledgroupedtests.MetaLabeledTestResultGroup@2cf0bca1
+May 30, 2011 3:22:32 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:22:32 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:22:32 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:22:32 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:22:32 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:22:32 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:22:32 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+May 30, 2011 3:22:32 PM hudson.remoting.Channel$ReaderThread run
+SEVERE: Failed to execute command close (channel slave0)
+java.lang.NullPointerException
+	at hudson.util.ProcessTree.getKillers(ProcessTree.java:158)
+	at hudson.util.ProcessTree$OSProcess.killByKiller(ProcessTree.java:212)
+	at hudson.util.ProcessTree$UnixProcess.kill(ProcessTree.java:545)
+	at hudson.util.ProcessTree$UnixProcess.killRecursively(ProcessTree.java:552)
+	at hudson.util.ProcessTree.killAll(ProcessTree.java:147)
+	at hudson.slaves.CommandLauncher$1.onClosed(CommandLauncher.java:133)
+	at hudson.remoting.Channel.terminate(Channel.java:695)
+	at hudson.remoting.Channel$CloseCommand.execute(Channel.java:763)
+	at hudson.remoting.Channel$ReaderThread.run(Channel.java:962)
+May 30, 2011 3:22:32 PM hudson.remoting.Channel$ReaderThread run
+SEVERE: This command is created here
+Command close created at
+	at hudson.remoting.Command.<init>(Command.java:58)
+	at hudson.remoting.Command.<init>(Command.java:47)
+	at hudson.remoting.Channel$CloseCommand.<init>(Channel.java:759)
+	at hudson.remoting.Channel$CloseCommand.<init>(Channel.java:759)
+	at hudson.remoting.Channel.close(Channel.java:804)
+	at hudson.remoting.Channel$CloseCommand.execute(Channel.java:762)
+	at hudson.remoting.Channel$ReaderThread.run(Channel.java:962)
+2011-05-30 15:22:33.831::INFO:  jetty-6.1.11
+2011-05-30 15:22:33.837::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:33 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:33.841::INFO:  Started SocketConnector@0.0.0.0:52856
+May 30, 2011 3:22:33 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:33 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:33 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:33 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:33 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:33 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:33 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:33 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:33 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:33 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 46436
+=== Starting CombinationOfParsersAndLabelsTest.testHistory
+May 30, 2011 3:22:33 PM hudson.model.Run run
+INFO: just_java_groups #1 main build action completed: SUCCESS
+May 30, 2011 3:22:33 PM hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher perform
+INFO: Test results parsed: hudson.plugins.labeledgroupedtests.MetaLabeledTestResultGroup@7194b34a
+May 30, 2011 3:22:34 PM hudson.model.Run run
+INFO: just_java_groups #2 main build action completed: SUCCESS
+May 30, 2011 3:22:34 PM hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher perform
+INFO: Test results parsed: hudson.plugins.labeledgroupedtests.MetaLabeledTestResultGroup@7f09bf4d
+May 30, 2011 3:22:35 PM hudson.model.Run run
+INFO: just_java_groups #3 main build action completed: SUCCESS
+May 30, 2011 3:22:35 PM hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher perform
+INFO: Test results parsed: hudson.plugins.labeledgroupedtests.MetaLabeledTestResultGroup@114beb40
+May 30, 2011 3:22:40 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:52856/static/dc668826/css/style.css [456:26] Error in expression. Invalid token "=". Was expecting one of: <S>, <COMMA>, "/", <PLUS>, "-", <HASH>, <STRING>, ")", <URI>, "inherit", <EMS>, <EXS>, <LENGTH_PX>, <LENGTH_CM>, <LENGTH_MM>, <LENGTH_IN>, <LENGTH_PT>, <LENGTH_PC>, <ANGLE_DEG>, <ANGLE_RAD>, <ANGLE_GRAD>, <TIME_MS>, <TIME_S>, <FREQ_HZ>, <FREQ_KHZ>, <DIMENSION>, <PERCENTAGE>, <NUMBER>, <FUNCTION>, <IDENT>.
+May 30, 2011 3:22:40 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:52856/static/dc668826/css/style.css [456:31] Error in style rule. Invalid token "\n". Was expecting one of: "}", ";".
+May 30, 2011 3:22:40 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler warning
+WARNING: CSS warning: http://localhost:52856/static/dc668826/css/style.css [456:31] Ignoring the following declarations in this rule.
+May 30, 2011 3:22:44 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:52856/static/dc668826/css/style.css [456:26] Error in expression. Invalid token "=". Was expecting one of: <S>, <COMMA>, "/", <PLUS>, "-", <HASH>, <STRING>, ")", <URI>, "inherit", <EMS>, <EXS>, <LENGTH_PX>, <LENGTH_CM>, <LENGTH_MM>, <LENGTH_IN>, <LENGTH_PT>, <LENGTH_PC>, <ANGLE_DEG>, <ANGLE_RAD>, <ANGLE_GRAD>, <TIME_MS>, <TIME_S>, <FREQ_HZ>, <FREQ_KHZ>, <DIMENSION>, <PERCENTAGE>, <NUMBER>, <FUNCTION>, <IDENT>.
+May 30, 2011 3:22:44 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:52856/static/dc668826/css/style.css [456:31] Error in style rule. Invalid token "\n". Was expecting one of: "}", ";".
+May 30, 2011 3:22:44 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler warning
+WARNING: CSS warning: http://localhost:52856/static/dc668826/css/style.css [456:31] Ignoring the following declarations in this rule.
+May 30, 2011 3:22:45 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:22:45 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:22:45 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:22:45 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:22:45 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:22:45 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:22:45 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+2011-05-30 15:22:46.378::INFO:  jetty-6.1.11
+2011-05-30 15:22:46.392::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:46 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:46.401::INFO:  Started SocketConnector@0.0.0.0:57693
+May 30, 2011 3:22:46 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:46 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:46 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:46 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:46 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:46 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:46 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:46 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:46 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:46 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 36009
+=== Starting CombinationOfParsersAndLabelsTest.testPromotedFailureLinks
+May 30, 2011 3:22:46 PM hudson.model.Run run
+INFO: cat #1 main build action completed: SUCCESS
+May 30, 2011 3:22:46 PM hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher perform
+INFO: Test results parsed: hudson.plugins.labeledgroupedtests.MetaLabeledTestResultGroup@2442c1ad
+May 30, 2011 3:22:47 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:57693/static/dc668826/css/style.css [456:26] Error in expression. Invalid token "=". Was expecting one of: <S>, <COMMA>, "/", <PLUS>, "-", <HASH>, <STRING>, ")", <URI>, "inherit", <EMS>, <EXS>, <LENGTH_PX>, <LENGTH_CM>, <LENGTH_MM>, <LENGTH_IN>, <LENGTH_PT>, <LENGTH_PC>, <ANGLE_DEG>, <ANGLE_RAD>, <ANGLE_GRAD>, <TIME_MS>, <TIME_S>, <FREQ_HZ>, <FREQ_KHZ>, <DIMENSION>, <PERCENTAGE>, <NUMBER>, <FUNCTION>, <IDENT>.
+May 30, 2011 3:22:47 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:57693/static/dc668826/css/style.css [456:31] Error in style rule. Invalid token "\n". Was expecting one of: "}", ";".
+May 30, 2011 3:22:47 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler warning
+WARNING: CSS warning: http://localhost:57693/static/dc668826/css/style.css [456:31] Ignoring the following declarations in this rule.
+May 30, 2011 3:22:49 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:57693/static/dc668826/css/style.css [456:26] Error in expression. Invalid token "=". Was expecting one of: <S>, <COMMA>, "/", <PLUS>, "-", <HASH>, <STRING>, ")", <URI>, "inherit", <EMS>, <EXS>, <LENGTH_PX>, <LENGTH_CM>, <LENGTH_MM>, <LENGTH_IN>, <LENGTH_PT>, <LENGTH_PC>, <ANGLE_DEG>, <ANGLE_RAD>, <ANGLE_GRAD>, <TIME_MS>, <TIME_S>, <FREQ_HZ>, <FREQ_KHZ>, <DIMENSION>, <PERCENTAGE>, <NUMBER>, <FUNCTION>, <IDENT>.
+May 30, 2011 3:22:49 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:57693/static/dc668826/css/style.css [456:31] Error in style rule. Invalid token "\n". Was expecting one of: "}", ";".
+May 30, 2011 3:22:49 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler warning
+WARNING: CSS warning: http://localhost:57693/static/dc668826/css/style.css [456:31] Ignoring the following declarations in this rule.
+May 30, 2011 3:22:50 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:57693/static/dc668826/css/style.css [456:26] Error in expression. Invalid token "=". Was expecting one of: <S>, <COMMA>, "/", <PLUS>, "-", <HASH>, <STRING>, ")", <URI>, "inherit", <EMS>, <EXS>, <LENGTH_PX>, <LENGTH_CM>, <LENGTH_MM>, <LENGTH_IN>, <LENGTH_PT>, <LENGTH_PC>, <ANGLE_DEG>, <ANGLE_RAD>, <ANGLE_GRAD>, <TIME_MS>, <TIME_S>, <FREQ_HZ>, <FREQ_KHZ>, <DIMENSION>, <PERCENTAGE>, <NUMBER>, <FUNCTION>, <IDENT>.
+May 30, 2011 3:22:50 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:57693/static/dc668826/css/style.css [456:31] Error in style rule. Invalid token "\n". Was expecting one of: "}", ";".
+May 30, 2011 3:22:50 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler warning
+WARNING: CSS warning: http://localhost:57693/static/dc668826/css/style.css [456:31] Ignoring the following declarations in this rule.
+link is : tacoshack.meals/NachosTest/testBeanDip/
+May 30, 2011 3:22:52 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:57693/static/dc668826/css/style.css [456:26] Error in expression. Invalid token "=". Was expecting one of: <S>, <COMMA>, "/", <PLUS>, "-", <HASH>, <STRING>, ")", <URI>, "inherit", <EMS>, <EXS>, <LENGTH_PX>, <LENGTH_CM>, <LENGTH_MM>, <LENGTH_IN>, <LENGTH_PT>, <LENGTH_PC>, <ANGLE_DEG>, <ANGLE_RAD>, <ANGLE_GRAD>, <TIME_MS>, <TIME_S>, <FREQ_HZ>, <FREQ_KHZ>, <DIMENSION>, <PERCENTAGE>, <NUMBER>, <FUNCTION>, <IDENT>.
+May 30, 2011 3:22:52 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:57693/static/dc668826/css/style.css [456:31] Error in style rule. Invalid token "\n". Was expecting one of: "}", ";".
+May 30, 2011 3:22:52 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler warning
+WARNING: CSS warning: http://localhost:57693/static/dc668826/css/style.css [456:31] Ignoring the following declarations in this rule.
+May 30, 2011 3:22:52 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:22:53 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:22:53 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:22:53 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:22:53 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:22:53 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:22:53 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+2011-05-30 15:22:53.691::INFO:  jetty-6.1.11
+2011-05-30 15:22:53.697::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:53 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:53.709::INFO:  Started SocketConnector@0.0.0.0:36195
+May 30, 2011 3:22:53 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:53 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:53 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:53 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:53 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:53 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:53 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:53 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:53 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:54 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 41752
+=== Starting CombinationOfParsersAndLabelsTest.testPersistence
+May 30, 2011 3:22:54 PM hudson.model.Run run
+INFO: just_java_groups #1 main build action completed: SUCCESS
+May 30, 2011 3:22:54 PM hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher perform
+INFO: Test results parsed: hudson.plugins.labeledgroupedtests.MetaLabeledTestResultGroup@75de997c
+May 30, 2011 3:22:54 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:22:54 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:22:54 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:22:54 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:22:54 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:22:54 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:22:54 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+2011-05-30 15:22:54.826::INFO:  jetty-6.1.11
+2011-05-30 15:22:54.829::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:22:54 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:22:54.832::INFO:  Started SocketConnector@0.0.0.0:50085
+May 30, 2011 3:22:54 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:22:54 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:22:54 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:22:54 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:22:54 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:22:54 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:54 PM hudson.util.CopyOnWriteList$ConverterImpl unmarshal
+WARNING: Failed to resolve class
+com.thoughtworks.xstream.mapper.CannotResolveClassException: hudson.plugins.utilitybuilders.TouchBuilder : hudson.plugins.utilitybuilders.TouchBuilder
+	at com.thoughtworks.xstream.mapper.DefaultMapper.realClass(DefaultMapper.java:68)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.DynamicProxyMapper.realClass(DynamicProxyMapper.java:71)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.PackageAliasingMapper.realClass(PackageAliasingMapper.java:88)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ClassAliasingMapper.realClass(ClassAliasingMapper.java:86)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.ArrayMapper.realClass(ArrayMapper.java:96)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at hudson.util.XStream2$CompatibilityMapper.realClass(XStream2.java:142)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.MapperWrapper.realClass(MapperWrapper.java:38)
+	at com.thoughtworks.xstream.mapper.CachingMapper.realClass(CachingMapper.java:56)
+	at com.thoughtworks.xstream.core.util.HierarchicalStreams.readClassType(HierarchicalStreams.java:29)
+	at com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter.readItem(AbstractCollectionConverter.java:70)
+	at hudson.util.CopyOnWriteList$ConverterImpl.unmarshal(CopyOnWriteList.java:190)
+	at hudson.util.DescribableList$ConverterImpl.unmarshal(DescribableList.java:231)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at hudson.util.RobustReflectionConverter.unmarshalField(RobustReflectionConverter.java:290)
+	at hudson.util.RobustReflectionConverter.doUnmarshal(RobustReflectionConverter.java:233)
+	at hudson.util.RobustReflectionConverter.unmarshal(RobustReflectionConverter.java:180)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convert(TreeUnmarshaller.java:82)
+	at com.thoughtworks.xstream.core.AbstractReferenceUnmarshaller.convert(AbstractReferenceUnmarshaller.java:63)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:76)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.convertAnother(TreeUnmarshaller.java:60)
+	at com.thoughtworks.xstream.core.TreeUnmarshaller.start(TreeUnmarshaller.java:137)
+	at com.thoughtworks.xstream.core.AbstractTreeMarshallingStrategy.unmarshal(AbstractTreeMarshallingStrategy.java:33)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:926)
+	at hudson.util.XStream2.unmarshal(XStream2.java:80)
+	at com.thoughtworks.xstream.XStream.unmarshal(XStream.java:912)
+	at com.thoughtworks.xstream.XStream.fromXML(XStream.java:856)
+	at hudson.XmlFile.read(XmlFile.java:126)
+	at hudson.model.Items.load(Items.java:108)
+	at hudson.model.Hudson$13.run(Hudson.java:2268)
+	at org.jvnet.hudson.reactor.TaskGraphBuilder$TaskImpl.run(TaskGraphBuilder.java:146)
+	at org.jvnet.hudson.reactor.Reactor.runTask(Reactor.java:259)
+	at hudson.model.Hudson$4.runTask(Hudson.java:734)
+	at org.jvnet.hudson.reactor.Reactor$2.run(Reactor.java:187)
+	at org.jvnet.hudson.reactor.Reactor$Node.run(Reactor.java:94)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+May 30, 2011 3:22:55 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:22:55 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:22:55 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 45318
+=== Starting CombinationOfParsersAndLabelsTest.testJustShowFailures
+May 30, 2011 3:22:55 PM hudson.model.Run run
+INFO: just_java_groups #1 main build action completed: SUCCESS
+May 30, 2011 3:22:55 PM hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher perform
+INFO: Test results parsed: hudson.plugins.labeledgroupedtests.MetaLabeledTestResultGroup@2baec86a
+May 30, 2011 3:22:56 PM hudson.model.Run run
+INFO: just_java_groups #2 main build action completed: SUCCESS
+May 30, 2011 3:22:56 PM hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher perform
+INFO: Test results parsed: hudson.plugins.labeledgroupedtests.MetaLabeledTestResultGroup@65c7bbfc
+May 30, 2011 3:22:57 PM hudson.model.Run run
+INFO: just_java_groups #3 main build action completed: SUCCESS
+May 30, 2011 3:22:57 PM hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher perform
+INFO: Test results parsed: hudson.plugins.labeledgroupedtests.MetaLabeledTestResultGroup@380dc55c
+May 30, 2011 3:22:58 PM hudson.model.Run run
+INFO: just_java_groups #4 main build action completed: SUCCESS
+May 30, 2011 3:22:58 PM hudson.plugins.labeledgroupedtests.LabeledTestResultGroupPublisher perform
+INFO: Test results parsed: hudson.plugins.labeledgroupedtests.MetaLabeledTestResultGroup@67a7d653
+May 30, 2011 3:22:59 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:50085/static/dc668826/css/style.css [456:26] Error in expression. Invalid token "=". Was expecting one of: <S>, <COMMA>, "/", <PLUS>, "-", <HASH>, <STRING>, ")", <URI>, "inherit", <EMS>, <EXS>, <LENGTH_PX>, <LENGTH_CM>, <LENGTH_MM>, <LENGTH_IN>, <LENGTH_PT>, <LENGTH_PC>, <ANGLE_DEG>, <ANGLE_RAD>, <ANGLE_GRAD>, <TIME_MS>, <TIME_S>, <FREQ_HZ>, <FREQ_KHZ>, <DIMENSION>, <PERCENTAGE>, <NUMBER>, <FUNCTION>, <IDENT>.
+May 30, 2011 3:22:59 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:50085/static/dc668826/css/style.css [456:31] Error in style rule. Invalid token "\n". Was expecting one of: "}", ";".
+May 30, 2011 3:22:59 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler warning
+WARNING: CSS warning: http://localhost:50085/static/dc668826/css/style.css [456:31] Ignoring the following declarations in this rule.
+May 30, 2011 3:23:01 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:50085/static/dc668826/css/style.css [456:26] Error in expression. Invalid token "=". Was expecting one of: <S>, <COMMA>, "/", <PLUS>, "-", <HASH>, <STRING>, ")", <URI>, "inherit", <EMS>, <EXS>, <LENGTH_PX>, <LENGTH_CM>, <LENGTH_MM>, <LENGTH_IN>, <LENGTH_PT>, <LENGTH_PC>, <ANGLE_DEG>, <ANGLE_RAD>, <ANGLE_GRAD>, <TIME_MS>, <TIME_S>, <FREQ_HZ>, <FREQ_KHZ>, <DIMENSION>, <PERCENTAGE>, <NUMBER>, <FUNCTION>, <IDENT>.
+May 30, 2011 3:23:01 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler error
+WARNING: CSS error: http://localhost:50085/static/dc668826/css/style.css [456:31] Error in style rule. Invalid token "\n". Was expecting one of: "}", ";".
+May 30, 2011 3:23:01 PM com.gargoylesoftware.htmlunit.DefaultCssErrorHandler warning
+WARNING: CSS warning: http://localhost:50085/static/dc668826/css/style.css [456:31] Ignoring the following declarations in this rule.
+May 30, 2011 3:23:01 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:23:01 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:23:01 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:23:01 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:23:01 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:23:01 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:23:01 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+2011-05-30 15:23:02.850::INFO:  jetty-6.1.11
+2011-05-30 15:23:02.854::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:23:02 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:23:02.858::INFO:  Started SocketConnector@0.0.0.0:52680
+May 30, 2011 3:23:02 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:23:02 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:23:02 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:23:02 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:23:02 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:23:02 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:23:03 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:23:03 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 52255
+=== Starting CombinationOfParsersAndLabelsTest.testTrivial
+May 30, 2011 3:23:03 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:23:03 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:23:03 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:23:03 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:23:03 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:23:03 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:23:03 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 38.323 sec
+Running InjectedTest
+2011-05-30 15:23:03.637::INFO:  jetty-6.1.11
+2011-05-30 15:23:03.639::INFO:  NO JSP Support for , did not find org.apache.jasper.servlet.JspServlet
+May 30, 2011 3:23:03 PM hudson.util.CharacterEncodingFilter init
+INFO: CharacterEncodingFilter initialized. DISABLE_FILTER: false FORCE_ENCODING: false
+2011-05-30 15:23:03.642::INFO:  Started SocketConnector@0.0.0.0:41602
+May 30, 2011 3:23:03 PM hudson.model.Hudson$5 onAttained
+INFO: Started initialization
+May 30, 2011 3:23:03 PM hudson.model.Hudson$5 onAttained
+INFO: Listed all plugins
+May 30, 2011 3:23:03 PM hudson.model.Hudson$5 onAttained
+INFO: Prepared all plugins
+May 30, 2011 3:23:03 PM hudson.model.Hudson$5 onAttained
+INFO: Started all plugins
+May 30, 2011 3:23:03 PM hudson.model.Hudson$5 onAttained
+INFO: Augmented all extensions
+May 30, 2011 3:23:03 PM hudson.model.Hudson$5 onAttained
+INFO: Loaded all jobs
+May 30, 2011 3:23:04 PM hudson.model.Hudson$5 onAttained
+INFO: Completed initialization
+May 30, 2011 3:23:04 PM hudson.TcpSlaveAgentListener <init>
+INFO: JNLP slave agent listener started on TCP port 46720
+May 30, 2011 3:23:04 PM hudson.util.CharacterEncodingFilter destroy
+INFO: CharacterEncodingFilter destroyed.
+May 30, 2011 3:23:04 PM hudson.PluginWrapper stop
+INFO: Stopping labeled-test-groups-publisher
+May 30, 2011 3:23:04 PM hudson.PluginWrapper stop
+INFO: Stopping ui-samples-plugin
+May 30, 2011 3:23:04 PM hudson.PluginWrapper stop
+INFO: Stopping ssh-slaves
+May 30, 2011 3:23:04 PM hudson.PluginWrapper stop
+INFO: Stopping cvs
+May 30, 2011 3:23:04 PM hudson.PluginWrapper stop
+INFO: Stopping maven-plugin
+May 30, 2011 3:23:04 PM hudson.PluginWrapper stop
+INFO: Stopping subversion
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.082 sec
+
+Results :
+
+Tests run: 25, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] Exploding webapp...
+[INFO] Copy webapp webResources to /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/labeled-test-groups-publisher
+[INFO] Assembling webapp labeled-test-groups-publisher in /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/labeled-test-groups-publisher
+[INFO] Generating hpi /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/labeled-test-groups-publisher.hpi
+[INFO] Generating /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/labeled-test-groups-publisher/META-INF/MANIFEST.MF
+[INFO] Building jar: /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/labeled-test-groups-publisher.hpi
+[INFO] Building jar: /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/labeled-test-groups-publisher.jar
+[INFO] Installing /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/labeled-test-groups-publisher.hpi to /home/jenkins/.m2/repository/org/jenkins-ci/plugins/labeled-test-groups-publisher/1.2.6/labeled-test-groups-publisher-1.2.6.hpi
+[INFO] Installing /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/pom.xml to /home/jenkins/.m2/repository/org/jenkins-ci/plugins/labeled-test-groups-publisher/1.2.6/labeled-test-groups-publisher-1.2.6.pom
+[INFO] Installing /home/jenkins/slave/workspace/plugin-compat-tester/work/labeled-test-groups-publisher/target/labeled-test-groups-publisher.jar to /home/jenkins/.m2/repository/org/jenkins-ci/plugins/labeled-test-groups-publisher/1.2.6/labeled-test-groups-publisher-1.2.6.jar
