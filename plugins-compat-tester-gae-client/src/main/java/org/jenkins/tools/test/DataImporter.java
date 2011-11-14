@@ -88,7 +88,7 @@ public class DataImporter {
         }
         String responseBody = sw.toString();
         if(res.getStatusLine().getStatusCode() != 200){
-            throw new IllegalStateException("Error while importing data : "+responseBody);
+            throw new IllegalStateException("Error while importing data : "+responseBody+" ("+res.getStatusLine().getStatusCode()+")");
         }
 
         Matcher responseMatcher = ID_EXTRACTOR.matcher(responseBody);
