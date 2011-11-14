@@ -122,7 +122,13 @@ function ajaxSubmitForm(form){
                 var gav = this.g+":"+this.a+":"+this.v;
                 if(pluginResult.results && currentPluginReportResultIndex < pluginResult.results.length
                         && gav===pluginResult.results[currentPluginReportResultIndex].core){
-                    cellResults.push($.extend(pluginResult.results[currentPluginReportResultIndex], { empty: false }));
+                    cellResults.push($.extend(pluginResult.results[currentPluginReportResultIndex], {
+                        empty: false,
+                        // Providing pluginName and pluginVersion to the context
+                        // since jquery template won't provide it in nested templates
+                        pluginName: pluginName,
+                        pluginVersion: pluginVersion
+                    }));
                     currentPluginReportResultIndex++;
                 } else {
                     cellResults.push({ empty: true });
@@ -257,7 +263,7 @@ $(function(){
                         </tbody>
                     </table>
                     {{if buildLogPath != ""}}
-                    <a href="#" onclick="javascript:displayLog('blah', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    <a href="#" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
                     {{/if}}
                 </td>
                 {{else status == "COMPILATION_ERROR"}}
@@ -271,7 +277,7 @@ $(function(){
                         </tbody>
                     </table>
                     {{if buildLogPath != ""}}
-                    <a href="#" onclick="javascript:displayLog('blah', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    <a href="#" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
                     {{/if}}
                 </td>
                 {{else status == "TEST_FAILURES"}}
@@ -285,7 +291,7 @@ $(function(){
                         </tbody>
                     </table>
                     {{if buildLogPath != ""}}
-                    <a href="#" onclick="javascript:displayLog('blah', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    <a href="#" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
                     {{/if}}
                 </td>
                 {{else status == "SUCCESS"}}
@@ -299,7 +305,7 @@ $(function(){
                         </tbody>
                     </table>
                     {{if buildLogPath != ""}}
-                    <a href="#" onclick="javascript:displayLog('blah', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
+                    <a href="#" onclick="javascript:displayLog('${pluginName} v${pluginVersion} against ${core}', '${buildLogPath}');"><img class="terminal" src="https://github.com/jenkinsci/jenkins/raw/master/war/src/main/webapp/images/24x24/terminal.png" /></a>
                     {{/if}}
                 </td>
                 {{else}}
