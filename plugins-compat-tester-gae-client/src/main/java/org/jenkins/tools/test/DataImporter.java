@@ -31,16 +31,22 @@ public class DataImporter {
     public static void main(String[] args) throws IOException {
         File reportFile = new File(args[0]);
         Long startingOffset = args.length>3?Long.valueOf(args[3]):Long.valueOf(0);
-        new DataImporter(args[1], args[2]).importExistingReport(reportFile, startingOffset);
+        String startingBuildLog = args.length>4?args[4]:null;
+        new DataImporter(args[1], args[2], startingBuildLog).importExistingReport(reportFile, startingOffset);
     }
 
     private static final Pattern ID_EXTRACTOR = Pattern.compile("id=(.+)");
 
     private String baseGAEUrl;
     private String securityToken;
-    public DataImporter(String baseGAEUrl, String securityToken){
+    private String startingBuildLog;
+    public DataImporter(String baseGAEUrl, String securityToken, String startingBuildLog){
         this.baseGAEUrl = baseGAEUrl;
         this.securityToken = securityToken;
+        this.startingBuildLog = startingBuildLog;
+    }
+    public DataImporter(String baseGAEUrl, String securityToken){
+        this(baseGAEUrl, securityToken, null);
     }
 
     public String importPluginCompatResult(PluginCompatResult pluginCompatResult, PluginInfos pluginInfos, File logsBaseDir) throws IOException {
@@ -102,11 +108,17 @@ public class DataImporter {
         }
 
         long i = 0;
+        boolean startingBuildLogConstraintVerified = startingBuildLog==null;
         for (Map.Entry<PluginInfos, List<PluginCompatResult>> test : report.getPluginCompatTests().entrySet()){
             for (PluginCompatResult pluginCompatResult : test.getValue()) {
                 if(i >= startingOffset.longValue()){
-                    importPluginCompatResult(pluginCompatResult, test.getKey(), reportFile.getParentFile());
-                    System.out.println(String.format("Executed request %d / %d", i, plannedRequestsCount));
+                    if(startingBuildLog != null && startingBuildLog.equals(pluginCompatResult.getBuildLogPath())){
+                        startingBuildLogConstraintVerified = true;
+                    }
+                    if(startingBuildLogConstraintVerified){
+                        importPluginCompatResult(pluginCompatResult, test.getKey(), reportFile.getParentFile());
+                        System.out.println(String.format("Executed request %d / %d", i, plannedRequestsCount));
+                    }
                 }
                 i++;
             }
