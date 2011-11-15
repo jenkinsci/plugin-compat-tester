@@ -102,18 +102,32 @@ public enum PluginCompatResultDAO {
         return resultKey;
     }
 
+    private List<Entity> executePaginatedQueries(DatastoreService service, Query query, int limit){
+        List<Entity> results = new ArrayList<Entity>();
+        PreparedQuery pq = service.prepare(query);
+        QueryResultList<Entity> qrl = pq.asQueryResultList(FetchOptions.Builder.withLimit(limit));
+        results.addAll(qrl);
+        while(qrl.size() == limit){
+            Cursor cursor = qrl.getCursor();
+            qrl = pq.asQueryResultList(FetchOptions.Builder.withLimit(limit).startCursor(cursor));
+            results.addAll(qrl);
+        }
+
+        return results;
+    }
+
     public PluginCompatReport search(PluginMatcher pluginMatcher, CoreMatcher coreMatcher){
 
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
         Query searchCoresQuery = new Query(Mappings.CORE_MAVEN_COORDS_KIND);
         searchCoresQuery = coreMatcher.enhanceSearchCoreQuery(searchCoresQuery);
-        List<Entity> coreEntities = datastore.prepare(searchCoresQuery).asList(FetchOptions.Builder.withLimit(10000));
+        List<Entity> coreEntities = executePaginatedQueries(datastore, searchCoresQuery, 1000);
         Map<Key, MavenCoordinates> cores = Mappings.mavenCoordsFromEntity(coreEntities);
 
         Query searchPluginsQuery = new Query(Mappings.PluginInfosProperties.KIND);
         searchPluginsQuery = pluginMatcher.enhanceSearchPluginQuery(searchPluginsQuery);
-        List<Entity> pluginInfoEntities = datastore.prepare(searchPluginsQuery).asList(FetchOptions.Builder.withLimit(10000));
+        List<Entity> pluginInfoEntities = executePaginatedQueries(datastore, searchPluginsQuery, 1000);
         Map<Key, PluginInfos> pluginInfos = Mappings.pluginInfosFromEntity(pluginInfoEntities);
 
         Query searchResultsQuery = new Query(Mappings.PluginCompatResultProperties.KIND);
@@ -128,7 +142,7 @@ public enum PluginCompatResultDAO {
             searchResultsQuery.addFilter(Mappings.PluginCompatResultProperties.computedCoreAndPlugin.name(),
                     Query.FilterOperator.IN, cartesianProductOfCoreAndPlugins(cores, pluginInfos));
         }
-        List<Entity> results = datastore.prepare(searchResultsQuery).asList(FetchOptions.Builder.withLimit(10000));
+        List<Entity> results = executePaginatedQueries(datastore, searchResultsQuery, 1000);
         PluginCompatReport report = Mappings.pluginCompatReportFromResultsEntities(results, cores, pluginInfos);
 
         return report;
@@ -138,7 +152,7 @@ public enum PluginCompatResultDAO {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
         Query searchCoresQuery = new Query(Mappings.CORE_MAVEN_COORDS_KIND);
-        List<Entity> coreEntities = datastore.prepare(searchCoresQuery).asList(FetchOptions.Builder.withLimit(10000));
+        List<Entity> coreEntities = executePaginatedQueries(datastore, searchCoresQuery, 1000);
         Map<Key, MavenCoordinates> cores = Mappings.mavenCoordsFromEntity(coreEntities);
 
         return new TreeSet<MavenCoordinates>(cores.values());
@@ -148,7 +162,7 @@ public enum PluginCompatResultDAO {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
         Query searchPluginInfosQuery = new Query(Mappings.PluginInfosProperties.KIND);
-        List<Entity> pluginInfosEntities = datastore.prepare(searchPluginInfosQuery).asList(FetchOptions.Builder.withLimit(10000));
+        List<Entity> pluginInfosEntities = executePaginatedQueries(datastore, searchPluginInfosQuery, 1000);
         Map<Key, PluginInfos> pluginInfos = Mappings.pluginInfosFromEntity(pluginInfosEntities);
 
         SortedSet<String> names = new TreeSet<String>(new Comparator<String>() {
