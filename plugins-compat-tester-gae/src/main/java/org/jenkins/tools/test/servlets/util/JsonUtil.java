@@ -5,6 +5,9 @@ import org.jenkins.tools.test.model.PluginCompatReport;
 import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginInfos;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.*;
 
 /**
@@ -12,103 +15,114 @@ import java.util.*;
  */
 public class JsonUtil {
 
-    public static void toJson(StringBuilder sb, PluginCompatReport report){
-        sb.append("{\"coreCoordinates\":");
-        toJson(sb, report.getTestedCoreCoordinates());
-        sb.append(",\"plugins\":");
-        toJson(sb, report.getPluginCompatTests().keySet());
-        sb.append(",\"results\":");
-        toJson(sb, report.getPluginCompatTests());
-        sb.append("}");
+    public static void toJson(Writer w, PluginCompatReport report) throws IOException {
+        w.write("{\"coreCoordinates\":");
+        toJson(w, report.getTestedCoreCoordinates());
+        w.write(",\"plugins\":");
+        toJson(w, report.getPluginCompatTests().keySet());
+        w.write(",\"results\":");
+        toJson(w, report.getPluginCompatTests());
+        w.write("}");
     }
 
-    public static void toJson(StringBuilder sb, Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests) {
-        sb.append("[");
-        for(PluginInfos pi : pluginCompatTests.keySet()){
-            sb.append(String.format("{\"plugin\":\"%s:%s\",\"results\":", pi.pluginName, pi.pluginVersion));
-            toJson(sb, pluginCompatTests.get(pi));
-            sb.append("},");
+    public static void toJson(Writer w, Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests) throws IOException {
+        w.write("[");
+        for(Iterator<PluginInfos> piIter = pluginCompatTests.keySet().iterator(); piIter.hasNext();){
+            PluginInfos pi = piIter.next();
+            w.write(String.format("{\"plugin\":\"%s:%s\",\"results\":", pi.pluginName, pi.pluginVersion));
+            toJson(w, pluginCompatTests.get(pi));
+            w.write("}");
+            if(piIter.hasNext()){
+                w.write(",");
+            }
         }
-        if(pluginCompatTests.keySet().size()!=0){
-            sb.deleteCharAt(sb.length()-1); // Removing last comma
-        }
-        sb.append("]");
+        w.write("]");
     }
 
-    public static void toJson(StringBuilder sb, List<PluginCompatResult> pluginCompatResults) {
+    public static void toJson(Writer w, List<PluginCompatResult> pluginCompatResults) throws IOException {
         // Ensuring results are sorted
         Collections.sort(pluginCompatResults);
 
-        sb.append("[");
-        for(PluginCompatResult res : pluginCompatResults){
-            sb.append("{\"core\":\"");
-            sb.append(res.coreCoordinates.toGAV());
-            sb.append("\",\"status\":\"");
-            sb.append(res.status.name());
-            sb.append("\",\"date\":\"");
-            sb.append(res.compatTestExecutedOn.getTime());
-            sb.append("\",\"buildLogPath\":\"");
-            sb.append(res.getBuildLogPath()==null?"":res.getBuildLogPath());
-            sb.append("\",");
-            sb.append(displayMessage("err", res.errorMessage));
-            sb.append(res.errorMessage==null?"":",");
+        w.write("[");
+        for(Iterator<PluginCompatResult> resIter = pluginCompatResults.iterator(); resIter.hasNext();){
+            PluginCompatResult res = resIter.next();
+            w.write("{\"core\":\"");
+            w.write(res.coreCoordinates.toGAV());
+            w.write("\",\"status\":\"");
+            w.write(res.status.name());
+            w.write("\",\"date\":\"");
+            w.write(String.valueOf(res.compatTestExecutedOn.getTime()));
+            w.write("\",\"buildLogPath\":\"");
+            w.write(res.getBuildLogPath() == null ? "" : res.getBuildLogPath());
+            w.write("\"");
+            if(res.errorMessage != null && !"".equals(res.errorMessage)){
+                w.write(",");
+                displayMessage(w, "err", res.errorMessage);
+            }
 
-            displayMessages(sb, "warn", res.warningMessages);
-            sb.append(res.warningMessages==null?"":",");
-            sb.append("},");
+            if(res.warningMessages != null && !"".equals(res.warningMessages)){
+                w.write(",");
+                displayMessages(w, "warn", res.warningMessages);
+            }
+            w.write("}");
 
-            sb.deleteCharAt(sb.length() - 3); // Removing last comma
+            if(resIter.hasNext()){
+                w.write(",");
+            }
         }
-        if(pluginCompatResults.size()!=0){
-            sb.deleteCharAt(sb.length()-1); // Removing last comma
-        }
-        sb.append("]");
+        w.write("]");
     }
 
-    public static void displayMessages(StringBuilder sb, String label, Collection<String> messages) {
+    public static void displayMessages(Writer w, String label, Collection<String> messages) throws IOException {
         if(messages==null){
             return;
         }
 
-        sb.append(String.format("\"%s\":[", label));
-        for(String msg : messages){
-            sb.append(String.format("%s,",displayMessage(null, msg)));
+        w.write(String.format("\"%s\":[", label));
+        for(Iterator<String> msgIter = messages.iterator(); msgIter.hasNext();){
+            String msg = msgIter.next();
+            displayMessage(w, null, msg);
+            if(msgIter.hasNext()){
+                w.write(",");
+            }
         }
-        if(messages.size()!=0){
-            sb.deleteCharAt(sb.length()-1); // Removing last comma
-        }
-        sb.append("]");
+        w.write("]");
     }
 
-    public static String displayMessage(String label, String message) {
+    public static void displayMessage(Writer w, String label, String message) throws IOException {
         if(message == null){
-            return "";
+            return;
         }
 
         message = message.replaceAll("\"", "\\\\\"").replaceAll("\r", "\\\\r")
                          .replaceAll("\n", "\\\\n").replaceAll("\t", "\\\\t");
-        return String.format("%s\"%s\"", label==null?"":"\""+label+"\":", message);
+        w.write(label==null?"":"\""+label+"\":");
+        w.write("\"");
+        w.write(message);
+        w.write("\"");
     }
 
-    public static void toJson(StringBuilder sb, Set<PluginInfos> pluginInfos) {
-        sb.append("[");
-        for(PluginInfos pi : pluginInfos){
-            sb.append(String.format("{\"name\":\"%s\",\"version\":\"%s\",\"url\":\"%s\"},", pi.pluginName, pi.pluginVersion, pi.pluginUrl));
+    public static void toJson(Writer w, Set<PluginInfos> pluginInfos) throws IOException {
+        w.write("[");
+        for(Iterator<PluginInfos> piIter = pluginInfos.iterator(); piIter.hasNext();){
+            PluginInfos pi = piIter.next();
+            w.write(String.format("{\"name\":\"%s\",\"version\":\"%s\",\"url\":\"%s\"}", pi.pluginName, pi.pluginVersion, pi.pluginUrl));
+            if(piIter.hasNext()){
+                w.write(",");
+            }
         }
-        if(pluginInfos.size()!=0){
-            sb.deleteCharAt(sb.length()-1); // Removing last comma
-        }
-        sb.append("]");
+        w.write("]");
     }
 
-    public static void toJson(StringBuilder sb, SortedSet<MavenCoordinates> testedCoreCoordinates) {
-        sb.append("[");
-        for(MavenCoordinates coord : testedCoreCoordinates){
-            sb.append(String.format("{\"g\":\"%s\",\"a\":\"%s\",\"v\":\"%s\"},", coord.groupId, coord.artifactId, coord.version));
+    public static void toJson(Writer w, SortedSet<MavenCoordinates> testedCoreCoordinates) throws IOException {
+        w.write("[");
+        for(Iterator<MavenCoordinates> coordIter = testedCoreCoordinates.iterator(); coordIter.hasNext();){
+            MavenCoordinates coord = coordIter.next();
+            w.write(String.format("{\"g\":\"%s\",\"a\":\"%s\",\"v\":\"%s\"}", coord.groupId, coord.artifactId, coord.version));
+            if(coordIter.hasNext()){
+                w.write(",");
+            }
         }
-        if(testedCoreCoordinates.size()!=0){
-            sb.deleteCharAt(sb.length()-1); // Removing last comma
-        }
-        sb.append("]");
+        w.write("]");
     }
 }

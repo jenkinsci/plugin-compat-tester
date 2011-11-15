@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.SortedSet;
 
@@ -19,21 +20,20 @@ public class DataProviderServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter("type");
 
-        String jsonToWrite = "{ }";
+        response.setContentType("application/json");
+        Writer out = response.getWriter();
         if("cores".equals(type)){
             SortedSet<MavenCoordinates> cores = PluginCompatResultDAO.INSTANCE.findAllCores();
-            StringBuilder sb = new StringBuilder();
-            JsonUtil.toJson(sb, cores);
-            jsonToWrite = String.format("{\"cores\":%s}", sb.toString());
+            out.write("{\"cores\":");
+            JsonUtil.toJson(out, cores);
+            out.write("}");
         } else if("pluginInfos".equals(type)){
             SortedSet<String> pluginInfoNames = PluginCompatResultDAO.INSTANCE.findAllPluginInfoNames();
-            StringBuilder sb = new StringBuilder();
-            JsonUtil.displayMessages(sb, "pluginInfos", pluginInfoNames);
-            jsonToWrite = String.format("{%s}", sb.toString());
+            out.write("{");
+            JsonUtil.displayMessages(out, "pluginInfos", pluginInfoNames);
+            out.write("}");
         }
 
-        response.setContentType("application/json");
-        response.getWriter().append(jsonToWrite);
-        response.getWriter().flush();
+        out.flush();
     }
 }
