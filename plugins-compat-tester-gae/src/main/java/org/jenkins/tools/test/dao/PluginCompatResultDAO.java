@@ -108,14 +108,14 @@ public enum PluginCompatResultDAO {
         QueryResultList<Entity> qrl = pq.asQueryResultList(FetchOptions.Builder.withLimit(limit));
         results.addAll(qrl);
 
-        log.finest("Retrieved "+qrl.size()+" results from query "+query.toString());
+        log.finer("Retrieved "+qrl.size()+" results from query "+query.toString());
         int pageNumber = 1;
         while(qrl.size() == limit){
-            log.finest("Retrieving page "+pageNumber+" for query "+query.toString());
+            log.finer("Retrieving page "+pageNumber+" for query "+query.toString());
             Cursor cursor = qrl.getCursor();
             qrl = pq.asQueryResultList(FetchOptions.Builder.withLimit(limit).startCursor(cursor));
             results.addAll(qrl);
-            log.finest("Retrieved "+qrl.size()+" results from query "+query.toString());
+            log.finer("Retrieved "+qrl.size()+" results from query "+query.toString());
 
             pageNumber++;
         }
