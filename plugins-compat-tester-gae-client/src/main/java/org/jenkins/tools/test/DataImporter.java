@@ -15,7 +15,6 @@ import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginInfos;
 import org.jenkins.tools.test.model.utils.IOUtils;
 
-import javax.jnlp.FileSaveService;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
