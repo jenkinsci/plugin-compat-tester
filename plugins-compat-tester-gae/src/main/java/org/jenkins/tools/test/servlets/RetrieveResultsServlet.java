@@ -66,7 +66,9 @@ public class RetrieveResultsServlet extends HttpServlet {
                 PluginMatcherFactory.create(request), CoreMatcherFactory.create(request));
 
         response.setContentType("application/json");
-        response.getWriter().append(JsonUtil.toJson(report));
+        StringBuilder sb = new StringBuilder();
+        JsonUtil.toJson(sb, report);
+        response.getWriter().append(sb.toString());
         response.getWriter().flush();
     }
 }

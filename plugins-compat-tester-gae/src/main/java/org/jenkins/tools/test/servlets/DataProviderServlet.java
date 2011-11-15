@@ -22,10 +22,14 @@ public class DataProviderServlet extends HttpServlet {
         String jsonToWrite = "{ }";
         if("cores".equals(type)){
             SortedSet<MavenCoordinates> cores = PluginCompatResultDAO.INSTANCE.findAllCores();
-            jsonToWrite = String.format("{\"cores\":%s}", JsonUtil.toJson(cores));
+            StringBuilder sb = new StringBuilder();
+            JsonUtil.toJson(sb, cores);
+            jsonToWrite = String.format("{\"cores\":%s}", sb.toString());
         } else if("pluginInfos".equals(type)){
             SortedSet<String> pluginInfoNames = PluginCompatResultDAO.INSTANCE.findAllPluginInfoNames();
-            jsonToWrite = String.format("{%s}", JsonUtil.displayMessages("pluginInfos", pluginInfoNames));
+            StringBuilder sb = new StringBuilder();
+            JsonUtil.displayMessages(sb, "pluginInfos", pluginInfoNames);
+            jsonToWrite = String.format("{%s}", sb.toString());
         }
 
         response.setContentType("application/json");

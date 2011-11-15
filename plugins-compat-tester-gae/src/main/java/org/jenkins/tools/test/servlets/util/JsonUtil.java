@@ -12,51 +12,65 @@ import java.util.*;
  */
 public class JsonUtil {
 
-    public static String toJson(PluginCompatReport report){
-        return String.format("{\"coreCoordinates\":%s,\"plugins\":%s,\"results\":%s}",
-                toJson(report.getTestedCoreCoordinates()),
-                toJson(report.getPluginCompatTests().keySet()),
-                toJson(report.getPluginCompatTests()));
+    public static void toJson(StringBuilder sb, PluginCompatReport report){
+        sb.append("{\"coreCoordinates\":");
+        toJson(sb, report.getTestedCoreCoordinates());
+        sb.append(",\"plugins\":");
+        toJson(sb, report.getPluginCompatTests().keySet());
+        sb.append(",\"results\":");
+        toJson(sb, report.getPluginCompatTests());
+        sb.append("}");
     }
 
-    public static String toJson(Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests) {
-        StringBuilder sb = new StringBuilder("[");
+    public static void toJson(StringBuilder sb, Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests) {
+        sb.append("[");
         for(PluginInfos pi : pluginCompatTests.keySet()){
-            sb.append(String.format("{\"plugin\":\"%s:%s\",\"results\":%s},", pi.pluginName, pi.pluginVersion, toJson(pluginCompatTests.get(pi))));
+            sb.append(String.format("{\"plugin\":\"%s:%s\",\"results\":", pi.pluginName, pi.pluginVersion));
+            toJson(sb, pluginCompatTests.get(pi));
+            sb.append("},");
         }
         if(pluginCompatTests.keySet().size()!=0){
             sb.deleteCharAt(sb.length()-1); // Removing last comma
         }
         sb.append("]");
-        return sb.toString();
     }
 
-    public static String toJson(List<PluginCompatResult> pluginCompatResults) {
+    public static void toJson(StringBuilder sb, List<PluginCompatResult> pluginCompatResults) {
         // Ensuring results are sorted
         Collections.sort(pluginCompatResults);
 
-        StringBuilder sb = new StringBuilder("[");
+        sb.append("[");
         for(PluginCompatResult res : pluginCompatResults){
-            sb.append(String.format("{\"core\":\"%s\",\"status\":\"%s\",\"date\":\"%s\",\"buildLogPath\":\"%s\",%s%s%s%s},",
-                    res.coreCoordinates.toGAV(), res.status.name(), res.compatTestExecutedOn.getTime(),
-                    res.getBuildLogPath()==null?"":res.getBuildLogPath(),
-                    displayMessage("err", res.errorMessage), res.errorMessage==null?"":",",
-                    displayMessages("warn", res.warningMessages), res.warningMessages==null?"":","));
+            sb.append("{\"core\":\"");
+            sb.append(res.coreCoordinates.toGAV());
+            sb.append("\",\"status\":\"");
+            sb.append(res.status.name());
+            sb.append("\",\"date\":\"");
+            sb.append(res.compatTestExecutedOn.getTime());
+            sb.append("\",\"buildLogPath\":\"");
+            sb.append(res.getBuildLogPath()==null?"":res.getBuildLogPath());
+            sb.append("\",");
+            sb.append(displayMessage("err", res.errorMessage));
+            sb.append(res.errorMessage==null?"":",");
+
+            displayMessages(sb, "warn", res.warningMessages);
+            sb.append(res.warningMessages==null?"":",");
+            sb.append("},");
+
             sb.deleteCharAt(sb.length() - 3); // Removing last comma
         }
         if(pluginCompatResults.size()!=0){
             sb.deleteCharAt(sb.length()-1); // Removing last comma
         }
         sb.append("]");
-        return sb.toString();
     }
 
-    public static String displayMessages(String label, Collection<String> messages) {
+    public static void displayMessages(StringBuilder sb, String label, Collection<String> messages) {
         if(messages==null){
-            return "";
+            return;
         }
 
-        StringBuilder sb = new StringBuilder(String.format("\"%s\":[", label));
+        sb.append(String.format("\"%s\":[", label));
         for(String msg : messages){
             sb.append(String.format("%s,",displayMessage(null, msg)));
         }
@@ -64,7 +78,6 @@ public class JsonUtil {
             sb.deleteCharAt(sb.length()-1); // Removing last comma
         }
         sb.append("]");
-        return sb.toString();
     }
 
     public static String displayMessage(String label, String message) {
@@ -77,8 +90,8 @@ public class JsonUtil {
         return String.format("%s\"%s\"", label==null?"":"\""+label+"\":", message);
     }
 
-    public static String toJson(Set<PluginInfos> pluginInfos) {
-        StringBuilder sb = new StringBuilder("[");
+    public static void toJson(StringBuilder sb, Set<PluginInfos> pluginInfos) {
+        sb.append("[");
         for(PluginInfos pi : pluginInfos){
             sb.append(String.format("{\"name\":\"%s\",\"version\":\"%s\",\"url\":\"%s\"},", pi.pluginName, pi.pluginVersion, pi.pluginUrl));
         }
@@ -86,11 +99,10 @@ public class JsonUtil {
             sb.deleteCharAt(sb.length()-1); // Removing last comma
         }
         sb.append("]");
-        return sb.toString();
     }
 
-    public static String toJson(SortedSet<MavenCoordinates> testedCoreCoordinates) {
-        StringBuilder sb = new StringBuilder("[");
+    public static void toJson(StringBuilder sb, SortedSet<MavenCoordinates> testedCoreCoordinates) {
+        sb.append("[");
         for(MavenCoordinates coord : testedCoreCoordinates){
             sb.append(String.format("{\"g\":\"%s\",\"a\":\"%s\",\"v\":\"%s\"},", coord.groupId, coord.artifactId, coord.version));
         }
@@ -98,6 +110,5 @@ public class JsonUtil {
             sb.deleteCharAt(sb.length()-1); // Removing last comma
         }
         sb.append("]");
-        return sb.toString();
     }
 }
