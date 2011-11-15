@@ -107,70 +107,79 @@ function displayLog(title, buildLogPath){
 }
 function ajaxSubmitForm(form){
     $("#searchSpinner").show();
-    $.getJSON("/getResults", $(form).serializeObject(), function(pctReport){
-        $("#searchSpinner").hide();
+    $.ajax({
+        url : "/getResults",
+        dataType: 'json',
+        data: $(form).serializeObject(),
+        success: function(pctReport){
+            $("#searchSpinner").hide();
 
-        $("#results > table").remove();
+            $("#results > table").remove();
 
-        var numberOfJenkinsColumns = 0;
-        var numberOfHudsonColumns = 0;
-        $.each(pctReport.coreCoordinates, function(){
-            numberOfJenkinsColumns += this.g==="org.jenkins-ci.plugins"?1:0;
-            numberOfHudsonColumns += this.g==="org.jenkins-ci.plugins"?0:1;
-        });
-        $.tmpl("resultsTpl", {
-            numberOfJenkinsColumns: numberOfJenkinsColumns,
-            numberOfHudsonColumns: numberOfHudsonColumns,
-            coreCoordinates: pctReport.coreCoordinates
-        }).appendTo("#results");
-
-        var previousPluginName = "";
-        $.each(pctReport.results, function(pctResultsIndex){
-            var pluginResult = this;
-            var pluginName = pluginResult.plugin.split(":")[0];
-            var pluginVersion = pluginResult.plugin.split(":")[1];
-            var cellResults = [];
-            var currentPluginReportResultIndex = 0;
+            var numberOfJenkinsColumns = 0;
+            var numberOfHudsonColumns = 0;
             $.each(pctReport.coreCoordinates, function(){
-                var gav = this.g+":"+this.a+":"+this.v;
-                if(pluginResult.results && currentPluginReportResultIndex < pluginResult.results.length
-                        && gav===pluginResult.results[currentPluginReportResultIndex].core){
-                    cellResults.push($.extend(pluginResult.results[currentPluginReportResultIndex], {
-                        empty: false,
-                        // Providing pluginName and pluginVersion to the context
-                        // since jquery template won't provide it in nested templates
-                        pluginName: pluginName,
-                        pluginVersion: pluginVersion
-                    }));
-                    currentPluginReportResultIndex++;
-                } else {
-                    cellResults.push({ empty: true });
-                }
+                numberOfJenkinsColumns += this.g==="org.jenkins-ci.plugins"?1:0;
+                numberOfHudsonColumns += this.g==="org.jenkins-ci.plugins"?0:1;
             });
+            $.tmpl("resultsTpl", {
+                numberOfJenkinsColumns: numberOfJenkinsColumns,
+                numberOfHudsonColumns: numberOfHudsonColumns,
+                coreCoordinates: pctReport.coreCoordinates
+            }).appendTo("#results");
 
-            var tmplParams = {
-                pluginName: pluginName,
-                pluginVersion: pluginVersion,
-                results: cellResults
-            };
+            var previousPluginName = "";
+            $.each(pctReport.results, function(pctResultsIndex){
+                var pluginResult = this;
+                var pluginName = pluginResult.plugin.split(":")[0];
+                var pluginVersion = pluginResult.plugin.split(":")[1];
+                var cellResults = [];
+                var currentPluginReportResultIndex = 0;
+                $.each(pctReport.coreCoordinates, function(){
+                    var gav = this.g+":"+this.a+":"+this.v;
+                    if(pluginResult.results && currentPluginReportResultIndex < pluginResult.results.length
+                            && gav===pluginResult.results[currentPluginReportResultIndex].core){
+                        cellResults.push($.extend(pluginResult.results[currentPluginReportResultIndex], {
+                            empty: false,
+                            // Providing pluginName and pluginVersion to the context
+                            // since jquery template won't provide it in nested templates
+                            pluginName: pluginName,
+                            pluginVersion: pluginVersion
+                        }));
+                        currentPluginReportResultIndex++;
+                    } else {
+                        cellResults.push({ empty: true });
+                    }
+                });
 
-            if(previousPluginName === pluginName){
-                $("#resultOtherPluginLineTpl").tmpl(tmplParams).appendTo("#results #resultBody");
-            } else {
-                // Counting next results having the same plugin name
-                var i = pctResultsIndex+1;
-                while(i < pctReport.results.length &&
-                        pluginName === pctReport.results[i].plugin.split(":")[0]){
-                    i++;
+                var tmplParams = {
+                    pluginName: pluginName,
+                    pluginVersion: pluginVersion,
+                    results: cellResults
+                };
+
+                if(previousPluginName === pluginName){
+                    $("#resultOtherPluginLineTpl").tmpl(tmplParams).appendTo("#results #resultBody");
+                } else {
+                    // Counting next results having the same plugin name
+                    var i = pctResultsIndex+1;
+                    while(i < pctReport.results.length &&
+                            pluginName === pctReport.results[i].plugin.split(":")[0]){
+                        i++;
+                    }
+
+                    $("#resultFirstPluginLineTpl").tmpl($.extend(tmplParams, {
+                        pluginResultsCount: i - pctResultsIndex
+                    })).appendTo("#results #resultBody");
                 }
 
-                $("#resultFirstPluginLineTpl").tmpl($.extend(tmplParams, {
-                    pluginResultsCount: i - pctResultsIndex
-                })).appendTo("#results #resultBody");
-            }
-
-            previousPluginName = pluginName;
-        });
+                previousPluginName = pluginName;
+            });
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+            $("#searchSpinner").hide();
+            alert("Error during ajax call ("+textStatus+") : "+errorThrown);
+        }
     });
 }
 
