@@ -6,3 +6,5 @@
 /plugins-compat-tester-cli/plugins-compat-tester-cli.iml
 plugins-compat-tester.iml
 target
+/plugins-compat-tester-cli/nbactions.xml
+reports
