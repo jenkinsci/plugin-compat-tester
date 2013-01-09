@@ -73,7 +73,7 @@ public class PluginCompatTesterCli {
             config.setExcludePlugins(Arrays.asList(options.getExcludePlugins().toLowerCase().split(",")));
         }
         if(options.getSkipTestCache() != null){
-            config.setSkipTestCache(options.getSkipTestCache());
+            config.setSkipTestCache(Boolean.valueOf(options.getSkipTestCache()).booleanValue());
         }
         if(options.getTestCacheTimeout() != null){
             config.setTestCacheTimeout(options.getTestCacheTimeout().longValue());
