@@ -45,7 +45,6 @@ import org.apache.maven.scm.repository.ScmRepository;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
@@ -166,8 +165,6 @@ public class PluginCompatTester {
                         continue; // Don't do anything : we are in the cached interval ! :-)
                     }
 
-                    boolean compilationOk = false;
-                    boolean testsOk = false;
                     String errorMessage = null;
 
                     TestStatus status;
