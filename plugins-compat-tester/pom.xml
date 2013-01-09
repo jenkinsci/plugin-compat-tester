@@ -93,7 +93,7 @@
     <dependency>
       <groupId>org.jenkins-ci.lib</groupId>
       <artifactId>lib-jenkins-maven-embedder</artifactId>
-      <version>3.6-SNAPSHOT</version>
+      <version>3.6</version>
     </dependency>
 
     <!-- scm providers declaration -->
