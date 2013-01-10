@@ -34,6 +34,11 @@ import java.util.List;
  */
 public class PluginCompatTesterConfig {
 
+    public static final String DEFAULT_UPDATE_CENTER_URL = "http://updates.jenkins-ci.org/update-center.json?version=build";
+    public static final String DEFAULT_PARENT_GROUP = "org.jenkins-ci.plugins";
+    public static final String DEFAULT_PARENT_ARTIFACT = "plugin";
+    public static final String DEFAULT_PARENT_GAV = DEFAULT_PARENT_GROUP + ":" + DEFAULT_PARENT_ARTIFACT;
+
     // Update center used to retrieve plugins informations
     public final String updateCenterUrl;
 
@@ -57,6 +62,8 @@ public class PluginCompatTesterConfig {
     // Version which will be used to replace tested plugin's parent verison
     // If null, latest core version (retrieved via the update center) will be used
     private String parentVersion = null;
+
+    private File war = null;
 
     // List of plugin artefact ids on which tests will be performed
     // If null, tests will be performed on every plugins retrieved from update center
@@ -92,7 +99,7 @@ public class PluginCompatTesterConfig {
     private String gaeBaseUrl;
 
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
-        this("http://updates.jenkins-ci.org/update-center.json?version=build", "org.jenkins-ci.plugins:plugin",
+        this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
                 workDirectory, reportFile, m2SettingsFile);
     }
 
@@ -212,4 +219,13 @@ public class PluginCompatTesterConfig {
     public void setGaeBaseUrl(String gaeBaseUrl) {
         this.gaeBaseUrl = gaeBaseUrl;
     }
+
+    public File getWar() {
+        return war;
+    }
+
+    public void setWar(File war) {
+        this.war = war;
+    }
+
 }

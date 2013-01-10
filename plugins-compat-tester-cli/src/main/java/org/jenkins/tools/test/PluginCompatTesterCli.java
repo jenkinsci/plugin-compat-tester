@@ -63,8 +63,24 @@ public class PluginCompatTesterCli {
             reportFile = options.getReportFile();
         }
 
-        PluginCompatTesterConfig config = new PluginCompatTesterConfig(options.getUpdateCenterUrl(), options.getParentCoord(),
+        String updateCenterUrl = options.getUpdateCenterUrl();
+        String parentCoordinates = options.getParentCoord();
+        File war = options.getWar();
+        if (war != null) {
+            if (updateCenterUrl != null || parentCoordinates != null) {
+                throw new IllegalStateException("Cannot specify -war together with either -updateCenterUrl or -parentCoordinates");
+            }
+        } else {
+            if (updateCenterUrl == null) {
+                updateCenterUrl = PluginCompatTesterConfig.DEFAULT_UPDATE_CENTER_URL;
+            }
+            if (parentCoordinates == null) {
+                parentCoordinates = PluginCompatTesterConfig.DEFAULT_PARENT_GAV;
+            }
+        }
+        PluginCompatTesterConfig config = new PluginCompatTesterConfig(updateCenterUrl, parentCoordinates,
                 options.getWorkDirectory(), reportFile, options.getM2SettingsFile());
+        config.setWar(war);
 
         if(options.getIncludePlugins() != null && !options.getIncludePlugins().isEmpty()){
             config.setIncludePlugins(Arrays.asList(options.getIncludePlugins().toLowerCase().split(",")));

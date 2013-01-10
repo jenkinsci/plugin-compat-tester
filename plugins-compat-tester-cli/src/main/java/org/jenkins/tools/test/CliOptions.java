@@ -38,12 +38,16 @@ import java.util.List;
 public class CliOptions {
     @Parameter(names = "-updateCenterUrl",
             description = "Update center JSON file URL")
-    private String updateCenterUrl = "http://updates.jenkins-ci.org/update-center.json?version=build";
+    private String updateCenterUrl = null;
 
     @Parameter(names = "-parentCoordinates",
             description = "Parent pom GAV in the form groupId:artifactId[:version].\n" +
                     "If null/empty, every core coordinates located in report XML files will be tested.")
-    private String parentCoord = "org.jenkins-ci.plugins:plugin";
+    private String parentCoord = null;
+
+    @Parameter(names = "-war",
+            description = "A WAR file to scan for plugins rather than looking in the update center.")
+    private File war = null;
 
     @Parameter(names = "-workDirectory", required = true,
             description = "Work directory where plugin sources will be checkouted")
@@ -100,6 +104,10 @@ public class CliOptions {
 
     public String getParentCoord() {
         return parentCoord;
+    }
+    
+    public File getWar() {
+        return war;
     }
 
     public File getReportFile() {

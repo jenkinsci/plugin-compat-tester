@@ -56,16 +56,14 @@ public class MavenPom {
 
 	private File rootDir;
 	private String pomFileName;
-    private File m2SettingsFile;
 	
-	public MavenPom(File rootDir, File m2SettingsFile){
-		this(rootDir, "pom.xml", m2SettingsFile);
+	public MavenPom(File rootDir){
+		this(rootDir, "pom.xml");
 	}
 	
-	public MavenPom(File rootDir, String pomFileName, File m2SettingsFile){
+	private MavenPom(File rootDir, String pomFileName){
 		this.rootDir = rootDir;
 		this.pomFileName = pomFileName;
-        this.m2SettingsFile = m2SettingsFile;
 	}
 	
 	public void transformPom(MavenCoordinates coreCoordinates) throws PomTransformationException{

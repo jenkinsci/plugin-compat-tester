@@ -30,6 +30,7 @@ import hudson.maven.MavenEmbedderException;
 import hudson.maven.MavenRequest;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -73,16 +74,23 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Frontend for plugin compatibility tests
@@ -90,13 +98,15 @@ import java.util.TreeSet;
  */
 public class PluginCompatTester {
 
+    private static final String DEFAULT_SOURCE_ID = "default";
+
 	private PluginCompatTesterConfig config;
 	
 	public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
 	}
 
-    public SortedSet<MavenCoordinates> generateCoreCoordinatesToTest(UpdateSite.Data data, PluginCompatReport previousReport){
+    private SortedSet<MavenCoordinates> generateCoreCoordinatesToTest(UpdateSite.Data data, PluginCompatReport previousReport){
         SortedSet<MavenCoordinates> coreCoordinatesToTest = null;
         // If parent GroupId/Artifact are not null, this will be fast : we will only test
         // against 1 core coordinate
@@ -138,10 +148,10 @@ public class PluginCompatTester {
         }
 
 
-        UpdateSite.Data data = extractUpdateCenterData();
+        UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData() : scanWAR(config.getWar());
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
-        SortedSet<MavenCoordinates> testedCores = generateCoreCoordinatesToTest(data, report);
+        SortedSet<MavenCoordinates> testedCores = config.getWar() == null ? generateCoreCoordinatesToTest(data, report) : coreVersionFromWAR(data);
 
         //here we don't care about paths for build the embedder
         MavenRequest mavenRequest = buildMavenRequest( null, null );
@@ -150,8 +160,7 @@ public class PluginCompatTester {
 		SCMManagerFactory.getInstance().start();
         for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
-            for(Entry<String, Plugin> pluginEntry : data.plugins.entrySet()){
-                Plugin plugin = pluginEntry.getValue();
+            for (Plugin plugin : data.plugins.values()) {
                 if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
                     PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
 
@@ -229,7 +238,7 @@ public class PluginCompatTester {
         return report;
 	}
 
-    public void generateHtmlReportFile() throws IOException {
+    private void generateHtmlReportFile() throws IOException {
         Source xmlSource = new StreamSource(config.reportFile);
         Source xsltSource = new StreamSource(getXslTransformerResource().getInputStream());
         Result result = new StreamResult(PluginCompatReport.getHtmlFilepath(config.reportFile));
@@ -257,7 +266,7 @@ public class PluginCompatTester {
         return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
     }
 	
-	public TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenEmbedder embedder)
+	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenEmbedder embedder)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
@@ -301,7 +310,7 @@ public class PluginCompatTester {
 			throw new PluginSourcesUnavailableException("Problem while checkouting plugin sources !", e);
 		}
 		
-		MavenPom pom = new MavenPom(pluginCheckoutDir, config.getM2SettingsFile());
+		MavenPom pom = new MavenPom(pluginCheckoutDir);
 		pom.transformPom(coreCoordinates);
 
 
@@ -314,7 +323,7 @@ public class PluginCompatTester {
                                                            config.getM2SettingsFile() == null
                                                                ? null
                                                                : config.getM2SettingsFile().getAbsolutePath() );
-            mavenRequest.setGoals(Arrays.asList( "clean","install"));
+            mavenRequest.setGoals(Arrays.asList( "clean","test"));
             mavenRequest.setPom(pluginCheckoutDir.getAbsolutePath()+"/pom.xml");
             AbstractExecutionListener mavenListener = new AbstractExecutionListener(){
                 public void mojoSucceeded(ExecutionEvent event){
@@ -394,7 +403,7 @@ public class PluginCompatTester {
 
     }
 	
-	protected UpdateSite.Data extractUpdateCenterData(){
+	private UpdateSite.Data extractUpdateCenterData(){
 		URL url = null;
 		String jsonp = null;
 		try {
@@ -405,17 +414,82 @@ public class PluginCompatTester {
 		}
 		
         String json = jsonp.substring(jsonp.indexOf('(')+1,jsonp.lastIndexOf(')'));
-
-        UpdateSite us = new UpdateSite("default", url.toExternalForm());
-        UpdateSite.Data data = null;
-        try {
-	        Constructor<UpdateSite.Data> dataConstructor = UpdateSite.Data.class.getDeclaredConstructor(UpdateSite.class, JSONObject.class);
-	        dataConstructor.setAccessible(true);
-	        data = dataConstructor.newInstance(us, JSONObject.fromObject(json));
-        }catch(Exception e){
-        	throw new RuntimeException("UpdateSite.Data instanciation problems", e);
-        }
-		
-        return data;
+        UpdateSite us = new UpdateSite(DEFAULT_SOURCE_ID, url.toExternalForm());
+        return newUpdateSiteData(us, JSONObject.fromObject(json));
 	}
+
+    private UpdateSite.Data scanWAR(File war) throws IOException {
+        JSONObject top = new JSONObject();
+        top.put("id", DEFAULT_SOURCE_ID);
+        JSONObject plugins = new JSONObject();
+        JarFile jf = new JarFile(war);
+        try {
+            Enumeration<JarEntry> entries = jf.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String name = entry.getName();
+                Matcher m = Pattern.compile("WEB-INF/lib/jenkins-core-([0-9.]+)[.]jar").matcher(name);
+                if (m.matches()) {
+                    if (top.has("core")) {
+                        throw new IOException(">1 jenkins-core.jar in " + war);
+                    }
+                    top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", ""));
+                }
+                m = Pattern.compile("WEB-INF/plugins/([^/.]+)[.][hj]pi").matcher(name);
+                if (m.matches()) {
+                    JSONObject plugin = new JSONObject().accumulate("url", "").accumulate("dependencies", new JSONArray());
+                    InputStream is = jf.getInputStream(entry);
+                    try {
+                        JarInputStream jis = new JarInputStream(is);
+                        try {
+                            Manifest manifest = jis.getManifest();
+                            String shortName = manifest.getMainAttributes().getValue("Short-Name");
+                            if (shortName == null) {
+                                shortName = manifest.getMainAttributes().getValue("Extension-Name");
+                                if (shortName == null) {
+                                    shortName = m.group(1);
+                                }
+                            }
+                            if (shortName.equals("maven-plugin")) {
+                                continue; // this is special
+                            }
+                            plugin.put("name", shortName);
+                            plugin.put("version", manifest.getMainAttributes().getValue("Plugin-Version"));
+                            plugin.put("url", "jar:" + war.toURI() + "!/" + name);
+                            plugins.put(shortName, plugin);
+                        } finally {
+                            jis.close();
+                        }
+                    } finally {
+                        is.close();
+                    }
+                }
+            }
+        } finally {
+            jf.close();
+        }
+        top.put("plugins", plugins);
+        if (!top.has("core")) {
+            throw new IOException("no jenkins-core.jar in " + war);
+        }
+        System.out.println("Scanned contents of " + war + ": " + top);
+        return newUpdateSiteData(new UpdateSite(DEFAULT_SOURCE_ID, null), top);
+    }
+
+    private SortedSet<MavenCoordinates> coreVersionFromWAR(UpdateSite.Data data) {
+        SortedSet<MavenCoordinates> result = new TreeSet<MavenCoordinates>();
+        result.add(new MavenCoordinates(PluginCompatTesterConfig.DEFAULT_PARENT_GROUP, PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT, data.core.version));
+        return result;
+    }
+
+    private UpdateSite.Data newUpdateSiteData(UpdateSite us, JSONObject jsonO) throws RuntimeException {
+        try {
+            Constructor<UpdateSite.Data> dataConstructor = UpdateSite.Data.class.getDeclaredConstructor(UpdateSite.class, JSONObject.class);
+            dataConstructor.setAccessible(true);
+            return dataConstructor.newInstance(us, jsonO);
+        }catch(Exception e){
+            throw new RuntimeException("UpdateSite.Data instanciation problems", e);
+        }
+    }
+
 }
