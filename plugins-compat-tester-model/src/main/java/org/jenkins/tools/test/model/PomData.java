@@ -53,8 +53,4 @@ public class PomData {
     public List<String> getWarningMessages() {
         return warningMessages;
     }
-
-    public void setWarningMessages(List<String> warningMessages) {
-        this.warningMessages = warningMessages;
-    }
 }

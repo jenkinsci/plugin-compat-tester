@@ -25,18 +25,13 @@
  */
 package org.jenkins.tools.test;
 
-import hudson.maven.MavenEmbedder;
 import hudson.maven.MavenEmbedderException;
-import hudson.maven.MavenRequest;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.execution.AbstractExecutionListener;
-import org.apache.maven.execution.ExecutionEvent;
-import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
@@ -45,13 +40,11 @@ import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.PomTransformationException;
-import org.jenkins.tools.test.logging.SystemIOLoggerFilter;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginCompatReport;
@@ -75,13 +68,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -91,6 +83,8 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jenkins.tools.test.maven.InternalMavenRunner;
+import org.jenkins.tools.test.maven.MavenRunner;
 
 /**
  * Frontend for plugin compatibility tests
@@ -101,6 +95,7 @@ public class PluginCompatTester {
     private static final String DEFAULT_SOURCE_ID = "default";
 
 	private PluginCompatTesterConfig config;
+    private final MavenRunner runner = new InternalMavenRunner();
 	
 	public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
@@ -153,9 +148,30 @@ public class PluginCompatTester {
 
         SortedSet<MavenCoordinates> testedCores = config.getWar() == null ? generateCoreCoordinatesToTest(data, report) : coreVersionFromWAR(data);
 
-        //here we don't care about paths for build the embedder
-        MavenRequest mavenRequest = buildMavenRequest( null, null );
-        MavenEmbedder embedder = new MavenEmbedder(Thread.currentThread().getContextClassLoader(), mavenRequest);
+        MavenRunner.Config mconfig = new MavenRunner.Config();
+        mconfig.userSettingsFile = config.getM2SettingsFile();
+        // TODO REMOVE
+        mconfig.userProperties.put( "failIfNoTests", "false" );
+        mconfig.userProperties.put( "argLine", "-XX:MaxPermSize=128m" );
+        String mavenPropertiesFilePath = this.config.getMavenPropertiesFile();
+        if ( StringUtils.isNotBlank( mavenPropertiesFilePath )) {
+            File file = new File (mavenPropertiesFilePath);
+            if (file.exists()) {
+                FileInputStream fileInputStream = null;
+                try {
+                    fileInputStream = new FileInputStream( file );
+                    Properties properties = new Properties(  );
+                    properties.load( fileInputStream  );
+                    for (Map.Entry<Object,Object> entry : properties.entrySet()) {
+                        mconfig.userProperties.put((String) entry.getKey(), (String) entry.getValue());
+                    }
+                } finally {
+                    IOUtils.closeQuietly( fileInputStream );
+                }
+            } else {
+                System.out.println("File " + mavenPropertiesFilePath + " not exists" );
+            }
+        }
 
 		SCMManagerFactory.getInstance().start();
         for(MavenCoordinates coreCoordinates : testedCores){
@@ -179,7 +195,7 @@ public class PluginCompatTester {
                     TestStatus status;
                     List<String> warningMessages = new ArrayList<String>();
                     try {
-                        TestExecutionResult result = testPluginAgainst(coreCoordinates, plugin, embedder);
+                        TestExecutionResult result = testPluginAgainst(coreCoordinates, plugin, mconfig);
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
@@ -266,7 +282,7 @@ public class PluginCompatTester {
         return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
     }
 	
-	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenEmbedder embedder)
+	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
@@ -313,97 +329,21 @@ public class PluginCompatTester {
 		MavenPom pom = new MavenPom(pluginCheckoutDir);
 		pom.transformPom(coreCoordinates);
 
+        File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
+        FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
+        FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
-
-        final List<String> succeededPlugins = new ArrayList<String>();
-		// Calling maven
         try {
-
-            MavenRequest mavenRequest = buildMavenRequest( pluginCheckoutDir.getAbsolutePath(),
-                                                           config.getM2SettingsFile() == null
-                                                               ? null
-                                                               : config.getM2SettingsFile().getAbsolutePath() );
-            mavenRequest.setGoals(Arrays.asList( "clean","test"));
-            mavenRequest.setPom(pluginCheckoutDir.getAbsolutePath()+"/pom.xml");
-            AbstractExecutionListener mavenListener = new AbstractExecutionListener(){
-                public void mojoSucceeded(ExecutionEvent event){
-                     succeededPlugins.add(event.getMojoExecution().getArtifactId());
-                }
-            };
-            mavenRequest.setExecutionListener(mavenListener);
-
-            File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
-            FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
-            FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
-
-            mavenRequest.setLoggingLevel(Logger.LEVEL_INFO);
-
-            final PrintStream originalOut = System.out;
-            final PrintStream originalErr = System.err;
-            SystemIOLoggerFilter loggerFilter = new SystemIOLoggerFilter(buildLogFile);
-
-            // Since here, we are replacing System.out & System.err by
-            // wrappers logging things in the build log file
-            // We can't do this by using maven embedder's logger (or plexus logger)
-            // since :
-            // - It would imply to Instantiate a new MavenEmbedder for every test (which have a performance/memory cost !)
-            // - Plus it looks like there are lots of System.out/err.println() in maven
-            // plugin (instead of using maven logger)
-            System.setOut(new SystemIOLoggerFilter.SystemIOWrapper(loggerFilter, originalOut));
-            System.setErr(new SystemIOLoggerFilter.SystemIOWrapper(loggerFilter, originalErr));
-
-            try {
-                MavenExecutionResult mavenResult = pom.executeGoals(embedder, mavenRequest);
-                return new TestExecutionResult(mavenResult, pomData.getWarningMessages());
-            }finally{
-                // Setting back System.out/err
-                System.setOut(originalOut);
-                System.setErr(originalErr);
-            }
+            runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "test");
+            return new TestExecutionResult(pomData.getWarningMessages());
         }catch(PomExecutionException e){
-            throw new PomExecutionException(e, succeededPlugins, pomData.getWarningMessages());
+            PomExecutionException e2 = new PomExecutionException(e);
+            e2.getPomWarningMessages().addAll(pomData.getWarningMessages());
+            throw e2;
         }
 	}
 
-    private MavenRequest buildMavenRequest(String rootDir,String settingsPath)
-        throws IOException
-    {
-
-        MavenRequest mavenRequest = new MavenRequest();
-
-        mavenRequest.setBaseDirectory(rootDir);
-
-        mavenRequest.setUserSettingsFile(settingsPath);
-
-        // TODO REMOVE
-        mavenRequest.getUserProperties().put( "failIfNoTests", "false" );
-        mavenRequest.getUserProperties().put( "argLine", "-XX:MaxPermSize=128m" );
-
-        String mavenPropertiesFilePath = this.config.getMavenPropertiesFile();
-
-        if ( StringUtils.isNotBlank( mavenPropertiesFilePath )) {
-            File file = new File (mavenPropertiesFilePath);
-            if (file.exists()) {
-                FileInputStream fileInputStream = null;
-                try {
-                    fileInputStream = new FileInputStream( file );
-                    Properties properties = new Properties(  );
-                    properties.load( fileInputStream  );
-                    mavenRequest.getUserProperties().putAll( properties );
-                } finally {
-                    IOUtils.closeQuietly( fileInputStream );
-                }
-            } else {
-                System.out.println("File " + mavenPropertiesFilePath + " not exists" );
-            }
-
-        }
-
-        return mavenRequest;
-
-    }
-	
-	private UpdateSite.Data extractUpdateCenterData(){
+    private UpdateSite.Data extractUpdateCenterData(){
 		URL url = null;
 		String jsonp = null;
 		try {

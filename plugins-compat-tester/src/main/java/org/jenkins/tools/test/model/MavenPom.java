@@ -25,15 +25,7 @@
  */
 package org.jenkins.tools.test.model;
 
-import hudson.maven.MavenEmbedder;
-import hudson.maven.MavenEmbedderException;
-import hudson.maven.MavenRequest;
-import org.apache.maven.execution.AbstractExecutionListener;
-import org.apache.maven.execution.ExecutionEvent;
-import org.apache.maven.execution.MavenExecutionResult;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
-import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.PomTransformationException;
 import org.springframework.core.io.ClassPathResource;
 
@@ -44,9 +36,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Class encapsulating business around maven poms
@@ -88,27 +77,4 @@ public class MavenPom {
 		
 	}
 
-    public MavenExecutionResult executeGoals(MavenEmbedder mavenEmbedder, MavenRequest mavenRequest) throws PomExecutionException {
-
-        MavenExecutionResult result;
-        try {
-            result = mavenEmbedder.execute(mavenRequest);
-        }catch(MavenEmbedderException e){
-            // TODO: better manage this exception
-            throw new RuntimeException("Error during maven embedder execution", e);
-        }
-
-        if(!result.getExceptions().isEmpty()){
-            // If at least one OOME is thrown, rethrow it "as is"
-            // It must be treated a an internal error instead of a PomExecutionException !
-            for(Throwable t : result.getExceptions()){
-                if(t instanceof OutOfMemoryError){
-                    throw (OutOfMemoryError)t;
-                }
-            }
-            throw new PomExecutionException("Error while executing pom goals : "+ Arrays.toString(mavenRequest.getGoals().toArray()), result.getExceptions());
-        }
-
-        return result;
-    }
 }

@@ -30,6 +30,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,21 +38,23 @@ import java.util.List;
  * @author Frederic Camblor
  */
 public class PomExecutionException extends Exception {
-    public final List<Throwable> exceptionsThrown;
+    private final List<Throwable> exceptionsThrown;
     public final List<String> succeededPluginArtifactIds;
-    public final List<String> pomWarningMessages;
+    private final List<String> pomWarningMessages;
 
-    public PomExecutionException(PomExecutionException exceptionToCopy, List<String> succeededPluginArtifactIds, List<String> pomWarningMessages){
-        this(exceptionToCopy.getMessage(), exceptionToCopy.exceptionsThrown);
-        this.succeededPluginArtifactIds.addAll(succeededPluginArtifactIds);
-        this.pomWarningMessages.addAll(pomWarningMessages);
+    public PomExecutionException(Throwable cause) {
+        this(cause.toString(), Collections.<String>emptyList(), Collections.singletonList(cause), Collections.<String>emptyList());
     }
 
-    public PomExecutionException(String message, List<Throwable> exceptionsThrown){
+    public PomExecutionException(PomExecutionException exceptionToCopy){
+        this(exceptionToCopy.getMessage(), exceptionToCopy.succeededPluginArtifactIds, exceptionToCopy.exceptionsThrown, exceptionToCopy.pomWarningMessages);
+    }
+
+    public PomExecutionException(String message, List<String> succeededPluginArtifactIds, List<Throwable> exceptionsThrown, List<String> pomWarningMessages){
         super(message, exceptionsThrown.iterator().next());
-        this.exceptionsThrown = exceptionsThrown;
-        this.succeededPluginArtifactIds = new ArrayList<String>();
-        this.pomWarningMessages = new ArrayList<String>();
+        this.exceptionsThrown = new ArrayList<Throwable>(exceptionsThrown);
+        this.succeededPluginArtifactIds = new ArrayList<String>(succeededPluginArtifactIds);
+        this.pomWarningMessages = new ArrayList<String>(pomWarningMessages);
     }
 
     public String getErrorMessage(){
