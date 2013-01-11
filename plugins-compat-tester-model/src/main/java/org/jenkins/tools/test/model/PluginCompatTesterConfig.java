@@ -65,6 +65,8 @@ public class PluginCompatTesterConfig {
 
     private File war = null;
 
+    private File externalMaven = null;
+
     // List of plugin artefact ids on which tests will be performed
     // If null, tests will be performed on every plugins retrieved from update center
     private List<String> includePlugins = null;
@@ -226,6 +228,14 @@ public class PluginCompatTesterConfig {
 
     public void setWar(File war) {
         this.war = war;
+    }
+
+    public File getExternalMaven() {
+        return externalMaven;
+    }
+
+    public void setExternalMaven(File externalMaven) {
+        this.externalMaven = externalMaven;
     }
 
 }

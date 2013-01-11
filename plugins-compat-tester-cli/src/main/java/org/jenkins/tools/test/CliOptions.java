@@ -71,6 +71,10 @@ public class CliOptions {
             description = "Maven settings file used while executing maven")
     private File m2SettingsFile;
 
+    @Parameter(names = "-mvn",
+            description = "External Maven executable")
+    private File externalMaven = null;
+
     @Parameter(names = "-skipTestCache",
             description = "Allows to skip compat test cache (by default, to 100 days)\n" +
                     "If set to true, every plugin will be tested, no matter the cache is.")
@@ -124,6 +128,10 @@ public class CliOptions {
 
     public File getM2SettingsFile() {
         return m2SettingsFile;
+    }
+    
+    public File getExternalMaven() {
+        return externalMaven;
     }
 
     public String getSkipTestCache() {

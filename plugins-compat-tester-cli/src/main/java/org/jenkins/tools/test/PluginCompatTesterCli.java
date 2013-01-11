@@ -82,6 +82,8 @@ public class PluginCompatTesterCli {
                 options.getWorkDirectory(), reportFile, options.getM2SettingsFile());
         config.setWar(war);
 
+        config.setExternalMaven(options.getExternalMaven());
+
         if(options.getIncludePlugins() != null && !options.getIncludePlugins().isEmpty()){
             config.setIncludePlugins(Arrays.asList(options.getIncludePlugins().toLowerCase().split(",")));
         }

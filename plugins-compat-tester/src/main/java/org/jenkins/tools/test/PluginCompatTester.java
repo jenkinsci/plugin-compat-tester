@@ -83,6 +83,7 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 
@@ -95,10 +96,11 @@ public class PluginCompatTester {
     private static final String DEFAULT_SOURCE_ID = "default";
 
 	private PluginCompatTesterConfig config;
-    private final MavenRunner runner = new InternalMavenRunner();
+    private final MavenRunner runner;
 	
 	public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
+        runner = config.getExternalMaven() == null ? new InternalMavenRunner() : new ExternalMavenRunner(config.getExternalMaven());
 	}
 
     private SortedSet<MavenCoordinates> generateCoreCoordinatesToTest(UpdateSite.Data data, PluginCompatReport previousReport){
