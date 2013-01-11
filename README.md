@@ -15,11 +15,11 @@ To do:
 1. Remove possibility, on GAE app, to select both "every plugins" and "every cores" results... because it generates too much results and crash GAE datastore
 
 ```
-    org.sonatype.aether.transfer.ArtifactTransferException: Failure to transfer org.kohsuke.stapler:stapler:pom:1.176-SNAPSHOT
-      from http://maven.jenkins-ci.org/content/repositories/snapshots/ was cached in the local repository,
-      resolution will not be reattempted until the update interval of maven.jenkins-ci.org has elapsed or updates are forced.
-      Original error: Could not transfer artifact org.kohsuke.stapler:stapler:pom:1.176-SNAPSHOT from/to maven.jenkins-ci.org
-      (http://maven.jenkins-ci.org/content/repositories/snapshots/): No connector available to access repository maven.jenkins-ci.org
-      (http://maven.jenkins-ci.org/content/repositories/snapshots/) of type default using the available factories WagonRepositoryConnectorFactory
-        at org.sonatype.aether.impl.internal.DefaultUpdateCheckManager.newException(DefaultUpdateCheckManager.java:237)
+org.sonatype.aether.transfer.ArtifactTransferException: Failure to transfer org.kohsuke.stapler:stapler:pom:1.176-SNAPSHOT
+  from http://maven.jenkins-ci.org/content/repositories/snapshots/ was cached in the local repository,
+  resolution will not be reattempted until the update interval of maven.jenkins-ci.org has elapsed or updates are forced.
+  Original error: Could not transfer artifact org.kohsuke.stapler:stapler:pom:1.176-SNAPSHOT from/to maven.jenkins-ci.org
+  (http://maven.jenkins-ci.org/content/repositories/snapshots/): No connector available to access repository maven.jenkins-ci.org
+  (http://maven.jenkins-ci.org/content/repositories/snapshots/) of type default using the available factories WagonRepositoryConnectorFactory
+    at org.sonatype.aether.impl.internal.DefaultUpdateCheckManager.newException(DefaultUpdateCheckManager.java:237)
 ```
