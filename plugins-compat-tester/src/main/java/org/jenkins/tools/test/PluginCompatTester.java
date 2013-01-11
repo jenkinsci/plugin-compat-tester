@@ -178,13 +178,6 @@ public class PluginCompatTester {
 
 		SCMManagerFactory.getInstance().start();
         for(MavenCoordinates coreCoordinates : testedCores){
-            if (coreCoordinates.groupId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_GROUP) &&
-                    coreCoordinates.artifactId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT) &&
-                    coreCoordinates.version.matches("1[.][0-9]+[.][0-9]+") &&
-                    new VersionNumber(coreCoordinates.version).compareTo(new VersionNumber("1.485")) < 0) {
-                System.out.println("Cannot test against " + coreCoordinates.version + " due to lack of deployed POM for " + coreCoordinates.toGAV());
-                coreCoordinates = new MavenCoordinates(coreCoordinates.groupId, coreCoordinates.artifactId, coreCoordinates.version.replaceFirst("[.][0-9]+$", ""));
-            }
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
             for (Plugin plugin : data.plugins.values()) {
                 if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
@@ -195,17 +188,38 @@ public class PluginCompatTester {
                         continue;
                     }
 
-                    if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, coreCoordinates, config.getTestCacheTimeout(), config.getCacheThresholStatus())){
+                    String errorMessage = null;
+                    TestStatus status = null;
+
+                    MavenCoordinates actualCoreCoordinates = coreCoordinates;
+                    PluginRemoting remote = new PluginRemoting(plugin.url);
+                    PomData pomData;
+                    try {
+                        pomData = remote.retrievePomData();
+                        System.out.println("detected parent POM " + pomData.parent.toGAV());
+                        if ((pomData.parent.groupId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_GROUP)
+                                && pomData.parent.artifactId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT)
+                                || pomData.parent.groupId.equals("org.jvnet.hudson.plugins"))
+                                && coreCoordinates.version.matches("1[.][0-9]+[.][0-9]+")
+                                && new VersionNumber(coreCoordinates.version).compareTo(new VersionNumber("1.485")) < 0) {
+                            System.out.println("Cannot test against " + coreCoordinates.version + " due to lack of deployed POM for " + coreCoordinates.toGAV());
+                            actualCoreCoordinates = new MavenCoordinates(coreCoordinates.groupId, coreCoordinates.artifactId, coreCoordinates.version.replaceFirst("[.][0-9]+$", ""));
+                        }
+                    } catch (Throwable t) {
+                        status = TestStatus.INTERNAL_ERROR;
+                        errorMessage = t.getMessage();
+                        pomData = null;
+                    }
+
+                    if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, actualCoreCoordinates, config.getTestCacheTimeout(), config.getCacheThresholStatus())){
                         System.out.println("Cache activated for plugin "+pluginInfos.pluginName+" => test skipped !");
                         continue; // Don't do anything : we are in the cached interval ! :-)
                     }
 
-                    String errorMessage = null;
-
-                    TestStatus status;
                     List<String> warningMessages = new ArrayList<String>();
+                    if (errorMessage == null) {
                     try {
-                        TestExecutionResult result = testPluginAgainst(coreCoordinates, plugin, mconfig);
+                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData);
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
@@ -226,14 +240,15 @@ public class PluginCompatTester {
                         status = TestStatus.INTERNAL_ERROR;
                         errorMessage = t.getMessage();
                     }
+                    }
 
 
-                    File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
+                    File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, actualCoreCoordinates);
                     String buildLogFilePath = "";
                     if(buildLogFile.exists()){
-                        buildLogFilePath = createBuildLogFilePathFor(pluginInfos.pluginName, pluginInfos.pluginVersion, coreCoordinates);
+                        buildLogFilePath = createBuildLogFilePathFor(pluginInfos.pluginName, pluginInfos.pluginVersion, actualCoreCoordinates);
                     }
-                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, status, errorMessage, warningMessages, buildLogFilePath);
+                    PluginCompatResult result = new PluginCompatResult(actualCoreCoordinates, status, errorMessage, warningMessages, buildLogFilePath);
                     report.add(pluginInfos, result);
 
                     // Adding result to GAE
@@ -292,7 +307,7 @@ public class PluginCompatTester {
         return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
     }
 	
-	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig)
+	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
@@ -310,9 +325,6 @@ public class PluginCompatTester {
         }
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
-		
-		PluginRemoting remote = new PluginRemoting(plugin.url);
-		PomData pomData = remote.retrievePomData();
 		
 		try {
             System.out.println("Checkouting from scm connection URL : "+pomData.getConnectionUrl()+" ("+plugin.name+"-"+plugin.version+")");
@@ -337,14 +349,23 @@ public class PluginCompatTester {
 		}
 		
 		MavenPom pom = new MavenPom(pluginCheckoutDir);
-		pom.transformPom(coreCoordinates);
+        List<String> args = new ArrayList<String>();
+        // XXX future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
+        if (pomData.parent.groupId.equals("com.cloudbees.jenkins.plugins") && pomData.parent.artifactId.equals("jenkins-plugins")) {
+            args.add("-Djenkins.version=" + coreCoordinates.version);
+            args.add("-Dhpi-plugin.version=1.88"); // XXX would ideally pick up exact version from org.jenkins-ci.main:pom
+        } else {
+            pom.transformPom(coreCoordinates);
+        }
+        args.add("clean");
+        args.add("test");
 
         File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
         FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
         try {
-            runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "test");
+            runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
             return new TestExecutionResult(pomData.getWarningMessages());
         }catch(PomExecutionException e){
             PomExecutionException e2 = new PomExecutionException(e);

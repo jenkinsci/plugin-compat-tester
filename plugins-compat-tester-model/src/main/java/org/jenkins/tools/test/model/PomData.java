@@ -34,12 +34,14 @@ import java.util.List;
  */
 public class PomData {
     public final String artifactId;
+    public final MavenCoordinates parent;
     private String connectionUrl;
     private List<String> warningMessages = new ArrayList<String>();
 
-    public PomData(String artifactId, String connectionUrl){
+    public PomData(String artifactId, String connectionUrl, MavenCoordinates parent){
         this.artifactId = artifactId;
         this.setConnectionUrl(connectionUrl);
+        this.parent = parent;
     }
 
     public String getConnectionUrl() {

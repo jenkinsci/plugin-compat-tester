@@ -4,9 +4,8 @@ See https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Compatibility+Tester for 
 
 To do:
 
-1. use `-Djenkins.version` (& `-Dhpi-plugin.version`) rather than editing POM parent version, when using a parent POM that supports this (`org.jenkins-ci.plugins:plugin` does not yet but it has been recommended)
 1. unpack the released `*.hpi` into the right spot in the `target` dir, then run `mvn surefire:test` to run tests against released binaries, to catch binary compat errors (then still run `mvn clean test` to catch source compat errors)
-1. currently still seems to run `install` goal which is very undesirable on release tags
+1. `InternalMavenRunner` currently still seems to run `install` goal which is very undesirable on release tags
 1. should run `surefire-report:report` goal instead (or `surefire-report:report-only` after) and display link to HTML results from index page
 1. Export *everything* to GAE, dropping the data storing in XML files (which pollutes the filesystem and can be easily delete if we are careless) and processing with XSL. (migration already started to GAE datastorage, but not completely finished, especially on build logs).
 1. Improve GAE app to allow plugin maintainers to subscribe to notifications on plugin compatibility tests for their plugins against new jenkins versions released.

@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.xml.xpath.XPath;
 
 /**
  * Utility class providing business for retrieving plugin scm data
@@ -83,6 +84,7 @@ public class PluginRemoting {
 		String scmConnection = null;
         String artifactId = null;
 		String pomContent = this.retrievePomContent();
+        MavenCoordinates parent;
 		
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 		try {
@@ -90,11 +92,14 @@ public class PluginRemoting {
 			Document doc = builder.parse(new StringInputStream(pomContent));
 			
 			XPathFactory xpathFactory = XPathFactory.newInstance();
-			XPathExpression scmConnectionXPath = xpathFactory.newXPath().compile("/project/scm/connection/text()");
-            XPathExpression artifactIdXPath = xpathFactory.newXPath().compile("/project/artifactId/text()");
+            XPath xpath = xpathFactory.newXPath();
+			XPathExpression scmConnectionXPath = xpath.compile("/project/scm/connection/text()");
+            XPathExpression artifactIdXPath = xpath.compile("/project/artifactId/text()");
 
 			scmConnection = (String)scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
             artifactId = (String)artifactIdXPath.evaluate(doc, XPathConstants.STRING);
+
+            parent = new MavenCoordinates(xpath.evaluate("/project/parent/groupId/text()", doc), xpath.evaluate("/project/parent/artifactId/text()", doc), xpath.evaluate("/project/parent/version/text()", doc));
 		} catch (ParserConfigurationException e) {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
@@ -109,7 +114,7 @@ public class PluginRemoting {
 			throw new PluginSourcesUnavailableException("Problem while retrieving plugin's scm connection", e);
 		}
 		
-		PomData pomData = new PomData(artifactId, scmConnection);
+		PomData pomData = new PomData(artifactId, scmConnection, parent);
         computeScmConnection(pomData);
         return pomData;
 	}

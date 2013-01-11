@@ -32,6 +32,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import org.jenkins.tools.test.model.MavenCoordinates;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -41,7 +42,7 @@ import static org.junit.Assert.assertThat;
 public class ScmConnectionSpecialCasesTest {
 
     private static void runComputeScmConnectionAgainst(String scmUrlToTest, String artifactId, String expectedComputedScmUrl) {
-        PomData pom = new PomData(artifactId, scmUrlToTest);
+        PomData pom = new PomData(artifactId, scmUrlToTest, new MavenCoordinates("", "", ""));
         PluginRemoting.computeScmConnection(pom);
         assertThat(pom.getConnectionUrl(), is(equalTo(expectedComputedScmUrl)));
     }
