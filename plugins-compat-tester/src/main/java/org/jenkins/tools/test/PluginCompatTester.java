@@ -28,6 +28,7 @@ package org.jenkins.tools.test;
 import hudson.maven.MavenEmbedderException;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
+import hudson.util.VersionNumber;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -177,6 +178,13 @@ public class PluginCompatTester {
 
 		SCMManagerFactory.getInstance().start();
         for(MavenCoordinates coreCoordinates : testedCores){
+            if (coreCoordinates.groupId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_GROUP) &&
+                    coreCoordinates.artifactId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT) &&
+                    coreCoordinates.version.matches("1[.][0-9]+[.][0-9]+") &&
+                    new VersionNumber(coreCoordinates.version).compareTo(new VersionNumber("1.485")) < 0) {
+                System.out.println("Cannot test against " + coreCoordinates.version + " due to lack of deployed POM for " + coreCoordinates.toGAV());
+                coreCoordinates = new MavenCoordinates(coreCoordinates.groupId, coreCoordinates.artifactId, coreCoordinates.version.replaceFirst("[.][0-9]+$", ""));
+            }
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
             for (Plugin plugin : data.plugins.values()) {
                 if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
