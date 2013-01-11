@@ -3,6 +3,7 @@ Generate a compatibility matrix for plugins against Jenkins core.
 See https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Compatibility+Tester for background.
 
 To do:
+
 1. most plugin tests fail to build in 1.480 due to a Maven/Aether error from `DefaultRemoteRepositoryManager` maybe caused by unlogged error in `WagonRepositoryConnector` (below)
 1. prior to 1.485 plugin POMs were not consistently deployed so must strip micro version e.g. 1.480.2 -> 1.480 (try `mvn org.apache.maven.plugins:maven-dependency-plugin:2.5.1:get -Dartifact=org.jenkins-ci.plugins:plugin:$version:pom -Dtransitive=false`)
 1. use `-Djenkins.version` (& `-Dhpi-plugin.version`) rather than editing POM parent version, when using a parent POM that supports this (`org.jenkins-ci.plugins:plugin` does not yet but it has been recommended)
