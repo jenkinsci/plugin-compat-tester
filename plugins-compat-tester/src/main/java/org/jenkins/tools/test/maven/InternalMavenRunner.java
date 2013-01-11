@@ -42,7 +42,7 @@ public class InternalMavenRunner implements MavenRunner {
                     config.userSettingsFile == null
                     ? null
                     : config.userSettingsFile.getAbsolutePath());
-            mavenRequest.setGoals(Arrays.asList("clean", "test"));
+            mavenRequest.setGoals(Arrays.asList(goals));
             mavenRequest.setPom(new File(baseDirectory, "pom.xml").getAbsolutePath());
             AbstractExecutionListener mavenListener = new AbstractExecutionListener() {
                 @Override public void mojoSucceeded(ExecutionEvent event) {
