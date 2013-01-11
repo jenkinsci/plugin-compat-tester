@@ -4,7 +4,7 @@ See https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Compatibility+Tester for 
 
 To do:
 
-1. most plugin tests fail to build in 1.480 due to a Maven/Aether error from `DefaultRemoteRepositoryManager` maybe caused by unlogged error in `WagonRepositoryConnector` (below)
+1. most plugin tests fail to build in 1.480 due to a Maven/Aether error from `DefaultRemoteRepositoryManager` maybe caused by unlogged error in `WagonRepositoryConnector` (below); stephenc suggests checking `help:effective-pom`, looking for `dav:` URIs (for M3), check `f414de0`, incorrect repo URLs
 1. prior to 1.485 plugin POMs were not consistently deployed so must strip micro version e.g. 1.480.2 -> 1.480 (try `mvn org.apache.maven.plugins:maven-dependency-plugin:2.5.1:get -Dartifact=org.jenkins-ci.plugins:plugin:$version:pom -Dtransitive=false`)
 1. use `-Djenkins.version` (& `-Dhpi-plugin.version`) rather than editing POM parent version, when using a parent POM that supports this (`org.jenkins-ci.plugins:plugin` does not yet but it has been recommended)
 1. unpack the released `*.hpi` into the right spot in the `target` dir, then run `mvn surefire:test` to run tests against released binaries, to catch binary compat errors (then still run `mvn clean test` to catch source compat errors)
