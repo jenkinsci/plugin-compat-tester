@@ -4,6 +4,7 @@ See https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Compatibility+Tester for 
 
 To do:
 
+1. enable Issues in this GitHub repo so we can track these to-do items more sanely (prefer not to use JIRA for non-plugins)
 1. unpack the released `*.hpi` into the right spot in the `target` dir, then run `mvn surefire:test` to run tests against released binaries, to catch binary compat errors (then still run `mvn clean test` to catch source compat errors)
 1. `InternalMavenRunner` currently still seems to run `install` goal which is very undesirable on release tags
 1. should run `surefire-report:report` goal instead (or `surefire-report:report-only` after) and display link to HTML results from index page
