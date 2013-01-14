@@ -72,6 +72,12 @@
       <groupId>org.jenkins-ci.lib</groupId>
       <artifactId>lib-jenkins-maven-embedder</artifactId>
       <version>3.9</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>wagon-provider-api</artifactId>
+          <groupId>org.apache.maven.wagon</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
