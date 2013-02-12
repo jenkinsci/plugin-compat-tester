@@ -201,7 +201,7 @@ public class PluginCompatTester {
                                 && pomData.parent.artifactId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT)
                                 || pomData.parent.groupId.equals("org.jvnet.hudson.plugins"))
                                 && coreCoordinates.version.matches("1[.][0-9]+[.][0-9]+")
-                                && new VersionNumber(coreCoordinates.version).compareTo(new VersionNumber("1.485")) < 0) {
+                                && new VersionNumber(coreCoordinates.version).compareTo(new VersionNumber("1.485")) < 0) { // XXX unless 1.480.3+
                             System.out.println("Cannot test against " + coreCoordinates.version + " due to lack of deployed POM for " + coreCoordinates.toGAV());
                             actualCoreCoordinates = new MavenCoordinates(coreCoordinates.groupId, coreCoordinates.artifactId, coreCoordinates.version.replaceFirst("[.][0-9]+$", ""));
                         }
