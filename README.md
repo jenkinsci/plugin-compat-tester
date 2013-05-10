@@ -12,6 +12,5 @@ To do:
 1. Improve GAE app to allow plugin maintainers to subscribe to notifications on plugin compatibility tests for their plugins against new jenkins versions released.
 1. Remove possibility, on GAE app, to select both "every plugins" and "every cores" results... because it generates too much results and crash GAE datastore
 1. most plugin tests fail to build using internal Maven; `PlexusWagonProvider.lookup` with a `roleHint=https` fails for no clear reason, and some missing `SNAPSHOT`s cause a build failure related to https://github.com/stapler/stapler-adjunct-codemirror/commit/da995b03a1f165fef7c9d34eadb15797f58399cd
-1. testing a module not at the root of its Git repo fails (but `findbugs` claimed to succeed even when the Maven build died)
+1. testing a module not at the root of its Git repo fails (`findbugs` succeeds but tests against old Jenkins core)
 1. testing `analysis-core` fails because it uses `org.jvnet.hudson.plugins:analysis-pom` as a parent
-1. testing `analysis-core` against 1.480 fails because it compiles against `hudson.tasks.Ant` which was since split into a separate plugin (may need to introspect `hudson.ClassicPluginStrategy.DETACHED_LIST`)

@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test.model;
 
+import hudson.util.VersionNumber;
 import org.codehaus.plexus.util.FileUtils;
 import org.jenkins.tools.test.exception.PomTransformationException;
 import org.springframework.core.io.ClassPathResource;
@@ -36,6 +37,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 
 /**
  * Class encapsulating business around maven poms
@@ -54,14 +62,15 @@ public class MavenPom {
 		this.rootDir = rootDir;
 		this.pomFileName = pomFileName;
 	}
-	
+
 	public void transformPom(MavenCoordinates coreCoordinates) throws PomTransformationException{
 		File pom = new File(rootDir.getAbsolutePath()+"/"+pomFileName);
 		File backupedPom = new File(rootDir.getAbsolutePath()+"/"+pomFileName+".backup");
 		try {
 			FileUtils.rename(pom, backupedPom);
-			
+
 			Source xmlSource = new StreamSource(backupedPom);
+            // XXX switch to DOM4J for simplicity and consistency
 			Source xsltSource = new StreamSource(new ClassPathResource("mavenParentReplacer.xsl").getInputStream());
 			Result result = new StreamResult(pom);
 			
@@ -76,5 +85,32 @@ public class MavenPom {
 		}
 		
 	}
+
+    public void addDependencies(Map<String,VersionNumber> toAdd) throws IOException {
+        File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
+        Document doc;
+        try {
+            doc = new SAXReader().read(pom);
+        } catch (DocumentException x) {
+            throw new IOException(x);
+        }
+        Element dependencies = doc.getRootElement().element("dependencies");
+        if (dependencies == null) {
+            dependencies = doc.getRootElement().addElement("dependencies");
+        }
+        dependencies.addComment("SYNTHETIC");
+        for (Map.Entry<String,VersionNumber> dep : toAdd.entrySet()) {
+            Element dependency = dependencies.addElement("dependency");
+            dependency.addElement("groupId").addText("org.jenkins-ci.plugins");
+            dependency.addElement("artifactId").addText(dep.getKey());
+            dependency.addElement("version").addText(dep.getValue().toString());
+        }
+        FileWriter w = new FileWriter(pom);
+        try {
+            doc.write(w);
+        } finally {
+            w.close();
+        }
+    }
 
 }

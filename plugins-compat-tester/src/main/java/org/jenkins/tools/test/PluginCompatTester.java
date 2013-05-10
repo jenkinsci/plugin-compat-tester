@@ -25,10 +25,12 @@
  */
 package org.jenkins.tools.test;
 
+import hudson.Functions;
 import hudson.maven.MavenEmbedderException;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import hudson.util.VersionNumber;
+import java.io.BufferedReader;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -67,12 +69,15 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -349,6 +354,13 @@ public class PluginCompatTester {
 		}
 		
 		MavenPom pom = new MavenPom(pluginCheckoutDir);
+        try {
+            addSplitPluginDependencies(mconfig, pluginCheckoutDir, pom);
+        } catch (Exception x) {
+            x.printStackTrace();
+            pomData.getWarningMessages().add(Functions.printThrowable(x));
+            // but continue
+        }
         List<String> args = new ArrayList<String>();
         // XXX future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
         if (pomData.parent.groupId.equals("com.cloudbees.jenkins.plugins") && pomData.parent.artifactId.equals("jenkins-plugins")) {
@@ -460,6 +472,71 @@ public class PluginCompatTester {
             return dataConstructor.newInstance(us, jsonO);
         }catch(Exception e){
             throw new RuntimeException("UpdateSite.Data instanciation problems", e);
+        }
+    }
+
+    private void addSplitPluginDependencies(MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom) throws PomExecutionException, IOException {
+        File tmp = File.createTempFile("dependencies", ".log");
+        VersionNumber coreDep = null;
+        Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
+        try {
+            runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
+            Reader r = new FileReader(tmp);
+            try {
+                BufferedReader br = new BufferedReader(r);
+                Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):([^:]+):(provided|compile|runtime|test|system)");
+                String line;
+                while ((line = br.readLine()) != null) {
+                    Matcher m = p.matcher(line);
+                    if (!m.matches()) {
+                        continue;
+                    }
+                    String groupId = m.group(1);
+                    String artifactId = m.group(2);
+                    VersionNumber version;
+                    try {
+                        version = new VersionNumber(m.group(4));
+                    } catch (IllegalArgumentException x) {
+                        // OK, some other kind of dep, just ignore
+                        continue;
+                    }
+                    if (groupId.equals("org.jenkins-ci.main") && artifactId.equals("jenkins-core")) {
+                        coreDep = version;
+                    } else if (groupId.equals("org.jenkins-ci.plugins")) { // ignore org.jenkins-ci.main:maven-plugin
+                        pluginDeps.put(artifactId, version);
+                    }
+                }
+            } finally {
+                r.close();
+            }
+        } finally {
+            tmp.delete();
+        }
+        if (coreDep != null) {
+            // Synchronize with ClassicPluginStrategy.DETACHED_LIST:
+            String[] splits = {
+                // too special: "maven-plugin:1.296:1.296",
+                "subversion:1.310:1.0",
+                "cvs:1.340:0.1",
+                "ant:1.430.*:1.0",
+                "javadoc:1.430.*:1.0",
+                "external-monitor-job:1.467.*:1.0",
+                "ldap:1.467.*:1.0",
+                "pam-auth:1.467.*:1.0",
+                "mailer:1.493.*:1.2",
+            };
+            Map<String,VersionNumber> toAdd = new HashMap<String,VersionNumber>();
+            for (String split : splits) {
+                String[] pieces = split.split(":");
+                if (coreDep.compareTo(new VersionNumber(pieces[1])) <= 0 && !pluginDeps.containsKey(pieces[0])) {
+                    // XXX should be use the split version, or the current version in jenkins.war?
+                    toAdd.put(pieces[0], new VersionNumber(pieces[2]));
+                }
+            }
+            if (!toAdd.isEmpty()) {
+                System.out.println("Adding plugin dependencies for compatibility: " + toAdd);
+                pom.addDependencies(toAdd);
+            }
         }
     }
 
