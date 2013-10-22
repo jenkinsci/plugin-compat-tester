@@ -206,7 +206,7 @@ public class PluginCompatTester {
                                 && pomData.parent.artifactId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT)
                                 || pomData.parent.groupId.equals("org.jvnet.hudson.plugins"))
                                 && coreCoordinates.version.matches("1[.][0-9]+[.][0-9]+")
-                                && new VersionNumber(coreCoordinates.version).compareTo(new VersionNumber("1.485")) < 0) { // XXX unless 1.480.3+
+                                && new VersionNumber(coreCoordinates.version).compareTo(new VersionNumber("1.485")) < 0) { // TODO unless 1.480.3+
                             System.out.println("Cannot test against " + coreCoordinates.version + " due to lack of deployed POM for " + coreCoordinates.toGAV());
                             actualCoreCoordinates = new MavenCoordinates(coreCoordinates.groupId, coreCoordinates.artifactId, coreCoordinates.version.replaceFirst("[.][0-9]+$", ""));
                         }
@@ -362,10 +362,10 @@ public class PluginCompatTester {
             // but continue
         }
         List<String> args = new ArrayList<String>();
-        // XXX future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
+        // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
         if (pomData.parent.groupId.equals("com.cloudbees.jenkins.plugins") && pomData.parent.artifactId.equals("jenkins-plugins")) {
             args.add("-Djenkins.version=" + coreCoordinates.version);
-            args.add("-Dhpi-plugin.version=1.99"); // XXX would ideally pick up exact version from org.jenkins-ci.main:pom
+            args.add("-Dhpi-plugin.version=1.99"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
         } else {
             pom.transformPom(coreCoordinates);
         }
@@ -530,7 +530,7 @@ public class PluginCompatTester {
             for (String split : splits) {
                 String[] pieces = split.split(":");
                 if (coreDep.compareTo(new VersionNumber(pieces[1])) <= 0 && !pluginDeps.containsKey(pieces[0])) {
-                    // XXX should be use the split version, or the current version in jenkins.war?
+                    // TODO should be use the split version, or the current version in jenkins.war?
                     toAdd.put(pieces[0], new VersionNumber(pieces[2]));
                 }
             }

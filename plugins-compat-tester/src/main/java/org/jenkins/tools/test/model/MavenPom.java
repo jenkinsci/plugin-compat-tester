@@ -70,7 +70,7 @@ public class MavenPom {
 			FileUtils.rename(pom, backupedPom);
 
 			Source xmlSource = new StreamSource(backupedPom);
-            // XXX switch to DOM4J for simplicity and consistency
+            // TODO switch to DOM4J for simplicity and consistency
 			Source xsltSource = new StreamSource(new ClassPathResource("mavenParentReplacer.xsl").getInputStream());
 			Result result = new StreamResult(pom);
 			
