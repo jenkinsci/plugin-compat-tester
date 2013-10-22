@@ -529,6 +529,7 @@ public class PluginCompatTester {
             Map<String,VersionNumber> toAdd = new HashMap<String,VersionNumber>();
             for (String split : splits) {
                 String[] pieces = split.split(":");
+                // TODO this should only happen if the tested core version is ≥ pieces[1]
                 if (coreDep.compareTo(new VersionNumber(pieces[1])) <= 0 && !pluginDeps.containsKey(pieces[0])) {
                     // TODO should be use the split version, or the current version in jenkins.war?
                     toAdd.put(pieces[0], new VersionNumber(pieces[2]));
