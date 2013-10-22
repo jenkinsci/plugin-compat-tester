@@ -365,7 +365,7 @@ public class PluginCompatTester {
         // XXX future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
         if (pomData.parent.groupId.equals("com.cloudbees.jenkins.plugins") && pomData.parent.artifactId.equals("jenkins-plugins")) {
             args.add("-Djenkins.version=" + coreCoordinates.version);
-            args.add("-Dhpi-plugin.version=1.88"); // XXX would ideally pick up exact version from org.jenkins-ci.main:pom
+            args.add("-Dhpi-plugin.version=1.99"); // XXX would ideally pick up exact version from org.jenkins-ci.main:pom
         } else {
             pom.transformPom(coreCoordinates);
         }
@@ -524,6 +524,7 @@ public class PluginCompatTester {
                 "ldap:1.467.*:1.0",
                 "pam-auth:1.467.*:1.0",
                 "mailer:1.493.*:1.2",
+                "matrix-auth:1.535.*:1.0.2",
             };
             Map<String,VersionNumber> toAdd = new HashMap<String,VersionNumber>();
             for (String split : splits) {
