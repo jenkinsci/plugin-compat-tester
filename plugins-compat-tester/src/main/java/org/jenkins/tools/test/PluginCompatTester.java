@@ -411,7 +411,7 @@ public class PluginCompatTester {
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 String name = entry.getName();
-                Matcher m = Pattern.compile("WEB-INF/lib/jenkins-core-([0-9.]+)[.]jar").matcher(name);
+                Matcher m = Pattern.compile("WEB-INF/lib/jenkins-core-([0-9.]+(?:-SNAPSHOT)?)[.]jar").matcher(name);
                 if (m.matches()) {
                     if (top.has("core")) {
                         throw new IOException(">1 jenkins-core.jar in " + war);
