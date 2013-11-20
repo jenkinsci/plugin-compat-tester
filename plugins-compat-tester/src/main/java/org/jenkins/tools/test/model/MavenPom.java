@@ -39,6 +39,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -86,7 +87,7 @@ public class MavenPom {
 		
 	}
 
-    public void addDependencies(Map<String,VersionNumber> toAdd) throws IOException {
+    public void addDependencies(Map<String,VersionNumber> toAdd, VersionNumber coreDep) throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -97,6 +98,21 @@ public class MavenPom {
         Element dependencies = doc.getRootElement().element("dependencies");
         if (dependencies == null) {
             dependencies = doc.getRootElement().addElement("dependencies");
+        }
+        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
+            Element artifactId = mavenDependency.element("artifactId");
+            if (artifactId == null || !"maven-plugin".equals(artifactId.getTextTrim())) {
+                continue;
+            }
+            Element version = mavenDependency.element("version");
+            if (version == null || version.getTextTrim().startsWith("${")) {
+                // Prior to 1.532, plugins sometimes assumed they could pick up the Maven plugin version from their parent POM.
+                if (version != null) {
+                    mavenDependency.remove(version);
+                }
+                version = mavenDependency.addElement("version");
+                version.addText(coreDep.toString());
+            }
         }
         dependencies.addComment("SYNTHETIC");
         for (Map.Entry<String,VersionNumber> dep : toAdd.entrySet()) {

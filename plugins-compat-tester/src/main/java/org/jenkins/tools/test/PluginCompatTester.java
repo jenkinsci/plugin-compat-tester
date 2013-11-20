@@ -537,7 +537,7 @@ public class PluginCompatTester {
             }
             if (!toAdd.isEmpty()) {
                 System.out.println("Adding plugin dependencies for compatibility: " + toAdd);
-                pom.addDependencies(toAdd);
+                pom.addDependencies(toAdd, coreDep);
             }
         }
     }
