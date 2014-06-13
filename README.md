@@ -14,3 +14,4 @@ To do:
 1. most plugin tests fail to build using internal Maven; `PlexusWagonProvider.lookup` with a `roleHint=https` fails for no clear reason, and some missing `SNAPSHOT`s cause a build failure related to https://github.com/stapler/stapler-adjunct-codemirror/commit/da995b03a1f165fef7c9d34eadb15797f58399cd
 1. testing a module not at the root of its Git repo fails (`findbugs` succeeds but tests against old Jenkins core)
 1. testing `analysis-core` fails because it uses `org.jvnet.hudson.plugins:analysis-pom` as a parent
+1. when testing a plugin depending on other plugins, bump up the dependency to the latest released version…or even build the dependency from `master` sources
