@@ -367,6 +367,7 @@ public class PluginCompatTester {
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
         FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
+        boolean ranCompile = false;
         try {
             // First build against the original POM.
             // This defends against source incompatibilities (which we do not care about for this purpose);
@@ -375,6 +376,7 @@ public class PluginCompatTester {
             args.add("clean");
             args.add("process-test-classes");
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
+            ranCompile = true;
 
             // Then transform the POM and run tests against that.
             // You might think that it would suffice to run e.g.
@@ -403,6 +405,10 @@ public class PluginCompatTester {
         }catch(PomExecutionException e){
             PomExecutionException e2 = new PomExecutionException(e);
             e2.getPomWarningMessages().addAll(pomData.getWarningMessages());
+            if (ranCompile) {
+                // So the status is considered to be TEST_FAILURES not COMPILATION_ERROR:
+                e2.succeededPluginArtifactIds.add("maven-compiler-plugin");
+            }
             throw e2;
         }
 	}
