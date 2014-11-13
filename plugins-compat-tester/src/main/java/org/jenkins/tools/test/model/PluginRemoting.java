@@ -148,11 +148,13 @@ public class PluginRemoting {
 
         // github url like [https://]<username>@github.com/...
         // => Replaced by git://github.com/...
+        /* Do not change this; it was actually correct if the repo was non-public.
         oldUrl = transformedConnectionUrl;
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("(http(s)?://)?[^@:]+@github\\.com", "git://github.com");
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl is using a github account instead of a read-only url git://github.com/...");
         }
+        */
 
         oldUrl = transformedConnectionUrl;
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github\\.com[^/]", "://github.com/");
@@ -180,6 +182,12 @@ public class PluginRemoting {
         }
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl should be ending with '-plugin.git'");
+        }
+
+        oldUrl = transformedConnectionUrl;
+        transformedConnectionUrl = transformedConnectionUrl.replace("git.cloudbees.com", "github.com");
+        if (!oldUrl.equals(transformedConnectionUrl)) {
+            pomData.getWarningMessages().add("project.scm.connectionUrl was using git.cloudbees.com; moved to GitHub");
         }
 
         pomData.setConnectionUrl(transformedConnectionUrl);
