@@ -14,3 +14,4 @@ To do:
 1. testing a module not at the root of its Git repo fails (`findbugs` succeeds but tests against old Jenkins core)
 1. testing `analysis-core` fails because it uses `org.jvnet.hudson.plugins:analysis-pom` as a parent
 1. when testing a plugin depending on other plugins, bump up the dependency to the latest released version…or even build the dependency from `master` sources
+1. testing `copyartifact` against 1.580.1 fails because it has a dependency on `maven-plugin` in a version older than what is now bundled, and the older version does not link against current `AbstractProject.triggers` when loaded from classpath (as a plugin it works because of special tricks in the `ClassLoader`); need to replace dependencies on bundled plugins with the bundled versions if those are newer
