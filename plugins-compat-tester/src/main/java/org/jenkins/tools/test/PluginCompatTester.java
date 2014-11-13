@@ -551,6 +551,10 @@ public class PluginCompatTester {
                 "pam-auth:1.467.*:1.0",
                 "mailer:1.493.*:1.2",
                 "matrix-auth:1.535.*:1.0.2",
+                "windows-slaves:1.547.*:1.0",
+                "antisamy-markup-formatter:1.553.*:1.0",
+                "matrix-project:1.561.*:1.0",
+                "junit:1.577.*:1.0",
             };
             Map<String,VersionNumber> toAdd = new HashMap<String,VersionNumber>();
             for (String split : splits) {
