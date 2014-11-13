@@ -25,7 +25,6 @@
  */
 package org.jenkins.tools.test;
 
-import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.model.PluginRemoting;
 import org.jenkins.tools.test.model.PomData;
 import org.junit.Test;
@@ -34,6 +33,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import static org.junit.Assert.assertThat;
+import org.junit.Ignore;
 
 /**
  * Tests about scm connection url transformations
@@ -70,6 +70,7 @@ public class ScmConnectionSpecialCasesTest {
         );
     }
 
+    @Ignore("disabled this transformation")
     @Test
     public void shouldGithubUsernamedUrlBeFiltered() throws Throwable{
         runComputeScmConnectionAgainst(
@@ -145,6 +146,7 @@ public class ScmConnectionSpecialCasesTest {
         );
     }
 
+    @Ignore("disabled this transformation")
     @Test
     public void shouldGitAtGithubReplaceByGitProtocol() throws Throwable {
         runComputeScmConnectionAgainst(
