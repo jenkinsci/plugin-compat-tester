@@ -35,7 +35,6 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
@@ -332,7 +331,7 @@ public class PluginCompatTester {
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
 		
 		try {
-            System.out.println("Checkouting from scm connection URL : "+pomData.getConnectionUrl()+" ("+plugin.name+"-"+plugin.version+")");
+            System.out.println("Checking out from SCM connection URL : "+pomData.getConnectionUrl()+" ("+plugin.name+"-"+plugin.version+")");
 			ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
 			ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
 			CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
@@ -348,9 +347,9 @@ public class PluginCompatTester {
 		} catch (ComponentLookupException e) {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem while creating ScmManager !", e);
-		} catch (ScmException e) {
+		} catch (Exception e) {
 			System.err.println("Error : " + e.getMessage());
-			throw new PluginSourcesUnavailableException("Problem while checkouting plugin sources !", e);
+			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
 		}
 		
         List<String> baseArgs = new ArrayList<String>();
