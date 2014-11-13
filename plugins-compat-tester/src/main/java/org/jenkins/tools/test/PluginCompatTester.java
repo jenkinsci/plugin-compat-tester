@@ -353,31 +353,50 @@ public class PluginCompatTester {
 			throw new PluginSourcesUnavailableException("Problem while checkouting plugin sources !", e);
 		}
 		
-		MavenPom pom = new MavenPom(pluginCheckoutDir);
-        try {
-            addSplitPluginDependencies(mconfig, pluginCheckoutDir, pom);
-        } catch (Exception x) {
-            x.printStackTrace();
-            pomData.getWarningMessages().add(Functions.printThrowable(x));
-            // but continue
-        }
-        List<String> args = new ArrayList<String>();
+        List<String> baseArgs = new ArrayList<String>();
+        boolean mustTransformPom = false;
         // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
         if (pomData.parent.groupId.equals("com.cloudbees.jenkins.plugins") && pomData.parent.artifactId.equals("jenkins-plugins")) {
-            args.add("-Djenkins.version=" + coreCoordinates.version);
-            args.add("-Dhpi-plugin.version=1.99"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
+            baseArgs.add("-Djenkins.version=" + coreCoordinates.version);
+            baseArgs.add("-Dhpi-plugin.version=1.99"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
         } else {
-            pom.transformPom(coreCoordinates);
+            mustTransformPom = true;
         }
-        args.add("clean");
-        args.add("test");
 
         File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
         FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
         try {
+            // First build against the original POM.
+            // This defends against source incompatibilities (which we do not care about for this purpose);
+            // and ensures that we are testing a plugin binary as close as possible to what was actually released.
+            List<String> args = new ArrayList<String>(baseArgs);
+            args.add("clean");
+            args.add("process-test-classes");
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
+
+            // Then transform the POM and run tests against that.
+            // You might think that it would suffice to run e.g.
+            // -Dmaven-surefire-plugin.version=2.15 -Dmaven.test.dependency.excludes=org.jenkins-ci.main:jenkins-war -Dmaven.test.additionalClasspath=/…/org/jenkins-ci/main/jenkins-war/1.580.1/jenkins-war-1.580.1.war clean test
+            // (2.15+ required for ${maven.test.dependency.excludes} and ${maven.test.additionalClasspath} to be honored from CLI)
+            // but it does not work; there are lots of linkage errors as some things are expected to be in the test classpath which are not.
+            // Much simpler to do use the parent POM to set up the test classpath.
+            MavenPom pom = new MavenPom(pluginCheckoutDir);
+            try {
+                addSplitPluginDependencies(mconfig, pluginCheckoutDir, pom);
+            } catch (Exception x) {
+                x.printStackTrace();
+                pomData.getWarningMessages().add(Functions.printThrowable(x));
+                // but continue
+            }
+            if (mustTransformPom) {
+                pom.transformPom(coreCoordinates);
+            }
+            args = new ArrayList<String>(baseArgs);
+            args.add("surefire:test");
+            runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
+
             return new TestExecutionResult(pomData.getWarningMessages());
         }catch(PomExecutionException e){
             PomExecutionException e2 = new PomExecutionException(e);

@@ -27,6 +27,7 @@ package org.jenkins.tools.test.logging;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Locale;
 
@@ -53,7 +54,7 @@ public class SystemIOLoggerFilter extends PrintStream {
 
         public SystemIOWrapper(SystemIOLoggerFilter loggerFilter, PrintStream systemIO) throws FileNotFoundException {
             // Should be unnecessary but PrintStream doesn't have any default constructor !
-            super(loggerFilter.getCurrentPSFile());
+            super(new FileOutputStream(loggerFilter.getCurrentPSFile(), true));
             this.loggerFilter = loggerFilter;
             this.systemIO = systemIO;
         }
