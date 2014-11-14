@@ -603,6 +603,7 @@ public class PluginCompatTester {
                         // We ignore the declared dependency version and go with the bundled version:
                         Plugin depBundledP = otherPlugins.get(depPlugin);
                         if (depBundledP != null) {
+                            System.out.println("Adding " + depPlugin + " since it was a dependency of " + plugin);
                             toAdd.put(depPlugin, new VersionNumber(depBundledP.version));
                         }
                     }
