@@ -87,7 +87,7 @@ public class MavenPom {
 		
 	}
 
-    public void addDependencies(Map<String,VersionNumber> toAdd, VersionNumber coreDep) throws IOException {
+    public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, VersionNumber coreDep) throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -114,12 +114,30 @@ public class MavenPom {
                 version.addText(coreDep.toString());
             }
         }
+        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
+            Element artifactId = mavenDependency.element("artifactId");
+            if (artifactId == null) {
+                continue;
+            }
+            VersionNumber replacement = toReplace.get(artifactId.getTextTrim());
+            if (replacement == null) {
+                continue;
+            }
+            Element version = mavenDependency.element("version");
+            if (version != null) {
+                mavenDependency.remove(version);
+            }
+            version = mavenDependency.addElement("version");
+            version.addText(replacement.toString());
+            excludeSecurity144Compat(mavenDependency);
+        }
         dependencies.addComment("SYNTHETIC");
         for (Map.Entry<String,VersionNumber> dep : toAdd.entrySet()) {
             Element dependency = dependencies.addElement("dependency");
             dependency.addElement("groupId").addText("org.jenkins-ci.plugins");
             dependency.addElement("artifactId").addText(dep.getKey());
             dependency.addElement("version").addText(dep.getValue().toString());
+            excludeSecurity144Compat(dependency);
         }
         FileWriter w = new FileWriter(pom);
         try {
@@ -127,6 +145,17 @@ public class MavenPom {
         } finally {
             w.close();
         }
+    }
+
+    /** JENKINS-25625 workaround. */
+    private void excludeSecurity144Compat(Element dependency) {
+        Element exclusions = dependency.element("exclusions");
+        if (exclusions == null) {
+            exclusions = dependency.addElement("exclusions");
+        }
+        Element exclusion = exclusions.addElement("exclusion");
+        exclusion.addElement("groupId").addText("org.jenkins-ci");
+        exclusion.addElement("artifactId").addText("SECURITY-144-compat");
     }
 
 }

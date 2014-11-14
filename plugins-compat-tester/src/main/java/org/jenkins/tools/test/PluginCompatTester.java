@@ -223,7 +223,7 @@ public class PluginCompatTester {
                     List<String> warningMessages = new ArrayList<String>();
                     if (errorMessage == null) {
                     try {
-                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData);
+                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, data.plugins);
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
@@ -311,7 +311,7 @@ public class PluginCompatTester {
         return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
     }
 	
-	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData)
+	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String,Plugin> otherPlugins)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
@@ -382,7 +382,7 @@ public class PluginCompatTester {
             // Much simpler to do use the parent POM to set up the test classpath.
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
-                addSplitPluginDependencies(mconfig, pluginCheckoutDir, pom);
+                addSplitPluginDependencies(mconfig, pluginCheckoutDir, pom, otherPlugins);
             } catch (Exception x) {
                 x.printStackTrace();
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
@@ -442,7 +442,7 @@ public class PluginCompatTester {
                 }
                 m = Pattern.compile("WEB-INF/plugins/([^/.]+)[.][hj]pi").matcher(name);
                 if (m.matches()) {
-                    JSONObject plugin = new JSONObject().accumulate("url", "").accumulate("dependencies", new JSONArray());
+                    JSONObject plugin = new JSONObject().accumulate("url", "");
                     InputStream is = jf.getInputStream(entry);
                     try {
                         JarInputStream jis = new JarInputStream(is);
@@ -455,12 +455,20 @@ public class PluginCompatTester {
                                     shortName = m.group(1);
                                 }
                             }
-                            if (shortName.equals("maven-plugin")) {
-                                continue; // this is special
-                            }
                             plugin.put("name", shortName);
                             plugin.put("version", manifest.getMainAttributes().getValue("Plugin-Version"));
                             plugin.put("url", "jar:" + war.toURI() + "!/" + name);
+                            JSONArray dependenciesA = new JSONArray();
+                            String dependencies = manifest.getMainAttributes().getValue("Plugin-Dependencies");
+                            if (dependencies != null) {
+                                // e.g. matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
+                                for (String pair : dependencies.replace(";resolution:=optional", "").split(",")) {
+                                    String[] nameVer = pair.split(":");
+                                    assert nameVer.length == 2;
+                                    dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1])./* we do care about even optional deps here */accumulate("optional", "false"));
+                                }
+                            }
+                            plugin.accumulate("dependencies", dependenciesA);
                             plugins.put(shortName, plugin);
                         } finally {
                             jis.close();
@@ -497,7 +505,7 @@ public class PluginCompatTester {
         }
     }
 
-    private void addSplitPluginDependencies(MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom) throws PomExecutionException, IOException {
+    private void addSplitPluginDependencies(MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
@@ -524,7 +532,9 @@ public class PluginCompatTester {
                     }
                     if (groupId.equals("org.jenkins-ci.main") && artifactId.equals("jenkins-core")) {
                         coreDep = version;
-                    } else if (groupId.equals("org.jenkins-ci.plugins")) { // ignore org.jenkins-ci.main:maven-plugin
+                    } else if (groupId.equals("org.jenkins-ci.plugins")) {
+                        pluginDeps.put(artifactId, version);
+                    } else if (groupId.equals("org.jenkins-ci.main") && artifactId.equals("maven-plugin")) {
                         pluginDeps.put(artifactId, version);
                     }
                 }
@@ -534,10 +544,11 @@ public class PluginCompatTester {
         } finally {
             tmp.delete();
         }
+        System.out.println("Analysis: coreDep=" + coreDep + " pluginDeps=" + pluginDeps);
         if (coreDep != null) {
             // Synchronize with ClassicPluginStrategy.DETACHED_LIST:
             String[] splits = {
-                // too special: "maven-plugin:1.296:1.296",
+                "maven-plugin:1.296:1.296",
                 "subversion:1.310:1.0",
                 "cvs:1.340:0.1",
                 "ant:1.430.*:1.0",
@@ -553,17 +564,52 @@ public class PluginCompatTester {
                 "junit:1.577.*:1.0",
             };
             Map<String,VersionNumber> toAdd = new HashMap<String,VersionNumber>();
+            Map<String,VersionNumber> toReplace = new HashMap<String,VersionNumber>();
             for (String split : splits) {
                 String[] pieces = split.split(":");
-                // TODO this should only happen if the tested core version is ≥ pieces[1]
-                if (coreDep.compareTo(new VersionNumber(pieces[1])) <= 0 && !pluginDeps.containsKey(pieces[0])) {
-                    // TODO should be use the split version, or the current version in jenkins.war?
-                    toAdd.put(pieces[0], new VersionNumber(pieces[2]));
+                String plugin = pieces[0];
+                VersionNumber splitPoint = new VersionNumber(pieces[1]);
+                VersionNumber declaredMinimum = new VersionNumber(pieces[2]);
+                // TODO this should only happen if the tested core version is ≥ splitPoint
+                // TODO pluginDeps could include test deps inherited from jenkins-test-harness; do we need to add/replace these implicit deps?
+                if (coreDep.compareTo(splitPoint) <= 0 && !pluginDeps.containsKey(plugin)) {
+                    Plugin bundledP = otherPlugins.get(plugin);
+                    if (bundledP != null) {
+                        VersionNumber bundledV = new VersionNumber(bundledP.version);
+                        if (bundledV.isNewerThan(declaredMinimum)) {
+                            toAdd.put(plugin, bundledV);
+                            continue;
+                        }
+                    }
+                    toAdd.put(plugin, declaredMinimum);
                 }
             }
-            if (!toAdd.isEmpty()) {
-                System.out.println("Adding plugin dependencies for compatibility: " + toAdd);
-                pom.addDependencies(toAdd, coreDep);
+            for (Map.Entry<String,VersionNumber> pluginDep : pluginDeps.entrySet()) {
+                String plugin = pluginDep.getKey();
+                Plugin bundledP = otherPlugins.get(plugin);
+                if (bundledP != null) {
+                    VersionNumber bundledV = new VersionNumber(bundledP.version);
+                    if (bundledV.isNewerThan(pluginDep.getValue())) {
+                        assert !toAdd.containsKey(plugin);
+                        toReplace.put(plugin, bundledV);
+                    }
+                    // Also check any dependencies, so if we are upgrading cloudbees-folder, we also add an explicit dep on a bundled credentials.
+                    for (Map.Entry<String,String> dependency : bundledP.dependencies.entrySet()) {
+                        String depPlugin = dependency.getKey();
+                        if (pluginDeps.containsKey(depPlugin)) {
+                            continue; // already handled
+                        }
+                        // We ignore the declared dependency version and go with the bundled version:
+                        Plugin depBundledP = otherPlugins.get(depPlugin);
+                        if (depBundledP != null) {
+                            toAdd.put(depPlugin, new VersionNumber(depBundledP.version));
+                        }
+                    }
+                }
+            }
+            if (!toAdd.isEmpty() || !toReplace.isEmpty()) {
+                System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace);
+                pom.addDependencies(toAdd, toReplace, coreDep);
             }
         }
     }
