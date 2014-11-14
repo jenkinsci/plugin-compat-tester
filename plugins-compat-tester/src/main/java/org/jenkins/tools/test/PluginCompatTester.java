@@ -352,12 +352,12 @@ public class PluginCompatTester {
 			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
 		}
 		
-        List<String> baseArgs = new ArrayList<String>();
+        List<String> args = new ArrayList<String>();
         boolean mustTransformPom = false;
         // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
         if (pomData.parent.groupId.equals("com.cloudbees.jenkins.plugins") && pomData.parent.artifactId.equals("jenkins-plugins")) {
-            baseArgs.add("-Djenkins.version=" + coreCoordinates.version);
-            baseArgs.add("-Dhpi-plugin.version=1.99"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
+            args.add("-Djenkins.version=" + coreCoordinates.version);
+            args.add("-Dhpi-plugin.version=1.99"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
         } else {
             mustTransformPom = true;
         }
@@ -371,10 +371,7 @@ public class PluginCompatTester {
             // First build against the original POM.
             // This defends against source incompatibilities (which we do not care about for this purpose);
             // and ensures that we are testing a plugin binary as close as possible to what was actually released.
-            List<String> args = new ArrayList<String>(baseArgs);
-            args.add("clean");
-            args.add("process-test-classes");
-            runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
+            runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes");
             ranCompile = true;
 
             // Then transform the POM and run tests against that.
@@ -394,7 +391,6 @@ public class PluginCompatTester {
             if (mustTransformPom) {
                 pom.transformPom(coreCoordinates);
             }
-            args = new ArrayList<String>(baseArgs);
             args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=concurrency=1");
             args.add("surefire:test");
