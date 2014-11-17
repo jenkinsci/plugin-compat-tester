@@ -395,6 +395,7 @@ public class PluginCompatTester {
             }
             args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=concurrency=1");
+            args.add("hpi:resolve-test-dependencies");
             args.add("hpi:test-hpl");
             args.add("surefire:test");
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
