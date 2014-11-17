@@ -357,7 +357,8 @@ public class PluginCompatTester {
         // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
         if (pomData.parent.groupId.equals("com.cloudbees.jenkins.plugins") && pomData.parent.artifactId.equals("jenkins-plugins") ||
                 // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
-                pomData.parent.groupId.equals("com.cloudbees.operations-center.common") && pomData.parent.artifactId.equals("operations-center-parent")) {
+                pomData.parent.groupId.equals("com.cloudbees.operations-center.common") && pomData.parent.artifactId.equals("operations-center-parent") ||
+                pomData.parent.groupId.equals("com.cloudbees.operations-center.client") && pomData.parent.artifactId.equals("operations-center-parent-client")) {
             args.add("-Djenkins.version=" + coreCoordinates.version);
             args.add("-Dhpi-plugin.version=1.99"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
         } else {
