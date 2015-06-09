@@ -519,7 +519,8 @@ public class PluginCompatTester {
             Reader r = new FileReader(tmp);
             try {
                 BufferedReader br = new BufferedReader(r);
-                Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):([^:]+):(provided|compile|runtime|test|system)");
+                // TODO could include |test but only if pom.addDependencies would add as <scope>test</scope>
+                Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):([^:]+):(provided|compile|runtime|system)");
                 String line;
                 while ((line = br.readLine()) != null) {
                     Matcher m = p.matcher(line);
