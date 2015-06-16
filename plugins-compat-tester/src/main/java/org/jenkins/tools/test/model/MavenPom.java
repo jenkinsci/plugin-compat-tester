@@ -119,6 +119,7 @@ public class MavenPom {
             if (artifactId == null) {
                 continue;
             }
+            excludeSecurity144Compat(mavenDependency);
             VersionNumber replacement = toReplace.get(artifactId.getTextTrim());
             if (replacement == null) {
                 continue;
@@ -129,7 +130,6 @@ public class MavenPom {
             }
             version = mavenDependency.addElement("version");
             version.addText(replacement.toString());
-            excludeSecurity144Compat(mavenDependency);
         }
         dependencies.addComment("SYNTHETIC");
         for (Map.Entry<String,VersionNumber> dep : toAdd.entrySet()) {
