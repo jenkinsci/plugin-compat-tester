@@ -75,6 +75,7 @@ import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -385,7 +386,7 @@ public class PluginCompatTester {
             // Much simpler to do use the parent POM to set up the test classpath.
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
-                addSplitPluginDependencies(mconfig, pluginCheckoutDir, pom, otherPlugins);
+                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins);
             } catch (Exception x) {
                 x.printStackTrace();
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
@@ -510,7 +511,7 @@ public class PluginCompatTester {
         }
     }
 
-    private void addSplitPluginDependencies(MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins) throws PomExecutionException, IOException {
+    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
@@ -569,11 +570,24 @@ public class PluginCompatTester {
                 "matrix-project:1.561.*:1.0",
                 "junit:1.577.*:1.0",
             };
+            // Synchronize with ClassicPluginStrategy.BREAK_CYCLES:
+            String[] exceptions = {
+                "script-security/matrix-auth",
+                "script-security/windows-slaves",
+                "script-security/antisamy-markup-formatter",
+                "script-security/matrix-project",
+                "credentials/matrix-auth",
+                "credentials/windows-slaves"
+            };
             Map<String,VersionNumber> toAdd = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toReplace = new HashMap<String,VersionNumber>();
             for (String split : splits) {
                 String[] pieces = split.split(":");
                 String plugin = pieces[0];
+                if (Arrays.asList(exceptions).contains(thisPlugin + "/" + plugin)) {
+                    System.out.println("Skipping implicit dep " + thisPlugin + " → " + plugin);
+                    continue;
+                }
                 VersionNumber splitPoint = new VersionNumber(pieces[1]);
                 VersionNumber declaredMinimum = new VersionNumber(pieces[2]);
                 // TODO this should only happen if the tested core version is ≥ splitPoint
@@ -581,7 +595,13 @@ public class PluginCompatTester {
                 if (coreDep.compareTo(splitPoint) <= 0 && !pluginDeps.containsKey(plugin)) {
                     Plugin bundledP = otherPlugins.get(plugin);
                     if (bundledP != null) {
-                        VersionNumber bundledV = new VersionNumber(bundledP.version);
+                        VersionNumber bundledV;
+                        try {
+                            bundledV = new VersionNumber(bundledP.version);
+                        } catch (NumberFormatException x) { // TODO apparently this does not handle `1.0-beta-1` and the like?!
+                            System.out.println("Skipping unparseable dep on " + bundledP.name + ": " + bundledP.version);
+                            continue;
+                        }
                         if (bundledV.isNewerThan(declaredMinimum)) {
                             toAdd.put(plugin, bundledV);
                             continue;
