@@ -150,8 +150,8 @@ public class PluginCompatTester {
             dataImporter = new DataImporter(config.getGaeBaseUrl(), config.getGaeSecurityToken());
         }
 
-
-        UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData() : scanWAR(config.getWar());
+        HashMap<String,String> pluginGroupIds = new HashMap<String, String>();  // Used to track real plugin groupIds from WARs
+        UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData() : scanWAR(config.getWar(), pluginGroupIds);
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
         SortedSet<MavenCoordinates> testedCores = config.getWar() == null ? generateCoreCoordinatesToTest(data, report) : coreVersionFromWAR(data);
@@ -224,7 +224,7 @@ public class PluginCompatTester {
                     List<String> warningMessages = new ArrayList<String>();
                     if (errorMessage == null) {
                     try {
-                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, data.plugins);
+                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, data.plugins, pluginGroupIds);
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
@@ -312,7 +312,7 @@ public class PluginCompatTester {
         return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
     }
 	
-	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String,Plugin> otherPlugins)
+	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
@@ -386,7 +386,7 @@ public class PluginCompatTester {
             // Much simpler to do use the parent POM to set up the test classpath.
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
-                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins);
+                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds);
             } catch (Exception x) {
                 x.printStackTrace();
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
@@ -429,11 +429,21 @@ public class PluginCompatTester {
         return newUpdateSiteData(us, JSONObject.fromObject(json));
 	}
 
-    private UpdateSite.Data scanWAR(File war) throws IOException {
+    /**
+     * Scans through a WAR file, accumulating plugin information
+     * @param war WAR to scan
+     * @param pluginGroupIds Map pluginName to groupId if set in the manifest, MUTATED IN THE EXECUTION
+     * @return Update center data
+     * @throws IOException
+     */
+    private UpdateSite.Data scanWAR(File war, Map<String, String> pluginGroupIds) throws IOException {
         JSONObject top = new JSONObject();
         top.put("id", DEFAULT_SOURCE_ID);
         JSONObject plugins = new JSONObject();
         JarFile jf = new JarFile(war);
+        if (pluginGroupIds == null) {
+            pluginGroupIds = new HashMap<String, String>();
+        }
         try {
             Enumeration<JarEntry> entries = jf.entries();
             while (entries.hasMoreElements()) {
@@ -462,6 +472,7 @@ public class PluginCompatTester {
                                 }
                             }
                             plugin.put("name", shortName);
+                            pluginGroupIds.put(shortName, manifest.getMainAttributes().getValue("Group-Id"));
                             plugin.put("version", manifest.getMainAttributes().getValue("Plugin-Version"));
                             plugin.put("url", "jar:" + war.toURI() + "!/" + name);
                             JSONArray dependenciesA = new JSONArray();
@@ -511,10 +522,11 @@ public class PluginCompatTester {
         }
     }
 
-    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins) throws PomExecutionException, IOException {
+    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
+        Map<String, String> pluginGroups = new HashMap<String, String>();
         try {
             runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
             Reader r = new FileReader(tmp);
@@ -636,7 +648,7 @@ public class PluginCompatTester {
             }
             if (!toAdd.isEmpty() || !toReplace.isEmpty()) {
                 System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace);
-                pom.addDependencies(toAdd, toReplace, coreDep);
+                pom.addDependencies(toAdd, toReplace, coreDep, pluginGroupIds);
             }
         }
     }

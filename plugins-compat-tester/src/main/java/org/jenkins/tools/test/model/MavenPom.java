@@ -87,7 +87,7 @@ public class MavenPom {
 		
 	}
 
-    public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, VersionNumber coreDep) throws IOException {
+    public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, VersionNumber coreDep, Map<String,String> pluginGroupIds) throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -134,7 +134,14 @@ public class MavenPom {
         dependencies.addComment("SYNTHETIC");
         for (Map.Entry<String,VersionNumber> dep : toAdd.entrySet()) {
             Element dependency = dependencies.addElement("dependency");
-            dependency.addElement("groupId").addText("org.jenkins-ci.plugins");
+            String group = pluginGroupIds.get(dep.getKey());
+
+            // Handle cases where plugin isn't under default groupId
+            if (group != null && !group.isEmpty()) {
+                dependency.addElement("groupId").addText(group);
+            } else {
+                dependency.addElement("groupId").addText("org.jenkins-ci.plugins");
+            }
             dependency.addElement("artifactId").addText(dep.getKey());
             dependency.addElement("version").addText(dep.getValue().toString());
             excludeSecurity144Compat(dependency);
