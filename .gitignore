@@ -10,3 +10,6 @@ target
 /plugins-compat-tester-cli/nb-configuration.xml
 reports
 /plugins-compat-tester-cli/dependency-reduced-pom.xml
+*.iml
+work/
+jenkins/
