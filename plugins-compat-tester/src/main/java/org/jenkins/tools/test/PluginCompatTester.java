@@ -526,7 +526,6 @@ public class PluginCompatTester {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
-        Map<String, String> pluginGroups = new HashMap<String, String>();
         try {
             runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
             Reader r = new FileReader(tmp);
@@ -554,6 +553,8 @@ public class PluginCompatTester {
                     } else if (groupId.equals("org.jenkins-ci.plugins")) {
                         pluginDeps.put(artifactId, version);
                     } else if (groupId.equals("org.jenkins-ci.main") && artifactId.equals("maven-plugin")) {
+                        pluginDeps.put(artifactId, version);
+                    } else if (groupId.equals(pluginGroupIds.get(artifactId))) {
                         pluginDeps.put(artifactId, version);
                     }
                 }
