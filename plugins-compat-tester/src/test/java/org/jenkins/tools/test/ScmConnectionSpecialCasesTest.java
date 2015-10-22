@@ -125,6 +125,11 @@ public class ScmConnectionSpecialCasesTest {
                 "",
                 "scm:git:git://github.com/jenkinsci/cifs-plugin.git"
         );
+        runComputeScmConnectionAgainst(
+                "scm:git:git://git@github.com:jenkinsci/dockerhub-notification-plugin.git", // ssh url with git protocol
+                "",
+                "scm:git:git://github.com/jenkinsci/dockerhub-notification-plugin.git"
+        );
     }
 
     @Test
