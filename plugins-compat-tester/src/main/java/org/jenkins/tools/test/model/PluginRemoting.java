@@ -156,6 +156,13 @@ public class PluginRemoting {
         }
         */
 
+        //Convert things like scm:git:git://git@github.com:jenkinsci/dockerhub-notification-plugin.git
+        oldUrl = transformedConnectionUrl;
+        transformedConnectionUrl = transformedConnectionUrl.replaceAll("scm:git:git://git@github\\.com:jenkinsci", "scm:git:git://github.com/jenkinsci");
+        if(!oldUrl.equals(transformedConnectionUrl)){
+            pomData.getWarningMessages().add("project.scm.connectionUrl should should be accessed in read-only mode (with git:// protocol)");
+        }
+
         oldUrl = transformedConnectionUrl;
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github\\.com[^/]", "://github.com/");
         if(!oldUrl.equals(transformedConnectionUrl)){
