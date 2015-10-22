@@ -456,7 +456,7 @@ public class PluginCompatTester {
                     }
                     top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", ""));
                 }
-                m = Pattern.compile("WEB-INF/plugins/([^/.]+)[.][hj]pi").matcher(name);
+                m = Pattern.compile("WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi").matcher(name);
                 if (m.matches()) {
                     JSONObject plugin = new JSONObject().accumulate("url", "");
                     InputStream is = jf.getInputStream(entry);
