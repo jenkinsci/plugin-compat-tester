@@ -83,6 +83,7 @@ public class PluginCompatTesterCli {
         config.setWar(war);
 
         config.setExternalMaven(options.getExternalMaven());
+        config.setTestVersion(options.getTestVersion());
 
         if(options.getIncludePlugins() != null && !options.getIncludePlugins().isEmpty()){
             config.setIncludePlugins(Arrays.asList(options.getIncludePlugins().toLowerCase().split(",")));

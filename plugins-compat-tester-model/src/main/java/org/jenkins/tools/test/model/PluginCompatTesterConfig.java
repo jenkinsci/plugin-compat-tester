@@ -99,6 +99,11 @@ public class PluginCompatTesterConfig {
     private String gaeSecurityToken;
     // GoogleAppEngin base url for plugin compat tester
     private String gaeBaseUrl;
+    
+    //Allows Jenkins test version specification.
+    //Use the Jenkins test classes from the same parent version of this plugin or the most recent release of Jenkins
+    //true= same version; false= most recent version
+    private boolean testVersion = false;
 
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
@@ -236,6 +241,14 @@ public class PluginCompatTesterConfig {
 
     public void setExternalMaven(File externalMaven) {
         this.externalMaven = externalMaven;
+    }
+    
+    public boolean getTestVersion() {
+        return testVersion;
+    }
+
+    public void setTestVersion(boolean testVersion) {
+        this.testVersion = testVersion;
     }
 
 }

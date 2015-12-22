@@ -100,6 +100,13 @@ public class CliOptions {
     private String gaeSecurityToken;
     @Parameter(names="-gaeBaseUrl", description = "Allows to pass GAE plugin compat tester base url")
     private String gaeBaseUrl;
+    
+    @Parameter(names = "-testVersion",
+            description = "Allows Jenkins test version specification.\n" +
+                    "Use the Jenkins test classes from the same parent version of this plugin or the most recent release of Jenkins.\n" +
+                    "true= same version; false= most recent version.\n" +
+                    "Default = false")
+    private boolean testVersion = false;
 
 
     public String getUpdateCenterUrl() {
@@ -160,5 +167,9 @@ public class CliOptions {
 
     public String getGaeBaseUrl() {
         return gaeBaseUrl;
+    }
+    
+    public boolean getTestVersion() {
+        return testVersion;
     }
 }
