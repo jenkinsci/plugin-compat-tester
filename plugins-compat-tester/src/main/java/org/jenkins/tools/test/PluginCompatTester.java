@@ -393,7 +393,7 @@ public class PluginCompatTester {
                 // but continue
             }
             if (mustTransformPom) {
-                pom.transformPom(coreCoordinates);
+                pom.transformPom(coreCoordinates, config.getTestVersion());
             }
             args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=concurrency=1");

@@ -30,12 +30,6 @@ import org.codehaus.plexus.util.FileUtils;
 import org.jenkins.tools.test.exception.PomTransformationException;
 import org.springframework.core.io.ClassPathResource;
 
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -64,28 +58,48 @@ public class MavenPom {
 		this.pomFileName = pomFileName;
 	}
 
-	public void transformPom(MavenCoordinates coreCoordinates) throws PomTransformationException{
+	public void transformPom(MavenCoordinates coreCoordinates, boolean testJenkinsVersion) throws PomTransformationException{
 		File pom = new File(rootDir.getAbsolutePath()+"/"+pomFileName);
 		File backupedPom = new File(rootDir.getAbsolutePath()+"/"+pomFileName+".backup");
 		try {
+			Document doc = new SAXReader().read(pom);
 			FileUtils.rename(pom, backupedPom);
-
-			Source xmlSource = new StreamSource(backupedPom);
-            // TODO switch to DOM4J for simplicity and consistency
-			Source xsltSource = new StreamSource(new ClassPathResource("mavenParentReplacer.xsl").getInputStream());
-			Result result = new StreamResult(pom);
-			
-			TransformerFactory factory = TransformerFactory.newInstance();
-			Transformer transformer = factory.newTransformer(xsltSource);
-			transformer.setParameter("parentArtifactId", coreCoordinates.artifactId);
-			transformer.setParameter("parentGroupId", coreCoordinates.groupId);
-			transformer.setParameter("parentVersion", coreCoordinates.version);
-			transformer.transform(xmlSource, result);
+            System.out.println("Completed rename");
+            
+            Element parent = doc.getRootElement().element("parent");
+            if(testJenkinsVersion){
+                doc = modJenkinsTestVersion(doc, parent);
+            }
+            
+            parent.element("groupId").setText(coreCoordinates.groupId);
+            parent.element("artifactId").setText(coreCoordinates.artifactId);
+            parent.element("version").setText(coreCoordinates.version);
+            
+            FileWriter w = new FileWriter(pom);
+            try {
+                doc.write(w);
+            } finally {
+                w.close();
+            }
 		} catch (Exception e) {
 			throw new PomTransformationException("Error while transforming pom : "+pom.getAbsolutePath(), e);
 		}
 		
 	}
+    
+    private Document modJenkinsTestVersion(Document pom, Element parent){
+        //in dependencies
+        Element dependencies = pom.getRootElement().element("dependencies");
+        if (dependencies == null) {
+            dependencies = pom.getRootElement().addElement("dependencies");
+        }
+        
+        Element testJenkins = dependencies.addElement("dependency");
+        testJenkins.addElement("groupId").addText("org.jenkins-ci.main");
+        testJenkins.addElement("artifactId").addText("jenkins-test-harness");
+        testJenkins.addElement("version").addText(parent.element("version").getText());
+        return pom;
+    }
 
     public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, VersionNumber coreDep, Map<String,String> pluginGroupIds) throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
