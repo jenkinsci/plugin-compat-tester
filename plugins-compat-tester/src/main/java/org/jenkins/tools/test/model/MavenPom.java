@@ -64,7 +64,6 @@ public class MavenPom {
 		try {
 			Document doc = new SAXReader().read(pom);
 			FileUtils.rename(pom, backupedPom);
-            System.out.println("Completed rename");
             
             Element parent = doc.getRootElement().element("parent");
             if(testJenkinsVersion){
