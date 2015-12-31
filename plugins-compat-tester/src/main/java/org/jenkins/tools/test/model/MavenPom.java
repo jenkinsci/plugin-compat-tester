@@ -58,15 +58,15 @@ public class MavenPom {
 		this.pomFileName = pomFileName;
 	}
 
-	public void transformPom(MavenCoordinates coreCoordinates, boolean testJenkinsVersion) throws PomTransformationException{
-		File pom = new File(rootDir.getAbsolutePath()+"/"+pomFileName);
-		File backupedPom = new File(rootDir.getAbsolutePath()+"/"+pomFileName+".backup");
-		try {
-			Document doc = new SAXReader().read(pom);
-			FileUtils.rename(pom, backupedPom);
+    public void transformPom(MavenCoordinates coreCoordinates, boolean testJenkinsVersion) throws PomTransformationException{
+        File pom = new File(rootDir.getAbsolutePath()+"/"+pomFileName);
+        File backupedPom = new File(rootDir.getAbsolutePath()+"/"+pomFileName+".backup");
+        try {
+            Document doc = new SAXReader().read(pom);
+            FileUtils.rename(pom, backupedPom);
             
             Element parent = doc.getRootElement().element("parent");
-            if(testJenkinsVersion){
+            if (testJenkinsVersion) {
                 doc = modJenkinsTestVersion(doc, parent);
             }
             
@@ -80,11 +80,10 @@ public class MavenPom {
             } finally {
                 w.close();
             }
-		} catch (Exception e) {
-			throw new PomTransformationException("Error while transforming pom : "+pom.getAbsolutePath(), e);
-		}
-		
-	}
+        } catch (Exception e) {
+            throw new PomTransformationException("Error while transforming pom : "+pom.getAbsolutePath(), e);
+        }
+    }
     
     private Document modJenkinsTestVersion(Document pom, Element parent){
         //in dependencies
