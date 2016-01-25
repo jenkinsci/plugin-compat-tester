@@ -353,6 +353,10 @@ public class PluginCompatTester {
 			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
 		}
 		
+        File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
+        FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
+        FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
+        
         List<String> args = new ArrayList<String>();
         boolean mustTransformPom = false;
         // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
@@ -362,13 +366,11 @@ public class PluginCompatTester {
                 pomData.parent.groupId.equals("com.cloudbees.operations-center.client") && pomData.parent.artifactId.equals("operations-center-parent-client")) {
             args.add("-Djenkins.version=" + coreCoordinates.version);
             args.add("-Dhpi-plugin.version=1.99"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
+            runner.run(mconfig, pluginCheckoutDir, buildLogFile, "dependency:list"); // Pull correct jenkins-test-version; this can only be found through the dependency list 
+            args.add(findTestVersion(buildLogFile));
         } else {
             mustTransformPom = true;
         }
-
-        File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
-        FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
-        FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
         boolean ranCompile = false;
         try {
@@ -520,6 +522,18 @@ public class PluginCompatTester {
         }catch(Exception e){
             throw new RuntimeException("UpdateSite.Data instanciation problems", e);
         }
+    }
+    
+    private String findTestVersion(File buildLogFile)
+        throws IOException {
+        String jthVersion = "";
+        Pattern pattern = Pattern.compile("org.jenkins-ci.main:jenkins-test-harness:jar:([\\d+\\.]+(?:-SNAPSHOT)?):test");
+        String logText = FileUtils.fileRead(buildLogFile, "UTF-8");
+        Matcher m = pattern.matcher(logText);
+        if (m.find()) {
+            jthVersion = "-Djenkins-test-harness.version=" + m.group(1);
+        }
+        return jthVersion; 
     }
 
     private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds) throws PomExecutionException, IOException {
