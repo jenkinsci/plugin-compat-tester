@@ -359,7 +359,8 @@ public class PluginCompatTester {
         if (pomData.parent.groupId.equals("com.cloudbees.jenkins.plugins") && pomData.parent.artifactId.equals("jenkins-plugins") ||
                 // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
                 pomData.parent.groupId.equals("com.cloudbees.operations-center.common") && pomData.parent.artifactId.equals("operations-center-parent") ||
-                pomData.parent.groupId.equals("com.cloudbees.operations-center.client") && pomData.parent.artifactId.equals("operations-center-parent-client")) {
+                pomData.parent.groupId.equals("com.cloudbees.operations-center.client") && pomData.parent.artifactId.equals("operations-center-parent-client") ||
+                pomData.parent.groupId.equals("org.jenkins-ci.plugins") && pomData.parent.artifactId.equals("plugin") && !pomData.parent.version.startsWith("1")) {
             args.add("-Djenkins.version=" + coreCoordinates.version);
             args.add("-Dhpi-plugin.version=1.99"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
         } else {
@@ -395,9 +396,7 @@ public class PluginCompatTester {
             if (mustTransformPom) {
                 pom.transformPom(coreCoordinates);
             }
-            //choose proper test harness version; this will only affect the versions that allow jenkins-test-version, otherwise it will be ignored
-            runner.run(mconfig, pluginCheckoutDir, buildLogFile, "dependency:list"); // Pull correct jenkins-test-version; this can only be found through the dependency list 
-            args.add(findTestVersion(buildLogFile));
+
             args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=concurrency=1");
             args.add("hpi:resolve-test-dependencies");
@@ -523,18 +522,6 @@ public class PluginCompatTester {
         }catch(Exception e){
             throw new RuntimeException("UpdateSite.Data instanciation problems", e);
         }
-    }
-    
-    private String findTestVersion(File buildLogFile)
-        throws IOException {
-        String jthVersion = "";
-        Pattern pattern = Pattern.compile("org.jenkins-ci.main:jenkins-test-harness:jar:([\\d+\\.]+(?:-SNAPSHOT)?):test");
-        String logText = FileUtils.fileRead(buildLogFile, "UTF-8");
-        Matcher m = pattern.matcher(logText);
-        if (m.find()) {
-            jthVersion = "-Djenkins-test-harness.version=" + m.group(1);
-        }
-        return jthVersion; 
     }
 
     private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds) throws PomExecutionException, IOException {
