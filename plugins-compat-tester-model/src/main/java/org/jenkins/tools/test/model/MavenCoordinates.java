@@ -72,9 +72,17 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
 
     public int compareTo(MavenCoordinates o) {
         if((groupId+":"+artifactId).equals(o.groupId+":"+o.artifactId)){
-            return new VersionComparator().compare(version, o.version);
+            return compareVersionTo(o.version);
         } else {
             return (groupId+":"+artifactId).compareTo(o.groupId+":"+o.artifactId);
         }
+    }
+
+    public boolean matches(String groupId, String artifactId) {
+        return this.groupId.equals(groupId) && this.artifactId.equals(artifactId);
+    }
+
+    public int compareVersionTo(String version) {
+        return new VersionComparator().compare(this.version, version);
     }
 }

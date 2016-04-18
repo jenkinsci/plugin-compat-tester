@@ -356,13 +356,17 @@ public class PluginCompatTester {
         List<String> args = new ArrayList<String>();
         boolean mustTransformPom = false;
         // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
-        if (pomData.parent.groupId.equals("com.cloudbees.jenkins.plugins") && pomData.parent.artifactId.equals("jenkins-plugins") ||
+        final MavenCoordinates parent = pomData.parent;
+        if (parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
                 // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
-                pomData.parent.groupId.equals("com.cloudbees.operations-center.common") && pomData.parent.artifactId.equals("operations-center-parent") ||
-                pomData.parent.groupId.equals("com.cloudbees.operations-center.client") && pomData.parent.artifactId.equals("operations-center-parent-client") ||
-                pomData.parent.groupId.equals("org.jenkins-ci.plugins") && pomData.parent.artifactId.equals("plugin") && !pomData.parent.version.startsWith("1")) {
+                parent.matches("com.cloudbees.operations-center.common", "operations-center-parent") ||
+                parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client") ||
+                (parent.matches("org.jenkins-ci.plugins", "plugin") && parent.compareVersionTo("2.0") >= 0)) {
             args.add("-Djenkins.version=" + coreCoordinates.version);
-            args.add("-Dhpi-plugin.version=1.99"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
+            args.add("-Dhpi-plugin.version=1.117"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
+            // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores
+            // the plugin may be Java 6 and the dependencies bring Java 7
+            args.add("-Denforcer.skip=true");
         } else {
             mustTransformPom = true;
         }

@@ -53,14 +53,14 @@
   <repositories>
     <repository>
         <id>repo.jenkins-ci.org</id>
-        <url>http://repo.jenkins-ci.org/public/</url>
+        <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
         <id>repo.jenkins-ci.org</id>
-        <url>http://repo.jenkins-ci.org/public/</url>
+        <url>https://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
 
@@ -84,7 +84,7 @@
                     <exclude>org.codehaus.plexus:plexus-container-default</exclude>
                   </excludes>
                   <message>
-                  ensure-no-plexus-container doesn't work anymore with maven 3 librairies. you have to add some exclusions.
+                  ensure-no-plexus-container doesn't work anymore with maven 3 libraries. you have to add some exclusions.
                   </message>
                 </bannedDependencies>
               </rules>
@@ -92,6 +92,14 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.3</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
       </plugin>
     </plugins>
 

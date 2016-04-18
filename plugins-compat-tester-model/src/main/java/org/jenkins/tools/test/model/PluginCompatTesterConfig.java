@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class PluginCompatTesterConfig {
 
-    public static final String DEFAULT_UPDATE_CENTER_URL = "http://updates.jenkins-ci.org/update-center.json?version=build";
+    public static final String DEFAULT_UPDATE_CENTER_URL = "http://updates.jenkins-ci.org/update-center.json";
     public static final String DEFAULT_PARENT_GROUP = "org.jenkins-ci.plugins";
     public static final String DEFAULT_PARENT_ARTIFACT = "plugin";
     public static final String DEFAULT_PARENT_GAV = DEFAULT_PARENT_GROUP + ":" + DEFAULT_PARENT_ARTIFACT;
