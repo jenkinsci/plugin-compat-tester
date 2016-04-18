@@ -352,20 +352,21 @@ public class PluginCompatTester {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
 		}
-		
+        
         List<String> args = new ArrayList<String>();
         boolean mustTransformPom = false;
         // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
         if (pomData.parent.groupId.equals("com.cloudbees.jenkins.plugins") && pomData.parent.artifactId.equals("jenkins-plugins") ||
                 // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
                 pomData.parent.groupId.equals("com.cloudbees.operations-center.common") && pomData.parent.artifactId.equals("operations-center-parent") ||
-                pomData.parent.groupId.equals("com.cloudbees.operations-center.client") && pomData.parent.artifactId.equals("operations-center-parent-client")) {
+                pomData.parent.groupId.equals("com.cloudbees.operations-center.client") && pomData.parent.artifactId.equals("operations-center-parent-client") ||
+                pomData.parent.groupId.equals("org.jenkins-ci.plugins") && pomData.parent.artifactId.equals("plugin") && !pomData.parent.version.startsWith("1")) {
             args.add("-Djenkins.version=" + coreCoordinates.version);
             args.add("-Dhpi-plugin.version=1.99"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
         } else {
             mustTransformPom = true;
         }
-
+        
         File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
         FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
@@ -395,6 +396,7 @@ public class PluginCompatTester {
             if (mustTransformPom) {
                 pom.transformPom(coreCoordinates);
             }
+
             args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=concurrency=1");
             args.add("hpi:resolve-test-dependencies");
