@@ -57,6 +57,7 @@ import org.jenkins.tools.test.model.PluginRemoting;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.TestExecutionResult;
 import org.jenkins.tools.test.model.TestStatus;
+import org.jenkins.tools.test.model.comparators.VersionComparator;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.transform.Result;
@@ -100,6 +101,9 @@ import org.jenkins.tools.test.maven.MavenRunner;
 public class PluginCompatTester {
 
     private static final String DEFAULT_SOURCE_ID = "default";
+
+    /** First version with new parent POM. */
+    private static final String CORE_NEW_PARENT_POM = "1.646";
 
 	private PluginCompatTesterConfig config;
     private final MavenRunner runner;
@@ -357,16 +361,20 @@ public class PluginCompatTester {
         boolean mustTransformPom = false;
         // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
         final MavenCoordinates parent = pomData.parent;
-        if (parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
+        final boolean isCB = parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
                 // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
                 parent.matches("com.cloudbees.operations-center.common", "operations-center-parent") ||
-                parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client") ||
-                (parent.matches("org.jenkins-ci.plugins", "plugin") && parent.compareVersionTo("2.0") >= 0)) {
+                parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client");
+        final boolean pluginPOM = parent.matches("org.jenkins-ci.plugins", "plugin");
+        final boolean coreRequiresNewParentPOM = coreCoordinates.compareVersionTo(CORE_NEW_PARENT_POM) >= 0;
+        if ( isCB || (pluginPOM && parent.compareVersionTo("2.0") >= 0)) {
             args.add("-Djenkins.version=" + coreCoordinates.version);
             args.add("-Dhpi-plugin.version=1.117"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
             // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores
             // the plugin may be Java 6 and the dependencies bring Java 7
             args.add("-Denforcer.skip=true");
+        } else if (coreRequiresNewParentPOM && pluginPOM && parent.compareVersionTo("2.0") < 0) {
+            throw new RuntimeException("New parent POM required for core >= 1.646");
         } else {
             mustTransformPom = true;
         }
