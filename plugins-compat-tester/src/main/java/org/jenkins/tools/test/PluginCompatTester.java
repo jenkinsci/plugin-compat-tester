@@ -57,6 +57,7 @@ import org.jenkins.tools.test.model.PluginRemoting;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.TestExecutionResult;
 import org.jenkins.tools.test.model.TestStatus;
+import org.jenkins.tools.test.model.comparators.VersionComparator;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.transform.Result;
@@ -100,6 +101,9 @@ import org.jenkins.tools.test.maven.MavenRunner;
 public class PluginCompatTester {
 
     private static final String DEFAULT_SOURCE_ID = "default";
+
+    /** First version with new parent POM. */
+    private static final String CORE_NEW_PARENT_POM = "1.646";
 
 	private PluginCompatTesterConfig config;
     private final MavenRunner runner;
@@ -352,20 +356,29 @@ public class PluginCompatTester {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
 		}
-		
+        
         List<String> args = new ArrayList<String>();
         boolean mustTransformPom = false;
         // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
-        if (pomData.parent.groupId.equals("com.cloudbees.jenkins.plugins") && pomData.parent.artifactId.equals("jenkins-plugins") ||
+        final MavenCoordinates parent = pomData.parent;
+        final boolean isCB = parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
                 // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
-                pomData.parent.groupId.equals("com.cloudbees.operations-center.common") && pomData.parent.artifactId.equals("operations-center-parent") ||
-                pomData.parent.groupId.equals("com.cloudbees.operations-center.client") && pomData.parent.artifactId.equals("operations-center-parent-client")) {
+                parent.matches("com.cloudbees.operations-center.common", "operations-center-parent") ||
+                parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client");
+        final boolean pluginPOM = parent.matches("org.jenkins-ci.plugins", "plugin");
+        final boolean coreRequiresNewParentPOM = coreCoordinates.compareVersionTo(CORE_NEW_PARENT_POM) >= 0;
+        if ( isCB || (pluginPOM && parent.compareVersionTo("2.0") >= 0)) {
             args.add("-Djenkins.version=" + coreCoordinates.version);
-            args.add("-Dhpi-plugin.version=1.99"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
+            args.add("-Dhpi-plugin.version=1.117"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
+            // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores
+            // the plugin may be Java 6 and the dependencies bring Java 7
+            args.add("-Denforcer.skip=true");
+        } else if (coreRequiresNewParentPOM && pluginPOM && parent.compareVersionTo("2.0") < 0) {
+            throw new RuntimeException("New parent POM required for core >= 1.646");
         } else {
             mustTransformPom = true;
         }
-
+        
         File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
         FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
@@ -395,6 +408,7 @@ public class PluginCompatTester {
             if (mustTransformPom) {
                 pom.transformPom(coreCoordinates);
             }
+
             args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=concurrency=1");
             args.add("hpi:resolve-test-dependencies");
