@@ -165,7 +165,8 @@ public class PluginCompatTesterTest {
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-rc-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
-		assertFalse("Invalid match",m.matches());
+		assertTrue("No matches",m.matches());
+		assertTrue("Invalid group", m.group(1).equals("2.7.3-rc-SNAPSHOT"));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-milestone.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
