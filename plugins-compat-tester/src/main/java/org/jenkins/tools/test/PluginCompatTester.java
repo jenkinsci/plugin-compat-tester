@@ -104,7 +104,7 @@ public class PluginCompatTester {
 
     /** First version with new parent POM. */
     private static final String CORE_NEW_PARENT_POM = "1.646";
-    public static final String JENKINS_CORE_FILE_REGEX = "WEB-INF/lib/jenkins-core-([0-9.]+(?:-[0-9.]+)?(?:-(?i)(alpha|beta|rc)-[0-9.]+)?(?:-SNAPSHOT)?)[.]jar";
+    public static final String JENKINS_CORE_FILE_REGEX = "WEB-INF/lib/jenkins-core-([0-9.]+(?:-[0-9.]+)?(?:-(?i)(alpha|beta|rc)(-)?[0-9.]+)?(?:-SNAPSHOT)?)[.]jar";
 
     private PluginCompatTesterConfig config;
     private final MavenRunner runner;

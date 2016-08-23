@@ -153,6 +153,16 @@ public class PluginCompatTesterTest {
 		assertTrue("No matches",m.matches());
 		assertTrue("Invalid group", m.group(1).equals("2.7.3-SNAPSHOT"));
 
+		fileName = "WEB-INF/lib/jenkins-core-2.7.3-RC33.jar";
+		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
+		assertTrue("No matches",m.matches());
+		assertTrue("Invalid group", m.group(1).equals("2.7.3-RC33"));
+
+		fileName = "WEB-INF/lib/jenkins-core-2.7.3-alpha33-SNAPSHOT.jar";
+		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
+		assertTrue("No matches",m.matches());
+		assertTrue("Invalid group", m.group(1).equals("2.7.3-alpha33-SNAPSHOT"));
+
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-rc-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertFalse("Invalid match",m.matches());
