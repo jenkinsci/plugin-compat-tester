@@ -12,5 +12,5 @@ reports
 /plugins-compat-tester-cli/dependency-reduced-pom.xml
 *.iml
 work/
-jenkins/
+^jenkins/
 .idea
