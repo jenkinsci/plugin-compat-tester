@@ -52,6 +52,7 @@ import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginCompatReport;
 import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.model.PluginInfos;
 import org.jenkins.tools.test.model.PluginRemoting;
 import org.jenkins.tools.test.model.PomData;
@@ -103,7 +104,6 @@ public class PluginCompatTester {
     private static final String DEFAULT_SOURCE_ID = "default";
 
     /** First version with new parent POM. */
-    private static final String CORE_NEW_PARENT_POM = "1.646";
     public static final String JENKINS_CORE_FILE_REGEX = "WEB-INF/lib/jenkins-core-([0-9.]+(?:-[0-9.]+)?(?:-(?i)(alpha|beta|rc)(-)?([0-9.]+)?)?(?:-SNAPSHOT)?)[.]jar";
 
     private PluginCompatTesterConfig config;
@@ -335,8 +335,12 @@ public class PluginCompatTester {
         }
 		pluginCheckoutDir.mkdir();
 		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
-		
+
 		try {
+            // Run any precheckout hooks
+            //PluginCompatTesterHooks.runBeforeCheckout()
+
+            // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
             System.out.println("Checking out from SCM connection URL : "+pomData.getConnectionUrl()+" ("+plugin.name+"-"+plugin.version+")");
 			ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
 			ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
@@ -357,28 +361,6 @@ public class PluginCompatTester {
 			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
 		}
         
-        List<String> args = new ArrayList<String>();
-        boolean mustTransformPom = false;
-        // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
-        final MavenCoordinates parent = pomData.parent;
-        final boolean isCB = parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
-                // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
-                parent.matches("com.cloudbees.operations-center.common", "operations-center-parent") ||
-                parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client");
-        final boolean pluginPOM = parent.matches("org.jenkins-ci.plugins", "plugin");
-        final boolean coreRequiresNewParentPOM = coreCoordinates.compareVersionTo(CORE_NEW_PARENT_POM) >= 0;
-        if ( isCB || (pluginPOM && parent.compareVersionTo("2.0") >= 0)) {
-            args.add("-Djenkins.version=" + coreCoordinates.version);
-            args.add("-Dhpi-plugin.version=1.117"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
-            // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores
-            // the plugin may be Java 6 and the dependencies bring Java 7
-            args.add("-Denforcer.skip=true");
-        } else if (coreRequiresNewParentPOM && pluginPOM && parent.compareVersionTo("2.0") < 0) {
-            throw new RuntimeException("New parent POM required for core >= 1.646");
-        } else {
-            mustTransformPom = true;
-        }
-        
         File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
         FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
@@ -397,7 +379,7 @@ public class PluginCompatTester {
             // -Dmaven-surefire-plugin.version=2.15 -Dmaven.test.dependency.excludes=org.jenkins-ci.main:jenkins-war -Dmaven.test.additionalClasspath=/…/org/jenkins-ci/main/jenkins-war/1.580.1/jenkins-war-1.580.1.war clean test
             // (2.15+ required for ${maven.test.dependency.excludes} and ${maven.test.additionalClasspath} to be honored from CLI)
             // but it does not work; there are lots of linkage errors as some things are expected to be in the test classpath which are not.
-            // Much simpler to do use the parent POM to set up the test classpath.
+            // Much simpler to do use the parent POM to set up the test classpath. 
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
                 addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds);
@@ -406,18 +388,25 @@ public class PluginCompatTester {
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
                 // but continue
             }
-            if (mustTransformPom) {
-                pom.transformPom(coreCoordinates);
-            }
 
+            List<String> args = new ArrayList<String>();
             args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=concurrency=1");
             args.add("hpi:resolve-test-dependencies");
             args.add("hpi:test-hpl");
             args.add("surefire:test");
-            runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
 
-            return new TestExecutionResult(pomData.getWarningMessages());
+            // Run preexecution hooks
+            Map<String, Object> forExecutionHooks = new HashMap<String, Object>();
+            forExecutionHooks.put("args", args);
+            forExecutionHooks.put("pomData", pomData);
+            forExecutionHooks.put("pom", pom);
+            forExecutionHooks.put("coreCoordinates", coreCoordinates);
+            PluginCompatTesterHooks.runBeforeExecution(forExecutionHooks);
+            //runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
+            runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>)forExecutionHooks.get("args")).toArray(new String[args.size()]));
+
+            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages());
         }catch(PomExecutionException e){
             PomExecutionException e2 = new PomExecutionException(e);
             e2.getPomWarningMessages().addAll(pomData.getWarningMessages());
