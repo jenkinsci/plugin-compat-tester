@@ -11,6 +11,10 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 public class TransformPom extends PluginCompatTesterHookBeforeExecution {
     private static final String CORE_NEW_PARENT_POM = "1.646";
 
+    public TransformPom(){
+        System.out.println("Loaded TransformPom");
+    }
+
     /**
      * Check if the pom should be transformed for the given plugin.
      */

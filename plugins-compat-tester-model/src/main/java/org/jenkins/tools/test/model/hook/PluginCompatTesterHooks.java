@@ -39,12 +39,14 @@ public class PluginCompatTesterHooks {
         // Modifications build on each other, pertenent checks should be handled in the hook
         for(String hook : beforeHooks) {
             try {
+                System.out.println("Processing " + hook);
                 Class<?> clazz = Class.forName(hook);
-                Constructor<?> constructor = clazz.getConstructor(String.class, Integer.class);
+                Constructor<?> constructor = clazz.getConstructor();
                 PluginCompatTesterHook instance = (PluginCompatTesterHook)constructor.newInstance();
 
                 if(instance.check(elements)) {
                     elements = instance.action(elements);
+                } else {
                 }
             } catch (RuntimeException re) {
                 //this type of exception should stop processing the plugins. Throw it up the chain
