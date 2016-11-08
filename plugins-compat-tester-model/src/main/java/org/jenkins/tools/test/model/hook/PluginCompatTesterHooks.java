@@ -47,6 +47,7 @@ public class PluginCompatTesterHooks {
                 if(instance.check(elements)) {
                     elements = instance.action(elements);
                 } else {
+                    System.out.println("Hook not triggered.  Continuing.");
                 }
             } catch (RuntimeException re) {
                 //this type of exception should stop processing the plugins. Throw it up the chain
