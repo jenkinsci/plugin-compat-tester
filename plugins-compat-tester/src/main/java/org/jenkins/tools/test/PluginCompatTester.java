@@ -244,7 +244,7 @@ public class PluginCompatTester {
                         errorMessage = e.getErrorMessage();
                         warningMessages.addAll(e.getPomWarningMessages());
                     } catch (Error e){
-                        // Rethrow the error ... something is getting wrong !
+                        // Rethrow the error ... something is wrong !
                         throw e;
                     } catch (Throwable t){
                         status = TestStatus.INTERNAL_ERROR;
@@ -338,21 +338,32 @@ public class PluginCompatTester {
 
 		try {
             // Run any precheckout hooks
-            //PluginCompatTesterHooks.runBeforeCheckout()
+            Map<String, Object> beforeCheckout = new HashMap<String, Object>();
+            beforeCheckout.put("plugin", plugin);
+            beforeCheckout.put("pomData", pomData);
+            beforeCheckout.put("runCheckout", true);
+            beforeCheckout = PluginCompatTesterHooks.runBeforeCheckout(beforeCheckout);
 
-            // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
-            System.out.println("Checking out from SCM connection URL : "+pomData.getConnectionUrl()+" ("+plugin.name+"-"+plugin.version+")");
-			ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-			ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
-			CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
-			if(!result.isSuccess()){
-                if(result.getCommandOutput().contains("error: pathspec") && result.getCommandOutput().contains("did not match any file(s) known to git.")){
-                    // Trying to look for existing branch that looks like the one we are looking for
-                    // TODO ???
-                } else {
-                    throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
+            if(beforeCheckout.get("executionResult") != null) { // Check if the hook returned a result
+                return (TestExecutionResult)beforeCheckout.get("executionResult");
+            } else if((boolean)beforeCheckout.get("runCheckout")) {
+                // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
+                System.out.println("Checking out from SCM connection URL : "+pomData.getConnectionUrl()+" ("+plugin.name+"-"+plugin.version+")");
+                ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
+                ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
+                CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
+                
+                if(!result.isSuccess()){
+                    if(result.getCommandOutput().contains("error: pathspec") && result.getCommandOutput().contains("did not match any file(s) known to git.")){
+                        // Trying to look for existing branch that looks like the one we are looking for
+                        // TODO ???
+                    } else {
+                        throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
+                    }
                 }
-			}
+            } else {
+                System.out.println("The plugin has already been checked out, likely due to a multimodule situation. Continue.");
+            }
 		} catch (ComponentLookupException e) {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem while creating ScmManager !", e);

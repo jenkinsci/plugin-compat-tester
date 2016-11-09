@@ -20,10 +20,6 @@ public class PluginCompatTesterHooks {
         return runHooks("checkout", elements);
     }
 
-    /**
-     * This might not be incredibly useful; most precompilation can be caught by the checkout
-     * hook, and the point is to get as close to actual state of the 
-     */
     public static Map<String, Object> runBeforeCompilation(Map<String, Object> elements) {
         return runHooks("compilation", elements);
     }
@@ -75,6 +71,7 @@ public class PluginCompatTesterHooks {
                 allForType.add("org.jenkins.tools.test.hook.TransformPom");
                 break;
             case "checkout" : 
+                allForType.add("org.jenkins.tools.test.hook.SkipUIHelperPlugins");
                 break;
             default:
         }

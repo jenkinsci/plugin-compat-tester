@@ -1,12 +1,12 @@
 package org.jenkins.tools.test.hook;
 
-import java.util.List;
-import java.util.Map;
-
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
+
+import java.util.List;
+import java.util.Map;
 
 public class TransformPom extends PluginCompatTesterHookBeforeExecution {
     private static final String CORE_NEW_PARENT_POM = "1.646";
