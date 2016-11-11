@@ -5,13 +5,14 @@ import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class TransformPom extends PluginCompatTesterHookBeforeExecution {
     private static final String CORE_NEW_PARENT_POM = "1.646";
 
-    public TransformPom(){
+    public TransformPom() {
         System.out.println("Loaded TransformPom");
     }
 

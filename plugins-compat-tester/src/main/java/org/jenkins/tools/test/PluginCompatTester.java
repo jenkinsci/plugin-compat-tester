@@ -142,6 +142,7 @@ public class PluginCompatTester {
 	public PluginCompatReport testPlugins()
         throws PlexusContainerException, IOException, MavenEmbedderException
     {
+        PluginCompatTesterHooks pcth = new PluginCompatTesterHooks();
         // Providing XSL Stylesheet along xml report file
         if(config.reportFile != null){
             if(config.isProvideXslReport()){
@@ -229,7 +230,7 @@ public class PluginCompatTester {
                     List<String> warningMessages = new ArrayList<String>();
                     if (errorMessage == null) {
                     try {
-                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, data.plugins, pluginGroupIds);
+                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, data.plugins, pluginGroupIds, pcth);
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
@@ -317,7 +318,7 @@ public class PluginCompatTester {
         return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
     }
 	
-	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds)
+	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds, PluginCompatTesterHooks pcth)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
@@ -339,10 +340,11 @@ public class PluginCompatTester {
 		try {
             // Run any precheckout hooks
             Map<String, Object> beforeCheckout = new HashMap<String, Object>();
+            beforeCheckout.put("pluginName", plugin.name);
             beforeCheckout.put("plugin", plugin);
             beforeCheckout.put("pomData", pomData);
             beforeCheckout.put("runCheckout", true);
-            beforeCheckout = PluginCompatTesterHooks.runBeforeCheckout(beforeCheckout);
+            beforeCheckout = pcth.runBeforeCheckout(beforeCheckout);
 
             if(beforeCheckout.get("executionResult") != null) { // Check if the hook returned a result
                 return (TestExecutionResult)beforeCheckout.get("executionResult");
@@ -408,12 +410,14 @@ public class PluginCompatTester {
             args.add("surefire:test");
 
             // Run preexecution hooks
+            System.out.println("RUN BEFORE EXECTION");
             Map<String, Object> forExecutionHooks = new HashMap<String, Object>();
+            forExecutionHooks.put("pluginName", plugin.name);
             forExecutionHooks.put("args", args);
             forExecutionHooks.put("pomData", pomData);
             forExecutionHooks.put("pom", pom);
             forExecutionHooks.put("coreCoordinates", coreCoordinates);
-            PluginCompatTesterHooks.runBeforeExecution(forExecutionHooks);
+            pcth.runBeforeExecution(forExecutionHooks);
             //runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>)forExecutionHooks.get("args")).toArray(new String[args.size()]));
 

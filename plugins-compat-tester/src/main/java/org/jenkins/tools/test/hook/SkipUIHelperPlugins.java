@@ -25,12 +25,8 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
 
     public SkipUIHelperPlugins() {}
 
-    /**
-     * Check if the plugin is in the Bundle.
-     */
-    public boolean check(Map<String, Object> info) throws Exception {
-        Plugin plugin = (Plugin)info.get("plugin");
-        return allBundlePlugins.contains(plugin.name.toLowerCase());
+    public List<String> transformedPlugins() {
+        return allBundlePlugins;
     }
 
     /**

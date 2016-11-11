@@ -13,15 +13,21 @@ package org.jenkins.tools.test.model.hook;
  * This interfact in particular 
  */
 
- import java.util.Map;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
  public interface PluginCompatTesterHook {
+
      /**
       * Check if the plugin should be affected by this hook.
       * There are several different ways this could be implemented, 
       * and the details are left up to the user.
       */
-     public boolean check(Map<String, Object> info) throws Exception;
+     default boolean check(Map<String, Object> info) throws Exception {
+         return true;
+     }
 
      //could actually transform pom, return maven args, etc
      /**
@@ -33,7 +39,10 @@ package org.jenkins.tools.test.model.hook;
       */
      public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception;
 
-     /* might not need right now; this was a play around implementation
-     public List<String> transformedPlugins();
-     */
+     /**
+      * List the plugins this hook affects.  This can be a single, list, or simply all.
+      */
+     default List<String> transformedPlugins() {
+         return new ArrayList<String>(Arrays.asList("all"));
+     }
  }

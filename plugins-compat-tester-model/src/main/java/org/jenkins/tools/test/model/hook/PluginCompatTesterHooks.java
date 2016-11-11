@@ -1,10 +1,17 @@
 package org.jenkins.tools.test.model.hook;
 
+//import com.google.common.reflect.ClassPath;
+import org.reflections.Reflections;
+
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
-import java.lang.reflect.Constructor;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Loads and executes hooks for modifying the state of the Plugin Compat Tester at different 
@@ -16,32 +23,51 @@ import java.lang.reflect.Constructor;
  */
 
 public class PluginCompatTesterHooks {
-    public static Map<String, Object> runBeforeCheckout(Map<String, Object> elements) {
+    private Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<String, Map<String, Queue<PluginCompatTesterHook>>>();
+
+    /**
+     * Create and prepopulate the various hooks for this run of the plugin-compat-tester.
+     * 
+     */
+    public PluginCompatTesterHooks() {
+        for(String stage : Arrays.asList("checkout", "execution", "compilation")) {
+            hooksByType.put(stage, findHooks(stage));
+        }
+    }
+
+    public Map<String, Object> runBeforeCheckout(Map<String, Object> elements) {
         return runHooks("checkout", elements);
     }
 
-    public static Map<String, Object> runBeforeCompilation(Map<String, Object> elements) {
+    public Map<String, Object> runBeforeCompilation(Map<String, Object> elements) {
         return runHooks("compilation", elements);
     }
     
-    public static Map<String, Object> runBeforeExecution(Map<String, Object> elements) {
+    public Map<String, Object> runBeforeExecution(Map<String, Object> elements) {
         return runHooks("execution", elements);
     }
 
-    private static Map<String, Object> runHooks(String stage, Map<String, Object> elements) throws RuntimeException {
-        Queue<String> beforeHooks = findHooks(stage); 
-
+    /**
+     * Evaluate and execute hooks for a given stage.  There is 1 required object for evaluting any
+     * hook.  [String, "pluginName"] 
+     *
+     * @param stage    stage which 
+     * @param elements relevant information to hooks at various stages.
+     */
+    private Map<String, Object> runHooks(String stage, Map<String, Object> elements) throws RuntimeException {
+        String pluginName = (String)elements.get("pluginName");
+        Queue<PluginCompatTesterHook> beforeHooks = hooksByType.get(stage).get("all") != null ? hooksByType.get(stage).get("all") : new LinkedList<PluginCompatTesterHook>();
+        if(hooksByType.get(stage).get(pluginName) != null) {
+            beforeHooks.addAll(hooksByType.get(stage).get(pluginName));
+        }
+        
         // Loop through hooks in a series run in no particular order
         // Modifications build on each other, pertenent checks should be handled in the hook
-        for(String hook : beforeHooks) {
+        for(PluginCompatTesterHook hook : beforeHooks) {
             try {
-                System.out.println("Processing " + hook);
-                Class<?> clazz = Class.forName(hook);
-                Constructor<?> constructor = clazz.getConstructor();
-                PluginCompatTesterHook instance = (PluginCompatTesterHook)constructor.newInstance();
-
-                if(instance.check(elements)) {
-                    elements = instance.action(elements);
+                System.out.println("Processing " + hook.getClass().getName());
+                if(hook.check(elements)) {
+                    elements = hook.action(elements);
                 } else {
                     System.out.println("Hook not triggered.  Continuing.");
                 }
@@ -56,26 +82,64 @@ public class PluginCompatTesterHooks {
         return elements;
     }
 
-    /**
-     * Identify all the classes for a given stage of execution.
-     *
-     * TODO: want to build more of a dynamic system; I don't really want to use reflection...
-     * Though, since I'm already using reflection with actually loading the class, I'll probably just go down that route
-     */
-    private static Queue<String> findHooks(String stage) {
-        Queue<String> allForType = new LinkedList<String>();
+    private Map<String, Queue<PluginCompatTesterHook>> findHooks(String stage) {
+        Reflections reflections = new Reflections("org.jenkins");
+        Set<Class<? extends PluginCompatTesterHook>> subTypes;
+        
         switch(stage) {
             case "compilation" : 
+                Set<Class<? extends PluginCompatTesterHookBeforeCompile>> compSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCompile.class); 
+                subTypes = compSteps.stream()
+                    .map(elt -> casting(elt))
+                    .collect(Collectors.toSet());
                 break;
             case "execution" : 
-                allForType.add("org.jenkins.tools.test.hook.TransformPom");
+                Set<Class<? extends PluginCompatTesterHookBeforeExecution>> exeSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeExecution.class); 
+                subTypes = exeSteps.stream()
+                    .map(elt -> casting(elt))
+                    .collect(Collectors.toSet());
                 break;
             case "checkout" : 
-                allForType.add("org.jenkins.tools.test.hook.SkipUIHelperPlugins");
+                Set<Class<? extends PluginCompatTesterHookBeforeCheckout>> checkSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCheckout.class); 
+                subTypes = checkSteps.stream()
+                    .map(elt -> casting(elt))
+                    .collect(Collectors.toSet());
                 break;
-            default:
+            default: // Not valid; nothing will get executed
+                return new HashMap<String, Queue<PluginCompatTesterHook>>();
+        }
+        
+        Map<String, Queue<PluginCompatTesterHook>> sortedHooks = new HashMap<String, Queue<PluginCompatTesterHook>>();
+        for(Class c : subTypes) {
+            try {
+                System.out.println("Hook: " + c.getName());
+                Constructor<?> constructor = c.getConstructor();
+                PluginCompatTesterHook hook = (PluginCompatTesterHook)constructor.newInstance();
+
+                List<String> plugins = hook.transformedPlugins();
+                for(String plugin : plugins) {
+                    Queue<PluginCompatTesterHook> allForType = sortedHooks.get(plugin);
+                    if(allForType == null){
+                        allForType = new LinkedList<PluginCompatTesterHook>();
+                    }
+                    allForType.add(hook);
+                    sortedHooks.put(plugin, allForType);
+                }
+            } catch (Exception ex) {
+                System.out.println("Error when loading " + c.getName());
+                ex.printStackTrace();
+                continue;
+            }
         }
 
-        return allForType;
+        return sortedHooks;
+    }
+
+    /**
+     * Seems rediculous, but is needed to actually convert between the two types of Sets.
+     * Gets around generics error: incompatible types: inference variable T has incompatible bounds
+     */
+    private Class<? extends PluginCompatTesterHook> casting(Class<? extends PluginCompatTesterHook> c) {
+        return (Class<? extends PluginCompatTesterHook>)c;
     }
 }
