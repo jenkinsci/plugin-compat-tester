@@ -10,7 +10,6 @@ package org.jenkins.tools.test.model.hook;
  * enable the PluginCompatTester to actually go about testing the plugin
  * rather than throwing up its hands in defeat.
  *
- * This interfact in particular 
  */
 
 import java.util.Arrays;
@@ -24,12 +23,13 @@ import java.util.Map;
       * Check if the plugin should be affected by this hook.
       * There are several different ways this could be implemented, 
       * and the details are left up to the user.
+      *
+      * Always run this hook unless otherwise specified.
       */
      default boolean check(Map<String, Object> info) throws Exception {
          return true;
      }
 
-     //could actually transform pom, return maven args, etc
      /**
       * The core action of what actually needs to be done by the hook.
       * This can do a number of things such as transform the pom,
@@ -41,6 +41,8 @@ import java.util.Map;
 
      /**
       * List the plugins this hook affects.  This can be a single, list, or simply all.
+      *
+      * Apply this hook to all plugins unless otherwise specified.
       */
      default List<String> transformedPlugins() {
          return new ArrayList<String>(Arrays.asList("all"));

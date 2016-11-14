@@ -329,13 +329,7 @@ public class PluginCompatTester {
         System.out.println(String.format("#############################################"));
         System.out.println(String.format("%n%n%n%n%n"));
 
-		File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
-        if(pluginCheckoutDir.exists()){
-            System.out.println("Deleting working directory "+pluginCheckoutDir.getAbsolutePath());
-            FileUtils.deleteDirectory(pluginCheckoutDir);
-        }
-		pluginCheckoutDir.mkdir();
-		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
+        File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
 
 		try {
             // Run any precheckout hooks
@@ -343,12 +337,23 @@ public class PluginCompatTester {
             beforeCheckout.put("pluginName", plugin.name);
             beforeCheckout.put("plugin", plugin);
             beforeCheckout.put("pomData", pomData);
+            beforeCheckout.put("config", config);
             beforeCheckout.put("runCheckout", true);
             beforeCheckout = pcth.runBeforeCheckout(beforeCheckout);
 
             if(beforeCheckout.get("executionResult") != null) { // Check if the hook returned a result
                 return (TestExecutionResult)beforeCheckout.get("executionResult");
             } else if((boolean)beforeCheckout.get("runCheckout")) {
+                if(beforeCheckout.get("checkoutDir") != null){
+                    pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
+                }
+                if(pluginCheckoutDir.exists()){
+                    System.out.println("Deleting working directory "+pluginCheckoutDir.getAbsolutePath());
+                    FileUtils.deleteDirectory(pluginCheckoutDir);
+                }
+                pluginCheckoutDir.mkdir();
+                System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
+
                 // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
                 System.out.println("Checking out from SCM connection URL : "+pomData.getConnectionUrl()+" ("+plugin.name+"-"+plugin.version+")");
                 ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
@@ -363,7 +368,16 @@ public class PluginCompatTester {
                         throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
                     }
                 }
+
+                // If the plugin exists in a different directory (mulimodule plugins)
+                if(beforeCheckout.get("pluginDir") != null){
+                    pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
+                }
             } else {
+                // If the plugin exists in a different directory (multimodule plugins)
+                if(beforeCheckout.get("pluginDir") != null){
+                    pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
+                }
                 System.out.println("The plugin has already been checked out, likely due to a multimodule situation. Continue.");
             }
 		} catch (ComponentLookupException e) {
