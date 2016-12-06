@@ -47,4 +47,9 @@ import java.util.Map;
      default List<String> transformedPlugins() {
          return new ArrayList<String>(Arrays.asList("all"));
      }
+
+     /**
+      * Check that the object used for this hook. 
+      */
+     public abstract void validate(Map<String, Object> toCheck) throws Exception; 
  }

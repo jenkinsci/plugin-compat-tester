@@ -81,5 +81,10 @@
       <artifactId>reflections</artifactId>
       <version>0.9.10</version>
     </dependency>
+    <dependency>
+	    <groupId>org.jenkins-ci.main</groupId>
+      <artifactId>jenkins-core</artifactId>
+	  	<version>1.404</version>
+  	</dependency>
   </dependencies>
 </project>
