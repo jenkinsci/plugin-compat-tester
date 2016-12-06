@@ -68,6 +68,7 @@ public class PluginCompatTesterHooks {
                 System.out.println("Processing " + hook.getClass().getName());
                 if(hook.check(elements)) {
                     elements = hook.action(elements);
+                    hook.validate(elements);
                 } else {
                     System.out.println("Hook not triggered.  Continuing.");
                 }
