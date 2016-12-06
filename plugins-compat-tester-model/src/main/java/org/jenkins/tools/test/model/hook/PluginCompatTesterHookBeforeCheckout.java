@@ -1,7 +1,6 @@
 package org.jenkins.tools.test.model.hook;
 
-import hudson.model.UpdateSite.Plugin;
-//import org.jenkins.tools.test.model.TestExecutionResult;
+import org.apache.commons.lang.ClassUtils;
 
 import java.util.Map;
 
@@ -14,18 +13,16 @@ import java.util.Map;
 public abstract class PluginCompatTesterHookBeforeCheckout implements PluginCompatTesterHook {
     /**
      * Check the:
-     *  + executionResult - if set, the required result of this execution
+     *  + executionResult - if set, the required result of this execution (CANNOT CHECK IN THIS CLASS)
      *  + runCheckout - if the plugin should be checked out again
      *  + pluginDir - if set, the location of the plugin directory
      */
     public void validate(Map<String, Object> toCheck) throws Exception {
-        /*if((toCheck.get("executionResult") != null && 
-            toCheck.get("executionResult") instanceof TestExecutionResult) &&
-            (toCheck.get("runCheckout") != null &&
-            toCheck.get("runCheckout")) &&
+        if((toCheck.get("runCheckout") != null &&
+            (toCheck.get("runCheckout").getClass().isPrimitive() || ClassUtils.wrapperToPrimitive(toCheck.get("runCheckout").getClass()) != null)) &&
             (toCheck.get("pluginDir") != null && 
             toCheck.get("pluginDir") instanceof String) ) {
                 throw new IllegalArgumentException("A hook modified a required parameter for plugin checkout.");
-        }*/
+        }
     } 
 }
