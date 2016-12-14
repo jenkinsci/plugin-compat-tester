@@ -130,7 +130,11 @@ public class MavenPom {
             }
             version = mavenDependency.addElement("version");
             version.addText(replacement.toString());
+            toReplace.remove(artifactId.getTextTrim());
         }
+        // If the replacement dependencies weren't explicitly present in the pom, add them directly now
+        toAdd.putAll(toReplace);
+
         dependencies.addComment("SYNTHETIC");
         for (Map.Entry<String,VersionNumber> dep : toAdd.entrySet()) {
             Element dependency = dependencies.addElement("dependency");

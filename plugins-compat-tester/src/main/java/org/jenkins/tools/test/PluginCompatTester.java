@@ -598,6 +598,7 @@ public class PluginCompatTester {
                 "antisamy-markup-formatter:1.553.*:1.0",
                 "matrix-project:1.561.*:1.0",
                 "junit:1.577.*:1.0",
+                "bouncycastle-api:2.16.*:2.16.0",
             };
             // Synchronize with ClassicPluginStrategy.BREAK_CYCLES:
             String[] exceptions = {
