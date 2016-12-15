@@ -539,39 +539,67 @@ public class PluginCompatTester {
     }
 
     private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds) throws PomExecutionException, IOException {
+        System.out.println("STARTING PLUGIN DEPS");
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
+        Map<String,VersionNumber> pluginDepsTest = new HashMap<String,VersionNumber>();
         try {
             runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
             Reader r = new FileReader(tmp);
             try {
                 BufferedReader br = new BufferedReader(r);
-                // TODO could include |test but only if pom.addDependencies would add as <scope>test</scope>
                 Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):([^:]+):(provided|compile|runtime|system)");
+                Pattern p2 = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):([^:]+):(test)");
                 String line;
                 while ((line = br.readLine()) != null) {
                     Matcher m = p.matcher(line);
-                    if (!m.matches()) {
-                        continue;
-                    }
-                    String groupId = m.group(1);
-                    String artifactId = m.group(2);
+                    Matcher m2 = p2.matcher(line);
+                    String groupId;
+                    String artifactId;
                     VersionNumber version;
-                    try {
-                        version = new VersionNumber(m.group(4));
-                    } catch (IllegalArgumentException x) {
-                        // OK, some other kind of dep, just ignore
+                    if (!m.matches() && !m2.matches()) {
                         continue;
+                    } else if (m.matches()) {
+                        groupId = m.group(1);
+                        artifactId = m.group(2);
+                        try {
+                            version = new VersionNumber(m.group(4));
+                        } catch (IllegalArgumentException x) {
+                            // OK, some other kind of dep, just ignore
+                            continue;
+                        }
+                    } else { //m2.matches()
+                        groupId = m2.group(1);
+                        artifactId = m2.group(2);
+                        try {
+                            version = new VersionNumber(m2.group(4));
+                        } catch (IllegalArgumentException x) {
+                            // OK, some other kind of dep, just ignore
+                            continue;
+                        }
                     }
+
                     if (groupId.equals("org.jenkins-ci.main") && artifactId.equals("jenkins-core")) {
                         coreDep = version;
                     } else if (groupId.equals("org.jenkins-ci.plugins")) {
-                        pluginDeps.put(artifactId, version);
+                        if(m2.matches()) {
+                            pluginDepsTest.put(artifactId, version);
+                        } else {
+                            pluginDeps.put(artifactId, version);
+                        }
                     } else if (groupId.equals("org.jenkins-ci.main") && artifactId.equals("maven-plugin")) {
-                        pluginDeps.put(artifactId, version);
+                        if(m2.matches()) {
+                            pluginDepsTest.put(artifactId, version);
+                        } else {
+                            pluginDeps.put(artifactId, version);
+                        }
                     } else if (groupId.equals(pluginGroupIds.get(artifactId))) {
-                        pluginDeps.put(artifactId, version);
+                        if(m2.matches()) {
+                            pluginDepsTest.put(artifactId, version);
+                        } else {
+                            pluginDeps.put(artifactId, version);
+                        }
                     }
                 }
             } finally {
@@ -580,7 +608,7 @@ public class PluginCompatTester {
         } finally {
             tmp.delete();
         }
-        System.out.println("Analysis: coreDep=" + coreDep + " pluginDeps=" + pluginDeps);
+        System.out.println("Analysis: coreDep=" + coreDep + " pluginDeps=" + pluginDeps + " pluginDepsTest=" + pluginDepsTest);
         if (coreDep != null) {
             // Synchronize with ClassicPluginStrategy.DETACHED_LIST:
             String[] splits = {
@@ -611,6 +639,8 @@ public class PluginCompatTester {
             };
             Map<String,VersionNumber> toAdd = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toReplace = new HashMap<String,VersionNumber>();
+            Map<String,VersionNumber> toAddTest = new HashMap<String,VersionNumber>();
+            Map<String,VersionNumber> toReplaceTest = new HashMap<String,VersionNumber>();
             for (String split : splits) {
                 String[] pieces = split.split(":");
                 String plugin = pieces[0];
@@ -621,7 +651,6 @@ public class PluginCompatTester {
                 VersionNumber splitPoint = new VersionNumber(pieces[1]);
                 VersionNumber declaredMinimum = new VersionNumber(pieces[2]);
                 // TODO this should only happen if the tested core version is ≥ splitPoint
-                // TODO pluginDeps could include test deps inherited from jenkins-test-harness; do we need to add/replace these implicit deps?
                 if (coreDep.compareTo(splitPoint) <= 0 && !pluginDeps.containsKey(plugin)) {
                     Plugin bundledP = otherPlugins.get(plugin);
                     if (bundledP != null) {
@@ -640,35 +669,41 @@ public class PluginCompatTester {
                     toAdd.put(plugin, declaredMinimum);
                 }
             }
-            for (Map.Entry<String,VersionNumber> pluginDep : pluginDeps.entrySet()) {
+
+            checkDefinedDeps(pluginDeps, toAdd, toReplace, otherPlugins);
+            checkDefinedDeps(pluginDepsTest, toAddTest, toReplaceTest, otherPlugins);
+            if (!toAdd.isEmpty() || !toReplace.isEmpty()) {
+                System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\n" + toAddTest + " " + toReplaceTest);
+                pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds);
+            }
+        }
+    }
+
+    private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins) {
+        for (Map.Entry<String,VersionNumber> pluginDep : pluginList.entrySet()) {
                 String plugin = pluginDep.getKey();
                 Plugin bundledP = otherPlugins.get(plugin);
                 if (bundledP != null) {
                     VersionNumber bundledV = new VersionNumber(bundledP.version);
                     if (bundledV.isNewerThan(pluginDep.getValue())) {
-                        assert !toAdd.containsKey(plugin);
-                        toReplace.put(plugin, bundledV);
+                        assert !adding.containsKey(plugin);
+                        replacing.put(plugin, bundledV);
                     }
                     // Also check any dependencies, so if we are upgrading cloudbees-folder, we also add an explicit dep on a bundled credentials.
                     for (Map.Entry<String,String> dependency : bundledP.dependencies.entrySet()) {
                         String depPlugin = dependency.getKey();
-                        if (pluginDeps.containsKey(depPlugin)) {
+                        if (pluginList.containsKey(depPlugin)) {
                             continue; // already handled
                         }
                         // We ignore the declared dependency version and go with the bundled version:
                         Plugin depBundledP = otherPlugins.get(depPlugin);
                         if (depBundledP != null) {
                             System.out.println("Adding " + depPlugin + " since it was a dependency of " + plugin);
-                            toAdd.put(depPlugin, new VersionNumber(depBundledP.version));
+                            adding.put(depPlugin, new VersionNumber(depBundledP.version));
                         }
                     }
                 }
             }
-            if (!toAdd.isEmpty() || !toReplace.isEmpty()) {
-                System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace);
-                pom.addDependencies(toAdd, toReplace, coreDep, pluginGroupIds);
-            }
-        }
     }
 
 }
