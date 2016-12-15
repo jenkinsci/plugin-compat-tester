@@ -123,7 +123,10 @@ public class MavenPom {
             VersionNumber replacement = toReplace.get(artifactId.getTextTrim());
             if (replacement == null) {
                 replacement = toReplaceTest.get(artifactId.getTextTrim());
-                continue;
+                if (replacement == null) {
+                    continue;
+                }
+                toReplaceTest.remove(artifactId.getTextTrim());
             }
             Element version = mavenDependency.element("version");
             if (version != null) {
