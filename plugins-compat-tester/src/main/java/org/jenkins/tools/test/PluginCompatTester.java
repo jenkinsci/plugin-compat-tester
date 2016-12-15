@@ -671,9 +671,11 @@ public class PluginCompatTester {
             }
 
             checkDefinedDeps(pluginDeps, toAdd, toReplace, otherPlugins);
+            pluginDepsTest.putAll(toAdd);
+            pluginDepsTest.putAll(toReplace);
             checkDefinedDeps(pluginDepsTest, toAddTest, toReplaceTest, otherPlugins);
             if (!toAdd.isEmpty() || !toReplace.isEmpty()) {
-                System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\n" + toAddTest + " " + toReplaceTest);
+                System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
                 pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds);
             }
         }
