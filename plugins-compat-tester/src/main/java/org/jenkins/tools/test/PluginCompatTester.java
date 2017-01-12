@@ -341,7 +341,7 @@ public class PluginCompatTester {
 			ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
 			ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
 			CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
-			
+			System.out.println("DONE?");
 			if(!result.isSuccess()){
                 if(result.getCommandOutput().contains("error: pathspec") && result.getCommandOutput().contains("did not match any file(s) known to git.")){
                     // Trying to look for existing branch that looks like the one we are looking for
@@ -357,6 +357,7 @@ public class PluginCompatTester {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
 		}
+        System.out.println("DID I GET HERE");
         
         List<String> args = new ArrayList<String>();
         boolean mustTransformPom = false;
@@ -390,7 +391,7 @@ public class PluginCompatTester {
             // This defends against source incompatibilities (which we do not care about for this purpose);
             // and ensures that we are testing a plugin binary as close as possible to what was actually released.
             // We also skip potential javadoc execution to avoid general test failure.
-            runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+            //runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
             ranCompile = true;
 
             // Then transform the POM and run tests against that.
@@ -669,43 +670,54 @@ public class PluginCompatTester {
                     toAdd.put(plugin, declaredMinimum);
                 }
             }
-
-            checkDefinedDeps(pluginDeps, toAdd, toReplace, otherPlugins);
+//TESTING
+List<String> convertFromTestDep = new ArrayList<String>();
+            checkDefinedDeps(pluginDeps, toAdd, toReplace, otherPlugins, new ArrayList<String>(pluginDepsTest.keySet()), convertFromTestDep);
             pluginDepsTest.putAll(toAdd);
             pluginDepsTest.putAll(toReplace);
             checkDefinedDeps(pluginDepsTest, toAddTest, toReplaceTest, otherPlugins);
-            if (!toAdd.isEmpty() || !toReplace.isEmpty()) {
+            if (!toAdd.isEmpty() || !toReplace.isEmpty() || !toAddTest.isEmpty() || !toReplaceTest.isEmpty()) {
                 System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
-                pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds);
+                pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, convertFromTestDep);
             }
         }
     }
 
     private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins) {
+        checkDefinedDeps(pluginList, adding, replacing, otherPlugins, new ArrayList<String>(), null);
+    }
+    private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins, List<String> inTest, List<String> toConvertFromTest) {
         for (Map.Entry<String,VersionNumber> pluginDep : pluginList.entrySet()) {
-                String plugin = pluginDep.getKey();
-                Plugin bundledP = otherPlugins.get(plugin);
-                if (bundledP != null) {
-                    VersionNumber bundledV = new VersionNumber(bundledP.version);
-                    if (bundledV.isNewerThan(pluginDep.getValue())) {
-                        assert !adding.containsKey(plugin);
-                        replacing.put(plugin, bundledV);
+            String plugin = pluginDep.getKey();
+            Plugin bundledP = otherPlugins.get(plugin);
+            if (bundledP != null) {
+                VersionNumber bundledV = new VersionNumber(bundledP.version);
+                if (bundledV.isNewerThan(pluginDep.getValue())) {
+                    assert !adding.containsKey(plugin);
+                    replacing.put(plugin, bundledV);
+                }
+                // Also check any dependencies, so if we are upgrading cloudbees-folder, we also add an explicit dep on a bundled credentials.
+                for (Map.Entry<String,String> dependency : bundledP.dependencies.entrySet()) {
+                    String depPlugin = dependency.getKey();
+                    if (pluginList.containsKey(depPlugin)) {
+                        continue; // already handled
                     }
-                    // Also check any dependencies, so if we are upgrading cloudbees-folder, we also add an explicit dep on a bundled credentials.
-                    for (Map.Entry<String,String> dependency : bundledP.dependencies.entrySet()) {
-                        String depPlugin = dependency.getKey();
-                        if (pluginList.containsKey(depPlugin)) {
-                            continue; // already handled
+                    // We ignore the declared dependency version and go with the bundled version:
+                    Plugin depBundledP = otherPlugins.get(depPlugin);
+                    if (depBundledP != null) {
+                        // Check if this exists with an undesired scope
+                        if(inTest.contains(depPlugin)) {
+                            System.out.println("Converting " + depPlugin + " from the test scope since it was a dependency of " + plugin);
+                            toConvertFromTest.add(depPlugin);
+                            replacing.put(depPlugin, new VersionNumber(depBundledP.version));
+                            continue; // becomes a replacement 
                         }
-                        // We ignore the declared dependency version and go with the bundled version:
-                        Plugin depBundledP = otherPlugins.get(depPlugin);
-                        if (depBundledP != null) {
-                            System.out.println("Adding " + depPlugin + " since it was a dependency of " + plugin);
-                            adding.put(depPlugin, new VersionNumber(depBundledP.version));
-                        }
+                        System.out.println("Adding " + depPlugin + " since it was a dependency of " + plugin);
+                        adding.put(depPlugin, new VersionNumber(depBundledP.version));
                     }
                 }
             }
+        }
     }
 
 }

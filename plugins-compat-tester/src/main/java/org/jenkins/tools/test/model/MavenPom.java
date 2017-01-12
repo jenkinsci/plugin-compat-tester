@@ -87,7 +87,9 @@ public class MavenPom {
 		
 	}
 
-    public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, Map<String,VersionNumber> toAddTest, Map<String,VersionNumber> toReplaceTest, VersionNumber coreDep, Map<String,String> pluginGroupIds) throws IOException {
+    public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, Map<String,VersionNumber> toAddTest, Map<String,VersionNumber> toReplaceTest, VersionNumber coreDep, Map<String,String> pluginGroupIds, List<String> toConvert) 
+        throws IOException 
+    {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -133,6 +135,12 @@ public class MavenPom {
                 mavenDependency.remove(version);
             }
             version = mavenDependency.addElement("version");
+            if (toConvert.contains(artifactId)) { // Remove the test scope
+                Element scope = mavenDependency.element("scope");
+                if (scope != null) {
+                    mavenDependency.remove(scope);
+                }
+            }
             version.addText(replacement.toString());
             toReplace.remove(artifactId.getTextTrim());
         }
