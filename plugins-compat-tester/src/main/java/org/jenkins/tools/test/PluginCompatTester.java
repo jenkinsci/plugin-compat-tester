@@ -341,7 +341,6 @@ public class PluginCompatTester {
 			ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
 			ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
 			CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
-			System.out.println("DONE?");
 			if(!result.isSuccess()){
                 if(result.getCommandOutput().contains("error: pathspec") && result.getCommandOutput().contains("did not match any file(s) known to git.")){
                     // Trying to look for existing branch that looks like the one we are looking for
@@ -357,7 +356,6 @@ public class PluginCompatTester {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
 		}
-        System.out.println("DID I GET HERE");
         
         List<String> args = new ArrayList<String>();
         boolean mustTransformPom = false;
@@ -540,7 +538,6 @@ public class PluginCompatTester {
     }
 
     private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds) throws PomExecutionException, IOException {
-        System.out.println("STARTING PLUGIN DEPS");
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
@@ -705,19 +702,39 @@ public class PluginCompatTester {
                     // We ignore the declared dependency version and go with the bundled version:
                     Plugin depBundledP = otherPlugins.get(depPlugin);
                     if (depBundledP != null) {
-                        // Check if this exists with an undesired scope
-                        if(inTest.contains(depPlugin)) {
-                            System.out.println("Converting " + depPlugin + " from the test scope since it was a dependency of " + plugin);
-                            toConvertFromTest.add(depPlugin);
-                            replacing.put(depPlugin, new VersionNumber(depBundledP.version));
-                            continue; // becomes a replacement 
-                        }
-                        System.out.println("Adding " + depPlugin + " since it was a dependency of " + plugin);
-                        adding.put(depPlugin, new VersionNumber(depBundledP.version));
+                        updateAllDependents(plugin, depBundledP, pluginList, adding, replacing, otherPlugins, inTest, toConvertFromTest);
                     }
                 }
             }
         }
     }
 
+    /**
+     * Search the dependents of a given plugin to determine if they need to be converted.
+     */
+    private void updateAllDependents(String parent, Plugin dependent, Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins, List<String> inTest, List<String> toConvertFromTest) {
+        // Check if this exists with an undesired scope
+        String pluginName = dependent.name;
+        if(inTest.contains(pluginName)) { // becomes a replacement 
+            System.out.println("Converting " + pluginName + " from the test scope since it was a dependency of " + parent);
+            toConvertFromTest.add(pluginName);
+            replacing.put(pluginName, new VersionNumber(dependent.version));
+        } else {
+            System.out.println("Adding " + pluginName + " since it was a dependency of " + parent);
+            adding.put(pluginName, new VersionNumber(dependent.version));
+        }
+        // Also check any dependencies
+        for (Map.Entry<String,String> dependency : dependent.dependencies.entrySet()) {
+            String depPlugin = dependency.getKey();
+            if (pluginList.containsKey(depPlugin)) {
+                continue; // already handled
+            }
+
+            // We ignore the declared dependency version and go with the bundled version:
+            Plugin depBundledP = otherPlugins.get(depPlugin);
+            if (depBundledP != null) {
+                updateAllDependents(pluginName, depBundledP, pluginList, adding, replacing, otherPlugins, inTest, toConvertFromTest);
+            }
+        }
+    }
 }
