@@ -710,12 +710,15 @@ public class PluginCompatTester {
     }
 
     /**
-     * Search the dependents of a given plugin to determine if they need to be converted.
+     * Search the dependents of a given plugin to determine if we need to use the bundled version.
+     * This helps in cases where tests fail due to new insufficient versions as well as more 
+     * accurtely representing the totality of upgraded plugins for provided war files.
      */
     private void updateAllDependents(String parent, Plugin dependent, Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins, List<String> inTest, List<String> toConvertFromTest) {
         // Check if this exists with an undesired scope
         String pluginName = dependent.name;
-        if(inTest.contains(pluginName)) { // becomes a replacement 
+        if(inTest.contains(pluginName)) { 
+            // This is now required in the compile scope.  For example: copyartifact's dependency matrix-project requires junit
             System.out.println("Converting " + pluginName + " from the test scope since it was a dependency of " + parent);
             toConvertFromTest.add(pluginName);
             replacing.put(pluginName, new VersionNumber(dependent.version));
