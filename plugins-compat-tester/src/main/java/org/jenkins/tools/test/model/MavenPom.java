@@ -87,7 +87,9 @@ public class MavenPom {
 		
 	}
 
-    public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, VersionNumber coreDep, Map<String,String> pluginGroupIds) throws IOException {
+    public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, Map<String,VersionNumber> toAddTest, Map<String,VersionNumber> toReplaceTest, VersionNumber coreDep, Map<String,String> pluginGroupIds, List<String> toConvert) 
+        throws IOException 
+    {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -122,30 +124,34 @@ public class MavenPom {
             excludeSecurity144Compat(mavenDependency);
             VersionNumber replacement = toReplace.get(artifactId.getTextTrim());
             if (replacement == null) {
-                continue;
+                replacement = toReplaceTest.get(artifactId.getTextTrim());
+                if (replacement == null) {
+                    continue;
+                }
+                toReplaceTest.remove(artifactId.getTextTrim());
             }
             Element version = mavenDependency.element("version");
             if (version != null) {
                 mavenDependency.remove(version);
             }
             version = mavenDependency.addElement("version");
-            version.addText(replacement.toString());
-        }
-        dependencies.addComment("SYNTHETIC");
-        for (Map.Entry<String,VersionNumber> dep : toAdd.entrySet()) {
-            Element dependency = dependencies.addElement("dependency");
-            String group = pluginGroupIds.get(dep.getKey());
-
-            // Handle cases where plugin isn't under default groupId
-            if (group != null && !group.isEmpty()) {
-                dependency.addElement("groupId").addText(group);
-            } else {
-                dependency.addElement("groupId").addText("org.jenkins-ci.plugins");
+            if (toConvert.contains(artifactId)) { // Remove the test scope
+                Element scope = mavenDependency.element("scope");
+                if (scope != null) {
+                    mavenDependency.remove(scope);
+                }
             }
-            dependency.addElement("artifactId").addText(dep.getKey());
-            dependency.addElement("version").addText(dep.getValue().toString());
-            excludeSecurity144Compat(dependency);
+            version.addText(replacement.toString());
+            toReplace.remove(artifactId.getTextTrim());
         }
+        // If the replacement dependencies weren't explicitly present in the pom, add them directly now
+        toAdd.putAll(toReplace);
+        toAddTest.putAll(toReplaceTest);
+
+        dependencies.addComment("SYNTHETIC");
+        addPlugins(toAdd, pluginGroupIds, dependencies, "");
+        addPlugins(toAddTest, pluginGroupIds, dependencies, "test");
+
         FileWriter w = new FileWriter(pom);
         try {
             doc.write(w);
@@ -163,6 +169,31 @@ public class MavenPom {
         Element exclusion = exclusions.addElement("exclusion");
         exclusion.addElement("groupId").addText("org.jenkins-ci");
         exclusion.addElement("artifactId").addText("SECURITY-144-compat");
+    }
+
+    /**
+     * Add the given new plugins to the pom file. 
+     */
+    private void addPlugins(Map<String,VersionNumber> adding, Map<String,String> pluginGroupIds, Element dependencies, String scope) {
+        for (Map.Entry<String,VersionNumber> dep : adding.entrySet()) {
+            Element dependency = dependencies.addElement("dependency");
+            String group = pluginGroupIds.get(dep.getKey());
+
+            // Handle cases where plugin isn't under default groupId
+            if (group != null && !group.isEmpty()) {
+                dependency.addElement("groupId").addText(group);
+            } else {
+                dependency.addElement("groupId").addText("org.jenkins-ci.plugins");
+            }
+            dependency.addElement("artifactId").addText(dep.getKey());
+            dependency.addElement("version").addText(dep.getValue().toString());
+
+            // Add required scope
+            if(scope != null && !scope.isEmpty()) {
+                dependency.addElement("scope").addText(scope);
+            }
+            excludeSecurity144Compat(dependency);
+        }
     }
 
 }

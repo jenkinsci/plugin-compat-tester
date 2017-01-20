@@ -341,7 +341,6 @@ public class PluginCompatTester {
 			ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
 			ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
 			CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
-			
 			if(!result.isSuccess()){
                 if(result.getCommandOutput().contains("error: pathspec") && result.getCommandOutput().contains("did not match any file(s) known to git.")){
                     // Trying to look for existing branch that looks like the one we are looking for
@@ -542,36 +541,63 @@ public class PluginCompatTester {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
+        Map<String,VersionNumber> pluginDepsTest = new HashMap<String,VersionNumber>();
         try {
             runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
             Reader r = new FileReader(tmp);
             try {
                 BufferedReader br = new BufferedReader(r);
-                // TODO could include |test but only if pom.addDependencies would add as <scope>test</scope>
                 Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):([^:]+):(provided|compile|runtime|system)");
+                Pattern p2 = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):([^:]+):(test)");
                 String line;
                 while ((line = br.readLine()) != null) {
                     Matcher m = p.matcher(line);
-                    if (!m.matches()) {
-                        continue;
-                    }
-                    String groupId = m.group(1);
-                    String artifactId = m.group(2);
+                    Matcher m2 = p2.matcher(line);
+                    String groupId;
+                    String artifactId;
                     VersionNumber version;
-                    try {
-                        version = new VersionNumber(m.group(4));
-                    } catch (IllegalArgumentException x) {
-                        // OK, some other kind of dep, just ignore
+                    if (!m.matches() && !m2.matches()) {
                         continue;
+                    } else if (m.matches()) {
+                        groupId = m.group(1);
+                        artifactId = m.group(2);
+                        try {
+                            version = new VersionNumber(m.group(4));
+                        } catch (IllegalArgumentException x) {
+                            // OK, some other kind of dep, just ignore
+                            continue;
+                        }
+                    } else { //m2.matches()
+                        groupId = m2.group(1);
+                        artifactId = m2.group(2);
+                        try {
+                            version = new VersionNumber(m2.group(4));
+                        } catch (IllegalArgumentException x) {
+                            // OK, some other kind of dep, just ignore
+                            continue;
+                        }
                     }
+
                     if (groupId.equals("org.jenkins-ci.main") && artifactId.equals("jenkins-core")) {
                         coreDep = version;
                     } else if (groupId.equals("org.jenkins-ci.plugins")) {
-                        pluginDeps.put(artifactId, version);
+                        if(m2.matches()) {
+                            pluginDepsTest.put(artifactId, version);
+                        } else {
+                            pluginDeps.put(artifactId, version);
+                        }
                     } else if (groupId.equals("org.jenkins-ci.main") && artifactId.equals("maven-plugin")) {
-                        pluginDeps.put(artifactId, version);
+                        if(m2.matches()) {
+                            pluginDepsTest.put(artifactId, version);
+                        } else {
+                            pluginDeps.put(artifactId, version);
+                        }
                     } else if (groupId.equals(pluginGroupIds.get(artifactId))) {
-                        pluginDeps.put(artifactId, version);
+                        if(m2.matches()) {
+                            pluginDepsTest.put(artifactId, version);
+                        } else {
+                            pluginDeps.put(artifactId, version);
+                        }
                     }
                 }
             } finally {
@@ -580,7 +606,7 @@ public class PluginCompatTester {
         } finally {
             tmp.delete();
         }
-        System.out.println("Analysis: coreDep=" + coreDep + " pluginDeps=" + pluginDeps);
+        System.out.println("Analysis: coreDep=" + coreDep + " pluginDeps=" + pluginDeps + " pluginDepsTest=" + pluginDepsTest);
         if (coreDep != null) {
             // Synchronize with ClassicPluginStrategy.DETACHED_LIST:
             String[] splits = {
@@ -598,6 +624,7 @@ public class PluginCompatTester {
                 "antisamy-markup-formatter:1.553.*:1.0",
                 "matrix-project:1.561.*:1.0",
                 "junit:1.577.*:1.0",
+                "bouncycastle-api:2.16.*:2.16.0",
             };
             // Synchronize with ClassicPluginStrategy.BREAK_CYCLES:
             String[] exceptions = {
@@ -610,6 +637,8 @@ public class PluginCompatTester {
             };
             Map<String,VersionNumber> toAdd = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toReplace = new HashMap<String,VersionNumber>();
+            Map<String,VersionNumber> toAddTest = new HashMap<String,VersionNumber>();
+            Map<String,VersionNumber> toReplaceTest = new HashMap<String,VersionNumber>();
             for (String split : splits) {
                 String[] pieces = split.split(":");
                 String plugin = pieces[0];
@@ -620,7 +649,6 @@ public class PluginCompatTester {
                 VersionNumber splitPoint = new VersionNumber(pieces[1]);
                 VersionNumber declaredMinimum = new VersionNumber(pieces[2]);
                 // TODO this should only happen if the tested core version is ≥ splitPoint
-                // TODO pluginDeps could include test deps inherited from jenkins-test-harness; do we need to add/replace these implicit deps?
                 if (coreDep.compareTo(splitPoint) <= 0 && !pluginDeps.containsKey(plugin)) {
                     Plugin bundledP = otherPlugins.get(plugin);
                     if (bundledP != null) {
@@ -639,35 +667,77 @@ public class PluginCompatTester {
                     toAdd.put(plugin, declaredMinimum);
                 }
             }
-            for (Map.Entry<String,VersionNumber> pluginDep : pluginDeps.entrySet()) {
-                String plugin = pluginDep.getKey();
-                Plugin bundledP = otherPlugins.get(plugin);
-                if (bundledP != null) {
-                    VersionNumber bundledV = new VersionNumber(bundledP.version);
-                    if (bundledV.isNewerThan(pluginDep.getValue())) {
-                        assert !toAdd.containsKey(plugin);
-                        toReplace.put(plugin, bundledV);
-                    }
-                    // Also check any dependencies, so if we are upgrading cloudbees-folder, we also add an explicit dep on a bundled credentials.
-                    for (Map.Entry<String,String> dependency : bundledP.dependencies.entrySet()) {
-                        String depPlugin = dependency.getKey();
-                        if (pluginDeps.containsKey(depPlugin)) {
-                            continue; // already handled
-                        }
-                        // We ignore the declared dependency version and go with the bundled version:
-                        Plugin depBundledP = otherPlugins.get(depPlugin);
-                        if (depBundledP != null) {
-                            System.out.println("Adding " + depPlugin + " since it was a dependency of " + plugin);
-                            toAdd.put(depPlugin, new VersionNumber(depBundledP.version));
-                        }
-                    }
-                }
-            }
-            if (!toAdd.isEmpty() || !toReplace.isEmpty()) {
-                System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace);
-                pom.addDependencies(toAdd, toReplace, coreDep, pluginGroupIds);
+
+            List<String> convertFromTestDep = new ArrayList<String>();
+            checkDefinedDeps(pluginDeps, toAdd, toReplace, otherPlugins, new ArrayList<String>(pluginDepsTest.keySet()), convertFromTestDep);
+            pluginDepsTest.putAll(toAdd);
+            pluginDepsTest.putAll(toReplace);
+            checkDefinedDeps(pluginDepsTest, toAddTest, toReplaceTest, otherPlugins);
+            if (!toAdd.isEmpty() || !toReplace.isEmpty() || !toAddTest.isEmpty() || !toReplaceTest.isEmpty()) {
+                System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
+                pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, convertFromTestDep);
             }
         }
     }
 
+    private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins) {
+        checkDefinedDeps(pluginList, adding, replacing, otherPlugins, new ArrayList<String>(), null);
+    }
+    private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins, List<String> inTest, List<String> toConvertFromTest) {
+        for (Map.Entry<String,VersionNumber> pluginDep : pluginList.entrySet()) {
+            String plugin = pluginDep.getKey();
+            Plugin bundledP = otherPlugins.get(plugin);
+            if (bundledP != null) {
+                VersionNumber bundledV = new VersionNumber(bundledP.version);
+                if (bundledV.isNewerThan(pluginDep.getValue())) {
+                    assert !adding.containsKey(plugin);
+                    replacing.put(plugin, bundledV);
+                }
+                // Also check any dependencies, so if we are upgrading cloudbees-folder, we also add an explicit dep on a bundled credentials.
+                for (Map.Entry<String,String> dependency : bundledP.dependencies.entrySet()) {
+                    String depPlugin = dependency.getKey();
+                    if (pluginList.containsKey(depPlugin)) {
+                        continue; // already handled
+                    }
+                    // We ignore the declared dependency version and go with the bundled version:
+                    Plugin depBundledP = otherPlugins.get(depPlugin);
+                    if (depBundledP != null) {
+                        updateAllDependents(plugin, depBundledP, pluginList, adding, replacing, otherPlugins, inTest, toConvertFromTest);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Search the dependents of a given plugin to determine if we need to use the bundled version.
+     * This helps in cases where tests fail due to new insufficient versions as well as more 
+     * accurtely representing the totality of upgraded plugins for provided war files.
+     */
+    private void updateAllDependents(String parent, Plugin dependent, Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins, List<String> inTest, List<String> toConvertFromTest) {
+        // Check if this exists with an undesired scope
+        String pluginName = dependent.name;
+        if(inTest.contains(pluginName)) { 
+            // This is now required in the compile scope.  For example: copyartifact's dependency matrix-project requires junit
+            System.out.println("Converting " + pluginName + " from the test scope since it was a dependency of " + parent);
+            toConvertFromTest.add(pluginName);
+            replacing.put(pluginName, new VersionNumber(dependent.version));
+        } else {
+            System.out.println("Adding " + pluginName + " since it was a dependency of " + parent);
+            adding.put(pluginName, new VersionNumber(dependent.version));
+        }
+        // Also check any dependencies
+        for (Map.Entry<String,String> dependency : dependent.dependencies.entrySet()) {
+            String depPlugin = dependency.getKey();
+            if (pluginList.containsKey(depPlugin)) {
+                continue; // already handled
+            }
+
+            // We ignore the declared dependency version and go with the bundled version:
+            Plugin depBundledP = otherPlugins.get(depPlugin);
+            if (depBundledP != null) {
+                updateAllDependents(pluginName, depBundledP, pluginList, adding, replacing, otherPlugins, inTest, toConvertFromTest);
+            }
+        }
+    }
 }
