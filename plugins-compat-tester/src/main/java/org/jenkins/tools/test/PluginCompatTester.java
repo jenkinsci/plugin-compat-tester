@@ -389,7 +389,7 @@ public class PluginCompatTester {
             // This defends against source incompatibilities (which we do not care about for this purpose);
             // and ensures that we are testing a plugin binary as close as possible to what was actually released.
             // We also skip potential javadoc execution to avoid general test failure.
-            runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+            //runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
             ranCompile = true;
 
             // Then transform the POM and run tests against that.
@@ -547,8 +547,8 @@ public class PluginCompatTester {
             Reader r = new FileReader(tmp);
             try {
                 BufferedReader br = new BufferedReader(r);
-                Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):([^:]+):(provided|compile|runtime|system)");
-                Pattern p2 = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):([^:]+):(test)");
+                Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(provided|compile|runtime|system)");
+                Pattern p2 = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(test)");
                 String line;
                 while ((line = br.readLine()) != null) {
                     Matcher m = p.matcher(line);
@@ -562,7 +562,7 @@ public class PluginCompatTester {
                         groupId = m.group(1);
                         artifactId = m.group(2);
                         try {
-                            version = new VersionNumber(m.group(4));
+                            version = new VersionNumber(m.group(6));
                         } catch (IllegalArgumentException x) {
                             // OK, some other kind of dep, just ignore
                             continue;
@@ -571,7 +571,7 @@ public class PluginCompatTester {
                         groupId = m2.group(1);
                         artifactId = m2.group(2);
                         try {
-                            version = new VersionNumber(m2.group(4));
+                            version = new VersionNumber(m2.group(6));
                         } catch (IllegalArgumentException x) {
                             // OK, some other kind of dep, just ignore
                             continue;
@@ -670,8 +670,8 @@ public class PluginCompatTester {
 
             List<String> convertFromTestDep = new ArrayList<String>();
             checkDefinedDeps(pluginDeps, toAdd, toReplace, otherPlugins, new ArrayList<String>(pluginDepsTest.keySet()), convertFromTestDep);
-            pluginDepsTest.putAll(toAdd);
-            pluginDepsTest.putAll(toReplace);
+            pluginDepsTest = difference(pluginDepsTest, toAdd);
+            pluginDepsTest = difference(pluginDepsTest, toReplace);
             checkDefinedDeps(pluginDepsTest, toAddTest, toReplaceTest, otherPlugins);
             if (!toAdd.isEmpty() || !toReplace.isEmpty() || !toAddTest.isEmpty() || !toReplaceTest.isEmpty()) {
                 System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
@@ -717,7 +717,7 @@ public class PluginCompatTester {
     private void updateAllDependents(String parent, Plugin dependent, Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins, List<String> inTest, List<String> toConvertFromTest) {
         // Check if this exists with an undesired scope
         String pluginName = dependent.name;
-        if(inTest.contains(pluginName)) { 
+        if (inTest.contains(pluginName)) { 
             // This is now required in the compile scope.  For example: copyartifact's dependency matrix-project requires junit
             System.out.println("Converting " + pluginName + " from the test scope since it was a dependency of " + parent);
             toConvertFromTest.add(pluginName);
@@ -739,5 +739,14 @@ public class PluginCompatTester {
                 updateAllDependents(pluginName, depBundledP, pluginList, adding, replacing, otherPlugins, inTest, toConvertFromTest);
             }
         }
+    }
+
+    private Map<String, VersionNumber> difference(Map<String, VersionNumber> base, Map<String, VersionNumber> toAdd) {
+        for (Map.Entry<String,VersionNumber> adding : toAdd.entrySet()) {
+            if (!base.containsKey(adding.getKey())) { 
+                base.put(adding.getKey(), adding.getValue());
+            }
+        }
+        return base;
     }
 }
