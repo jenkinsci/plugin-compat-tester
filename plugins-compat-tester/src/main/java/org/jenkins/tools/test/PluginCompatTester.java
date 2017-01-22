@@ -389,7 +389,7 @@ public class PluginCompatTester {
             // This defends against source incompatibilities (which we do not care about for this purpose);
             // and ensures that we are testing a plugin binary as close as possible to what was actually released.
             // We also skip potential javadoc execution to avoid general test failure.
-            //runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+            runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
             ranCompile = true;
 
             // Then transform the POM and run tests against that.
