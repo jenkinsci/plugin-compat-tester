@@ -670,8 +670,8 @@ public class PluginCompatTester {
 
             List<String> convertFromTestDep = new ArrayList<String>();
             checkDefinedDeps(pluginDeps, toAdd, toReplace, otherPlugins, new ArrayList<String>(pluginDepsTest.keySet()), convertFromTestDep);
-            pluginDepsTest = difference(pluginDepsTest, toAdd);
-            pluginDepsTest = difference(pluginDepsTest, toReplace);
+            pluginDepsTest.putAll(difference(pluginDepsTest, toAdd));
+            pluginDepsTest.putAll(difference(pluginDepsTest, toReplace));
             checkDefinedDeps(pluginDepsTest, toAddTest, toReplaceTest, otherPlugins);
             if (!toAdd.isEmpty() || !toReplace.isEmpty() || !toAddTest.isEmpty() || !toReplaceTest.isEmpty()) {
                 System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
@@ -741,12 +741,20 @@ public class PluginCompatTester {
         }
     }
 
+    /**
+     * Finds the difference of the given maps.
+     * In set theory: base - toAdd
+     * 
+     * @param base the left map; all returned items are not in this map
+     * @param toAdd the right map; all returned items are found in this map
+     */
     private Map<String, VersionNumber> difference(Map<String, VersionNumber> base, Map<String, VersionNumber> toAdd) {
+        Map<String, VersionNumber> diff = new HashMap<String, VersionNumber>();
         for (Map.Entry<String,VersionNumber> adding : toAdd.entrySet()) {
             if (!base.containsKey(adding.getKey())) { 
-                base.put(adding.getKey(), adding.getValue());
+                diff.put(adding.getKey(), adding.getValue());
             }
         }
-        return base;
+        return diff;
     }
 }
