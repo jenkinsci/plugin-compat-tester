@@ -101,6 +101,8 @@ public class CliOptions {
     @Parameter(names="-gaeBaseUrl", description = "Allows to pass GAE plugin compat tester base url")
     private String gaeBaseUrl;
 
+    @Parameter(names="-hookPrefixes", description = "Prefixes of the extra hooks' classes")
+    private String hookPrefixes;
 
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
@@ -160,5 +162,9 @@ public class CliOptions {
 
     public String getGaeBaseUrl() {
         return gaeBaseUrl;
+    }
+
+    public String getHookPrefixes() {
+        return hookPrefixes;
     }
 }

@@ -142,7 +142,7 @@ public class PluginCompatTester {
 	public PluginCompatReport testPlugins()
         throws PlexusContainerException, IOException, MavenEmbedderException
     {
-        PluginCompatTesterHooks pcth = new PluginCompatTesterHooks();
+        PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(config.getHookPrefixes());
         // Providing XSL Stylesheet along xml report file
         if(config.reportFile != null){
             if(config.isProvideXslReport()){

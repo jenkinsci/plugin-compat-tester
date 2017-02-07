@@ -1,10 +1,10 @@
 package org.jenkins.tools.test.model.hook;
 
-//import com.google.common.reflect.ClassPath;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.HashMap;
@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
  */
 
 public class PluginCompatTesterHooks {
+    private List<String> hookPrefixes = new ArrayList<String>();
     private Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<String, Map<String, Queue<PluginCompatTesterHook>>>();
 
     /**
@@ -30,6 +31,12 @@ public class PluginCompatTesterHooks {
      * 
      */
     public PluginCompatTesterHooks() {
+        this(new ArrayList<String>());
+    }
+    public PluginCompatTesterHooks(List<String> extraPrefixes) {
+        if(extraPrefixes != null) {
+            hookPrefixes.addAll(extraPrefixes);
+        }
         for(String stage : Arrays.asList("checkout", "execution", "compilation")) {
             hooksByType.put(stage, findHooks(stage));
         }
@@ -84,61 +91,65 @@ public class PluginCompatTesterHooks {
     }
 
     private Map<String, Queue<PluginCompatTesterHook>> findHooks(String stage) {
-        Reflections reflections = new Reflections("org.jenkins");
-        Set<Class<? extends PluginCompatTesterHook>> subTypes;
-        
-        switch(stage) {
-            case "compilation" : 
-                Set<Class<? extends PluginCompatTesterHookBeforeCompile>> compSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCompile.class); 
-                subTypes = compSteps.stream()
-                    .map(elt -> casting(elt))
-                    .collect(Collectors.toSet());
-                break;
-            case "execution" : 
-                Set<Class<? extends PluginCompatTesterHookBeforeExecution>> exeSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeExecution.class); 
-                subTypes = exeSteps.stream()
-                    .map(elt -> casting(elt))
-                    .collect(Collectors.toSet());
-                break;
-            case "checkout" : 
-                Set<Class<? extends PluginCompatTesterHookBeforeCheckout>> checkSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCheckout.class); 
-                subTypes = checkSteps.stream()
-                    .map(elt -> casting(elt))
-                    .collect(Collectors.toSet());
-                break;
-            default: // Not valid; nothing will get executed
-                return new HashMap<String, Queue<PluginCompatTesterHook>>();
-        }
-        
         Map<String, Queue<PluginCompatTesterHook>> sortedHooks = new HashMap<String, Queue<PluginCompatTesterHook>>();
-        for(Class c : subTypes) {
-            try {
-                System.out.println("Hook: " + c.getName());
-                Constructor<?> constructor = c.getConstructor();
-                PluginCompatTesterHook hook = (PluginCompatTesterHook)constructor.newInstance();
+        
+        // Search for all hooks defined within the given classpath prefix
+        for(String prefix : hookPrefixes) {
+            Reflections reflections = new Reflections(prefix);
+            Set<Class<? extends PluginCompatTesterHook>> subTypes;
+            
+            // Find all steps for a given stage. Long due to casting
+            switch(stage) {
+                case "compilation" : 
+                    Set<Class<? extends PluginCompatTesterHookBeforeCompile>> compSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCompile.class); 
+                    subTypes = compSteps.stream()
+                        .map(elt -> casting(elt))
+                        .collect(Collectors.toSet());
+                    break;
+                case "execution" : 
+                    Set<Class<? extends PluginCompatTesterHookBeforeExecution>> exeSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeExecution.class); 
+                    subTypes = exeSteps.stream()
+                        .map(elt -> casting(elt))
+                        .collect(Collectors.toSet());
+                    break;
+                case "checkout" : 
+                    Set<Class<? extends PluginCompatTesterHookBeforeCheckout>> checkSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCheckout.class); 
+                    subTypes = checkSteps.stream()
+                        .map(elt -> casting(elt))
+                        .collect(Collectors.toSet());
+                    break;
+                default: // Not valid; nothing will get executed
+                    return new HashMap<String, Queue<PluginCompatTesterHook>>();
+            }
+            
+            for(Class c : subTypes) {
+                try {
+                    System.out.println("Hook: " + c.getName());
+                    Constructor<?> constructor = c.getConstructor();
+                    PluginCompatTesterHook hook = (PluginCompatTesterHook)constructor.newInstance();
 
-                List<String> plugins = hook.transformedPlugins();
-                for(String plugin : plugins) {
-                    Queue<PluginCompatTesterHook> allForType = sortedHooks.get(plugin);
-                    if(allForType == null){
-                        allForType = new LinkedList<PluginCompatTesterHook>();
+                    List<String> plugins = hook.transformedPlugins();
+                    for(String plugin : plugins) {
+                        Queue<PluginCompatTesterHook> allForType = sortedHooks.get(plugin);
+                        if(allForType == null){
+                            allForType = new LinkedList<PluginCompatTesterHook>();
+                        }
+                        allForType.add(hook);
+                        sortedHooks.put(plugin, allForType);
                     }
-                    allForType.add(hook);
-                    sortedHooks.put(plugin, allForType);
+                } catch (Exception ex) {
+                    System.out.println("Error when loading " + c.getName());
+                    ex.printStackTrace();
+                    continue;
                 }
-            } catch (Exception ex) {
-                System.out.println("Error when loading " + c.getName());
-                ex.printStackTrace();
-                continue;
             }
         }
-
         return sortedHooks;
     }
 
     /**
      * Seems rediculous, but is needed to actually convert between the two types of Sets.
-     * Gets around generics error: incompatible types: inference variable T has incompatible bounds
+     * Gets around generics error: {@code incompatible types: inference variable T has incompatible bounds}
      */
     private Class<? extends PluginCompatTesterHook> casting(Class<? extends PluginCompatTesterHook> c) {
         return (Class<? extends PluginCompatTesterHook>)c;

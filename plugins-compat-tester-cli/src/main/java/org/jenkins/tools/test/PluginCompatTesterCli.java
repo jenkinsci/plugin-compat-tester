@@ -105,6 +105,9 @@ public class PluginCompatTesterCli {
         if(options.getGaeSecurityToken() != null){
             config.setGaeSecurityToken(options.getGaeSecurityToken());
         }
+        if(options.getHookPrefixes() != null && !options.getHookPrefixes().isEmpty()){
+            config.setHookPrefixes(Arrays.asList(options.getHookPrefixes().split(",")));
+        }
 
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
