@@ -369,10 +369,6 @@ public class PluginCompatTester {
                     }
                 }
 
-                // If the plugin exists in a different directory (mulimodule plugins)
-                if(beforeCheckout.get("pluginDir") != null){
-                    pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
-                }
             } else {
                 // If the plugin exists in a different directory (multimodule plugins)
                 if(beforeCheckout.get("pluginDir") != null){
@@ -424,7 +420,6 @@ public class PluginCompatTester {
             args.add("surefire:test");
 
             // Run preexecution hooks
-            System.out.println("RUN BEFORE EXECTION");
             Map<String, Object> forExecutionHooks = new HashMap<String, Object>();
             forExecutionHooks.put("pluginName", plugin.name);
             forExecutionHooks.put("args", args);
@@ -432,7 +427,6 @@ public class PluginCompatTester {
             forExecutionHooks.put("pom", pom);
             forExecutionHooks.put("coreCoordinates", coreCoordinates);
             pcth.runBeforeExecution(forExecutionHooks);
-            //runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>)forExecutionHooks.get("args")).toArray(new String[args.size()]));
 
             return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages());
