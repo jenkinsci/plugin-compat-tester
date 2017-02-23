@@ -118,9 +118,16 @@ public class MavenPom {
         }
         for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
             Element artifactId = mavenDependency.element("artifactId");
-            if (artifactId == null) {
+            Element groupId = mavenDependency.element("groupId");
+            if (artifactId == null || groupId == null) {
                 continue;
             }
+
+            String expectedGroupId = pluginGroupIds.get(artifactId.getTextTrim());
+            if(expectedGroupId == null || !groupId.getTextTrim().equals(expectedGroupId)) {
+                continue;
+            }
+            
             excludeSecurity144Compat(mavenDependency);
             VersionNumber replacement = toReplace.get(artifactId.getTextTrim());
             if (replacement == null) {
