@@ -265,7 +265,7 @@ th.version {
 	    <xsl:attribute name="id"><xsl:value-of select="$id" /></xsl:attribute>
 	    <xsl:attribute name="alt"><xsl:value-of select="$title" /></xsl:attribute>
 	    <xsl:attribute name="title"><xsl:value-of select="$title" /><xsl:if test="not($error='_')"><xsl:value-of select="$error" /></xsl:if></xsl:attribute>
-	    <xsl:attribute name="src">https://raw.githubusercontent.com/jenkinsci/jenkins/master/war/src/main/webapp/images/24x24<xsl:value-of select="$img" /></xsl:attribute>
+	    <xsl:attribute name="src">https://raw.githubusercontent.com/jenkinsci/jenkins/master/war/src/main/webapp/images/24x24/<xsl:value-of select="$img" /></xsl:attribute>
 	    <xsl:attribute name="width">24</xsl:attribute>
 	    <xsl:attribute name="height">24</xsl:attribute>
 	    <xsl:if test="not($error='_')">
