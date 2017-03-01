@@ -405,7 +405,7 @@ public class PluginCompatTester {
             // Much simpler to do use the parent POM to set up the test classpath. 
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
-                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds);
+                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates);
             } catch (Exception x) {
                 x.printStackTrace();
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
@@ -549,7 +549,7 @@ public class PluginCompatTester {
         }
     }
 
-    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds) throws PomExecutionException, IOException {
+    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds, MavenCoordinates coreCoordinates) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
@@ -619,7 +619,7 @@ public class PluginCompatTester {
             tmp.delete();
         }
         System.out.println("Analysis: coreDep=" + coreDep + " pluginDeps=" + pluginDeps + " pluginDepsTest=" + pluginDepsTest);
-        if (coreDep != null) {
+        if (coreCoordinates != null) {
             // Synchronize with ClassicPluginStrategy.DETACHED_LIST:
             String[] splits = {
                 "maven-plugin:1.296:1.296",
@@ -658,10 +658,9 @@ public class PluginCompatTester {
                     System.out.println("Skipping implicit dep " + thisPlugin + " → " + plugin);
                     continue;
                 }
-                VersionNumber splitPoint = new VersionNumber(pieces[1]);
+                String splitPoint = pieces[1];
                 VersionNumber declaredMinimum = new VersionNumber(pieces[2]);
-                // TODO this should only happen if the tested core version is ≥ splitPoint
-                if (coreDep.compareTo(splitPoint) <= 0 && !pluginDeps.containsKey(plugin)) {
+                if (coreCoordinates.compareVersionTo(splitPoint) >= 0 && !pluginDeps.containsKey(plugin)) {
                     Plugin bundledP = otherPlugins.get(plugin);
                     if (bundledP != null) {
                         VersionNumber bundledV;
