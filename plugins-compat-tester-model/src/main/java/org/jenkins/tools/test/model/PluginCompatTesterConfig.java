@@ -26,6 +26,8 @@
 package org.jenkins.tools.test.model;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -99,6 +101,9 @@ public class PluginCompatTesterConfig {
     private String gaeSecurityToken;
     // GoogleAppEngin base url for plugin compat tester
     private String gaeBaseUrl;
+ 
+    // Classpath prefixes of the extra hooks
+    private List<String> hookPrefixes = new ArrayList<String>(Arrays.asList("org.jenkins"));
 
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
@@ -238,4 +243,12 @@ public class PluginCompatTesterConfig {
         this.externalMaven = externalMaven;
     }
 
+    public List<String> getHookPrefixes() {
+        return hookPrefixes;
+    }
+
+    public void setHookPrefixes(List<String> hookPrefixes) {
+        // Want to also process the default
+        this.hookPrefixes.addAll(hookPrefixes);
+    }
 }

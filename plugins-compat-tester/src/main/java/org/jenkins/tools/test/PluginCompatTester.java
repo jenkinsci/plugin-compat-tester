@@ -52,6 +52,7 @@ import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginCompatReport;
 import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.model.PluginInfos;
 import org.jenkins.tools.test.model.PluginRemoting;
 import org.jenkins.tools.test.model.PomData;
@@ -103,7 +104,6 @@ public class PluginCompatTester {
     private static final String DEFAULT_SOURCE_ID = "default";
 
     /** First version with new parent POM. */
-    private static final String CORE_NEW_PARENT_POM = "1.646";
     public static final String JENKINS_CORE_FILE_REGEX = "WEB-INF/lib/jenkins-core-([0-9.]+(?:-[0-9.]+)?(?:-(?i)(alpha|beta|rc)(-)?([0-9.]+)?)?(?:-SNAPSHOT)?)[.]jar";
 
     private PluginCompatTesterConfig config;
@@ -142,6 +142,7 @@ public class PluginCompatTester {
 	public PluginCompatReport testPlugins()
         throws PlexusContainerException, IOException, MavenEmbedderException
     {
+        PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(config.getHookPrefixes());
         // Providing XSL Stylesheet along xml report file
         if(config.reportFile != null){
             if(config.isProvideXslReport()){
@@ -229,7 +230,7 @@ public class PluginCompatTester {
                     List<String> warningMessages = new ArrayList<String>();
                     if (errorMessage == null) {
                     try {
-                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, data.plugins, pluginGroupIds);
+                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, data.plugins, pluginGroupIds, pcth);
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
@@ -244,7 +245,7 @@ public class PluginCompatTester {
                         errorMessage = e.getErrorMessage();
                         warningMessages.addAll(e.getPomWarningMessages());
                     } catch (Error e){
-                        // Rethrow the error ... something is getting wrong !
+                        // Rethrow the error ... something is wrong !
                         throw e;
                     } catch (Throwable t){
                         status = TestStatus.INTERNAL_ERROR;
@@ -317,7 +318,7 @@ public class PluginCompatTester {
         return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
     }
 	
-	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds)
+	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds, PluginCompatTesterHooks pcth)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
@@ -328,27 +329,53 @@ public class PluginCompatTester {
         System.out.println(String.format("#############################################"));
         System.out.println(String.format("%n%n%n%n%n"));
 
-		File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
-        if(pluginCheckoutDir.exists()){
-            System.out.println("Deleting working directory "+pluginCheckoutDir.getAbsolutePath());
-            FileUtils.deleteDirectory(pluginCheckoutDir);
-        }
-		pluginCheckoutDir.mkdir();
-		System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
-		
+        File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
+
 		try {
-            System.out.println("Checking out from SCM connection URL : "+pomData.getConnectionUrl()+" ("+plugin.name+"-"+plugin.version+")");
-			ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-			ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
-			CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
-			if(!result.isSuccess()){
-                if(result.getCommandOutput().contains("error: pathspec") && result.getCommandOutput().contains("did not match any file(s) known to git.")){
-                    // Trying to look for existing branch that looks like the one we are looking for
-                    // TODO ???
-                } else {
-                    throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
+            // Run any precheckout hooks
+            Map<String, Object> beforeCheckout = new HashMap<String, Object>();
+            beforeCheckout.put("pluginName", plugin.name);
+            beforeCheckout.put("plugin", plugin);
+            beforeCheckout.put("pomData", pomData);
+            beforeCheckout.put("config", config);
+            beforeCheckout.put("runCheckout", true);
+            beforeCheckout = pcth.runBeforeCheckout(beforeCheckout);
+
+            if(beforeCheckout.get("executionResult") != null) { // Check if the hook returned a result
+                return (TestExecutionResult)beforeCheckout.get("executionResult");
+            } else if((boolean)beforeCheckout.get("runCheckout")) {
+                if(beforeCheckout.get("checkoutDir") != null){
+                    pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
                 }
-			}
+                if(pluginCheckoutDir.exists()){
+                    System.out.println("Deleting working directory "+pluginCheckoutDir.getAbsolutePath());
+                    FileUtils.deleteDirectory(pluginCheckoutDir);
+                }
+                pluginCheckoutDir.mkdir();
+                System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
+
+                // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
+                System.out.println("Checking out from SCM connection URL : "+pomData.getConnectionUrl()+" ("+plugin.name+"-"+plugin.version+")");
+                ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
+                ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
+                CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
+                
+                if(!result.isSuccess()){
+                    if(result.getCommandOutput().contains("error: pathspec") && result.getCommandOutput().contains("did not match any file(s) known to git.")){
+                        // Trying to look for existing branch that looks like the one we are looking for
+                        // TODO ???
+                    } else {
+                        throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
+                    }
+                }
+
+            } else {
+                // If the plugin exists in a different directory (multimodule plugins)
+                if(beforeCheckout.get("pluginDir") != null){
+                    pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
+                }
+                System.out.println("The plugin has already been checked out, likely due to a multimodule situation. Continue.");
+            }
 		} catch (ComponentLookupException e) {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem while creating ScmManager !", e);
@@ -356,28 +383,6 @@ public class PluginCompatTester {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
 		}
-        
-        List<String> args = new ArrayList<String>();
-        boolean mustTransformPom = false;
-        // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
-        final MavenCoordinates parent = pomData.parent;
-        final boolean isCB = parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
-                // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
-                parent.matches("com.cloudbees.operations-center.common", "operations-center-parent") ||
-                parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client");
-        final boolean pluginPOM = parent.matches("org.jenkins-ci.plugins", "plugin");
-        final boolean coreRequiresNewParentPOM = coreCoordinates.compareVersionTo(CORE_NEW_PARENT_POM) >= 0;
-        if ( isCB || (pluginPOM && parent.compareVersionTo("2.0") >= 0)) {
-            args.add("-Djenkins.version=" + coreCoordinates.version);
-            args.add("-Dhpi-plugin.version=1.117"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
-            // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores
-            // the plugin may be Java 6 and the dependencies bring Java 7
-            args.add("-Denforcer.skip=true");
-        } else if (coreRequiresNewParentPOM && pluginPOM && parent.compareVersionTo("2.0") < 0) {
-            throw new RuntimeException("New parent POM required for core >= 1.646");
-        } else {
-            mustTransformPom = true;
-        }
         
         File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
@@ -397,7 +402,7 @@ public class PluginCompatTester {
             // -Dmaven-surefire-plugin.version=2.15 -Dmaven.test.dependency.excludes=org.jenkins-ci.main:jenkins-war -Dmaven.test.additionalClasspath=/…/org/jenkins-ci/main/jenkins-war/1.580.1/jenkins-war-1.580.1.war clean test
             // (2.15+ required for ${maven.test.dependency.excludes} and ${maven.test.additionalClasspath} to be honored from CLI)
             // but it does not work; there are lots of linkage errors as some things are expected to be in the test classpath which are not.
-            // Much simpler to do use the parent POM to set up the test classpath.
+            // Much simpler to do use the parent POM to set up the test classpath. 
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
                 addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds);
@@ -406,18 +411,25 @@ public class PluginCompatTester {
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
                 // but continue
             }
-            if (mustTransformPom) {
-                pom.transformPom(coreCoordinates);
-            }
 
+            List<String> args = new ArrayList<String>();
             args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=concurrency=1");
             args.add("hpi:resolve-test-dependencies");
             args.add("hpi:test-hpl");
             args.add("surefire:test");
-            runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
 
-            return new TestExecutionResult(pomData.getWarningMessages());
+            // Run preexecution hooks
+            Map<String, Object> forExecutionHooks = new HashMap<String, Object>();
+            forExecutionHooks.put("pluginName", plugin.name);
+            forExecutionHooks.put("args", args);
+            forExecutionHooks.put("pomData", pomData);
+            forExecutionHooks.put("pom", pom);
+            forExecutionHooks.put("coreCoordinates", coreCoordinates);
+            pcth.runBeforeExecution(forExecutionHooks);
+            runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>)forExecutionHooks.get("args")).toArray(new String[args.size()]));
+
+            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages());
         }catch(PomExecutionException e){
             PomExecutionException e2 = new PomExecutionException(e);
             e2.getPomWarningMessages().addAll(pomData.getWarningMessages());
