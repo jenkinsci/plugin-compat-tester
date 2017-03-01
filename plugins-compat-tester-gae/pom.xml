@@ -4,12 +4,12 @@
   <parent>
       <groupId>org.jenkins-ci.tests</groupId>
       <artifactId>plugins-compat-tester-aggregator</artifactId>
-      <version>0.0.2-SNAPSHOT</version>
+      <version>0.0.2</version>
   </parent>
 
   <groupId>org.jenkins-ci.tests</groupId>
   <artifactId>plugins-compat-tester-gae</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.2</version>
   <packaging>war</packaging>
   <name>Plugins compatibility tester for Google App Engine</name>
   <description>Hudson/Jenkins Plugin compatibility tester against latest released version - GAE app</description>
@@ -57,7 +57,7 @@
     <dependency>
       <groupId>org.jenkins-ci.tests</groupId>
       <artifactId>plugins-compat-tester-model</artifactId>
-      <version>0.0.2-SNAPSHOT</version>
+      <version>0.0.2</version>
     </dependency>
 
   	<dependency>
