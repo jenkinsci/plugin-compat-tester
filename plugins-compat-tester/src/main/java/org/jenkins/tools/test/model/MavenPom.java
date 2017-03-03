@@ -101,21 +101,19 @@ public class MavenPom {
         if (dependencies == null) {
             dependencies = doc.getRootElement().addElement("dependencies");
         }
-        if(coreDep != null) {
-            for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
-                Element artifactId = mavenDependency.element("artifactId");
-                if (artifactId == null || !"maven-plugin".equals(artifactId.getTextTrim())) {
-                    continue;
+        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
+            Element artifactId = mavenDependency.element("artifactId");
+            if (artifactId == null || !"maven-plugin".equals(artifactId.getTextTrim())) {
+                continue;
+            }
+            Element version = mavenDependency.element("version");
+            if (version == null || version.getTextTrim().startsWith("${")) {
+                // Prior to 1.532, plugins sometimes assumed they could pick up the Maven plugin version from their parent POM.
+                if (version != null) {
+                    mavenDependency.remove(version);
                 }
-                Element version = mavenDependency.element("version");
-                if (version == null || version.getTextTrim().startsWith("${")) {
-                    // Prior to 1.532, plugins sometimes assumed they could pick up the Maven plugin version from their parent POM.
-                    if (version != null) {
-                        mavenDependency.remove(version);
-                    }
-                    version = mavenDependency.addElement("version");
-                    version.addText(coreDep.toString());
-                }
+                version = mavenDependency.addElement("version");
+                version.addText(coreDep.toString());
             }
         }
         for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
