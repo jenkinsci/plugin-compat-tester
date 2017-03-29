@@ -40,16 +40,16 @@
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
         <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
         <script type="text/javascript">
-var latestDialog = null;
-      </script>
+            var latestDialog = null;
+        </script>
 
         <style type="text/css">
-th.pluginname{
-    width: 200px;
-}
-th.version {
-    width: 50px;
-}
+            th.pluginname {
+                width: 200px;
+            }
+            th.version {
+                width: 50px;
+            }
         </style>
     </head>
     <body>
@@ -190,7 +190,7 @@ th.version {
 		<xsl:with-param name="tests-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
 	</xsl:call-template>
     </xsl:template>
-    
+
     <xsl:template name="display-compilation-error">
 	<xsl:param name="id" />
 	<xsl:param name="compatResult" />
@@ -218,7 +218,7 @@ th.version {
 		<xsl:with-param name="tests-error"><xsl:value-of select="$compatResult/errorMessage" /></xsl:with-param>
 	</xsl:call-template>
     </xsl:template>
-    
+
     <xsl:template name="display-success">
 	<xsl:param name="id" />
 	<xsl:param name="compatResult" />
@@ -254,7 +254,7 @@ th.version {
             <xsl:with-param name="error" select="$tests-error" />
         </xsl:call-template>
     </xsl:template>
-    
+
     <xsl:template name="display-img">
         <xsl:param name="id" />
         <xsl:param name="title" />
@@ -275,9 +275,12 @@ th.version {
 	        <xsl:when test="$img='yellow.png'">
 	            <xsl:attribute name="src">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAD/UlEQVR4AcSVA5AsSRRFb2ZV2/oerG3btu0NrI3A2rZt2za/batj2Cgr90VGz3K0fhGnb7XuKRcTQuDfnP9fcMUVTB0RT6ydyxf2yBdW2yYcjkW72qdMrHS2valFtdGnniq0vyx46aFRx6y2zuFXlYauNDSVykQjIRsiMOAFYejVmlfp7uqePe3150bPm3beZZcJb9CCB2/IZ1ZcdYOn19vkmB2zKT8uhAOAAdQhhAkEGgK/BmY78LyV/Kkzvp06Z977Rx91ujZ5QAHtEr7jpvuP3njzQzdUWAWMJ8FYBPQCkEgEOgSVB36Vshtcq0Fxi5hdNpd9N/rJTU68UF+GXw3H72aDFde4br0ND1xXQZss50oGTC2AKQTPEimAJyijUizUEIS7CKsUUiNWad3kBdD0KXju7uLqa29w1MkRtayChWUBlZEkR+RJkgQYFbMwZYhQAYUquAKmTcL6q+686dsPNl3QpyCXG3HpiBHFPGADYHK3MHBKRRZCLhNgDSCzZzFVHRduatnu2D4FxaFrrQi/DRA+4UqEMCEa+1sEJhDYje88AD4QBBImKM0ykrFS6aUrWLhXQSrdMly4ZSq1CYsKNVkeeF0I/E5arsjPSAoIi9IB8zwJfJJBIBXi2Xo6vu4fBI/dlSrFw5Ektw15piCoN86WCiWVe4TcihplndIAcy0wx6Z0JXIlVR5JquEt0RgVjTnhDK1j9neGwaJOnik6gggDEwFhQ8j9j8aus2S58DRw0wS3SWLbPwsMP3B01x7zewGNEPXKoWUllR0FvY4gEBBRF6AyebaAET6VO3LNuUXlhgFGEmZZ6JmKG1STzBzfiwDobJu2gI/ae2Ohl8F8KnMciFAIQlEgRwTgrkcCB5xKWY/E9yAnUoJudHYcco4wexVUupffWjaVXYbZbiZwXYiwDaGqAOcAY/JsIbEUyN1CEnqPnjGyG3uLxj7+9rp9naaHnN353cSpr7xkJTYQSr0GpVb9hapMcEkNXNd/Ux5k18GEBd9PGbt0/sX93io+fG/mmRMXTp4T5DaSa0lF4PU6QaWaPLDytPzNxEdhrh3t+uSzL068/HKIPm92jLEYRXqf7dVVzjhxy/s2X3P71VOVH1S4VfQ6TIFT2AITly1d/uKbb11x8yPaBwDqRJV6vd4EKZCgQermi4ecusdOB+3fnI6nE1wwZi0HfBuIj4TJE2gzXeubMe+OP+/a6VeV29EGoNYD9Zq9CThFhkg2SKy5mjJyx00jm629cn7T1pY1RoQj8dDiJTPaZsxdOvmLseb334725wDQCQ2UjXKt3wcOiRSKGBEnokSYCBEK5EAQPuESNmE1yi1B85cf+oyGgoAQPw0IBkWrAgBmODtGM+C21QAAAABJRU5ErkJggg==</xsl:attribute>
 	        </xsl:when>
-	        <xsl:otherwise>
+            <xsl:when test="$img='document.png'">
+                <xsl:attribute name="src">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAABNklEQVR4XpWRMU4zQQyFP89ONvmlUMIfKQUXoKfnCtBzAG7CBTgANYoUUdFyA46BRIcSkp0ZIyE0luUKr+xm/Om9583K3yoDwOPl7CYDjSONiUKjUig/c6Jw3N6/GsDF0/laSXg9tcnbLWcGMOZPCiMNQaC31XLmLCny+30EQDlFUBxAB+gT/FtUINmjQ5Kx0VKKGZBoqdHMEngNu54BsOefN+QUgqXKCRVibIMd0A2pqXhLNA8A3gxLlghYXA9oN7FCSF3FkHClHTMA3v06oKwioGQGFxPEZRC8AnOqrYLTEDRkcKvxnBL/QyxQ1ggNjZZM8j8J6a32igd6i7Utxyvt2hxlABfXEsBXc8Dz3cs1Mi3qoox1bFkHSC2VNOVjPoz7VA/bKwPgYcOm30YYGBAqVRu++Abw8GiSNi5W4wAAAABJRU5ErkJggg==</xsl:attribute>
+            </xsl:when>
+            <xsl:when test="$img='terminal.png'">
 	            <xsl:attribute name="src">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAADyklEQVR4AbSUA4w0WRDHfz3b823v2bZt27btu+Bs246Ts23b1uJs8/O49aqup9LXmfRZlVTq5eGPqp7h/w6fPG6+7bp1fN/fFejjd0Kc4MRlKUgqOHW2Jy7fc7bnOu32TcDTAN55F57Jssss++qcc8yzZLU6KuCfhoKiqCq1ei0cHh4cAVbyusqXW2alh2q1WjA08mZ2OIE88LpZqVDxPIqa5R/tTTrJ5Mw7z4IodO65547N/Cx27SofHH6D62+4hjAMUQDVQpqSV7Xao7h0RyEIAo487BiWXHyZgYrft6tvPUdNebPV5PAT90HFrKI4VEAMWYqqorZWlZxYkXx9+aV30eo0CKOIOI77/N4eOudot9o2MA8pQEToBYaeM833raqSpilOlCgMiaMYX5wUHXepo9lsIAqqxcNCnYqB9BBrlo5O1KITtmh3WrTaDSR1hFFGEEf4ScYI2KCcS2k0WvgDo0iSBImzNKIc0NRipI1mjWa7ThSHduYVn7IJsllGcYKfpklOUCHpOmg0mGX6udl6kz14bfg5ht56hXa9iXpiQK12k3pjAqlLoIAFz5aYK5cKnU7HHPtxxpKm9kOx/tUyB+7rrxn56E2WW3xV1lhxA15661meePwevvvqKww4hy6je+ZASdKEMOwgXYIkjummOjWiRr1BfeJEbv3uKmaeZw6WX2FVVlt+XV4bfJ5P3v+QMm55Q8RwzIGo4EcZeJzENqwkThj902hmXXAuTjvmQqaYbEqeePlhTjj1IL744GNwmussl2JhDtIkxQjECMwBzokNtlZrME0n4uFn7+ORB+5lzLc/oqIFRgmxtAdirU7sK1JV/CT6xYEYexylfDLyIR+9+T4epR54lHtfdmEYIhgegB8lkbVGnNhmHDqIXC8mcy8xP3vvfQBer2q1f2A+eP3d8ldkyguCOHfgehyUVY/7YRwvv/wi5Rj9/Zje+ybACIQegnwGlYrHZJNNxpjv6pQim0Od91/9lL8Sk006qTnsJXDZoG0w+++/vynwPC8jrHSr5Z+E/X6iKCT7V2YgCOiEbfyqD+D8ThjelIHv4pwLyEMVRPhLscjOMUPXKv39/QRBv4EDtNutZoZ5k7fjrtsx95xzv7roIosuiecFIg4VGxKWarVIOyvtudTh+76pbjYbGXi7+ePonwaBNb19DtgTgFartU7Wlr1UNFCVqipZqp9lVVEfpS+rffkwBXBZ+9IsE8/Dap6hE7kWeArA22GXbSnHpx9/6gOjgAEgyGsVqBg+CJACnTxDIAISSuH9PCMTfQZaAgDebA8VxUHAhwAAAABJRU5ErkJggg==</xsl:attribute>
-	        </xsl:otherwise>
+	        </xsl:when>
 	    </xsl:choose>
 	    <xsl:attribute name="width">24</xsl:attribute>
 	    <xsl:attribute name="height">24</xsl:attribute>
