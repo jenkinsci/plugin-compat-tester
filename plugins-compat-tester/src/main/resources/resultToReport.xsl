@@ -44,7 +44,7 @@
         </script>
 
         <style type="text/css">
-            th.pluginname{
+            th.pluginname {
                 width: 200px;
             }
             th.version {
