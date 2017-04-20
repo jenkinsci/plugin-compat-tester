@@ -27,6 +27,7 @@ package org.jenkins.tools.test.model;
 
 import hudson.util.VersionNumber;
 import org.codehaus.plexus.util.FileUtils;
+import org.dom4j.io.XMLWriter;
 import org.jenkins.tools.test.exception.PomTransformationException;
 import org.springframework.core.io.ClassPathResource;
 
@@ -44,6 +45,7 @@ import java.util.Map;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 
 /**
@@ -156,13 +158,16 @@ public class MavenPom {
         toAddTest.putAll(toReplaceTest);
 
         dependencies.addComment("SYNTHETIC");
-        addPlugins(toAdd, pluginGroupIds, dependencies, "");
+        addPlugins(toAdd, pluginGroupIds, dependencies, null);
         addPlugins(toAddTest, pluginGroupIds, dependencies, "test");
 
         FileWriter w = new FileWriter(pom);
+        OutputFormat format = OutputFormat.createPrettyPrint();
+        XMLWriter writer = new XMLWriter(w, format);
         try {
-            doc.write(w);
+            writer.write(doc);
         } finally {
+            writer.close();
             w.close();
         }
     }
@@ -196,7 +201,7 @@ public class MavenPom {
             dependency.addElement("version").addText(dep.getValue().toString());
 
             // Add required scope
-            if(scope != null && !scope.isEmpty()) {
+            if(scope != null) {
                 dependency.addElement("scope").addText(scope);
             }
             excludeSecurity144Compat(dependency);
