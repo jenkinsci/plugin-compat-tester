@@ -427,7 +427,18 @@ public class PluginCompatTester {
             forExecutionHooks.put("pom", pom);
             forExecutionHooks.put("coreCoordinates", coreCoordinates);
             pcth.runBeforeExecution(forExecutionHooks);
-            runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>)forExecutionHooks.get("args")).toArray(new String[args.size()]));
+
+            try {
+                runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>)forExecutionHooks.get("args")).toArray(new String[args.size()]));
+            } catch (PomExecutionException e) {
+                boolean jthVersionUpdated = this.checkJenkinsTestHarness(buildLogFile, pom);
+
+                if (jthVersionUpdated) {
+                    runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>) forExecutionHooks.get("args")).toArray(new String[args.size()]));
+                } else {
+                    throw e;
+                }
+            }
 
             return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages());
         }catch(PomExecutionException e){
@@ -769,4 +780,18 @@ public class PluginCompatTester {
         }
         return diff;
     }
+
+    private boolean checkJenkinsTestHarness(File buildLogFile, MavenPom pom) throws IOException {
+        try (FileInputStream is = new FileInputStream(buildLogFile)) {
+            String log = IOUtils.toString(is);
+
+            if (log.contains("Failure to find org.jenkins-ci.main:jenkins-test-harness")) {
+                pom.replaceDependencyVersion("org.jenkins-ci.main", "jenkins-test-harness", "RELEASE");
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

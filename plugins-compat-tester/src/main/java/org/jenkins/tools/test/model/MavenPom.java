@@ -65,7 +65,7 @@ public class MavenPom {
 	}
 
 	public void transformPom(MavenCoordinates coreCoordinates) throws PomTransformationException{
-		File pom = new File(rootDir.getAbsolutePath()+"/"+pomFileName);
+		File pom = this.getPomFile();
 		File backupedPom = new File(rootDir.getAbsolutePath()+"/"+pomFileName+".backup");
 		try {
 			FileUtils.rename(pom, backupedPom);
@@ -90,13 +90,8 @@ public class MavenPom {
     public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, Map<String,VersionNumber> toAddTest, Map<String,VersionNumber> toReplaceTest, VersionNumber coreDep, Map<String,String> pluginGroupIds, List<String> toConvert) 
         throws IOException 
     {
-        File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
-        Document doc;
-        try {
-            doc = new SAXReader().read(pom);
-        } catch (DocumentException x) {
-            throw new IOException(x);
-        }
+        File pom = this.getPomFile();
+        Document doc = this.getDocumentFromPom(pom);
         Element dependencies = doc.getRootElement().element("dependencies");
         if (dependencies == null) {
             dependencies = doc.getRootElement().addElement("dependencies");
@@ -129,6 +124,7 @@ public class MavenPom {
             }
             
             excludeSecurity144Compat(mavenDependency);
+
             VersionNumber replacement = toReplace.get(artifactId.getTextTrim());
             if (replacement == null) {
                 replacement = toReplaceTest.get(artifactId.getTextTrim());
@@ -137,18 +133,14 @@ public class MavenPom {
                 }
                 toReplaceTest.remove(artifactId.getTextTrim());
             }
-            Element version = mavenDependency.element("version");
-            if (version != null) {
-                mavenDependency.remove(version);
-            }
-            version = mavenDependency.addElement("version");
+            this.replaceDependencyVersion(mavenDependency, replacement.toString());
+
             if (toConvert.contains(artifactId)) { // Remove the test scope
                 Element scope = mavenDependency.element("scope");
                 if (scope != null) {
                     mavenDependency.remove(scope);
                 }
             }
-            version.addText(replacement.toString());
             toReplace.remove(artifactId.getTextTrim());
         }
         // If the replacement dependencies weren't explicitly present in the pom, add them directly now
@@ -159,12 +151,7 @@ public class MavenPom {
         addPlugins(toAdd, pluginGroupIds, dependencies, "");
         addPlugins(toAddTest, pluginGroupIds, dependencies, "test");
 
-        FileWriter w = new FileWriter(pom);
-        try {
-            doc.write(w);
-        } finally {
-            w.close();
-        }
+        this.savePom(pom, doc);
     }
 
     /** JENKINS-25625 workaround. */
@@ -201,6 +188,66 @@ public class MavenPom {
             }
             excludeSecurity144Compat(dependency);
         }
+    }
+
+    private File getPomFile() {
+        return new File(rootDir.getAbsolutePath() + "/" + pomFileName);
+    }
+
+    private Document getDocumentFromPom(File pom) throws IOException {
+        try {
+            return new SAXReader().read(pom);
+        } catch (DocumentException x) {
+            throw new IOException(x);
+        }
+    }
+
+    private void savePom(File pom, Document doc) throws IOException {
+        FileWriter w = new FileWriter(pom);
+        try {
+            doc.write(w);
+        } finally {
+            w.close();
+        }
+    }
+
+    public void replaceDependencyVersion(String groupId, String artifactId, String newVersion) throws IOException {
+        File pom = this.getPomFile();
+        Document doc = this.getDocumentFromPom(pom);
+        Element dependencies = doc.getRootElement().element("dependencies");
+
+        if (dependencies == null) {
+            dependencies = doc.getRootElement().addElement("dependencies");
+        }
+
+        Element dependency = null;
+        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
+            Element depArtifactId = mavenDependency.element("artifactId");
+            Element depGroupId = mavenDependency.element("groupId");
+            if (depArtifactId != null && depGroupId == null && depArtifactId.equals(artifactId) && depGroupId.equals(groupId)) {
+                dependency = mavenDependency;
+            }
+        }
+
+        if (dependency == null) {
+            dependency = dependencies.addElement("dependency");
+            dependency.addElement("groupId").addText(groupId);
+            dependency.addElement("artifactId").addText(artifactId);
+        }
+
+        this.replaceDependencyVersion(dependency, newVersion);
+
+        this.savePom(pom, doc);
+    }
+
+    private void replaceDependencyVersion(Element mavenDependency, String newVersion) {
+        Element version = mavenDependency.element("version");
+        if (version != null) {
+            mavenDependency.remove(version);
+        }
+
+        version = mavenDependency.addElement("version");
+        version.addText(newVersion);
     }
 
 }
