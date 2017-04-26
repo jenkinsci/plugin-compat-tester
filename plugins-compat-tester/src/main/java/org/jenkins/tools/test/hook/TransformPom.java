@@ -41,7 +41,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
             // the plugin may be Java 6 and the dependencies bring Java 7
             argsToMod.add("-Denforcer.skip=true");
             info.put("args", argsToMod);
-        } else if (coreRequiresNewParentPOM && pluginPOM && parentV2) {
+        } else if (coreRequiresNewParentPOM && pluginPOM && !parentV2) {
             throw new RuntimeException("New parent POM required for core >= 1.646");
         } else {
             mustTransformPom = true;
