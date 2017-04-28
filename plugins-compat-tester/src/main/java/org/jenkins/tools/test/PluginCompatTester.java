@@ -681,10 +681,15 @@ public class PluginCompatTester {
             }
 
             List<String> convertFromTestDep = new ArrayList<String>();
-            checkDefinedDeps(pluginDeps, toAdd, toReplace, otherPlugins, new ArrayList<String>(pluginDepsTest.keySet()), convertFromTestDep);
+            checkDefinedDeps(pluginDeps, toAdd, toReplace, otherPlugins, new ArrayList<>(pluginDepsTest.keySet()), convertFromTestDep);
             pluginDepsTest.putAll(difference(pluginDepsTest, toAdd));
             pluginDepsTest.putAll(difference(pluginDepsTest, toReplace));
             checkDefinedDeps(pluginDepsTest, toAddTest, toReplaceTest, otherPlugins);
+
+            // Could contain transitive dependencies which were part of the plugin's dependencies or to be added
+            toAddTest = difference(pluginDeps, toAddTest);
+            toAddTest = difference(toAdd, toAddTest);
+
             if (!toAdd.isEmpty() || !toReplace.isEmpty() || !toAddTest.isEmpty() || !toReplaceTest.isEmpty()) {
                 System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
                 pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, convertFromTestDep);
