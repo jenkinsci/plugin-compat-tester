@@ -507,11 +507,7 @@ public class PluginCompatTester {
                             if (dependencies != null) {
                                 // e.g. matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
                                 for (String pair : dependencies.split(",")) {
-                                    boolean optional = false;
-                                    if (pair.split(";").length > 1) {
-                                        optional = true;
-                                    }
-
+                                    boolean optional = pair.contains("resolution:=optional");
                                     String[] nameVer = pair.replace(";resolution:=optional", "").split(":");
                                     assert nameVer.length == 2;
                                     dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1]).accumulate("optional", String.valueOf(optional)));
