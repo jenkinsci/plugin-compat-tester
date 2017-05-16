@@ -361,12 +361,7 @@ public class PluginCompatTester {
                 CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
                 
                 if(!result.isSuccess()){
-                    if(result.getCommandOutput().contains("error: pathspec") && result.getCommandOutput().contains("did not match any file(s) known to git.")){
-                        // Trying to look for existing branch that looks like the one we are looking for
-                        // TODO ???
-                    } else {
-                        throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
-                    }
+                    throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
                 }
 
             } else {
