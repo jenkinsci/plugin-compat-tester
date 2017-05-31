@@ -105,6 +105,9 @@ public class PluginCompatTesterConfig {
     // Classpath prefixes of the extra hooks
     private List<String> hookPrefixes = new ArrayList<String>(Arrays.asList("org.jenkins"));
 
+    // Path for a folder containing a local (possibly modified) clone of a plugin repository
+    private File localCheckoutDir;
+
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
                 workDirectory, reportFile, m2SettingsFile);
@@ -250,5 +253,13 @@ public class PluginCompatTesterConfig {
     public void setHookPrefixes(List<String> hookPrefixes) {
         // Want to also process the default
         this.hookPrefixes.addAll(hookPrefixes);
+    }
+
+    public File getLocalCheckoutDir() {
+        return localCheckoutDir;
+    }
+
+    public void setLocalCheckoutDir(String localCheckoutDir) {
+        this.localCheckoutDir = new File(localCheckoutDir);
     }
 }
