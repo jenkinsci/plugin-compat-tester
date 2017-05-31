@@ -438,7 +438,7 @@ public class PluginCompatTester {
         }
 	}
 
-	private boolean shouldUseLocalCheckout() {
+    private boolean shouldUseLocalCheckout() {
         boolean properLocalCheckoutDir = config.getLocalCheckoutDir() != null && config.getLocalCheckoutDir().exists();
         boolean onlyOnePlugin = config.getIncludePlugins() != null && config.getIncludePlugins().size() == 1;
         return properLocalCheckoutDir && onlyOnePlugin;
