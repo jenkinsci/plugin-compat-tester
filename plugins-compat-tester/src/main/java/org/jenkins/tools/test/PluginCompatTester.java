@@ -440,7 +440,8 @@ public class PluginCompatTester {
 
 	private boolean shouldUseLocalCheckout() {
         boolean properLocalCheckoutDir = config.getLocalCheckoutDir() != null && config.getLocalCheckoutDir().exists();
-        return properLocalCheckoutDir && config.getIncludePlugins().size() == 1;
+        boolean onlyOnePlugin = config.getIncludePlugins() != null && config.getIncludePlugins().size() == 1;
+        return properLocalCheckoutDir && onlyOnePlugin;
     }
 
     private UpdateSite.Data extractUpdateCenterData(){
