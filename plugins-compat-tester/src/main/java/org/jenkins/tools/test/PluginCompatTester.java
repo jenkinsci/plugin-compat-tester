@@ -353,7 +353,11 @@ public class PluginCompatTester {
                 pluginCheckoutDir.mkdir();
                 System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
 
-                if (shouldUseLocalCheckout()) {
+                if (localCheckoutProvided()) {
+                    if (!onlyOnePluginIncluded()) {
+                        throw new RuntimeException("You specified a local clone but did not choose only one plugin to execute PCT against it");
+                    }
+
                     FileUtils.copyDirectoryStructure(config.getLocalCheckoutDir(), pluginCheckoutDir);
                 } else {
                     // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
@@ -438,10 +442,12 @@ public class PluginCompatTester {
         }
 	}
 
-    private boolean shouldUseLocalCheckout() {
-        boolean properLocalCheckoutDir = config.getLocalCheckoutDir() != null && config.getLocalCheckoutDir().exists();
-        boolean onlyOnePlugin = config.getIncludePlugins() != null && config.getIncludePlugins().size() == 1;
-        return properLocalCheckoutDir && onlyOnePlugin;
+    private boolean localCheckoutProvided() {
+        return config.getLocalCheckoutDir() != null && config.getLocalCheckoutDir().exists();
+    }
+
+    private boolean onlyOnePluginIncluded() {
+        return config.getIncludePlugins() != null && config.getIncludePlugins().size() == 1;
     }
 
     private UpdateSite.Data extractUpdateCenterData(){
