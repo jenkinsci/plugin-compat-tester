@@ -58,7 +58,6 @@ import org.jenkins.tools.test.model.PluginRemoting;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.TestExecutionResult;
 import org.jenkins.tools.test.model.TestStatus;
-import org.jenkins.tools.test.model.comparators.VersionComparator;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.transform.Result;
@@ -354,16 +353,23 @@ public class PluginCompatTester {
                 pluginCheckoutDir.mkdir();
                 System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
 
-                // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
-                System.out.println("Checking out from SCM connection URL : "+pomData.getConnectionUrl()+" ("+plugin.name+"-"+plugin.version+")");
-                ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-                ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
-                CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name+"-"+plugin.version));
-                
-                if(!result.isSuccess()){
-                    throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
-                }
+                if (localCheckoutProvided()) {
+                    if (!onlyOnePluginIncluded()) {
+                        throw new RuntimeException("You specified a local clone but did not choose only one plugin to execute PCT against it");
+                    }
 
+                    FileUtils.copyDirectoryStructure(config.getLocalCheckoutDir(), pluginCheckoutDir);
+                } else {
+                    // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
+                    System.out.println("Checking out from SCM connection URL : " + pomData.getConnectionUrl() + " (" + plugin.name + "-" + plugin.version + ")");
+                    ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
+                    ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
+                    CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name + "-" + plugin.version));
+
+                    if (!result.isSuccess()) {
+                        throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
+                    }
+                }
             } else {
                 // If the plugin exists in a different directory (multimodule plugins)
                 if(beforeCheckout.get("pluginDir") != null){
@@ -435,6 +441,14 @@ public class PluginCompatTester {
             throw e2;
         }
 	}
+
+    private boolean localCheckoutProvided() {
+        return config.getLocalCheckoutDir() != null && config.getLocalCheckoutDir().exists();
+    }
+
+    private boolean onlyOnePluginIncluded() {
+        return config.getIncludePlugins() != null && config.getIncludePlugins().size() == 1;
+    }
 
     private UpdateSite.Data extractUpdateCenterData(){
 		URL url = null;

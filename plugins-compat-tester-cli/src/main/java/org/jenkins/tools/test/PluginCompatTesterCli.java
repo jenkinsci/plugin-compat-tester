@@ -108,6 +108,9 @@ public class PluginCompatTesterCli {
         if(options.getHookPrefixes() != null && !options.getHookPrefixes().isEmpty()){
             config.setHookPrefixes(Arrays.asList(options.getHookPrefixes().split(",")));
         }
+        if(options.getLocalCheckoutDir() != null && !options.getLocalCheckoutDir().isEmpty()){
+            config.setLocalCheckoutDir(options.getLocalCheckoutDir());
+        }
 
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
