@@ -515,10 +515,11 @@ public class PluginCompatTester {
                             String dependencies = manifest.getMainAttributes().getValue("Plugin-Dependencies");
                             if (dependencies != null) {
                                 // e.g. matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
-                                for (String pair : dependencies.replace(";resolution:=optional", "").split(",")) {
-                                    String[] nameVer = pair.split(":");
+                                for (String pair : dependencies.split(",")) {
+                                    boolean optional = pair.endsWith("resolution:=optional");
+                                    String[] nameVer = pair.replace(";resolution:=optional", "").split(":");
                                     assert nameVer.length == 2;
-                                    dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1])./* we do care about even optional deps here */accumulate("optional", "false"));
+                                    dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1]).accumulate("optional", String.valueOf(optional)));
                                 }
                             }
                             plugin.accumulate("dependencies", dependenciesA);
