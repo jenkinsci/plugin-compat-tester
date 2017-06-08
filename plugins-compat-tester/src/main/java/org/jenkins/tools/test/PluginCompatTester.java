@@ -357,7 +357,9 @@ public class PluginCompatTester {
                     if (!onlyOnePluginIncluded()) {
                         throw new RuntimeException("You specified a local clone but did not choose only one plugin to execute PCT against it");
                     }
-
+                    // TODO this fails when it encounters symlinks (e.g. work/jobs/…/builds/lastUnstableBuild),
+                    // and even up-to-date versions of org.apache.commons.io.FileUtils seem to not handle links,
+                    // so may need to use something like http://docs.oracle.com/javase/tutorial/displayCode.html?code=http://docs.oracle.com/javase/tutorial/essential/io/examples/Copy.java
                     FileUtils.copyDirectoryStructure(config.getLocalCheckoutDir(), pluginCheckoutDir);
                 } else {
                     // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
