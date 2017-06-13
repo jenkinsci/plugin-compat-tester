@@ -53,13 +53,13 @@ import javax.xml.xpath.XPath;
  */
 public class PluginRemoting {
 
-	private String hpiRemoteUrl;
-	private File pomFile;
+    private String hpiRemoteUrl;
+    private File pomFile;
 
-	
-	public PluginRemoting(String hpiRemoteUrl){
-		this.hpiRemoteUrl = hpiRemoteUrl;
-	}
+
+    public PluginRemoting(String hpiRemoteUrl){
+        this.hpiRemoteUrl = hpiRemoteUrl;
+    }
 
     public PluginRemoting(File pomFile){
         this.pomFile = pomFile;
