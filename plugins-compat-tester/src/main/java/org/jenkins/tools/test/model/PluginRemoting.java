@@ -56,7 +56,6 @@ public class PluginRemoting {
     private String hpiRemoteUrl;
     private File pomFile;
 
-
     public PluginRemoting(String hpiRemoteUrl){
         this.hpiRemoteUrl = hpiRemoteUrl;
     }
