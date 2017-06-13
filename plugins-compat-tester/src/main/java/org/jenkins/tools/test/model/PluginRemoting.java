@@ -25,6 +25,8 @@
  */
 package org.jenkins.tools.test.model;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.filters.StringInputStream;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.w3c.dom.Document;
@@ -37,48 +39,76 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.xml.xpath.XPath;
 
 /**
- * Utility class providing business for retrieving plugin scm data
+ * Utility class providing business for retrieving plugin POM data
  * @author Frederic Camblor
  */
 public class PluginRemoting {
 
 	private String hpiRemoteUrl;
+	private File pomFile;
+
 	
 	public PluginRemoting(String hpiRemoteUrl){
 		this.hpiRemoteUrl = hpiRemoteUrl;
 	}
+
+    public PluginRemoting(File pomFile){
+        this.pomFile = pomFile;
+    }
 	
 	private String retrievePomContent() throws PluginSourcesUnavailableException{
-		try {
-			URL pluginUrl = new URL(hpiRemoteUrl);
-			ZipInputStream zin = new ZipInputStream(pluginUrl.openStream());
-			ZipEntry zipEntry = zin.getNextEntry();
-			while(!zipEntry.getName().startsWith("META-INF/maven") || !zipEntry.getName().endsWith("pom.xml")){
-				zin.closeEntry();
-				zipEntry = zin.getNextEntry();
-			}
-			
-			StringBuilder sb = new StringBuilder();
-			byte[] buf = new byte[1024];
-			int n;
-			while ((n = zin.read(buf, 0, 1024)) > -1)
-                sb.append(new String(buf, 0, n));
-			
-			String content = sb.toString();
-			return content;
-			
-		}catch(Exception e){
-			System.err.println("Error : " + e.getMessage());
-			throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
-		}
+		if (hpiRemoteUrl != null) {
+		    return retrievePomContentFromHpi();
+        } else {
+		    return retrievePomContentFromXmlFile();
+        }
 	}
+
+    private String retrievePomContentFromHpi() throws PluginSourcesUnavailableException {
+        InputStream pluginUrlStream = null;
+        ZipInputStream zin = null;
+        try {
+            pluginUrlStream = new URL(hpiRemoteUrl).openStream();
+            zin = new ZipInputStream(pluginUrlStream);
+            ZipEntry zipEntry = zin.getNextEntry();
+            while(!zipEntry.getName().startsWith("META-INF/maven") || !zipEntry.getName().endsWith("pom.xml")){
+                zin.closeEntry();
+                zipEntry = zin.getNextEntry();
+            }
+
+            StringBuilder sb = new StringBuilder();
+            byte[] buf = new byte[1024];
+            int n;
+            while ((n = zin.read(buf, 0, 1024)) > -1)
+                sb.append(new String(buf, 0, n));
+
+            return sb.toString();
+        } catch (Exception e) {
+            System.err.println("Error : " + e.getMessage());
+            throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
+        } finally {
+            IOUtils.closeQuietly(pluginUrlStream);
+            IOUtils.closeQuietly(zin);
+        }
+    }
+
+    private String retrievePomContentFromXmlFile() throws PluginSourcesUnavailableException{
+        try {
+            return FileUtils.readFileToString(pomFile);
+        } catch(Exception e) {
+            System.err.println("Error : " + e.getMessage());
+            throw new PluginSourcesUnavailableException(String.format("Problem while retrieving pom content from file %s", pomFile), e);
+        }
+    }
 	
 	public PomData retrievePomData() throws PluginSourcesUnavailableException {
 		String scmConnection = null;

@@ -202,7 +202,12 @@ public class PluginCompatTester {
                     TestStatus status = null;
 
                     MavenCoordinates actualCoreCoordinates = coreCoordinates;
-                    PluginRemoting remote = new PluginRemoting(plugin.url);
+                    PluginRemoting remote;
+                    if (localCheckoutProvided() && onlyOnePluginIncluded()) {
+                        remote = new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"));
+                    } else {
+                        remote = new PluginRemoting(plugin.url);
+                    }
                     PomData pomData;
                     try {
                         pomData = remote.retrievePomData();
