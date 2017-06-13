@@ -65,13 +65,13 @@ public class PluginRemoting {
         this.pomFile = pomFile;
     }
 	
-	private String retrievePomContent() throws PluginSourcesUnavailableException{
-		if (hpiRemoteUrl != null) {
-		    return retrievePomContentFromHpi();
+    private String retrievePomContent() throws PluginSourcesUnavailableException{
+        if (hpiRemoteUrl != null) {
+            return retrievePomContentFromHpi();
         } else {
-		    return retrievePomContentFromXmlFile();
+            return retrievePomContentFromXmlFile();
         }
-	}
+    }
 
     private String retrievePomContentFromHpi() throws PluginSourcesUnavailableException {
         InputStream pluginUrlStream = null;
