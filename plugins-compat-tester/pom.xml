@@ -55,7 +55,7 @@
   	<dependency>
 	    <groupId>org.jenkins-ci.main</groupId>
 		<artifactId>jenkins-core</artifactId>
-	  	<version>1.404</version>
+	  	<version>1.430</version>
   	</dependency>
   	<dependency>
       <groupId>org.apache.maven.scm</groupId>
