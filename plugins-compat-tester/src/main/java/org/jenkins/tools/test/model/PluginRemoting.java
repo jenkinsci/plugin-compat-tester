@@ -73,22 +73,20 @@ public class PluginRemoting {
     }
 
     private String retrievePomContentFromHpi() throws PluginSourcesUnavailableException {
-        try (InputStream pluginUrlStream = new URL(hpiRemoteUrl).openStream()) {
-            try (ZipInputStream zin = new ZipInputStream(pluginUrlStream)) {
-                ZipEntry zipEntry = zin.getNextEntry();
-                while(!zipEntry.getName().startsWith("META-INF/maven") || !zipEntry.getName().endsWith("pom.xml")){
-                    zin.closeEntry();
-                    zipEntry = zin.getNextEntry();
-                }
-
-                StringBuilder sb = new StringBuilder();
-                byte[] buf = new byte[1024];
-                int n;
-                while ((n = zin.read(buf, 0, 1024)) > -1)
-                    sb.append(new String(buf, 0, n));
-
-                return sb.toString();
+        try (InputStream pluginUrlStream = new URL(hpiRemoteUrl).openStream(); ZipInputStream zin = new ZipInputStream(pluginUrlStream)) {
+            ZipEntry zipEntry = zin.getNextEntry();
+            while(!zipEntry.getName().startsWith("META-INF/maven") || !zipEntry.getName().endsWith("pom.xml")){
+                zin.closeEntry();
+                zipEntry = zin.getNextEntry();
             }
+
+            StringBuilder sb = new StringBuilder();
+            byte[] buf = new byte[1024];
+            int n;
+            while ((n = zin.read(buf, 0, 1024)) > -1)
+                sb.append(new String(buf, 0, n));
+
+            return sb.toString();
         } catch (Exception e) {
             System.err.println("Error : " + e.getMessage());
             throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
