@@ -36,7 +36,6 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         if ( isCB || (pluginPOM && parentV2)) {
             List<String> argsToMod = (List<String>)info.get("args");
             argsToMod.add("-Djenkins.version=" + coreCoordinates.version);
-            argsToMod.add("-Dhpi-plugin.version=1.117"); // TODO would ideally pick up exact version from org.jenkins-ci.main:pom
             // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores
             // the plugin may be Java 6 and the dependencies bring Java 7
             argsToMod.add("-Denforcer.skip=true");
