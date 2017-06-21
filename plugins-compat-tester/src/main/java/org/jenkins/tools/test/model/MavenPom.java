@@ -40,6 +40,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.dom4j.Document;
@@ -103,6 +104,7 @@ public class MavenPom {
         if (dependencies == null) {
             dependencies = doc.getRootElement().addElement("dependencies");
         }
+
         for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
             Element artifactId = mavenDependency.element("artifactId");
             if (artifactId == null || !"maven-plugin".equals(artifactId.getTextTrim())) {
@@ -118,6 +120,9 @@ public class MavenPom {
                 version.addText(coreDep.toString());
             }
         }
+
+        Map<String,VersionNumber> toReplaceUsed = new LinkedHashMap<>();
+        Map<String,VersionNumber> toReplaceTestUsed = new LinkedHashMap<>();
         for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
             Element artifactId = mavenDependency.element("artifactId");
             Element groupId = mavenDependency.element("groupId");
@@ -129,15 +134,16 @@ public class MavenPom {
             if(expectedGroupId == null || !groupId.getTextTrim().equals(expectedGroupId)) {
                 continue;
             }
-            
+
+            String trimmedArtifactId = artifactId.getTextTrim();
             excludeSecurity144Compat(mavenDependency);
-            VersionNumber replacement = toReplace.get(artifactId.getTextTrim());
+            VersionNumber replacement = toReplace.get(trimmedArtifactId);
             if (replacement == null) {
-                replacement = toReplaceTest.get(artifactId.getTextTrim());
+                replacement = toReplaceTest.get(trimmedArtifactId);
                 if (replacement == null) {
                     continue;
                 }
-                toReplaceTest.remove(artifactId.getTextTrim());
+                toReplaceTestUsed.put(trimmedArtifactId, replacement);
             }
             Element version = mavenDependency.element("version");
             if (version != null) {
@@ -151,9 +157,11 @@ public class MavenPom {
                 }
             }
             version.addText(replacement.toString());
-            toReplace.remove(artifactId.getTextTrim());
+            toReplaceUsed.put(trimmedArtifactId, replacement);
         }
         // If the replacement dependencies weren't explicitly present in the pom, add them directly now
+        toReplace.entrySet().removeAll(toReplaceUsed.entrySet());
+        toReplaceTest.entrySet().removeAll(toReplaceTestUsed.entrySet());
         toAdd.putAll(toReplace);
         toAddTest.putAll(toReplaceTest);
 
