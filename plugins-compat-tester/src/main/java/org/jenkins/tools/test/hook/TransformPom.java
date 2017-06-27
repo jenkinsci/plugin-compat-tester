@@ -25,6 +25,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         PomData pomData = (PomData)info.get("pomData");        
         MavenCoordinates parent = pomData.parent;
         MavenCoordinates coreCoordinates = (MavenCoordinates)info.get("coreCoordinates");
+        boolean isDeclarativePipeline = parent.matches("org.jenkinsci.plugins", "pipeline-model-parent");
         boolean isCB = parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
                 // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
                 parent.matches("com.cloudbees.operations-center.common", "operations-center-parent") ||
@@ -34,7 +35,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         boolean parentV2 = parent.compareVersionTo("2.0") >= 0;
         boolean coreRequiresNewParentPOM = coreCoordinates.compareVersionTo(CORE_NEW_PARENT_POM) >= 0;
 
-        if (isBO || isCB || (pluginPOM && parentV2)) {
+        if (isDeclarativePipeline || isBO || isCB || (pluginPOM && parentV2)) {
             List<String> argsToMod = (List<String>)info.get("args");
             argsToMod.add("-Djenkins.version=" + coreCoordinates.version);
             // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores
