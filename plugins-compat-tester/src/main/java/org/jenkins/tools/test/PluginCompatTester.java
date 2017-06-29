@@ -379,7 +379,7 @@ public class PluginCompatTester {
                 }
             } else {
                 // If the plugin exists in a different directory (multimodule plugins)
-                if(beforeCheckout.get("pluginDir") != null){
+                if (beforeCheckout.get("pluginDir") != null) {
                     pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
                 }
                 System.out.println("The plugin has already been checked out, likely due to a multimodule situation. Continue.");

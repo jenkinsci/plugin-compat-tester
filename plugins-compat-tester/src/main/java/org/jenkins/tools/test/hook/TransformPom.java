@@ -29,11 +29,12 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
                 // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
                 parent.matches("com.cloudbees.operations-center.common", "operations-center-parent") ||
                 parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client");
+        boolean isBO = parent.matches("io.jenkins.blueocean", "blueocean-parent");
         boolean pluginPOM = parent.matches("org.jenkins-ci.plugins", "plugin");
         boolean parentV2 = parent.compareVersionTo("2.0") >= 0;
         boolean coreRequiresNewParentPOM = coreCoordinates.compareVersionTo(CORE_NEW_PARENT_POM) >= 0;
 
-        if ( isCB || (pluginPOM && parentV2)) {
+        if (isBO || isCB || (pluginPOM && parentV2)) {
             List<String> argsToMod = (List<String>)info.get("args");
             argsToMod.add("-Djenkins.version=" + coreCoordinates.version);
             // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores
