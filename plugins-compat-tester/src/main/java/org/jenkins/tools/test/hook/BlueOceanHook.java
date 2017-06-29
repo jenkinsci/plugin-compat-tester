@@ -22,10 +22,10 @@ import java.util.Map;
  * 
  */
 public class BlueOceanHook extends PluginCompatTesterHookBeforeCheckout {
-    private String parentUrl = "scm:git:git://github.com/jenkinsci/blueocean-plugin.git";
-    private String parentName = "blueocean";
-    private String parentProjectName = "blueocean-parent";
-    private List<String> allBundlePlugins = Arrays.asList("blueocean", "blueocean-commons", "blueocean-config", "blueocean-dashboard", "blueocean-events", "blueocean-git-pipeline", "blueocean-github-pipeline", "blueocean-i18n", "blueocean-jwt", "blueocean-personalization", "blueocean-pipeline-api-impl", "blueocean-rest", "blueocean-rest-impl", "blueocean-web");
+    private static final String parentUrl = "scm:git:git://github.com/jenkinsci/blueocean-plugin.git";
+    private static final String parentName = "blueocean";
+    private static final String parentProjectName = "blueocean-parent";
+    private static final List<String> allBundlePlugins = Arrays.asList("blueocean", "blueocean-commons", "blueocean-config", "blueocean-dashboard", "blueocean-events", "blueocean-git-pipeline", "blueocean-github-pipeline", "blueocean-i18n", "blueocean-jwt", "blueocean-personalization", "blueocean-pipeline-api-impl", "blueocean-rest", "blueocean-rest-impl", "blueocean-web");
     boolean firstRun = true;
 
     public BlueOceanHook() {}
@@ -36,11 +36,6 @@ public class BlueOceanHook extends PluginCompatTesterHookBeforeCheckout {
     public List<String> transformedPlugins() {
         return allBundlePlugins;
     }
-
-    /*
-     * No check implementation is required because transformedPlugins
-     * returns the specific list.
-     */
 
     /**
      * Perform the checkout from the common repository. Since trying to work this into the PluginCompatTester
