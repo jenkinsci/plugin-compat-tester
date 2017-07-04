@@ -516,7 +516,13 @@ public class PluginCompatTester {
                             }
                             plugin.put("name", shortName);
                             pluginGroupIds.put(shortName, manifest.getMainAttributes().getValue("Group-Id"));
-                            plugin.put("version", manifest.getMainAttributes().getValue("Plugin-Version"));
+                            String version = manifest.getMainAttributes().getValue("Plugin-Version");
+                            // Remove extra build information from the version number
+                            final Matcher matcher = Pattern.compile("^(.+-SNAPSHOT)(.+)$").matcher(version);
+                            if (matcher.matches()) {
+                                version = matcher.group(1);
+                            }
+                            plugin.put("version", version);
                             plugin.put("url", "jar:" + war.toURI() + "!/" + name);
                             JSONArray dependenciesA = new JSONArray();
                             String dependencies = manifest.getMainAttributes().getValue("Plugin-Dependencies");
