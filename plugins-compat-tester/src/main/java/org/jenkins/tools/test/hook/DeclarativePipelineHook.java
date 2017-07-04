@@ -22,9 +22,11 @@ import java.util.Map;
  */
 public class DeclarativePipelineHook extends AbstractMultiParentHook {
 
+    public static final List<String> DP_PLUGINS = Arrays.asList("pipeline-model-api", "pipeline-model-definition", "pipeline-model-extensions", "pipeline-model-json-shaded", "pipeline-stage-tags-metadata");
+
     @Override
     protected List<String> getBundledPlugins() {
-        return Arrays.asList("pipeline-model-api", "pipeline-model-definition", "pipeline-model-extensions", "pipeline-model-json-shaded", "pipeline-stage-tags-metadata");
+        return DP_PLUGINS;
     }
 
     @Override
