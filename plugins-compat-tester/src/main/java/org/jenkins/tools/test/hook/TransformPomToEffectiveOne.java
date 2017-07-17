@@ -21,22 +21,11 @@ public class TransformPomToEffectiveOne extends PluginCompatTesterHookBeforeComp
 
     protected MavenRunner runner;
     protected MavenRunner.Config mavenConfig;
-
-
+    
     public TransformPomToEffectiveOne() {
         System.out.println("Loaded TransformPomToEffectiveOne");
     }
 
-    /**
-     * Check if the pom should be transformed for the given plugin.
-     */
-    /*public boolean check(Map<String, Object> info) {
-        UpdateSite.Plugin currentPlugin = (UpdateSite.Plugin)info.get("plugin");
-        boolean shouldProceed = BlueOceanHook.BO_PLUGINS.contains(currentPlugin.name) || DeclarativePipelineHook.DP_PLUGINS.contains(currentPlugin.name);
-        System.out.println("TransformPomToEffective: " + shouldProceed);
-        return shouldProceed;
-    }
-    */
     @Override
     public List<String> transformedPlugins() {
         List<String> transformedPlugins = new LinkedList<>();
