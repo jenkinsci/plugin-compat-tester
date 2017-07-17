@@ -3,6 +3,7 @@ package org.jenkins.tools.test.model.hook;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -123,24 +124,27 @@ public class PluginCompatTesterHooks {
             }
             
             for(Class c : subTypes) {
-                try {
-                    System.out.println("Hook: " + c.getName());
-                    Constructor<?> constructor = c.getConstructor();
-                    PluginCompatTesterHook hook = (PluginCompatTesterHook)constructor.newInstance();
+                // Ignore abstract hooks
+                if (!Modifier.isAbstract(c.getModifiers())) {
+                    try {
+                        System.out.println("Hook: " + c.getName());
+                        Constructor<?> constructor = c.getConstructor();
+                        PluginCompatTesterHook hook = (PluginCompatTesterHook) constructor.newInstance();
 
-                    List<String> plugins = hook.transformedPlugins();
-                    for(String plugin : plugins) {
-                        Queue<PluginCompatTesterHook> allForType = sortedHooks.get(plugin);
-                        if(allForType == null){
-                            allForType = new LinkedList<PluginCompatTesterHook>();
+                        List<String> plugins = hook.transformedPlugins();
+                        for (String plugin : plugins) {
+                            Queue<PluginCompatTesterHook> allForType = sortedHooks.get(plugin);
+                            if (allForType == null) {
+                                allForType = new LinkedList<PluginCompatTesterHook>();
+                            }
+                            allForType.add(hook);
+                            sortedHooks.put(plugin, allForType);
                         }
-                        allForType.add(hook);
-                        sortedHooks.put(plugin, allForType);
+                    } catch (Exception ex) {
+                        System.out.println("Error when loading " + c.getName());
+                        ex.printStackTrace();
+                        continue;
                     }
-                } catch (Exception ex) {
-                    System.out.println("Error when loading " + c.getName());
-                    ex.printStackTrace();
-                    continue;
                 }
             }
         }

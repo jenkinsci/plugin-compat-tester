@@ -396,6 +396,14 @@ public class PluginCompatTester {
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
         FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
+        // Ran the BeforeCompileHooks
+        Map<String, Object> beforeCompile = new HashMap<String, Object>();
+        beforeCompile.put("pluginName", plugin.name);
+        beforeCompile.put("plugin", plugin);
+        beforeCompile.put("pluginDir", pluginCheckoutDir);
+        beforeCompile.put("pomData", pomData);
+        beforeCompile.put("config", config);
+        pcth.runBeforeCompilation(beforeCompile);
         boolean ranCompile = false;
         try {
             // First build against the original POM.
@@ -434,6 +442,7 @@ public class PluginCompatTester {
             forExecutionHooks.put("pomData", pomData);
             forExecutionHooks.put("pom", pom);
             forExecutionHooks.put("coreCoordinates", coreCoordinates);
+            forExecutionHooks.put("config", config);
             pcth.runBeforeExecution(forExecutionHooks);
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>)forExecutionHooks.get("args")).toArray(new String[args.size()]));
 

@@ -32,6 +32,8 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         PluginCompatTesterConfig config = (PluginCompatTesterConfig)moreInfo.get("config");
         UpdateSite.Plugin currentPlugin = (UpdateSite.Plugin)moreInfo.get("plugin");
+
+
         // We should not execute the hook if using localCheckoutDir
         boolean shouldExecuteHook = config.getLocalCheckoutDir() == null || !config.getLocalCheckoutDir().exists();
 
@@ -61,6 +63,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
 
             // Change the "download"" directory; after download, it's simply used for reference
             File childPath = new File(config.workDirectory.getAbsolutePath() + "/" + getParentFolder() + "/" + currentPlugin.name);
+
             System.out.println("Child path for " + currentPlugin.getDisplayName() + " " + childPath);
             moreInfo.put("checkoutDir", childPath);
             moreInfo.put("pluginDir", childPath);
@@ -88,6 +91,5 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
      * Returns the parent project name, this will be used to form the checkout tag with the format parentProjectName-version
      */
     protected abstract String getParentProjectName();
-
 
 }
