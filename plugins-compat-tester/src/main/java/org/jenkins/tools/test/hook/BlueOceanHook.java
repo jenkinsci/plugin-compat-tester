@@ -23,7 +23,10 @@ import java.util.Map;
  */
 public class BlueOceanHook extends AbstractMultiParentHook {
 
-    public static final List<String> BO_PLUGINS = Arrays.asList("blueocean", "blueocean-commons", "blueocean-config", "blueocean-dashboard", "blueocean-events", "blueocean-git-pipeline", "blueocean-github-pipeline", "blueocean-i18n", "blueocean-jwt", "blueocean-personalization", "blueocean-pipeline-api-impl", "blueocean-rest", "blueocean-rest-impl", "blueocean-web");
+    public static final List<String> BO_PLUGINS = Arrays.asList("blueocean", "blueocean-commons",
+            "blueocean-config", "blueocean-dashboard", "blueocean-events", "blueocean-git-pipeline", "blueocean-github-pipeline",
+            "blueocean-i18n", "blueocean-jwt", "blueocean-personalization", "blueocean-pipeline-api-impl", "blueocean-rest",
+            "blueocean-rest-impl", "blueocean-web", "blueocean-pipeline-scm-api");
 
     @Override
     protected List<String> getBundledPlugins() {
