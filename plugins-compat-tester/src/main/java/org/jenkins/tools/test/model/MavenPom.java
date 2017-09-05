@@ -29,14 +29,6 @@ import hudson.util.VersionNumber;
 import org.codehaus.plexus.util.FileUtils;
 import org.dom4j.io.XMLWriter;
 import org.jenkins.tools.test.exception.PomTransformationException;
-import org.springframework.core.io.ClassPathResource;
-
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -54,6 +46,10 @@ import org.dom4j.io.SAXReader;
  * @author Frederic Camblor
  */
 public class MavenPom {
+
+    private final static String GROUP_ID_ELEMENT = "groupId";
+    private final static String ARTIFACT_ID_ELEMENT = "artifactId";
+    private final static String VERSION_ELEMENT = "version";
 
 	private File rootDir;
 	private String pomFileName;
@@ -73,21 +69,35 @@ public class MavenPom {
 		try {
 			FileUtils.rename(pom, backupedPom);
 
-			Source xmlSource = new StreamSource(backupedPom);
-            // TODO switch to DOM4J for simplicity and consistency
-			Source xsltSource = new StreamSource(new ClassPathResource("mavenParentReplacer.xsl").getInputStream());
-			Result result = new StreamResult(pom);
-			
-			TransformerFactory factory = TransformerFactory.newInstance();
-			Transformer transformer = factory.newTransformer(xsltSource);
-			transformer.setParameter("parentArtifactId", coreCoordinates.artifactId);
-			transformer.setParameter("parentGroupId", coreCoordinates.groupId);
-			transformer.setParameter("parentVersion", coreCoordinates.version);
-			transformer.transform(xmlSource, result);
+            Document doc;
+            try {
+                doc = new SAXReader().read(backupedPom);
+            } catch (DocumentException x) {
+                throw new IOException(x);
+            }
+
+            Element parent = doc.getRootElement().element("parent");
+            if (parent != null) {
+                Element groupIdElem = parent.element(GROUP_ID_ELEMENT);
+                if (groupIdElem != null) {
+                    groupIdElem.setText(coreCoordinates.groupId);
+                }
+
+                Element artifactIdElem = parent.element(ARTIFACT_ID_ELEMENT);
+                if (artifactIdElem != null) {
+                    artifactIdElem.setText(coreCoordinates.artifactId);
+                }
+
+                Element versionIdElem = parent.element(VERSION_ELEMENT);
+                if (versionIdElem != null) {
+                    versionIdElem.setText(coreCoordinates.version);
+                }
+            }
+
+            writeDocument(pom, doc);
 		} catch (Exception e) {
 			throw new PomTransformationException("Error while transforming pom : "+pom.getAbsolutePath(), e);
 		}
-		
 	}
 
     public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, Map<String,VersionNumber> toAddTest, Map<String,VersionNumber> toReplaceTest, VersionNumber coreDep, Map<String,String> pluginGroupIds, List<String> toConvert) 
@@ -106,17 +116,17 @@ public class MavenPom {
         }
 
         for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
-            Element artifactId = mavenDependency.element("artifactId");
+            Element artifactId = mavenDependency.element(ARTIFACT_ID_ELEMENT);
             if (artifactId == null || !"maven-plugin".equals(artifactId.getTextTrim())) {
                 continue;
             }
-            Element version = mavenDependency.element("version");
+            Element version = mavenDependency.element(VERSION_ELEMENT);
             if (version == null || version.getTextTrim().startsWith("${")) {
                 // Prior to 1.532, plugins sometimes assumed they could pick up the Maven plugin version from their parent POM.
                 if (version != null) {
                     mavenDependency.remove(version);
                 }
-                version = mavenDependency.addElement("version");
+                version = mavenDependency.addElement(VERSION_ELEMENT);
                 version.addText(coreDep.toString());
             }
         }
@@ -124,8 +134,8 @@ public class MavenPom {
         Map<String,VersionNumber> toReplaceUsed = new LinkedHashMap<>();
         Map<String,VersionNumber> toReplaceTestUsed = new LinkedHashMap<>();
         for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
-            Element artifactId = mavenDependency.element("artifactId");
-            Element groupId = mavenDependency.element("groupId");
+            Element artifactId = mavenDependency.element(ARTIFACT_ID_ELEMENT);
+            Element groupId = mavenDependency.element(GROUP_ID_ELEMENT);
             if (artifactId == null || groupId == null) {
                 continue;
             }
@@ -145,11 +155,11 @@ public class MavenPom {
                 }
                 toReplaceTestUsed.put(trimmedArtifactId, replacement);
             }
-            Element version = mavenDependency.element("version");
+            Element version = mavenDependency.element(VERSION_ELEMENT);
             if (version != null) {
                 mavenDependency.remove(version);
             }
-            version = mavenDependency.addElement("version");
+            version = mavenDependency.addElement(VERSION_ELEMENT);
             if (toConvert.contains(artifactId)) { // Remove the test scope
                 Element scope = mavenDependency.element("scope");
                 if (scope != null) {
@@ -169,15 +179,7 @@ public class MavenPom {
         addPlugins(toAdd, pluginGroupIds, dependencies, null);
         addPlugins(toAddTest, pluginGroupIds, dependencies, "test");
 
-        FileWriter w = new FileWriter(pom);
-        OutputFormat format = OutputFormat.createPrettyPrint();
-        XMLWriter writer = new XMLWriter(w, format);
-        try {
-            writer.write(doc);
-        } finally {
-            writer.close();
-            w.close();
-        }
+        writeDocument(pom, doc);
     }
 
     /** JENKINS-25625 workaround. */
@@ -187,8 +189,8 @@ public class MavenPom {
             exclusions = dependency.addElement("exclusions");
         }
         Element exclusion = exclusions.addElement("exclusion");
-        exclusion.addElement("groupId").addText("org.jenkins-ci");
-        exclusion.addElement("artifactId").addText("SECURITY-144-compat");
+        exclusion.addElement(GROUP_ID_ELEMENT).addText("org.jenkins-ci");
+        exclusion.addElement(ARTIFACT_ID_ELEMENT).addText("SECURITY-144-compat");
     }
 
     /**
@@ -201,18 +203,30 @@ public class MavenPom {
 
             // Handle cases where plugin isn't under default groupId
             if (group != null && !group.isEmpty()) {
-                dependency.addElement("groupId").addText(group);
+                dependency.addElement(GROUP_ID_ELEMENT).addText(group);
             } else {
-                dependency.addElement("groupId").addText("org.jenkins-ci.plugins");
+                dependency.addElement(GROUP_ID_ELEMENT).addText("org.jenkins-ci.plugins");
             }
-            dependency.addElement("artifactId").addText(dep.getKey());
-            dependency.addElement("version").addText(dep.getValue().toString());
+            dependency.addElement(ARTIFACT_ID_ELEMENT).addText(dep.getKey());
+            dependency.addElement(VERSION_ELEMENT).addText(dep.getValue().toString());
 
             // Add required scope
             if(scope != null) {
                 dependency.addElement("scope").addText(scope);
             }
             excludeSecurity144Compat(dependency);
+        }
+    }
+
+    private void writeDocument(final File target, final Document doc) throws IOException {
+        FileWriter w = new FileWriter(target);
+        OutputFormat format = OutputFormat.createPrettyPrint();
+        XMLWriter writer = new XMLWriter(w, format);
+        try {
+            writer.write(doc);
+        } finally {
+            writer.close();
+            w.close();
         }
     }
 
