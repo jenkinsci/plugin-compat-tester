@@ -6,6 +6,7 @@ import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
+import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 
@@ -43,12 +44,13 @@ public class TransformPomToEffectiveOne extends PluginCompatTesterHookBeforeComp
         try {
             System.out.println("Executing tarnsformtoeffective hook");
             PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
+            MavenCoordinates core = (MavenCoordinates) moreInfo.get("core");
 
             runner = config.getExternalMaven() == null ? new InternalMavenRunner() : new ExternalMavenRunner(config.getExternalMaven());
             mavenConfig = getMavenConfig(config);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
-            generateEffectivePom(mavenConfig, pluginDir);
+            generateEffectivePom(mavenConfig, pluginDir, core);
             System.out.println("Executed transform hook");
             return moreInfo;
             // Exceptions get swallowed, so we print to console here and rethrow again
@@ -87,9 +89,9 @@ public class TransformPomToEffectiveOne extends PluginCompatTesterHookBeforeComp
         return mconfig;
     }
 
-    private void generateEffectivePom(MavenRunner.Config mavenConfig, File path) throws PomExecutionException {
+    private void generateEffectivePom(MavenRunner.Config mavenConfig, File path, MavenCoordinates core) throws PomExecutionException {
         System.out.println("Generating effective pom in " + path);
         File effectivePomLogfile = new File(path + "/effectivePomTransformationLog.log");
-        runner.run(mavenConfig, path, effectivePomLogfile, "help:effective-pom", "-Doutput=pom.xml");
+        runner.run(mavenConfig, path, effectivePomLogfile, "help:effective-pom", "-Doutput=pom.xml", "-Djenkins.version=" + core.version);
     }
 }

@@ -403,6 +403,7 @@ public class PluginCompatTester {
         beforeCompile.put("pluginDir", pluginCheckoutDir);
         beforeCompile.put("pomData", pomData);
         beforeCompile.put("config", config);
+        beforeCompile.put("core", coreCoordinates);
         pcth.runBeforeCompilation(beforeCompile);
         boolean ranCompile = false;
         try {
