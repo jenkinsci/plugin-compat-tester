@@ -52,6 +52,7 @@ import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginCompatReport;
 import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.model.PluginInfos;
 import org.jenkins.tools.test.model.PluginRemoting;
@@ -404,14 +405,17 @@ public class PluginCompatTester {
         beforeCompile.put("pomData", pomData);
         beforeCompile.put("config", config);
         beforeCompile.put("core", coreCoordinates);
-        pcth.runBeforeCompilation(beforeCompile);
-        boolean ranCompile = false;
+        Map<String, Object> hookInfo = pcth.runBeforeCompilation(beforeCompile);
+
+        boolean ranCompile = hookInfo.containsKey(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) ? (boolean) hookInfo.get(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) : false;
         try {
             // First build against the original POM.
             // This defends against source incompatibilities (which we do not care about for this purpose);
             // and ensures that we are testing a plugin binary as close as possible to what was actually released.
             // We also skip potential javadoc execution to avoid general test failure.
-            runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+            if (!ranCompile) {
+                runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+            }
             ranCompile = true;
 
             // Then transform the POM and run tests against that.

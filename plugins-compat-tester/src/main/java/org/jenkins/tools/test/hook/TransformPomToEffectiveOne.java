@@ -50,7 +50,14 @@ public class TransformPomToEffectiveOne extends PluginCompatTesterHookBeforeComp
             mavenConfig = getMavenConfig(config);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
+
+            // We need to compile before generating effective pom overriding jenkins.version
+            compile(mavenConfig, pluginDir);
+            moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
+
+            // Now we can generate effective pom
             generateEffectivePom(mavenConfig, pluginDir, core);
+            
             System.out.println("Executed transform hook");
             return moreInfo;
             // Exceptions get swallowed, so we print to console here and rethrow again
@@ -93,5 +100,11 @@ public class TransformPomToEffectiveOne extends PluginCompatTesterHookBeforeComp
         System.out.println("Generating effective pom in " + path);
         File effectivePomLogfile = new File(path + "/effectivePomTransformationLog.log");
         runner.run(mavenConfig, path, effectivePomLogfile, "help:effective-pom", "-Doutput=pom.xml", "-Djenkins.version=" + core.version);
+    }
+
+    private void compile(MavenRunner.Config mavenConfig, File path) throws PomExecutionException {
+        System.out.println("Compile plugin log in " + path);
+        File compilePomLogfile = new File(path + "/compilePluginLog.log");
+        runner.run(mavenConfig, path, compilePomLogfile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
     }
 }
