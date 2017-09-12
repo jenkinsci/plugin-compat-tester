@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.hook;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
@@ -18,12 +19,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class TransformPomToEffectiveOne extends PluginCompatTesterHookBeforeCompile {
+public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
 
     protected MavenRunner runner;
     protected MavenRunner.Config mavenConfig;
     
-    public TransformPomToEffectiveOne() {
+    public BOAndDPCompileHook() {
         System.out.println("Loaded TransformPomToEffectiveOne");
     }
 
@@ -42,7 +43,7 @@ public class TransformPomToEffectiveOne extends PluginCompatTesterHookBeforeComp
 
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         try {
-            System.out.println("Executing tarnsformtoeffective hook");
+            System.out.println("Executing BO and DO compile hook");
             PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
             MavenCoordinates core = (MavenCoordinates) moreInfo.get("core");
 
@@ -52,13 +53,17 @@ public class TransformPomToEffectiveOne extends PluginCompatTesterHookBeforeComp
             File pluginDir = (File) moreInfo.get("pluginDir");
 
             // We need to compile before generating effective pom overriding jenkins.version
-            compile(mavenConfig, pluginDir);
-            moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
+            // only if the plugin is not already compiled
+            boolean ranCompile = moreInfo.containsKey(OVERRIDE_DEFAULT_COMPILE) ? (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE) : false;
+            if (!ranCompile) {
+                compile(mavenConfig, pluginDir);
+                moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
+            }
 
             // Now we can generate effective pom
             generateEffectivePom(mavenConfig, pluginDir, core);
-            
-            System.out.println("Executed transform hook");
+
+            System.out.println("Executed BO and DP compile hook");
             return moreInfo;
             // Exceptions get swallowed, so we print to console here and rethrow again
         } catch (Exception e) {
@@ -102,9 +107,22 @@ public class TransformPomToEffectiveOne extends PluginCompatTesterHookBeforeComp
         runner.run(mavenConfig, path, effectivePomLogfile, "help:effective-pom", "-Doutput=pom.xml", "-Djenkins.version=" + core.version);
     }
 
-    private void compile(MavenRunner.Config mavenConfig, File path) throws PomExecutionException {
+    private void compile(MavenRunner.Config mavenConfig, File path) throws PomExecutionException, IOException {
+        System.out.println("Cleaning up node modules if neccessary");
+        removeNodeFolders(path);
         System.out.println("Compile plugin log in " + path);
         File compilePomLogfile = new File(path + "/compilePluginLog.log");
         runner.run(mavenConfig, path, compilePomLogfile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+    }
+
+    private void removeNodeFolders(File path) throws PomExecutionException, IOException {
+        File nodeFolder = new File(path, "node");
+        if (nodeFolder.exists() && nodeFolder.isDirectory()) {
+            FileUtils.deleteDirectory(nodeFolder);
+        }
+        File nodeModulesFolder = new File(path, "node_modules");
+        if (nodeModulesFolder.exists() && nodeModulesFolder.isDirectory()) {
+            FileUtils.deleteDirectory(nodeModulesFolder);
+        }
     }
 }
