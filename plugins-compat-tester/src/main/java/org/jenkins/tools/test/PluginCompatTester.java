@@ -674,7 +674,6 @@ public class PluginCompatTester {
                 "matrix-project:1.561.*:1.0",
                 "junit:1.577.*:1.0",
                 "bouncycastle-api:2.16.*:2.16.0",
-                "command-launcher:2.86.*:1.0",
             };
             // Synchronize with ClassicPluginStrategy.BREAK_CYCLES:
             String[] exceptions = {
@@ -682,8 +681,6 @@ public class PluginCompatTester {
                 "script-security/windows-slaves",
                 "script-security/antisamy-markup-formatter",
                 "script-security/matrix-project",
-                "script-security/bouncycastle-api",
-                "script-security/command-launcher",
                 "credentials/matrix-auth",
                 "credentials/windows-slaves"
             };
