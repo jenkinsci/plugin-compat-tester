@@ -2,9 +2,8 @@ Generate a compatibility matrix for plugins against Jenkins core.
 
 See https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Compatibility+Tester for background.
 
-To do:
+To do (refile in `plugin-compat-tester` in JIRA!):
 
-1. enable Issues in this GitHub repo so we can track these to-do items more sanely (prefer not to use JIRA for non-plugins)
 1. `InternalMavenRunner` currently still seems to run `install` goal which is very undesirable on release tags
 1. should run `surefire-report:report` goal instead (or `surefire-report:report-only` after) and display link to HTML results from index page
 1. Export *everything* to GAE, dropping the data storing in XML files (which pollutes the filesystem and can be easily delete if we are careless) and processing with XSL. (migration already started to GAE datastorage, but not completely finished, especially on build logs). (jglick: this is undesirable, need to be able to review local results without uploading them)
