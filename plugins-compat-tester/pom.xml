@@ -43,6 +43,11 @@
   
   <dependencies>
     <dependency>
+      <groupId>org.jenkins-ci</groupId>
+      <artifactId>version-number</artifactId>
+      <version>1.4</version>
+    </dependency>
+    <dependency>
       <groupId>org.jenkins-ci.tests</groupId>
       <artifactId>plugins-compat-tester-model</artifactId>
       <version>0.0.3-SNAPSHOT</version>
