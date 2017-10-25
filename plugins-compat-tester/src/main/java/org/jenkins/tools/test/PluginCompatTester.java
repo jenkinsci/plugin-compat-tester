@@ -426,7 +426,7 @@ public class PluginCompatTester {
             // Much simpler to do use the parent POM to set up the test classpath. 
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
-                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds);
+                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version);
             } catch (Exception x) {
                 x.printStackTrace();
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
@@ -586,7 +586,7 @@ public class PluginCompatTester {
         }
     }
 
-    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds) throws PomExecutionException, IOException {
+    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
@@ -674,6 +674,7 @@ public class PluginCompatTester {
                 "matrix-project:1.561.*:1.0",
                 "junit:1.577.*:1.0",
                 "bouncycastle-api:2.16.*:2.16.0",
+                "command-launcher:2.86.*:1.0",
             };
             // Synchronize with ClassicPluginStrategy.BREAK_CYCLES:
             String[] exceptions = {
@@ -681,6 +682,8 @@ public class PluginCompatTester {
                 "script-security/windows-slaves",
                 "script-security/antisamy-markup-formatter",
                 "script-security/matrix-project",
+                "script-security/bouncycastle-api",
+                "script-security/command-launcher",
                 "credentials/matrix-auth",
                 "credentials/windows-slaves"
             };
@@ -695,10 +698,9 @@ public class PluginCompatTester {
                     System.out.println("Skipping implicit dep " + thisPlugin + " → " + plugin);
                     continue;
                 }
-                VersionNumber splitPoint = new VersionNumber(pieces[1]);
+                VersionNumber splitPoint = new VersionNumber(pieces[1].replace(".*", ""));
                 VersionNumber declaredMinimum = new VersionNumber(pieces[2]);
-                // TODO this should only happen if the tested core version is ≥ splitPoint
-                if (coreDep.compareTo(splitPoint) <= 0 && !pluginDeps.containsKey(plugin)) {
+                if (coreDep.compareTo(splitPoint) < 0 && new VersionNumber(coreVersion).compareTo(splitPoint) >=0 && !pluginDeps.containsKey(plugin)) {
                     Plugin bundledP = otherPlugins.get(plugin);
                     if (bundledP != null) {
                         VersionNumber bundledV;
