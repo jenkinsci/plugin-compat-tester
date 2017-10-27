@@ -76,6 +76,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -109,6 +110,9 @@ public class PluginCompatTester {
     private PluginCompatTesterConfig config;
     private final MavenRunner runner;
 	
+    private String[] splits;
+    private String[] splitCycles;
+
 	public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
         runner = config.getExternalMaven() == null ? new InternalMavenRunner() : new ExternalMavenRunner(config.getExternalMaven());
@@ -142,6 +146,15 @@ public class PluginCompatTester {
 	public PluginCompatReport testPlugins()
         throws PlexusContainerException, IOException, MavenEmbedderException
     {
+        File war = config.getWar();
+        if (war != null) {
+            populateSplits(war);
+        } else {
+            // TODO find a way to load the local version of jenkins.war acc. to UC metadata
+            splits = HISTORICAL_SPLITS;
+            splitCycles = HISTORICAL_SPLIT_CYCLES;
+        }
+
         PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(config.getHookPrefixes());
         // Providing XSL Stylesheet along xml report file
         if(config.reportFile != null){
@@ -426,7 +439,7 @@ public class PluginCompatTester {
             // Much simpler to do use the parent POM to set up the test classpath. 
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
-                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds);
+                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version);
             } catch (Exception x) {
                 x.printStackTrace();
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
@@ -586,7 +599,7 @@ public class PluginCompatTester {
         }
     }
 
-    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds) throws PomExecutionException, IOException {
+    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
@@ -657,48 +670,20 @@ public class PluginCompatTester {
         }
         System.out.println("Analysis: coreDep=" + coreDep + " pluginDeps=" + pluginDeps + " pluginDepsTest=" + pluginDepsTest);
         if (coreDep != null) {
-            // Synchronize with ClassicPluginStrategy.DETACHED_LIST:
-            String[] splits = {
-                "maven-plugin:1.296:1.296",
-                "subversion:1.310:1.0",
-                "cvs:1.340:0.1",
-                "ant:1.430.*:1.0",
-                "javadoc:1.430.*:1.0",
-                "external-monitor-job:1.467.*:1.0",
-                "ldap:1.467.*:1.0",
-                "pam-auth:1.467.*:1.0",
-                "mailer:1.493.*:1.2",
-                "matrix-auth:1.535.*:1.0.2",
-                "windows-slaves:1.547.*:1.0",
-                "antisamy-markup-formatter:1.553.*:1.0",
-                "matrix-project:1.561.*:1.0",
-                "junit:1.577.*:1.0",
-                "bouncycastle-api:2.16.*:2.16.0",
-            };
-            // Synchronize with ClassicPluginStrategy.BREAK_CYCLES:
-            String[] exceptions = {
-                "script-security/matrix-auth",
-                "script-security/windows-slaves",
-                "script-security/antisamy-markup-formatter",
-                "script-security/matrix-project",
-                "credentials/matrix-auth",
-                "credentials/windows-slaves"
-            };
             Map<String,VersionNumber> toAdd = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toReplace = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toAddTest = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toReplaceTest = new HashMap<String,VersionNumber>();
             for (String split : splits) {
-                String[] pieces = split.split(":");
+                String[] pieces = split.split(" ");
                 String plugin = pieces[0];
-                if (Arrays.asList(exceptions).contains(thisPlugin + "/" + plugin)) {
+                if (Arrays.asList(splitCycles).contains(thisPlugin + ' ' + plugin)) {
                     System.out.println("Skipping implicit dep " + thisPlugin + " → " + plugin);
                     continue;
                 }
                 VersionNumber splitPoint = new VersionNumber(pieces[1]);
                 VersionNumber declaredMinimum = new VersionNumber(pieces[2]);
-                // TODO this should only happen if the tested core version is ≥ splitPoint
-                if (coreDep.compareTo(splitPoint) <= 0 && !pluginDeps.containsKey(plugin)) {
+                if (coreDep.compareTo(splitPoint) < 0 && new VersionNumber(coreVersion).compareTo(splitPoint) >=0 && !pluginDeps.containsKey(plugin)) {
                     Plugin bundledP = otherPlugins.get(plugin);
                     if (bundledP != null) {
                         VersionNumber bundledV;
@@ -794,6 +779,74 @@ public class PluginCompatTester {
             }
         }
     }
+
+    /** Use JENKINS-47634 to load metadata from jenkins-core.jar if available. */
+    private void populateSplits(File war) throws IOException {
+        System.out.println("Checking " + war + " for plugin split metadata…");
+        try (JarFile jf = new JarFile(war, false)) {
+            Enumeration<JarEntry> warEntries = jf.entries();
+            while (warEntries.hasMoreElements()) {
+                JarEntry coreJar = warEntries.nextElement();
+                if (coreJar.getName().matches("WEB-INF/lib/jenkins-core-.+[.]jar")) {
+                    try (InputStream is = jf.getInputStream(coreJar);
+                         JarInputStream jis = new JarInputStream(is, false)) {
+                        JarEntry entry;
+                        int found = 0;
+                        while ((entry = jis.getNextJarEntry()) != null) {
+                            if (entry.getName().equals("jenkins/split-plugins.txt")) {
+                                List<String> lines = IOUtils.readLines(jis, StandardCharsets.UTF_8);
+                                System.out.println("found splits: " + lines);
+                                splits = lines.toArray(new String[lines.size()]);
+                                found++;
+                            } else if (entry.getName().equals("jenkins/split-plugin-cycles.txt")) {
+                                List<String> lines = IOUtils.readLines(jis, StandardCharsets.UTF_8);
+                                System.out.println("found split cycles: " + lines);
+                                splitCycles = lines.toArray(new String[lines.size()]);
+                                found++;
+                            }
+                        }
+                        if (found == 0) {
+                            System.out.println("None found, falling back to hard-coded historical values.");
+                            splits = HISTORICAL_SPLITS;
+                            splitCycles = HISTORICAL_SPLIT_CYCLES;
+                        } else if (found != 2) {
+                            throw new IOException("unexpected amount of metadata");
+                        }
+                    }
+                    return;
+                }
+            }
+        }
+        throw new IOException("no jenkins-core-*.jar found in " + war);
+    }
+    private static final String[] HISTORICAL_SPLITS = {
+        "maven-plugin 1.296 1.296",
+        "subversion 1.310 1.0",
+        "cvs 1.340 0.1",
+        "ant 1.430 1.0",
+        "javadoc 1.430 1.0",
+        "external-monitor-job 1.467 1.0",
+        "ldap 1.467 1.0",
+        "pam-auth 1.467 1.0",
+        "mailer 1.493 1.2",
+        "matrix-auth 1.535 1.0.2",
+        "windows-slaves 1.547 1.0",
+        "antisamy-markup-formatter 1.553 1.0",
+        "matrix-project 1.561 1.0",
+        "junit 1.577 1.0",
+        "bouncycastle-api 2.16 2.16.0",
+        "command-launcher 2.86 1.0",
+    };
+    private static final String[] HISTORICAL_SPLIT_CYCLES = {
+        "script-security matrix-auth",
+        "script-security windows-slaves",
+        "script-security antisamy-markup-formatter",
+        "script-security matrix-project",
+        "script-security bouncycastle-api",
+        "script-security command-launcher",
+        "credentials matrix-auth",
+        "credentials windows-slaves"
+    };
 
     /**
      * Finds the difference of the given maps.
