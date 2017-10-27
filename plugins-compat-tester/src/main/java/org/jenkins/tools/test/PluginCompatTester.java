@@ -25,6 +25,8 @@
  */
 package org.jenkins.tools.test;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import hudson.Functions;
 import hudson.maven.MavenEmbedderException;
 import hudson.model.UpdateSite;
@@ -78,12 +80,12 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
@@ -92,6 +94,8 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
@@ -110,8 +114,8 @@ public class PluginCompatTester {
     private PluginCompatTesterConfig config;
     private final MavenRunner runner;
 	
-    private String[] splits;
-    private String[] splitCycles;
+    private List<String> splits;
+    private Set<String> splitCycles;
 
 	public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
@@ -677,7 +681,7 @@ public class PluginCompatTester {
             for (String split : splits) {
                 String[] pieces = split.split(" ");
                 String plugin = pieces[0];
-                if (Arrays.asList(splitCycles).contains(thisPlugin + ' ' + plugin)) {
+                if (splitCycles.contains(thisPlugin + ' ' + plugin)) {
                     System.out.println("Skipping implicit dep " + thisPlugin + " → " + plugin);
                     continue;
                 }
@@ -794,14 +798,12 @@ public class PluginCompatTester {
                         int found = 0;
                         while ((entry = jis.getNextJarEntry()) != null) {
                             if (entry.getName().equals("jenkins/split-plugins.txt")) {
-                                List<String> lines = IOUtils.readLines(jis, StandardCharsets.UTF_8);
-                                System.out.println("found splits: " + lines);
-                                splits = lines.toArray(new String[lines.size()]);
+                                splits = configLines(jis).collect(Collectors.toList());
+                                System.out.println("found splits: " + splits);
                                 found++;
                             } else if (entry.getName().equals("jenkins/split-plugin-cycles.txt")) {
-                                List<String> lines = IOUtils.readLines(jis, StandardCharsets.UTF_8);
-                                System.out.println("found split cycles: " + lines);
-                                splitCycles = lines.toArray(new String[lines.size()]);
+                                splitCycles = configLines(jis).collect(Collectors.toSet());
+                                System.out.println("found split cycles: " + splitCycles);
                                 found++;
                             }
                         }
@@ -819,7 +821,11 @@ public class PluginCompatTester {
         }
         throw new IOException("no jenkins-core-*.jar found in " + war);
     }
-    private static final String[] HISTORICAL_SPLITS = {
+    // Matches syntax in ClassicPluginStrategy:
+    private static Stream<String> configLines(InputStream is) throws IOException {
+        return IOUtils.readLines(is, StandardCharsets.UTF_8).stream().filter(line -> !line.matches("#.*|\\s*"));
+    }
+    private static final List<String> HISTORICAL_SPLITS = ImmutableList.of(
         "maven-plugin 1.296 1.296",
         "subversion 1.310 1.0",
         "cvs 1.340 0.1",
@@ -835,9 +841,9 @@ public class PluginCompatTester {
         "matrix-project 1.561 1.0",
         "junit 1.577 1.0",
         "bouncycastle-api 2.16 2.16.0",
-        "command-launcher 2.86 1.0",
-    };
-    private static final String[] HISTORICAL_SPLIT_CYCLES = {
+        "command-launcher 2.86 1.0"
+    );
+    private static final Set<String> HISTORICAL_SPLIT_CYCLES = ImmutableSet.of(
         "script-security matrix-auth",
         "script-security windows-slaves",
         "script-security antisamy-markup-formatter",
@@ -846,7 +852,7 @@ public class PluginCompatTester {
         "script-security command-launcher",
         "credentials matrix-auth",
         "credentials windows-slaves"
-    };
+    );
 
     /**
      * Finds the difference of the given maps.
