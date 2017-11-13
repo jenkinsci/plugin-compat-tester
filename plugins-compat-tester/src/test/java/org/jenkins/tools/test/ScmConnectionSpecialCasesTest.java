@@ -109,30 +109,6 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldGithubBeAccessedWithGitProtocol() throws Throwable{
-        runComputeScmConnectionAgainst(
-                "scm:git:ssh://github.com/jenkinsci/artifactory-plugin.git", // ssh protocol requiring ssh host key
-                "",
-                "scm:git:git://github.com/jenkinsci/artifactory-plugin.git"
-        );
-        runComputeScmConnectionAgainst(
-                "scm:git:http://github.com/jenkinsci/artifactory-plugin.git", // ssh protocol requiring ssh host key
-                "",
-                "scm:git:git://github.com/jenkinsci/artifactory-plugin.git"
-        );
-        runComputeScmConnectionAgainst(
-                "scm:git:https://github.com/jenkinsci/cifs-plugin.git", // ssh protocol requiring ssh host key
-                "",
-                "scm:git:git://github.com/jenkinsci/cifs-plugin.git"
-        );
-        runComputeScmConnectionAgainst(
-                "scm:git:git://git@github.com:jenkinsci/dockerhub-notification-plugin.git", // ssh url with git protocol
-                "",
-                "scm:git:git://github.com/jenkinsci/dockerhub-notification-plugin.git"
-        );
-    }
-
-    @Test
     public void shouldGitHudsonRepoBeMigratedToJenkinsCI() throws Throwable{
         runComputeScmConnectionAgainst(
                 "scm:git:git://github.com/hudson/hudson-clearcase-plugin.git", // hudson repository
@@ -147,7 +123,7 @@ public class ScmConnectionSpecialCasesTest {
         runComputeScmConnectionAgainst(
                 "\n   scm:git:https://github.com/jenkinsci/cifs-plugin.git  \n   ", // ssh protocol requiring ssh host key
                 "",
-                "scm:git:git://github.com/jenkinsci/cifs-plugin.git"
+                "scm:git:https://github.com/jenkinsci/cifs-plugin.git"
         );
     }
 
