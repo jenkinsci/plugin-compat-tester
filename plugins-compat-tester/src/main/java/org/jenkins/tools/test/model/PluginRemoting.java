@@ -192,12 +192,6 @@ public class PluginRemoting {
         }
 
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("((ssh)|(http(s)?))://github\\.com", "git://github.com");
-        if(!oldUrl.equals(transformedConnectionUrl)){
-            pomData.getWarningMessages().add("project.scm.connectionUrl should be accessed in read-only mode (with git:// protocol)");
-        }
-
-        oldUrl = transformedConnectionUrl;
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github\\.com/hudson/", "://github.com/jenkinsci/");
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl should not reference hudson project anymore (no plugin repository there))");
@@ -211,12 +205,6 @@ public class PluginRemoting {
         }
         if(!oldUrl.equals(transformedConnectionUrl)){
             pomData.getWarningMessages().add("project.scm.connectionUrl should be ending with '-plugin.git'");
-        }
-
-        oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replace("git.cloudbees.com", "github.com");
-        if (!oldUrl.equals(transformedConnectionUrl)) {
-            pomData.getWarningMessages().add("project.scm.connectionUrl was using git.cloudbees.com; moved to GitHub");
         }
 
         pomData.setConnectionUrl(transformedConnectionUrl);
