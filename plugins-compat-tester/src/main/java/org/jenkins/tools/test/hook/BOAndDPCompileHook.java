@@ -25,7 +25,7 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
     protected MavenRunner.Config mavenConfig;
     
     public BOAndDPCompileHook() {
-        System.out.println("Loaded BO and DP compile hook");
+        System.out.println("Loaded Blue Ocean and Declarative Pipelines compile hook");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
 
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         try {
-            System.out.println("Executing BO and DO compile hook");
+            System.out.println("Executing Blue Ocean and Declarative Pipelines compile hook");
             PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
             MavenCoordinates core = (MavenCoordinates) moreInfo.get("core");
 
