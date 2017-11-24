@@ -3,12 +3,15 @@ package org.jenkins.tools.test.hook;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.MavenCoordinates;
+import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHook;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 
 import java.io.File;
@@ -25,7 +28,7 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
     protected MavenRunner.Config mavenConfig;
     
     public BOAndDPCompileHook() {
-        System.out.println("Loaded TransformPomToEffectiveOne");
+        System.out.println("Loaded BO and DP compile hook");
     }
 
     @Override
@@ -59,9 +62,14 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
                 compile(mavenConfig, pluginDir);
                 moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
             }
+            // Apply splits before generating effective pom as the effective pom already modifes the core version resulting in potential problems or splits not properly added
+            /*PluginCompatTester tester = new PluginCompatTester(config);
+            MavenPom pom = new MavenPom(pluginDir);
+            // As we are going to modify the core set in the pom we store the original for further processing by the PCT
+            moreInfo.put(PluginCompatTesterHook.ORIGINAL_CORE, getCoreVersion());
 
             // Now we can generate effective pom
-            generateEffectivePom(mavenConfig, pluginDir, core);
+            generateEffectivePom(mavenConfig, pluginDir, core);*/
 
             System.out.println("Executed BO and DP compile hook");
             return moreInfo;
