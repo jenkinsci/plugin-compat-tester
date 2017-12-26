@@ -1,6 +1,37 @@
-Generate a compatibility matrix for plugins against Jenkins core.
+Plugin Compatibility Tester (PCT)
+------
+
+Generates a compatibility matrix for plugins against Jenkins core.
 
 See https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Compatibility+Tester for background.
+
+## Running PCT 
+
+### Running PCT manually
+
+PCT offers the CLI interface which can be used to run PCT locally.
+
+* Download `PCT` and execute `mvn clean install`
+* Download plugin sources to a `PLUGIN_SRC` directory. 
+* Checkout the plugin repo to a tag/commit/branch you want to test
+* Run `mvn clean install -DskipTests` to initialize artifacts
+* Go to `PCT` folder and run the CLI (make sure to modify paths according to your system). Example:
+
+```shell
+java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli-${PCT_VERSION}.jar \
+  -reportFile $(pwd)/out/report.xml \
+  -workDirectory $(pwd)/tmp/work \
+  -includePlugins ${PLUGIN_ARTIFACT_ID} \
+  -war jenkins.war localCheckoutDir ${PLUGIN_SRC} \
+  -skipTestCache true \
+  -mvn ${PATH_TO_MAVEN}
+```
+
+You can run the CLI with the `-help` argument to get a full list of supported options.
+
+:exclamation: For the moment testing more than one plugin at once requires plugins to be released, so for testing SNAPSHOTS you need to execute the last step for every plugin you want to test*
+
+## TODOs
 
 To do (refile in `plugin-compat-tester` in JIRA!):
 
