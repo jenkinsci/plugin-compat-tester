@@ -107,6 +107,9 @@ public class CliOptions {
     @Parameter(names="-localCheckoutDir", description = "Folder containing a local (possibly modified) clone of a plugin repository")
     private String localCheckoutDir;
 
+    @Parameter(names="-help", description = "Print this help message")
+    private boolean printHelp;
+
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
     }
@@ -173,5 +176,9 @@ public class CliOptions {
 
     public String getLocalCheckoutDir() {
         return localCheckoutDir;
+    }
+
+    public boolean isPrintHelp() {
+        return printHelp;
     }
 }
