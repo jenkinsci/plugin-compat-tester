@@ -7,6 +7,41 @@ See https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Compatibility+Tester for 
 
 ## Running PCT 
 
+### Running PCT in Docker
+
+It is recommended to run PCT in the prepared Docker image.
+You can find it [here](hub.docker.com/r/jenkins/pct/).
+
+#### Examples
+
+This command will clone of a repository and run PCT against the latest Jenkins Core:
+
+```shell
+docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e ARTIFACT_ID=job-restrictions -e VERSION=job-restrictions-0.6 -i jenkins/pct
+```
+
+This command will run PCT against custom versions of Jenkins and the plugin specified by volumes:
+
+```shell
+docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -v my/plugin:/pct/plugin-src:ro -e ARTIFACT_ID=job-restrictions -i jenkins/pct
+```
+
+#### Configuration
+
+Environment variables:
+
+* `ARTIFACT_ID` - ID of the artifact to be tested.
+This is the only **mandatory** parameter.
+* `VERSION` - tag/commit/branch to be checked out and tested. `master` by default
+* `CHECKOUT_SRC` - Custom Git clone source (e.g. `https://github.com/oleg-nenashev/job-restrictions-plugin.git`). `https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git` by default
+
+Volumes:
+
+* `/pct/plugin-src` - Plugin sources to be used for the PCT run. Sources will be checked out if not specified
+* `/pct/jenkins.war` - Jenkins WAR file to be used for the PCT run
+* `/pct/out` - Output directory for PCT. All reports will be stored there
+* `/root/.m2` - Maven repository. It can be used to pass settings.xml or to cache artifacts
+
 ### Running PCT manually
 
 PCT offers the CLI interface which can be used to run PCT locally.

@@ -14,3 +14,4 @@ reports
 work/
 ^jenkins/
 .idea
+out
