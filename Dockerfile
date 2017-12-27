@@ -46,6 +46,8 @@ ENV PCT_TMP=/pct/tmp
 
 COPY src/main/docker/run-pct.sh /usr/local/bin/run-pct
 
+EXPOSE 5005
+
 VOLUME /pct/plugin-src
 VOLUME /pct/jenkins.war
 VOLUME /pct/out

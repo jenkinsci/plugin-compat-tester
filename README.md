@@ -34,6 +34,8 @@ Environment variables:
 This is the only **mandatory** parameter.
 * `VERSION` - tag/commit/branch to be checked out and tested. `master` by default
 * `CHECKOUT_SRC` - Custom Git clone source (e.g. `https://github.com/oleg-nenashev/job-restrictions-plugin.git`). `https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git` by default
+* `JAVA_OPTS` - Java options to be passed to the PCT CLI
+* `DEBUG` - Boolean flag, which enables the Remote Debug mode (port == 5000)
 
 Volumes:
 
@@ -66,7 +68,18 @@ You can run the CLI with the `-help` argument to get a full list of supported op
 
 :exclamation: For the moment testing more than one plugin at once requires plugins to be released, so for testing SNAPSHOTS you need to execute the last step for every plugin you want to test*
 
-## TODOs
+## Developer Info
+
+### Debugging PCT in Docker
+
+If you need to debug a dockerized PCT instance, 
+use the `-e DEBUG=true -p 5005:5005` flags and then attach to the container using Remote Debugger in your IDE.
+
+```
+docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e ARTIFACT_ID=job-restrictions -e DEBUG=true -p 5005:5005 -i jenkins/pct
+```
+
+### TODOs
 
 To do (refile in `plugin-compat-tester` in JIRA!):
 
