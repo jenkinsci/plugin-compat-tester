@@ -26,6 +26,8 @@
 package org.jenkins.tools.test.model;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.Xpp3DomDriver;
+import hudson.util.XStream2;
 
 import java.io.*;
 import java.util.*;
@@ -155,8 +157,8 @@ public class PluginCompatReport {
         return report;
     }
 
-    private static XStream createXStream(){
-        XStream xstream = new XStream();
+    private static XStream2 createXStream(){
+        XStream2 xstream = new XStream2(new Xpp3DomDriver());
         xstream.setMode(XStream.NO_REFERENCES);
         xstream.alias("pluginInfos", PluginInfos.class);
         xstream.alias("coord", MavenCoordinates.class);

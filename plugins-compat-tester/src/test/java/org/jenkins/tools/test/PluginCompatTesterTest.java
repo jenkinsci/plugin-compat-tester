@@ -75,6 +75,7 @@ public class PluginCompatTesterTest {
         config.setCacheThresholStatus(TestStatus.TEST_FAILURES);
         config.setTestCacheTimeout(345600000);
         config.setParentVersion("1.410");
+        config.setGenerateHtmlReport(true);
 
         PluginCompatTester tester = new PluginCompatTester(config);
 		tester.testPlugins();
