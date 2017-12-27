@@ -26,7 +26,7 @@ else
   CHECKOUT_SRC="https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git"
 fi
 
-if [ -n "${VERSION}"] ; then 
+if [ -z "${VERSION}" ] ; then
   VERSION="master"
 fi
 
