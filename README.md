@@ -17,13 +17,19 @@ You can find it [here](hub.docker.com/r/jenkins/pct/).
 This command will clone of a repository and run PCT against the latest Jenkins Core:
 
 ```shell
-docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e ARTIFACT_ID=job-restrictions -e VERSION=job-restrictions-0.6 -i jenkins/pct
+docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e ARTIFACT_ID=job-restrictions -e VERSION=job-restrictions-0.6 jenkins/pct
 ```
 
 This command will run PCT against custom versions of Jenkins and the plugin specified by volumes:
 
 ```shell
-docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -v my/plugin:/pct/plugin-src:ro -e ARTIFACT_ID=job-restrictions -i jenkins/pct
+docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -v my/plugin:/pct/plugin-src:ro jenkins/pct
+```
+
+This command will run PCT for a branch in a custom repository:
+
+```
+docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e CHECKOUT_SRC=https://github.com/oleg-nenashev/job-restrictions-plugin.git -e VERSION=JENKINS-26374 jenkins/pct
 ```
 
 #### Configuration
@@ -31,7 +37,7 @@ docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war
 Environment variables:
 
 * `ARTIFACT_ID` - ID of the artifact to be tested.
-This is the only **mandatory** parameter.
+The image will be able to determine this ID automatically if `CHECKOUT_SRC` or `/pct/plugin-src` are defined.
 * `VERSION` - tag/commit/branch to be checked out and tested. `master` by default
 * `CHECKOUT_SRC` - Custom Git clone source (e.g. `https://github.com/oleg-nenashev/job-restrictions-plugin.git`). `https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git` by default
 * `JAVA_OPTS` - Java options to be passed to the PCT CLI

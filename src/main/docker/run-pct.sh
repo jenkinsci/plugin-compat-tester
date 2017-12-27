@@ -15,15 +15,19 @@ fi
 ###
 if [ -n "${ARTIFACT_ID}" ]; then
   echo "Running PCT for plugin ${ARTIFACT_ID}"
-else
-  echo "ERROR: Artifact ID is not specified. Use environment variable, e.g. \"-e ARTIFACT_ID=credentials\""
-  exit -1
 fi
 
 if [ -n "${CHECKOUT_SRC}" ] ; then
   echo "Using custom checkout source: ${CHECKOUT_SRC}"
-else 
-  CHECKOUT_SRC="https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git"
+else
+  if [ -z "${ARTIFACT_ID}" ] ; then
+    if [ ! -e "/pct/plugin-src/pom.xml" ] ; then
+      echo "Error: Plugin source is missing, cannot generate a default checkout path without ARTIFACT_ID"
+      exit -1
+    fi
+  else
+    CHECKOUT_SRC="https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git"
+  fi
 fi
 
 if [ -z "${VERSION}" ] ; then
@@ -53,18 +57,30 @@ fi
 ###
 mkdir -p "${PCT_TMP}/localCheckoutDir"
 cd "${PCT_TMP}/localCheckoutDir"
+TMP_CHECKOUT_DIR="${PCT_TMP}/localCheckoutDir/undefined"
 if [ -e "/pct/plugin-src/pom.xml" ] ; then
-  echo "Located custom plugin sources"
-  mkdir "${ARTIFACT_ID}"
-  cp -R /pct/plugin-src/* "${ARTIFACT_ID}/"
+  echo "Located custom plugin sources on the volume"
+  mkdir "${TMP_CHECKOUT_DIR}"
+  cp -R /pct/plugin-src/* "${TMP_CHECKOUT_DIR}/"
   # Due to whatever reason PCT blows up if you have work in the repo
-  cd "${ARTIFACT_ID}" && mvn clean && rm -rf work
+  cd "${TMP_CHECKOUT_DIR}" && mvn clean && rm -rf work
 else
   echo "Checking out from ${CHECKOUT_SRC}:${VERSION}"
   git clone "${CHECKOUT_SRC}"
-  mv $(ls .) ${ARTIFACT_ID}
-  cd ${ARTIFACT_ID} && git checkout "${VERSION}"
+  mv $(ls .) ${TMP_CHECKOUT_DIR}
+  cd ${TMP_CHECKOUT_DIR} && git checkout "${VERSION}"
 fi
+
+###
+# Determine artifact ID and then move the project to a proper location
+###
+cd "${TMP_CHECKOUT_DIR}"
+if [ -z "${ARTIFACT_ID}" ] ; then
+  ARTIFACT_ID=$(mvn org.apache.maven.plugins:maven-help-plugin:2.2:evaluate -Dexpression=project.artifactId | grep -Ev '(^\[|Download.*)')
+  echo "ARTIFACT_ID is not specified, using ${ARTIFACT_ID} defined in the POM file"
+  mvn clean
+fi
+mv "${TMP_CHECKOUT_DIR}" "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
 
 ###
 # Run PCT
