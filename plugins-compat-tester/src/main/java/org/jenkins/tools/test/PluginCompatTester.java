@@ -528,7 +528,9 @@ public class PluginCompatTester {
                     if (top.has("core")) {
                         throw new IOException(">1 jenkins-core.jar in " + war);
                     }
-                    top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", ""));
+                    // http://foobar is used to workaround the check in https://github.com/jenkinsci/jenkins/commit/f8daafd0327081186c06555f225e84c420261b4c
+                    // We do not really care about the value
+                    top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", "https://foobar"));
                 }
                 m = Pattern.compile("WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi").matcher(name);
                 if (m.matches()) {
