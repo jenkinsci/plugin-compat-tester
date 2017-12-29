@@ -21,13 +21,13 @@ docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e ARTIFACT_ID=ss
 ```
 
 This command will run PCT for the latest plugin version against the specified Jenkins WAR.
+PCT supports running against SNAPSHOT builds, but PCT will have to install local Maven artifacts in such case.
 
 ```shell
 docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -e ARTIFACT_ID=ssh-slaves jenkins/pct
 ```
 
 This command will run PCT against custom versions of Jenkins and the plugin specified by volumes.
-Note that the current configuration requires the Jenkins core artifacts to be installed in the `maven-repo`.
 
 ```shell
 docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -v my/plugin:/pct/plugin-src:ro jenkins/pct

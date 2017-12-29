@@ -35,11 +35,24 @@ if [ -z "${VERSION}" ] ; then
 fi
 
 if [ -f "${JENKINS_WAR_PATH}" ]; then
-  echo "Using custom Jenkins WAR from ${JENKINS_WAR_PATH}"
   mkdir -p "${PCT_TMP}"
   # WAR is accessed many times in the PCT runs, let's keep it local insead of pulling it from a volume
   cp "${JENKINS_WAR_PATH}" "${PCT_TMP}/jenkins.war"
   WAR_PATH_OPT="-war ${PCT_TMP}/jenkins.war "
+  JENKINS_VERSION=$(unzip -q -c "${PCT_TMP}/jenkins.war" META-INF/MANIFEST.MF | grep 'Jenkins-Version' | cut -d ':' -f 2 | tr -d '[:space:]')
+  echo "Using custom Jenkins WAR v. ${JENKINS_VERSION} from ${JENKINS_WAR_PATH}"
+
+  if [[ "$JENKINS_VERSION" =~ .*SNAPSHOT.* ]]
+  then
+    cd "${PCT_TMP}"
+    echo "Version is a snapshot, will install artifacts to the local maven repo"
+    mkdir "war-exploded"
+    unzip -q -c "jenkins.war" "WEB-INF/lib/jenkins-core-${JENKINS_VERSION}.jar" > "war-exploded/jenkins-core.jar"
+   # unzip -q -c "jenkins.war" "WEB-INF/lib/jenkins-cli-${JENKINS_VERSION}.jar" > "war-exploded/jenkins-cli.jar"
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dfile="jenkins.war"
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dfile="war-exploded/jenkins-core.jar"
+   # mvn install:install-file -Dfile="war-exploded/jenkins-cli.jar"
+  fi
 else
   WAR_PATH_OPT=""
 fi
