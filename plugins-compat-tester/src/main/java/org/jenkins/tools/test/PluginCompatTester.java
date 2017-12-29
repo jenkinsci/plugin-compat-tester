@@ -173,8 +173,33 @@ public class PluginCompatTester {
             dataImporter = new DataImporter(config.getGaeBaseUrl(), config.getGaeSecurityToken());
         }
 
+        // Determine the plugin data
         HashMap<String,String> pluginGroupIds = new HashMap<String, String>();  // Used to track real plugin groupIds from WARs
         UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData() : scanWAR(config.getWar(), pluginGroupIds);
+        final Map<String, Plugin> pluginsToCheck;
+        final List<String> pluginsToInclude = config.getIncludePlugins();
+        if (data.plugins.isEmpty() && pluginsToInclude != null && !pluginsToInclude.isEmpty()) {
+            // Update Center returns empty info OR the "-war" option is specified for WAR without bundled plugins
+            // TODO: Ideally we should do this tweak in any case, so that we can test custom plugins with Jenkins cores before unbundling
+            // But it will require us to always poll the update center...
+            System.out.println("WAR file does not contain plugin info, will try to extract it from UC for included plugins");
+            pluginsToCheck = new HashMap<>(pluginsToInclude.size());
+            UpdateSite.Data ucData = extractUpdateCenterData();
+            for (String plugin : pluginsToInclude) {
+                UpdateSite.Plugin pluginData = ucData.plugins.get(plugin);
+                if (pluginData != null) {
+                    System.out.println("Adding " + plugin + " to the test scope");
+                    pluginsToCheck.put(plugin, pluginData);
+                }
+            }
+        } else {
+            pluginsToCheck = data.plugins;
+        }
+
+        if (pluginsToCheck.isEmpty()) {
+            throw new IOException("List of plugins to check is empty, it is not possible to run PCT");
+        }
+
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
         SortedSet<MavenCoordinates> testedCores = config.getWar() == null ? generateCoreCoordinatesToTest(data, report) : coreVersionFromWAR(data);
@@ -207,7 +232,7 @@ public class PluginCompatTester {
 		SCMManagerFactory.getInstance().start();
         for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
-            for (Plugin plugin : data.plugins.values()) {
+            for (Plugin plugin : pluginsToCheck.values()) {
                 if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
                     PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
 
@@ -252,7 +277,7 @@ public class PluginCompatTester {
                     List<String> warningMessages = new ArrayList<String>();
                     if (errorMessage == null) {
                     try {
-                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, data.plugins, pluginGroupIds, pcth);
+                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth);
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
@@ -532,6 +557,8 @@ public class PluginCompatTester {
                     // We do not really care about the value
                     top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", "https://foobar"));
                 }
+
+                //TODO: should it also scan detached plugins info?
                 m = Pattern.compile("WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi").matcher(name);
                 if (m.matches()) {
                     JSONObject plugin = new JSONObject().accumulate("url", "");
