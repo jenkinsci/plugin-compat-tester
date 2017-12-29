@@ -9,7 +9,7 @@ clean:
 
 .PHONY: package
 package:
-	mvn package -DskipTests
+	mvn package verify
 
 .PHONY: docker
 docker:
