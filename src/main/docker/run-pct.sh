@@ -82,20 +82,8 @@ if [ -z "${ARTIFACT_ID}" ] ; then
 fi
 mv "${TMP_CHECKOUT_DIR}" "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
 
-###
-# Run PCT
-###
-cd /pct
-PCT_CLI=$(ls src/plugins-compat-tester-cli/target/plugins-compat-tester-cli-*.jar )
-if [ -e "${PCT_CLI}" ] ; then
-  echo "Using PCT CLI ${PCT_CLI}"
-else
-  echo "Failed to locate PCT CLI"
-  exit -1
-fi
-
 mkdir -p "${PCT_TMP}/work"
 mkdir -p "${PCT_OUTPUT_DIR}"
 
 # The image always uses external Maven due to https://issues.jenkins-ci.org/browse/JENKINS-48710
-exec java ${JAVA_OPTS} ${extra_java_opts[@]} -jar ${PCT_CLI} -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} -skipTestCache true -localCheckoutDir "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}" -includePlugins "${ARTIFACT_ID}" -mvn "/usr/bin/mvn" "$@"
+exec java ${JAVA_OPTS} ${extra_java_opts[@]} -jar /pct/pct-cli.jar -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} -skipTestCache true -localCheckoutDir "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}" -includePlugins "${ARTIFACT_ID}" -mvn "/usr/bin/mvn" "$@"

@@ -23,10 +23,13 @@
 FROM maven:3.5.2-jdk-8
 LABEL Description="Base image for running Jenkins Plugin Compat Tester (PCT) against custom plugins and Jenkins cores" Vendor="Jenkins project"
 
-# Local build
-COPY plugins-compat-tester-cli/target/  /pct/src/plugins-compat-tester-cli/target/
+# Mode 1. Copy local artifact
+# Local build (uncomment and remove the section below if needed)
+COPY plugins-compat-tester-cli/target/plugins-compat-tester-cli-*.jar /pct/pct-cli.jar
 
-#TODO: Uncomment once Jenkins Artifactory is recovered
+# Mode 2. Build artifact from sources in Docker
+# Use this flow if you do not want to build the binary on a local machine
+# This mode is ineffective from the container size PoV and the layer number
 # https://issues.jenkins-ci.org/browse/INFRA-1447
 # Copy sources
 #COPY plugins-compat-tester/ /pct/src/plugins-compat-tester/
@@ -37,8 +40,8 @@ COPY plugins-compat-tester-cli/target/  /pct/src/plugins-compat-tester-cli/targe
 #COPY *.xml /pct/src/
 #COPY LICENSE.txt /pct/src/LICENSE.txt
 
-#WORKDIR /opt/pct/src/
-#RUN ls -l && mvn clean package
+#WORKDIR /pct/src/
+#RUN mvn clean install -DskipTests && cp plugins-compat-tester-cli/target/plugins-compat-tester-cli-*.jar /pct/pct-cli.jar && mvn clean && mvn dependency:purge-local-repository
 
 ENV JENKINS_WAR_PATH=/pct/jenkins.war
 ENV PCT_OUTPUT_DIR=/pct/out
