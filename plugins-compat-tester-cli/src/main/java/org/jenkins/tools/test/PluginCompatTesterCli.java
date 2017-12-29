@@ -67,6 +67,14 @@ public class PluginCompatTesterCli {
         if(!"NOREPORT".equals(options.getReportFile().getName())){
             reportFile = options.getReportFile();
         }
+        if (reportFile != null) {
+            // Check the format requirement
+            File parentFile = reportFile.getParentFile();
+            if (parentFile == null) {
+                throw new IllegalArgumentException("The -reportFile value '" + reportFile + "' does not have a directory specification. " +
+                        "A path should be something like 'out/pct-report.xml'");
+            }
+        }
 
         String updateCenterUrl = options.getUpdateCenterUrl();
         String parentCoordinates = options.getParentCoord();
@@ -75,14 +83,16 @@ public class PluginCompatTesterCli {
             if (updateCenterUrl != null || parentCoordinates != null) {
                 throw new IllegalStateException("Cannot specify -war together with either -updateCenterUrl or -parentCoordinates");
             }
-        } else {
-            if (updateCenterUrl == null) {
-                updateCenterUrl = PluginCompatTesterConfig.DEFAULT_UPDATE_CENTER_URL;
-            }
-            if (parentCoordinates == null) {
-                parentCoordinates = PluginCompatTesterConfig.DEFAULT_PARENT_GAV;
-            }
         }
+
+        // We may need this data even in the -war mode
+        if (updateCenterUrl == null) {
+            updateCenterUrl = PluginCompatTesterConfig.DEFAULT_UPDATE_CENTER_URL;
+        }
+        if (parentCoordinates == null) {
+            parentCoordinates = PluginCompatTesterConfig.DEFAULT_PARENT_GAV;
+        }
+
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(updateCenterUrl, parentCoordinates,
                 options.getWorkDirectory(), reportFile, options.getM2SettingsFile());
         config.setWar(war);

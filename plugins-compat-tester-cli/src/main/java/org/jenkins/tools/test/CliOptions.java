@@ -54,7 +54,7 @@ public class CliOptions {
     private File workDirectory;
 
     @Parameter(names = "-reportFile", required = true,
-            description = "Output report xml file path")
+            description = "Output report xml file path. This path must contain a directory, e.g. 'out/pct-report.xml'")
     private File reportFile;
 
     @Parameter(names = "-includePlugins",
