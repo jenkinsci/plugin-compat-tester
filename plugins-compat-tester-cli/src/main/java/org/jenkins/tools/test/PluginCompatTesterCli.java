@@ -62,6 +62,14 @@ public class PluginCompatTesterCli {
         if(!"NOREPORT".equals(options.getReportFile().getName())){
             reportFile = options.getReportFile();
         }
+        if (reportFile != null) {
+            // Check the format requirement
+            File parentFile = reportFile.getParentFile();
+            if (parentFile == null) {
+                throw new IllegalArgumentException("The -reportFile value '" + reportFile + "' does not have a directory specification. " +
+                        "A path should be something like 'out/pct-report.xml'");
+            }
+        }
 
         String updateCenterUrl = options.getUpdateCenterUrl();
         String parentCoordinates = options.getParentCoord();

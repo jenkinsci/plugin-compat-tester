@@ -29,6 +29,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.Xpp3DomDriver;
 import hudson.util.XStream2;
 
+import javax.annotation.Nonnull;
 import java.io.*;
 import java.util.*;
 
@@ -85,20 +86,25 @@ public class PluginCompatReport {
         tempReportPath.renameTo(reportPath);
     }
 
-    public static String getXslFilename(File reportPath){
+    public static String getXslFilename(@Nonnull File reportPath){
         return getBaseFilename(reportPath)+".xsl";
     }
 
-    public static File getXslFilepath(File reportPath){
+    public static File getXslFilepath(@Nonnull File reportPath){
         return new File(getBaseFilepath(reportPath)+".xsl");
     }
 
-    public static File getHtmlFilepath(File reportPath){
+    public static File getHtmlFilepath(@Nonnull File reportPath){
         return new File(getBaseFilepath(reportPath)+".html");
     }
 
-    public static String getBaseFilepath(File reportPath){
-        return reportPath.getParentFile().getAbsolutePath()+"/"+getBaseFilename(reportPath);
+    public static String getBaseFilepath(@Nonnull File reportPath){
+        File parentFile = reportPath.getParentFile();
+        if (parentFile == null) {
+            throw new IllegalArgumentException("The report path " + reportPath + " does not have a directory specification. " +
+                    "A correct path should be something like 'out/pct-report.xml'");
+        }
+        return parentFile.getAbsolutePath()+"/"+getBaseFilename(reportPath);
     }
 
     public static String getBaseFilename(File reportPath){
