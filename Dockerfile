@@ -54,5 +54,6 @@ EXPOSE 5005
 VOLUME /pct/plugin-src
 VOLUME /pct/jenkins.war
 VOLUME /pct/out
+VOLUME /pct/tmp
 VOLUME /root/.m2
 ENTRYPOINT ["run-pct"]
