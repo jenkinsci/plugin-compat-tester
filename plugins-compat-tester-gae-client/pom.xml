@@ -7,28 +7,11 @@
       <version>0.0.3-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.jenkins-ci.tests</groupId>
   <artifactId>plugins-compat-tester-gae-client</artifactId>
   <version>0.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Plugins compatibility tester for Google App Engine client side API</name>
-  <description>Hudson/Jenkins Plugin compatibility tester against latest released version - GAE app</description>
-  
-  <properties>
-      <powermock.version>1.4.8</powermock.version>
-  </properties>
-  
-  <build>
-   <pluginManagement>
-     <plugins>
-       <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-surefire-plugin</artifactId>
-         <version>2.8.1</version>
-       </plugin>
-     </plugins>
-   </pluginManagement>
-  </build>
+  <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version - GAE app client</description>
   
   <dependencies>
     <!-- Google App Engine API -->
@@ -40,30 +23,26 @@
     <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
-        <version>4.1.2</version>
+        <version>4.5.3</version>
     </dependency>
     <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>10.0.1</version>
     </dependency>
 
   	<dependency>
 	    <groupId>junit</groupId>
-		<artifactId>junit</artifactId>
-	  	<version>4.8.2</version>
+		  <artifactId>junit</artifactId>
 	  	<scope>test</scope>
   	</dependency>
    <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
-      <version>${powermock.version}</version>
       <scope>test</scope>
    </dependency>
    <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
-      <version>${powermock.version}</version>
       <scope>test</scope>
    </dependency>
   </dependencies>

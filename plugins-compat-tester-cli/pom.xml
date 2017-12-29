@@ -7,11 +7,10 @@
       <version>0.0.3-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.jenkins-ci.tests</groupId>
   <artifactId>plugins-compat-tester-cli</artifactId>
   <version>0.0.3-SNAPSHOT</version>
   <name>Plugins compatibility tester CLI</name>
-  <description>Hudson/Jenkins Plugin compatibility tester against latest released version</description>
+  <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
   
   <build>
 	  <plugins>
@@ -79,6 +78,11 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-access</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
     </dependency>
   </dependencies>
 </project>

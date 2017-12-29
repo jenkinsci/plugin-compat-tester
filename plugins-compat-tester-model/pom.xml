@@ -7,61 +7,30 @@
       <version>0.0.3-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.jenkins-ci.tests</groupId>
   <artifactId>plugins-compat-tester-model</artifactId>
   <version>0.0.3-SNAPSHOT</version>
   <name>Plugins compatibility tester model layer</name>
-  <description>Hudson/Jenkins Plugin compatibility model layer</description>
-
-  <properties>
-    <powermock.version>1.4.8</powermock.version>
-  </properties>
-
-  <build>
-   <pluginManagement>
-     <plugins>
-       <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-surefire-plugin</artifactId>
-         <version>2.8.1</version>
-       </plugin>
-     </plugins>
-   </pluginManagement>
-  </build>
+  <description>Jenkins Plugin Compatibility Tester (PCT) model layer</description>
 
   <dependencies>
       <dependency>
-        <groupId>com.thoughtworks.xstream</groupId>
+        <groupId>org.jvnet.hudson</groupId>
         <artifactId>xstream</artifactId>
-        <version>1.3.1</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>2.4</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>1.4</version>
       </dependency>
 
   	<dependency>
 	    <groupId>junit</groupId>
-		<artifactId>junit</artifactId>
-	  	<version>4.8.2</version>
+		  <artifactId>junit</artifactId>
 	  	<scope>test</scope>
   	</dependency>
    <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
-      <version>${powermock.version}</version>
       <scope>test</scope>
    </dependency>
    <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
-      <version>${powermock.version}</version>
       <scope>test</scope>
    </dependency>
 
