@@ -48,10 +48,10 @@ if [ -f "${JENKINS_WAR_PATH}" ]; then
     echo "Version is a snapshot, will install artifacts to the local maven repo"
     mkdir -p "war-exploded"
     unzip -q -c "jenkins.war" "WEB-INF/lib/jenkins-core-${JENKINS_VERSION}.jar" > "war-exploded/jenkins-core.jar"
-   # unzip -q -c "jenkins.war" "WEB-INF/lib/jenkins-cli-${JENKINS_VERSION}.jar" > "war-exploded/jenkins-cli.jar"
+    unzip -q -c "jenkins.war" "WEB-INF/lib/cli-${JENKINS_VERSION}.jar" > "war-exploded/jenkins-cli.jar"
     mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dfile="jenkins.war"
     mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dfile="war-exploded/jenkins-core.jar"
-   # mvn install:install-file -Dfile="war-exploded/jenkins-cli.jar"
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dfile="war-exploded/jenkins-cli.jar"
   fi
 else
   WAR_PATH_OPT=""
