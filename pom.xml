@@ -170,8 +170,26 @@
           <goals>deploy</goals>
         </configuration>
       </plugin>
+      <!-- TODO: remove when library parent POM enables FindBugs by default -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <configuration>
+          <xmlOutput>true</xmlOutput>
+          <effort>Max</effort>
+          <!-- TODO: issues need to be fixed first-->
+          <failOnError>false</failOnError>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
-
   </build>
 
 </project>
