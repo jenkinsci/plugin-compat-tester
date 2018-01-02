@@ -175,7 +175,7 @@ public class PluginCompatTester {
 
         // Determine the plugin data
         HashMap<String,String> pluginGroupIds = new HashMap<String, String>();  // Used to track real plugin groupIds from WARs
-        UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData() : scanWAR(config.getWar(), pluginGroupIds);
+        UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds);
         final Map<String, Plugin> pluginsToCheck;
         final List<String> pluginsToInclude = config.getIncludePlugins();
         if (data.plugins.isEmpty() && pluginsToInclude != null && !pluginsToInclude.isEmpty()) {
@@ -184,7 +184,7 @@ public class PluginCompatTester {
             // But it will require us to always poll the update center...
             System.out.println("WAR file does not contain plugin info, will try to extract it from UC for included plugins");
             pluginsToCheck = new HashMap<>(pluginsToInclude.size());
-            UpdateSite.Data ucData = extractUpdateCenterData();
+            UpdateSite.Data ucData = extractUpdateCenterData(pluginGroupIds);
             for (String plugin : pluginsToInclude) {
                 UpdateSite.Plugin pluginData = ucData.plugins.get(plugin);
                 if (pluginData != null) {
@@ -513,7 +513,12 @@ public class PluginCompatTester {
         return config.getIncludePlugins() != null && config.getIncludePlugins().size() == 1;
     }
 
-    private UpdateSite.Data extractUpdateCenterData(){
+    /**
+     * Extracts Update Site data from the update center.
+     * @param groupIDs Target storage for Group IDs. The existing values won't be overridden
+     * @return Update sire Data
+     */
+    private UpdateSite.Data extractUpdateCenterData(Map<String, String> groupIDs){
 		URL url = null;
 		String jsonp = null;
 		try {
@@ -525,7 +530,18 @@ public class PluginCompatTester {
 		
         String json = jsonp.substring(jsonp.indexOf('(')+1,jsonp.lastIndexOf(')'));
         UpdateSite us = new UpdateSite(DEFAULT_SOURCE_ID, url.toExternalForm());
-        return newUpdateSiteData(us, JSONObject.fromObject(json));
+
+        JSONObject jsonObj = JSONObject.fromObject(json);
+        UpdateSite.Data site = newUpdateSiteData(us, jsonObj);
+
+        // UpdateSite.Plugin does not contain gav object, so we process the JSON object on our own here
+        for(Map.Entry<String,JSONObject> e : (Set<Map.Entry<String,JSONObject>>)jsonObj.getJSONObject("plugins").entrySet()) {
+            String gav = e.getValue().getString("gav");
+            String groupId = gav.split(":")[0];
+            groupIDs.putIfAbsent(e.getKey(), groupId);
+        }
+
+        return site;
 	}
 
     /**
