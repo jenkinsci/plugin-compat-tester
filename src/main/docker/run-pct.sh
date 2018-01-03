@@ -49,9 +49,11 @@ if [ -f "${JENKINS_WAR_PATH}" ]; then
     mkdir -p "war-exploded"
     unzip -q -c "jenkins.war" "WEB-INF/lib/jenkins-core-${JENKINS_VERSION}.jar" > "war-exploded/jenkins-core.jar"
     unzip -q -c "jenkins.war" "WEB-INF/lib/cli-${JENKINS_VERSION}.jar" > "war-exploded/jenkins-cli.jar"
+    unzip -q -c "jenkins.war" "META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml" > "war-exploded/jenkins-pom.xml"
     mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dfile="jenkins.war"
     mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dfile="war-exploded/jenkins-core.jar"
     mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dfile="war-exploded/jenkins-cli.jar"
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dpackaging=pom -Dfile="war-exploded/jenkins-pom.xml" -DpomFile="war-exploded/jenkins-pom.xml" -Dversion="${JENKINS_VERSION}" -DartifactId="pom" -DgroupId="org.jenkins-ci.main"
   fi
 else
   WAR_PATH_OPT=""
