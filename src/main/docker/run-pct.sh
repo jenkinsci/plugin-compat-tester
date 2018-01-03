@@ -67,6 +67,13 @@ if [[ "$DEBUG" ]] ; then
   )
 fi
 
+if [ -f "/pct/m2-settings.xml" ] ; then
+    echo "Using a custom Maven settings file specified by the volume"
+    MVN_SETTINGS_FILE="/pct/m2-settings.xml"
+else
+    MVN_SETTINGS_FILE="/pct/default-m2-settings.xml"
+fi
+
 ###
 # Checkout sources
 ###
@@ -101,4 +108,4 @@ mkdir -p "${PCT_TMP}/work"
 mkdir -p "${PCT_OUTPUT_DIR}"
 
 # The image always uses external Maven due to https://issues.jenkins-ci.org/browse/JENKINS-48710
-exec java ${JAVA_OPTS} ${extra_java_opts[@]} -jar /pct/pct-cli.jar -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} -skipTestCache true -localCheckoutDir "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}" -includePlugins "${ARTIFACT_ID}" -mvn "/usr/bin/mvn" "$@"
+exec java ${JAVA_OPTS} ${extra_java_opts[@]} -jar /pct/pct-cli.jar -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} -skipTestCache true -localCheckoutDir "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}" -includePlugins "${ARTIFACT_ID}" -mvn "/usr/bin/mvn" -m2SettingsFile "${MVN_SETTINGS_FILE}" "$@"

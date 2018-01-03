@@ -48,6 +48,7 @@ ENV PCT_OUTPUT_DIR=/pct/out
 ENV PCT_TMP=/pct/tmp
 
 COPY src/main/docker/run-pct.sh /usr/local/bin/run-pct
+COPY src/main/docker/pct-default-settings.xml /pct/default-m2-settings.xml
 
 EXPOSE 5005
 
@@ -55,5 +56,6 @@ VOLUME /pct/plugin-src
 VOLUME /pct/jenkins.war
 VOLUME /pct/out
 VOLUME /pct/tmp
+VOLUME /pct/m2-settings.xml
 VOLUME /root/.m2
 ENTRYPOINT ["run-pct"]
