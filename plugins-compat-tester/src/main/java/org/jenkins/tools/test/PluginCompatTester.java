@@ -516,7 +516,7 @@ public class PluginCompatTester {
     /**
      * Extracts Update Site data from the update center.
      * @param groupIDs Target storage for Group IDs. The existing values won't be overridden
-     * @return Update sire Data
+     * @return Update site Data
      */
     private UpdateSite.Data extractUpdateCenterData(Map<String, String> groupIDs){
 		URL url = null;
