@@ -363,7 +363,7 @@ public class PluginCompatTester {
 
     private static File createBuildLogFile(File reportFile, String pluginName, String pluginVersion, MavenCoordinates coreCoords){
         return new File(reportFile.getParentFile().getAbsolutePath()
-                            +"/"+createBuildLogFilePathFor(pluginName, pluginVersion, coreCoords));
+                            + File.separator + createBuildLogFilePathFor(pluginName, pluginVersion, coreCoords));
     }
 
     private static String createBuildLogFilePathFor(String pluginName, String pluginVersion, MavenCoordinates coreCoords){
@@ -381,7 +381,7 @@ public class PluginCompatTester {
         System.out.println(String.format("#############################################"));
         System.out.println(String.format("%n%n%n%n%n"));
 
-        File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath()+"/"+plugin.name+"/");
+        File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath() + File.separator + plugin.name + File.separator);
 
 		try {
             // Run any precheckout hooks
