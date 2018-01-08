@@ -233,11 +233,11 @@ public class PluginCompatTester {
         for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
             for (Plugin plugin : pluginsToCheck.values()) {
-                if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
+                if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())) {
                     PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
 
-                    if(config.getExcludePlugins()!=null && config.getExcludePlugins().contains(plugin.name.toLowerCase())){
-                        System.out.println("Plugin "+plugin.name+" is in excluded plugins => test skipped !");
+                    if (config.getExcludePlugins() != null && config.getExcludePlugins().contains(plugin.name.toLowerCase())) {
+                        System.out.println("Plugin " + plugin.name + " is in excluded plugins => test skipped !");
                         continue;
                     }
 
@@ -249,7 +249,12 @@ public class PluginCompatTester {
                     if (localCheckoutProvided() && onlyOnePluginIncluded()) {
                         remote = new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"));
                     } else {
-                        remote = new PluginRemoting(plugin.url);
+                        File pomFile = new File(new File(config.getLocalCheckoutDir(), plugin.name), "pom.xml");
+                        if (pomFile.exists()) {
+                            remote = new PluginRemoting(pomFile);
+                        } else {
+                            remote = new PluginRemoting(plugin.url);
+                        }
                     }
                     PomData pomData;
                     try {
@@ -398,17 +403,24 @@ public class PluginCompatTester {
                     System.out.println("Deleting working directory "+pluginCheckoutDir.getAbsolutePath());
                     FileUtils.deleteDirectory(pluginCheckoutDir);
                 }
+
+                if (localCheckoutProvided() && !onlyOnePluginIncluded() && !config.isSkipSingleLocalCheckoutDir()) {
+                    throw new RuntimeException("You specified a local clone but neither did not choose only one plugin to execute PCT against it nor skip validation (skipSingleLocalCheckoutDir)");
+                }
+
                 pluginCheckoutDir.mkdir();
                 System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
 
-                if (localCheckoutProvided()) {
+                File localCheckoutPluginDir = new File(config.getLocalCheckoutDir(), plugin.name);
+                if (localCheckoutProvided() && localCheckoutPluginDir.exists()) {
                     if (!onlyOnePluginIncluded()) {
-                        throw new RuntimeException("You specified a local clone but did not choose only one plugin to execute PCT against it");
+                        FileUtils.copyDirectoryStructure(localCheckoutPluginDir, pluginCheckoutDir);
+                    } else {
+                        // TODO this fails when it encounters symlinks (e.g. work/jobs/…/builds/lastUnstableBuild),
+                        // and even up-to-date versions of org.apache.commons.io.FileUtils seem to not handle links,
+                        // so may need to use something like http://docs.oracle.com/javase/tutorial/displayCode.html?code=http://docs.oracle.com/javase/tutorial/essential/io/examples/Copy.java
+                        FileUtils.copyDirectoryStructure(config.getLocalCheckoutDir(), pluginCheckoutDir);
                     }
-                    // TODO this fails when it encounters symlinks (e.g. work/jobs/…/builds/lastUnstableBuild),
-                    // and even up-to-date versions of org.apache.commons.io.FileUtils seem to not handle links,
-                    // so may need to use something like http://docs.oracle.com/javase/tutorial/displayCode.html?code=http://docs.oracle.com/javase/tutorial/essential/io/examples/Copy.java
-                    FileUtils.copyDirectoryStructure(config.getLocalCheckoutDir(), pluginCheckoutDir);
                 } else {
                     // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
                     System.out.println("Checking out from SCM connection URL : " + pomData.getConnectionUrl() + " (" + plugin.name + "-" + plugin.version + ")");

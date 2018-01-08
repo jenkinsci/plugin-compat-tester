@@ -107,6 +107,10 @@ public class CliOptions {
     @Parameter(names="-localCheckoutDir", description = "Folder containing a local (possibly modified) clone of a plugin repository")
     private String localCheckoutDir;
 
+    @Parameter(names = "-skipSingleLocalCheckoutDir",
+            description = "Allows to use localCheckoutDir with multiple plugins rather than just an individual repo.")
+    private String skipSingleLocalCheckoutDir = null;
+
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
     }
@@ -174,4 +178,9 @@ public class CliOptions {
     public String getLocalCheckoutDir() {
         return localCheckoutDir;
     }
+
+    public String getSkipSingleLocalCheckoutDir() {
+        return skipSingleLocalCheckoutDir;
+    }
+
 }

@@ -121,6 +121,9 @@ public class PluginCompatTesterCli {
         if(options.getLocalCheckoutDir() != null && !options.getLocalCheckoutDir().isEmpty()){
             config.setLocalCheckoutDir(options.getLocalCheckoutDir());
         }
+        if(options.getSkipSingleLocalCheckoutDir() != null){
+            config.setSkipSingleLocalCheckoutDir(Boolean.valueOf(options.getSkipSingleLocalCheckoutDir()).booleanValue());
+        }
 
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
