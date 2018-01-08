@@ -37,6 +37,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
@@ -411,13 +412,21 @@ public class PluginCompatTester {
                     FileUtils.copyDirectoryStructure(config.getLocalCheckoutDir(), pluginCheckoutDir);
                 } else {
                     // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
-                    System.out.println("Checking out from SCM connection URL : " + pomData.getConnectionUrl() + " (" + plugin.name + "-" + plugin.version + ")");
-                    ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-                    ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
-                    CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name + "-" + plugin.version));
+                    String tag = plugin.name + "-" + plugin.version;
+                    CheckOutScmResult result = tryPluginSrcCheckoutFromScm(pomData.getConnectionUrl(), pluginCheckoutDir, tag);
 
                     if (!result.isSuccess()) {
-                        throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
+                        StringBuilder fallbackCheckoutUrl = new StringBuilder("scm:git:git://github.com/jenkinsci/");
+                        fallbackCheckoutUrl.append(pomData.artifactId);
+                        if (!pomData.artifactId.endsWith("-plugin")) {
+                            fallbackCheckoutUrl.append("-plugin");
+                        }
+                        fallbackCheckoutUrl.append(".git");
+                        System.out.println("Will try to checkout from " + fallbackCheckoutUrl);
+                        CheckOutScmResult fallbackResult = tryPluginSrcCheckoutFromScm(fallbackCheckoutUrl.toString(), pluginCheckoutDir, tag);
+                        if (!fallbackResult.isSuccess()) {
+                            throw new RuntimeException(String.format("Cannot checkout %s from neither defined %s nor fallback %s", tag, pomData.getConnectionUrl(), fallbackCheckoutUrl));
+                        }
                     }
                 }
             } else {
@@ -504,6 +513,17 @@ public class PluginCompatTester {
             throw e2;
         }
 	}
+
+	private static CheckOutScmResult tryPluginSrcCheckoutFromScm(String connectionUrl, File pluginCheckoutDir, String tag) throws ScmException, ComponentLookupException {
+        System.out.println("Checking out from SCM connection URL : " + connectionUrl + " (" + tag + ")");
+        ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
+        ScmRepository repository = scmManager.makeScmRepository(connectionUrl);
+        CheckOutScmResult res = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(tag));
+        if (!res.isSuccess()) {
+            System.out.println("Error: Checkout from: " + connectionUrl + ". " + res.getProviderMessage() + " || " + res.getCommandOutput());
+        }
+        return res;
+    }
 
     private boolean localCheckoutProvided() {
         return config.getLocalCheckoutDir() != null && config.getLocalCheckoutDir().exists();
