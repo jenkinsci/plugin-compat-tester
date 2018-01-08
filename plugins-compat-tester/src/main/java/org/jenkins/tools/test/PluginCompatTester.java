@@ -414,6 +414,7 @@ public class PluginCompatTester {
                 File localCheckoutPluginDir = new File(config.getLocalCheckoutDir(), plugin.name);
                 if (localCheckoutProvided() && localCheckoutPluginDir.exists()) {
                     if (!onlyOnePluginIncluded()) {
+                        System.out.println("Copy plugin directory from : " + localCheckoutPluginDir.getAbsolutePath());
                         FileUtils.copyDirectoryStructure(localCheckoutPluginDir, pluginCheckoutDir);
                     } else {
                         // TODO this fails when it encounters symlinks (e.g. work/jobs/…/builds/lastUnstableBuild),
