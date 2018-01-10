@@ -37,6 +37,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
@@ -233,11 +234,11 @@ public class PluginCompatTester {
         for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
             for (Plugin plugin : pluginsToCheck.values()) {
-                if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())) {
+                if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
                     PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
 
-                    if (config.getExcludePlugins() != null && config.getExcludePlugins().contains(plugin.name.toLowerCase())) {
-                        System.out.println("Plugin " + plugin.name + " is in excluded plugins => test skipped !");
+                    if(config.getExcludePlugins()!=null && config.getExcludePlugins().contains(plugin.name.toLowerCase())){
+                        System.out.println("Plugin "+plugin.name+" is in excluded plugins => test skipped !");
                         continue;
                     }
 
@@ -247,14 +248,21 @@ public class PluginCompatTester {
                     MavenCoordinates actualCoreCoordinates = coreCoordinates;
                     PluginRemoting remote;
                     if (localCheckoutProvided() && onlyOnePluginIncluded()) {
+                        // Only one plugin and checkout directory provided
                         remote = new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"));
-                    } else {
+                    } else if(localCheckoutProvided()) {
+                        // local directory provided for more than one plugin, so each plugin is allocated in localCheckoutDir/plugin-name
+                        // If there is no subdirectory for the plugin, it will be cloned from scm
                         File pomFile = new File(new File(config.getLocalCheckoutDir(), plugin.name), "pom.xml");
                         if (pomFile.exists()) {
                             remote = new PluginRemoting(pomFile);
                         } else {
                             remote = new PluginRemoting(plugin.url);
                         }
+                    } else {
+                        // Only one plugin but checkout directory not provided or
+                        // more than a plugin and no local checkout directory provided
+                        remote = new PluginRemoting(plugin.url);
                     }
                     PomData pomData;
                     try {
@@ -404,34 +412,29 @@ public class PluginCompatTester {
                     FileUtils.deleteDirectory(pluginCheckoutDir);
                 }
 
-                if (localCheckoutProvided() && !onlyOnePluginIncluded() && !config.isSkipSingleLocalCheckoutDir()) {
-                    throw new RuntimeException("You specified a local clone but neither did not choose only one plugin to execute PCT against it nor skip validation (skipSingleLocalCheckoutDir)");
-                }
-
                 pluginCheckoutDir.mkdir();
                 System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
 
-                File localCheckoutPluginDir = new File(config.getLocalCheckoutDir(), plugin.name);
-                if (localCheckoutProvided() && localCheckoutPluginDir.exists()) {
+                if (localCheckoutProvided()) {
                     if (!onlyOnePluginIncluded()) {
-                        System.out.println("Copy plugin directory from : " + localCheckoutPluginDir.getAbsolutePath());
-                        FileUtils.copyDirectoryStructure(localCheckoutPluginDir, pluginCheckoutDir);
+                        File localCheckoutPluginDir = new File(config.getLocalCheckoutDir(), plugin.name);
+                        File pomLocalCheckoutPluginDir = new File(localCheckoutPluginDir, "pom.xml");
+                        if(pomLocalCheckoutPluginDir.exists()) {
+                            System.out.println("Copy plugin directory from : " + localCheckoutPluginDir.getAbsolutePath());
+                            FileUtils.copyDirectoryStructure(localCheckoutPluginDir, pluginCheckoutDir);
+                        } else {
+                            cloneFromSCM(pomData.getConnectionUrl(), plugin.name, plugin.version, pluginCheckoutDir);
+                        }
                     } else {
                         // TODO this fails when it encounters symlinks (e.g. work/jobs/…/builds/lastUnstableBuild),
                         // and even up-to-date versions of org.apache.commons.io.FileUtils seem to not handle links,
                         // so may need to use something like http://docs.oracle.com/javase/tutorial/displayCode.html?code=http://docs.oracle.com/javase/tutorial/essential/io/examples/Copy.java
+                        System.out.println("Copy plugin directory from : " + config.getLocalCheckoutDir().getAbsolutePath());
                         FileUtils.copyDirectoryStructure(config.getLocalCheckoutDir(), pluginCheckoutDir);
                     }
                 } else {
                     // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
-                    System.out.println("Checking out from SCM connection URL : " + pomData.getConnectionUrl() + " (" + plugin.name + "-" + plugin.version + ")");
-                    ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-                    ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
-                    CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(pluginCheckoutDir), new ScmTag(plugin.name + "-" + plugin.version));
-
-                    if (!result.isSuccess()) {
-                        throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
-                    }
+                    cloneFromSCM(pomData.getConnectionUrl(), plugin.name, plugin.version, pluginCheckoutDir);
                 }
             } else {
                 // If the plugin exists in a different directory (multimodule plugins)
@@ -517,6 +520,17 @@ public class PluginCompatTester {
             throw e2;
         }
 	}
+
+	private void cloneFromSCM(String connectionUrl, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException {
+        System.out.println("Checking out from SCM connection URL : " + connectionUrl + " (" + name + "-" + version + ")");
+        ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
+        ScmRepository repository = scmManager.makeScmRepository(connectionUrl);
+        CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(name + "-" + version));
+
+        if (!result.isSuccess()) {
+            throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
+        }
+    }
 
     private boolean localCheckoutProvided() {
         return config.getLocalCheckoutDir() != null && config.getLocalCheckoutDir().exists();
