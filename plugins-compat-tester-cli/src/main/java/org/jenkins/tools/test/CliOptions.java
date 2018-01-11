@@ -104,7 +104,7 @@ public class CliOptions {
     @Parameter(names="-hookPrefixes", description = "Prefixes of the extra hooks' classes")
     private String hookPrefixes;
 
-    @Parameter(names="-localCheckoutDir", description = "Folder containing a local (possibly modified) clone of a plugin repository")
+    @Parameter(names="-localCheckoutDir", description = "Folder containing either a local (possibly modified) clone of a plugin repository or a set of local clone of different plugins")
     private String localCheckoutDir;
 
     public String getUpdateCenterUrl() {
@@ -174,4 +174,5 @@ public class CliOptions {
     public String getLocalCheckoutDir() {
         return localCheckoutDir;
     }
+
 }
