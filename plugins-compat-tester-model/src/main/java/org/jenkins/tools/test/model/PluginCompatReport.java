@@ -141,13 +141,20 @@ public class PluginCompatReport {
         return (!resultCorrespondingToGivenCoreCoords.status.isLowerThan(cacheThresholdStatus));
     }
 
-    public static PluginCompatReport fromXml(File reportPath) {
+    /**
+     * Reads a compat report
+     * @param reportPath Report file path
+     * @return Report. If the file does not exist, an empty report will be returned
+     * @throws IOException Unexpected read error.
+     */
+    @Nonnull
+    public static PluginCompatReport fromXml(File reportPath) throws IOException {
         PluginCompatReport report = null;
 
         // Reading report file from reportPath
         XStream xstream = createXStream();
-        try {
-            report = (PluginCompatReport)xstream.fromXML(new FileInputStream(reportPath));
+        try(FileInputStream istream = new FileInputStream(reportPath)) {
+            report = (PluginCompatReport)xstream.fromXML(istream);
         } catch (FileNotFoundException e) {
             // Path doesn't exist => create a new report object
             report = new PluginCompatReport();

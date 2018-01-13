@@ -56,6 +56,11 @@ public class PluginCompatTesterCli {
             System.exit(1);
         }
 
+        if (options.isPrintHelp()) {
+            jcommander.usage();
+            System.exit(0);
+        }
+
         options.getWorkDirectory().mkdirs();
 
         File reportFile = null;

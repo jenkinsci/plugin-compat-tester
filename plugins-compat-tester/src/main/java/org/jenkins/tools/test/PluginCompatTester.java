@@ -73,6 +73,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -351,17 +352,23 @@ public class PluginCompatTester {
 	}
 
     private void generateHtmlReportFile() throws IOException {
-        Source xmlSource = new StreamSource(config.reportFile);
-        Source xsltSource = new StreamSource(getXslTransformerResource().getInputStream());
-        Result result = new StreamResult(PluginCompatReport.getHtmlFilepath(config.reportFile));
+        if (!config.reportFile.exists() || !config.reportFile.isFile()) {
+            throw new FileNotFoundException("Cannot find the XML report file: " + config.reportFile);
+        }
 
-        TransformerFactory factory = TransformerFactory.newInstance();
-        Transformer transformer = null;
-        try {
-            transformer = factory.newTransformer(xsltSource);
-            transformer.transform(xmlSource, result);
-        } catch (TransformerException e) {
-            throw new RuntimeException(e);
+        Source xmlSource = new StreamSource(config.reportFile);
+        try(InputStream xsltStream = getXslTransformerResource().getInputStream()) {
+            Source xsltSource = new StreamSource(xsltStream);
+            Result result = new StreamResult(PluginCompatReport.getHtmlFilepath(config.reportFile));
+
+            TransformerFactory factory = TransformerFactory.newInstance();
+            Transformer transformer = null;
+            try {
+                transformer = factory.newTransformer(xsltSource);
+                transformer.transform(xmlSource, result);
+            } catch (TransformerException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
