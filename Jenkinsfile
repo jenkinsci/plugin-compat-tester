@@ -42,9 +42,8 @@ for (int i = 0; i < platforms.size(); ++i) {
                     junit '**/target/surefire-reports/TEST-*.xml'
 
                     if (label == 'linux') {
-                      archiveArtifacts artifacts: 'target/**/*.jar'
-                      // FindBugs is not enabled for this repo so far
-                      // findbugs pattern: '**/target/findbugsXml.xml'
+                      archiveArtifacts artifacts: '**/target/**/*.jar'
+                      findbugs pattern: '**/target/findbugsXml.xml'
                     }
                 }
             }
