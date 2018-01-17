@@ -513,6 +513,7 @@ public class PluginCompatTester {
             forExecutionHooks.put("pom", pom);
             forExecutionHooks.put("coreCoordinates", coreCoordinates);
             forExecutionHooks.put("config", config);
+            forExecutionHooks.put("pluginDir", pluginCheckoutDir);
             pcth.runBeforeExecution(forExecutionHooks);
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>)forExecutionHooks.get("args")).toArray(new String[args.size()]));
 
