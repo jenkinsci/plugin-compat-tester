@@ -1,17 +1,8 @@
 package org.jenkins.tools.test.hook;
 
 
-import hudson.model.UpdateSite;
-import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.ScmTag;
-import org.apache.maven.scm.command.checkout.CheckOutScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.repository.ScmRepository;
-import org.jenkins.tools.test.SCMManagerFactory;
-import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
+import org.jenkins.tools.test.model.PomData;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -21,13 +12,6 @@ import java.util.Map;
  * stored in a central repository.
  */
 public class DeclarativePipelineHook extends AbstractMultiParentHook {
-
-    public static final List<String> DP_PLUGINS = Arrays.asList("pipeline-model-api", "pipeline-model-definition", "pipeline-model-extensions", "pipeline-model-json-shaded", "pipeline-stage-tags-metadata");
-
-    @Override
-    protected List<String> getBundledPlugins() {
-        return DP_PLUGINS;
-    }
 
     @Override
     protected String getParentFolder() {
@@ -42,5 +26,15 @@ public class DeclarativePipelineHook extends AbstractMultiParentHook {
     @Override
     protected String getParentProjectName() {
         return "pipeline-model-definition";
+    }
+
+    @Override
+    public boolean check(Map<String, Object> info) throws Exception {
+        return isDPPlugin(info);
+    }
+
+    public static boolean isDPPlugin(Map<String, Object> moreInfo) {
+        PomData data = (PomData) moreInfo.get("pomData");
+        return data.parent.artifactId.equalsIgnoreCase("pipeline-model-parent");
     }
 }
