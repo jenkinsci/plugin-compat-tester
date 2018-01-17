@@ -14,6 +14,9 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,24 +26,15 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
 
     protected MavenRunner runner;
     protected MavenRunner.Config mavenConfig;
-    
+
+    public static final String ESLINTRC = ".eslintrc";
+
     public BOAndDPCompileHook() {
         System.out.println("Loaded Blue Ocean and Declarative Pipeline compile hook");
     }
 
-    @Override
-    public List<String> transformedPlugins() {
-        List<String> transformedPlugins = new LinkedList<>();
-        transformedPlugins.addAll(BlueOceanHook.BO_PLUGINS);
-        transformedPlugins.addAll(DeclarativePipelineHook.DP_PLUGINS);
-        return transformedPlugins;
-    }
 
     @Override
-    public void validate(Map<String, Object> toCheck) throws Exception {
-        //Empty by design
-    }
-
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         try {
             System.out.println("Executing Blue Ocean and Declarative Pipeline compile hook");
@@ -51,6 +45,20 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
             mavenConfig = getMavenConfig(config);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
+
+            Path pluginSourcesDir = config.getLocalCheckoutDir().toPath();
+
+            if (pluginSourcesDir != null) {
+                boolean isMultipleLocalPlugins = config.getIncludePlugins() != null && config.getIncludePlugins().size() > 1;
+                // We are running for local changes, let's copy the .eslintrc file if we can
+                //If we are using localCheckoutDir with multiple plufins the .eslintrc must be located at the top level
+                // If not it must be located on the parent of the localCheckoutDir
+                if (!isMultipleLocalPlugins) {
+                    pluginSourcesDir = pluginSourcesDir.getParent();
+                }
+                // Copy the file if it exists
+                Files.walk(pluginSourcesDir, 1).filter(file -> isEslintFile(file)).forEach(eslintrc -> copy(eslintrc, pluginDir));
+            }
 
             // We need to compile before generating effective pom overriding jenkins.version
             // only if the plugin is not already compiled
@@ -70,29 +78,51 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
         }
     }
 
+    @Override
+    public void validate(Map<String, Object> toCheck) throws Exception {
+
+    }
+
+    @Override
+    public boolean check(Map<String, Object> info) throws Exception {
+        return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info);
+    }
+
+    private boolean isEslintFile(Path file) {
+        return file.getFileName().toString().equals(ESLINTRC);
+    }
+
+    private void copy(Path eslintrc, File pluginFolder) {
+        try {
+            Files.copy(eslintrc, new File(pluginFolder.getParent(), ESLINTRC).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to copy eslintrc file", e);
+        }
+    }
+
     private MavenRunner.Config getMavenConfig(PluginCompatTesterConfig config) throws IOException {
         MavenRunner.Config mconfig = new MavenRunner.Config();
         mconfig.userSettingsFile = config.getM2SettingsFile();
         // TODO REMOVE
-        mconfig.userProperties.put( "failIfNoTests", "false" );
-        mconfig.userProperties.put( "argLine", "-XX:MaxPermSize=128m" );
+        mconfig.userProperties.put("failIfNoTests", "false");
+        mconfig.userProperties.put("argLine", "-XX:MaxPermSize=128m");
         String mavenPropertiesFilePath = config.getMavenPropertiesFile();
-        if ( StringUtils.isNotBlank( mavenPropertiesFilePath )) {
-            File file = new File (mavenPropertiesFilePath);
+        if (StringUtils.isNotBlank(mavenPropertiesFilePath)) {
+            File file = new File(mavenPropertiesFilePath);
             if (file.exists()) {
                 FileInputStream fileInputStream = null;
                 try {
-                    fileInputStream = new FileInputStream( file );
-                    Properties properties = new Properties(  );
-                    properties.load( fileInputStream  );
-                    for (Map.Entry<Object,Object> entry : properties.entrySet()) {
+                    fileInputStream = new FileInputStream(file);
+                    Properties properties = new Properties();
+                    properties.load(fileInputStream);
+                    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                         mconfig.userProperties.put((String) entry.getKey(), (String) entry.getValue());
                     }
                 } finally {
-                    IOUtils.closeQuietly( fileInputStream );
+                    IOUtils.closeQuietly(fileInputStream);
                 }
             } else {
-                System.out.println("File " + mavenPropertiesFilePath + " not exists" );
+                System.out.println("File " + mavenPropertiesFilePath + " not exists");
             }
         }
         return mconfig;
