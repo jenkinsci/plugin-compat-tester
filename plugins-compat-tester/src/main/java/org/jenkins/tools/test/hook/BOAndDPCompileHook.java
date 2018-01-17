@@ -57,7 +57,9 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
                     pluginSourcesDir = pluginSourcesDir.getParent();
                 }
                 // Copy the file if it exists
-                Files.walk(pluginSourcesDir, 1).filter(file -> isEslintFile(file)).forEach(eslintrc -> copy(eslintrc, pluginDir));
+                Files.walk(pluginSourcesDir, 1)
+                    .filter(file -> isEslintFile(file))
+                    .forEach(eslintrc -> copy(eslintrc, pluginDir));
             }
 
             // We need to compile before generating effective pom overriding jenkins.version
