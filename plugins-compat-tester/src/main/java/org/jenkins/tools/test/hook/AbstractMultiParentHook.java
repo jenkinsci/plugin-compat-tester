@@ -22,13 +22,6 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
 
     protected boolean firstRun = true;
 
-    /**
-     * All the plugins that are part of this repository.
-     */
-    public List<String> transformedPlugins() {
-        return getBundledPlugins();
-    }
-
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         PluginCompatTesterConfig config = (PluginCompatTesterConfig)moreInfo.get("config");
         UpdateSite.Plugin currentPlugin = (UpdateSite.Plugin)moreInfo.get("plugin");
@@ -71,11 +64,6 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
 
         return moreInfo;
     }
-
-    /**
-     * Returns the list of plugins that belong to the multi module project that this hook is intended for
-     */
-    protected abstract List<String> getBundledPlugins();
 
     /**
      * Returns the folder where the multimodule project parent will be checked out
