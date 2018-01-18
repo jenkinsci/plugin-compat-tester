@@ -45,9 +45,6 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
             mavenConfig = getMavenConfig(config);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
-            if (pluginDir.exists())
-
-
             Path pluginSourcesDir = config.getLocalCheckoutDir().toPath();
 
             if (pluginSourcesDir != null) {
