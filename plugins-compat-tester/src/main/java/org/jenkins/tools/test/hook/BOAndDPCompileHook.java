@@ -45,13 +45,15 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
             mavenConfig = getMavenConfig(config);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
+            if (pluginDir.exists())
+
 
             Path pluginSourcesDir = config.getLocalCheckoutDir().toPath();
 
             if (pluginSourcesDir != null) {
                 boolean isMultipleLocalPlugins = config.getIncludePlugins() != null && config.getIncludePlugins().size() > 1;
                 // We are running for local changes, let's copy the .eslintrc file if we can
-                //If we are using localCheckoutDir with multiple plufins the .eslintrc must be located at the top level
+                // If we are using localCheckoutDir with multiple plugins the .eslintrc must be located at the top level
                 // If not it must be located on the parent of the localCheckoutDir
                 if (!isMultipleLocalPlugins) {
                     pluginSourcesDir = pluginSourcesDir.getParent();
