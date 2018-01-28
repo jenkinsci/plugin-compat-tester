@@ -74,7 +74,7 @@ java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli-${PCT_VERSI
   -reportFile $(pwd)/out/report.xml \
   -workDirectory $(pwd)/tmp/work \
   -includePlugins ${PLUGIN_ARTIFACT_ID} \
-  -war jenkins.war localCheckoutDir ${PLUGIN_SRC} \
+  -war jenkins.war -localCheckoutDir ${PLUGIN_SRC} \
   -skipTestCache true \
   -mvn ${PATH_TO_MAVEN}
 ```
