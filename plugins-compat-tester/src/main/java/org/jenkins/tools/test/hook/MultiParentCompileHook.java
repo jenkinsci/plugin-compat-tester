@@ -22,22 +22,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
+public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
 
     protected MavenRunner runner;
     protected MavenRunner.Config mavenConfig;
 
     public static final String ESLINTRC = ".eslintrc";
 
-    public BOAndDPCompileHook() {
-        System.out.println("Loaded Blue Ocean and Declarative Pipeline compile hook");
+    public MultiParentCompileHook() {
+        System.out.println("Loaded multi-parent compile hook");
     }
 
 
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         try {
-            System.out.println("Executing Blue Ocean and Declarative Pipeline compile hook");
+            System.out.println("Executing multi-parent compile hook");
             PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
             MavenCoordinates core = (MavenCoordinates) moreInfo.get("core");
 
@@ -69,7 +69,7 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
                 moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
             }
 
-            System.out.println("Executed Blue Ocean and Declarative Pipeline compile hook");
+            System.out.println("Executed multi-parent compile hook");
             return moreInfo;
             // Exceptions get swallowed, so we print to console here and rethrow again
         } catch (Exception e) {
@@ -86,7 +86,7 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
 
     @Override
     public boolean check(Map<String, Object> info) throws Exception {
-        return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info);
+        return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info) || StructsHook.isStructsPlugin(info);
     }
 
     private boolean isEslintFile(Path file) {
