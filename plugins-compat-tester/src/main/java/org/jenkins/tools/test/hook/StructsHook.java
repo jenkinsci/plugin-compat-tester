@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.hook;
 
+import hudson.model.UpdateSite;
 import org.jenkins.tools.test.model.PomData;
 
 import java.util.Map;
@@ -8,7 +9,7 @@ public class StructsHook extends AbstractMultiParentHook {
 
     @Override
     protected String getParentFolder() {
-        return "";
+        return "structs-plugin";
     }
 
     @Override
@@ -24,6 +25,11 @@ public class StructsHook extends AbstractMultiParentHook {
     @Override
     public boolean check(Map<String, Object> info) throws Exception {
         return isStructsPlugin(info);
+    }
+
+    @Override
+    protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
+        return "plugin";
     }
 
     public static boolean isStructsPlugin(Map<String, Object> moreInfo) {
