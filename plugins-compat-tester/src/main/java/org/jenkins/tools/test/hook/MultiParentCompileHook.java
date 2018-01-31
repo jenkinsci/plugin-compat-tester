@@ -45,9 +45,10 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             mavenConfig = getMavenConfig(config);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
-            Path pluginSourcesDir = config.getLocalCheckoutDir().toPath();
+            System.out.print("Plugin dir is " + pluginDir);
 
-            if (pluginSourcesDir != null) {
+            if (config.getLocalCheckoutDir() != null) {
+                Path pluginSourcesDir = config.getLocalCheckoutDir().toPath();
                 boolean isMultipleLocalPlugins = config.getIncludePlugins() != null && config.getIncludePlugins().size() > 1;
                 // We are running for local changes, let's copy the .eslintrc file if we can
                 // If we are using localCheckoutDir with multiple plugins the .eslintrc must be located at the top level
