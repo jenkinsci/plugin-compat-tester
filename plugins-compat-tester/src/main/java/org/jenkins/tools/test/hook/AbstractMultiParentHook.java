@@ -11,7 +11,6 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 /**

@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -45,7 +43,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             mavenConfig = getMavenConfig(config);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
-            System.out.print("Plugin dir is " + pluginDir);
+            System.out.println("Plugin dir is " + pluginDir);
 
             if (config.getLocalCheckoutDir() != null) {
                 Path pluginSourcesDir = config.getLocalCheckoutDir().toPath();
@@ -58,7 +56,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
                 }
                 // Copy the file if it exists
                 Files.walk(pluginSourcesDir, 1)
-                    .filter(file -> isEslintFile(file))
+                    .filter(this::isEslintFile)
                     .forEach(eslintrc -> copy(eslintrc, pluginDir));
             }
 
