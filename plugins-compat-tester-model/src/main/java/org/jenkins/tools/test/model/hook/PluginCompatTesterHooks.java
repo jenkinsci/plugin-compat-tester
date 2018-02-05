@@ -64,7 +64,15 @@ public class PluginCompatTesterHooks {
      */
     private Map<String, Object> runHooks(String stage, Map<String, Object> elements) throws RuntimeException {
         String pluginName = (String)elements.get("pluginName");
-        Queue<PluginCompatTesterHook> beforeHooks = hooksByType.get(stage).get("all") != null ? hooksByType.get(stage).get("all") : new LinkedList<PluginCompatTesterHook>();
+        // List of hooks to execute for the given plugin
+        Queue<PluginCompatTesterHook> beforeHooks = new LinkedList<PluginCompatTesterHook>();
+
+        // Add any hooks that apply for all plugins
+        if(hooksByType.get(stage).get("all") != null) {
+            beforeHooks.addAll(hooksByType.get(stage).get("all"));
+        }
+
+        // Add hooks that applied to this concrete plugin
         if(hooksByType.get(stage).get(pluginName) != null) {
             beforeHooks.addAll(hooksByType.get(stage).get(pluginName));
         }
