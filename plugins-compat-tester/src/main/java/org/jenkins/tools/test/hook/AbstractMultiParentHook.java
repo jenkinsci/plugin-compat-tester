@@ -11,7 +11,6 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,7 +54,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             firstRun = false;
 
             // Change the "download"" directory; after download, it's simply used for reference
-            File childPath = new File(config.workDirectory.getAbsolutePath() + "/" + getParentFolder() + "/" + currentPlugin.name);
+            File childPath = new File(config.workDirectory.getAbsolutePath() + "/" + getParentFolder() + "/" + getPluginFolderName(currentPlugin));
 
             System.out.println("Child path for " + currentPlugin.getDisplayName() + " " + childPath);
             moreInfo.put("checkoutDir", childPath);
@@ -80,4 +79,11 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
      */
     protected abstract String getParentProjectName();
 
+    /**
+     * Returns the plugin folder name, by default it will be the plugin name, but can be overriden to support plugins
+     * (like structs) that are not located in a folder with the same name than the plugin itself
+     */
+    protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
+        return currentPlugin.name;
+    }
 }

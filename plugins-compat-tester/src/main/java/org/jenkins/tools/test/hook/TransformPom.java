@@ -5,7 +5,6 @@ import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -35,13 +34,14 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
                 parent.matches("com.cloudbees.operations-center.common", "operations-center-parent") ||
                 parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client");
         boolean isBO = parent.matches("io.jenkins.blueocean", "blueocean-parent");
+        boolean isStructs = parent.matches("org.jenkins-ci.plugins", "structs-parent");
         boolean pluginPOM = parent.matches("org.jenkins-ci.plugins", "plugin");
         boolean parentV2 = parent.compareVersionTo("2.0") >= 0;
         boolean parentUnder233 = parentV2 && parent.compareVersionTo(PLUGINS_PARENT_POM_FOR_CORE_WITHOUT_WAR_TEST) < 0;
         boolean coreRequiresNewParentPOM = coreCoordinates.compareVersionTo(CORE_NEW_PARENT_POM) >= 0;
         boolean coreRequiresPluginOver233 = coreCoordinates.compareVersionTo(CORE_WITHOUT_WAR_FOR_TEST) >= 0;
 
-        if (isDeclarativePipeline || isBO || isCB || (pluginPOM && parentV2)) {
+        if (isDeclarativePipeline || isBO || isCB || isStructs || (pluginPOM && parentV2)) {
             List<String> argsToMod = (List<String>)info.get("args");
             argsToMod.add("-Djenkins.version=" + coreCoordinates.version);
             // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores

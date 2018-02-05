@@ -17,27 +17,25 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
+public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
 
     protected MavenRunner runner;
     protected MavenRunner.Config mavenConfig;
 
     public static final String ESLINTRC = ".eslintrc";
 
-    public BOAndDPCompileHook() {
-        System.out.println("Loaded Blue Ocean and Declarative Pipeline compile hook");
+    public MultiParentCompileHook() {
+        System.out.println("Loaded multi-parent compile hook");
     }
 
 
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         try {
-            System.out.println("Executing Blue Ocean and Declarative Pipeline compile hook");
+            System.out.println("Executing multi-parent compile hook");
             PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
             MavenCoordinates core = (MavenCoordinates) moreInfo.get("core");
 
@@ -45,9 +43,10 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
             mavenConfig = getMavenConfig(config);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
-            Path pluginSourcesDir = config.getLocalCheckoutDir().toPath();
+            System.out.println("Plugin dir is " + pluginDir);
 
-            if (pluginSourcesDir != null) {
+            if (config.getLocalCheckoutDir() != null) {
+                Path pluginSourcesDir = config.getLocalCheckoutDir().toPath();
                 boolean isMultipleLocalPlugins = config.getIncludePlugins() != null && config.getIncludePlugins().size() > 1;
                 // We are running for local changes, let's copy the .eslintrc file if we can
                 // If we are using localCheckoutDir with multiple plugins the .eslintrc must be located at the top level
@@ -57,7 +56,7 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
                 }
                 // Copy the file if it exists
                 Files.walk(pluginSourcesDir, 1)
-                    .filter(file -> isEslintFile(file))
+                    .filter(this::isEslintFile)
                     .forEach(eslintrc -> copy(eslintrc, pluginDir));
             }
 
@@ -69,7 +68,7 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
                 moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
             }
 
-            System.out.println("Executed Blue Ocean and Declarative Pipeline compile hook");
+            System.out.println("Executed multi-parent compile hook");
             return moreInfo;
             // Exceptions get swallowed, so we print to console here and rethrow again
         } catch (Exception e) {
@@ -86,7 +85,7 @@ public class BOAndDPCompileHook extends PluginCompatTesterHookBeforeCompile {
 
     @Override
     public boolean check(Map<String, Object> info) throws Exception {
-        return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info);
+        return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info) || StructsHook.isStructsPlugin(info);
     }
 
     private boolean isEslintFile(Path file) {
