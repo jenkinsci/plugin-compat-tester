@@ -20,33 +20,26 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM maven:3.5.2-jdk-8
+FROM maven:3.5.2-jdk-8 as builder
 LABEL Description="Base image for running Jenkins Plugin Compat Tester (PCT) against custom plugins and Jenkins cores" Vendor="Jenkins project"
 
-# Mode 1. Copy local artifact
-# Local build (uncomment and remove the section below if needed)
-COPY plugins-compat-tester-cli/target/plugins-compat-tester-cli-*.jar /pct/pct-cli.jar
+COPY plugins-compat-tester/ /pct/src/plugins-compat-tester/
+COPY plugins-compat-tester-cli/ /pct/src/plugins-compat-tester-cli/
+COPY plugins-compat-tester-gae/ /pct/src/plugins-compat-tester-gae/
+COPY plugins-compat-tester-gae-client/ /pct/src/plugins-compat-tester-gae-client/
+COPY plugins-compat-tester-model/ /pct/src/plugins-compat-tester-model/
+COPY *.xml /pct/src/
+COPY LICENSE.txt /pct/src/LICENSE.txt
 
-# Mode 2. Build artifact from sources in Docker
-# Use this flow if you do not want to build the binary on a local machine
-# This mode is ineffective from the container size PoV and the layer number
-# https://issues.jenkins-ci.org/browse/INFRA-1447
-# Copy sources
-#COPY plugins-compat-tester/ /pct/src/plugins-compat-tester/
-#COPY plugins-compat-tester-cli/ /pct/src/plugins-compat-tester-cli/
-#COPY plugins-compat-tester-gae/ /pct/src/plugins-compat-tester-gae/
-#COPY plugins-compat-tester-gae-client/ /pct/src/plugins-compat-tester-gae-client/
-#COPY plugins-compat-tester-model/ /pct/src/plugins-compat-tester-model/
-#COPY *.xml /pct/src/
-#COPY LICENSE.txt /pct/src/LICENSE.txt
+WORKDIR /pct/src/
+RUN mvn clean install -DskipTests
 
-#WORKDIR /pct/src/
-#RUN mvn clean install -DskipTests && cp plugins-compat-tester-cli/target/plugins-compat-tester-cli-*.jar /pct/pct-cli.jar && mvn clean && mvn dependency:purge-local-repository
-
+FROM maven:3.5.2-jdk-8
 ENV JENKINS_WAR_PATH=/pct/jenkins.war
 ENV PCT_OUTPUT_DIR=/pct/out
 ENV PCT_TMP=/pct/tmp
 
+COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tester-cli-*.jar /pct/pct-cli.jar
 COPY src/main/docker/run-pct.sh /usr/local/bin/run-pct
 COPY src/main/docker/pct-default-settings.xml /pct/default-m2-settings.xml
 
