@@ -21,7 +21,6 @@
 #  THE SOFTWARE.
 
 FROM maven:3.5.2-jdk-8 as builder
-LABEL Description="Base image for running Jenkins Plugin Compat Tester (PCT) against custom plugins and Jenkins cores" Vendor="Jenkins project"
 
 COPY plugins-compat-tester/ /pct/src/plugins-compat-tester/
 COPY plugins-compat-tester-cli/ /pct/src/plugins-compat-tester-cli/
@@ -35,6 +34,7 @@ WORKDIR /pct/src/
 RUN mvn clean install -DskipTests
 
 FROM maven:3.5.2-jdk-8
+LABEL Description="Base image for running Jenkins Plugin Compat Tester (PCT) against custom plugins and Jenkins cores" Vendor="Jenkins project"
 ENV JENKINS_WAR_PATH=/pct/jenkins.war
 ENV PCT_OUTPUT_DIR=/pct/out
 ENV PCT_TMP=/pct/tmp
