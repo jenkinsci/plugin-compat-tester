@@ -10,7 +10,7 @@ See https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Compatibility+Tester for 
 ### Running PCT in Docker
 
 It is recommended to run PCT in the prepared Docker image.
-You can find it [here](hub.docker.com/r/jenkins/pct/).
+You can find it [here](https://hub.docker.com/r/jenkins/pct/).
 
 #### Examples
 
