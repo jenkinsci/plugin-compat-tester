@@ -39,6 +39,9 @@ ENV JENKINS_WAR_PATH=/pct/jenkins.war
 ENV PCT_OUTPUT_DIR=/pct/out
 ENV PCT_TMP=/pct/tmp
 
+RUN apt-get -y update && apt-get install -y groovy && rm -rf /var/lib/apt/lists/*
+
+COPY src/main/docker/readJenkinsVersion.groovy /pct/readJenkinsVersion.groovy
 COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tester-cli-*.jar /pct/pct-cli.jar
 COPY src/main/docker/run-pct.sh /usr/local/bin/run-pct
 COPY src/main/docker/pct-default-settings.xml /pct/default-m2-settings.xml

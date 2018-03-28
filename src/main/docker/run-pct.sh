@@ -39,7 +39,7 @@ if [ -f "${JENKINS_WAR_PATH}" ]; then
   # WAR is accessed many times in the PCT runs, let's keep it local insead of pulling it from a volume
   cp "${JENKINS_WAR_PATH}" "${PCT_TMP}/jenkins.war"
   WAR_PATH_OPT="-war ${PCT_TMP}/jenkins.war "
-  JENKINS_VERSION=$(unzip -q -c "${PCT_TMP}/jenkins.war" META-INF/MANIFEST.MF | grep 'Jenkins-Version' | cut -d ':' -f 2 | tr -d '[:space:]')
+  JENKINS_VERSION=$(groovy /pct/readJenkinsVersion.groovy ${PCT_TMP}/jenkins.war)
   echo "Using custom Jenkins WAR v. ${JENKINS_VERSION} from ${JENKINS_WAR_PATH}"
 
   if [[ "$JENKINS_VERSION" =~ .*SNAPSHOT.* ]]
