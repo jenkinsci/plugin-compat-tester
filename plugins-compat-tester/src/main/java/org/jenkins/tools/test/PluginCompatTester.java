@@ -111,7 +111,7 @@ public class PluginCompatTester {
     private static final String DEFAULT_SOURCE_ID = "default";
 
     /** First version with new parent POM. */
-    public static final String JENKINS_CORE_FILE_REGEX = "WEB-INF/lib/jenkins-core-([0-9.]+(?:-[0-9.]+)?(?:-(?i)([a-z]+)(-)?([0-9.]+)?)?(?:-SNAPSHOT)?)[.]jar";
+    public static final String JENKINS_CORE_FILE_REGEX = "WEB-INF/lib/jenkins-core-([0-9.]+(?:-[0-9a-f.]+)*(?:-(?i)([a-z]+)(-)?([0-9a-f.]+)?)?(?:-(?i)([a-z]+)(-)?([0-9a-f.]+)?)?(?:-SNAPSHOT)?)[.]jar";
 
     private PluginCompatTesterConfig config;
     private final MavenRunner runner;
