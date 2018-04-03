@@ -174,12 +174,10 @@ public class PluginCompatTesterTest {
 		assertTrue("No matches",m.matches());
 		assertTrue("Invalid group", m.group(1).equals("2.7.3-milestone"));
 
-		//TODO: restore
-		/*
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-rc-milestone.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
-		assertFalse("Invalid match",m.matches());*/
-	}
+		assertTrue("No matches",m.matches());
+		assertTrue("Invalid group", m.group(1).equals("2.7.3-rc-milestone"));	}
 
 	@Test
 	//@Issue("JENKINS-50454")
