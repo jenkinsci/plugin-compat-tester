@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.jvnet.hudson.test.Issue;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
@@ -180,7 +181,7 @@ public class PluginCompatTesterTest {
 		assertTrue("Invalid group", m.group(1).equals("2.7.3-rc-milestone"));	}
 
 	@Test
-	//@Issue("JENKINS-50454")
+	@Issue("JENKINS-50454")
 	public void testCustomWarPackagerVersions() throws Throwable {
 	//TODO: needs more filtering
 		String fileName = "WEB-INF/lib/jenkins-core-256.0-my-branch-2090468d82e49345519a2457f1d1e7426f01540b-SNAPSHOT.jar";
