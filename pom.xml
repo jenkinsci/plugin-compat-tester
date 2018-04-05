@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.39</version>
+    <version>1.41</version>
   </parent>
 
   <groupId>org.jenkins-ci.tests</groupId>
@@ -12,7 +12,7 @@
   <version>0.0.3-SNAPSHOT</version>
   <name>Plugins compatibility tester Aggregator</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Compatibility+Tester</url>
+  <url>https://wiki.jenkins.io/display/JENKINS/Plugin+Compatibility+Tester</url>
   <packaging>pom</packaging>
 
   <scm>
@@ -30,6 +30,8 @@
 
     <!-- Test libs -->
     <powermock.version>1.4.8</powermock.version>
+    <findbugs.effort>Max</findbugs.effort>
+    <findbugs.failOnError>false</findbugs.failOnError>
   </properties>
 
   <modules>
@@ -92,12 +94,6 @@
       </dependency>
 
       <!-- Test libs -->
-      <!-- TODO: make them a test dependency in Parent POM? -->
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.12</version>
-      </dependency>
       <dependency>
         <groupId>org.powermock</groupId>
         <artifactId>powermock-module-junit4</artifactId>
@@ -177,25 +173,6 @@
           <preparationGoals>clean install</preparationGoals>
           <goals>deploy</goals>
         </configuration>
-      </plugin>
-      <!-- TODO: remove when library parent POM enables FindBugs by default -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <configuration>
-          <xmlOutput>true</xmlOutput>
-          <effort>Max</effort>
-          <!-- TODO: issues need to be fixed first-->
-          <failOnError>false</failOnError>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
