@@ -94,7 +94,7 @@ public class CliOptions {
                     "as part of the cache")
     private String cacheThresholdStatus = TestStatus.COMPILATION_ERROR.toString();
 
-    @Parameter(names="-mavenProperties", description = "allow to load some maven properties which will be used a la -D")
+    @Parameter(names="-mavenPropertiesFile", description = "Allow loading some maven properties from *.prop file. These options will be used a la -D")
     private String mavenPropertiesFile;
 
     @Parameter(names="-gaeSecurityToken", description = "Allows to pass GAE Security token needed to write data")
