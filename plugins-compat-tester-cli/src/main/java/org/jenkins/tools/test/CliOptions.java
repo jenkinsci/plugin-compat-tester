@@ -28,6 +28,7 @@ package org.jenkins.tools.test;
 import com.beust.jcommander.Parameter;
 import org.jenkins.tools.test.model.TestStatus;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
 import java.util.List;
 
@@ -154,6 +155,7 @@ public class CliOptions {
         return excludePlugins;
     }
 
+    @CheckForNull
     public String getMavenPropertiesFile() {
         return mavenPropertiesFile;
     }

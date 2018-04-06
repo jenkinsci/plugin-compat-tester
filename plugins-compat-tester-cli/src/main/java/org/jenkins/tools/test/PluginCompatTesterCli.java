@@ -126,6 +126,10 @@ public class PluginCompatTesterCli {
         if(options.getLocalCheckoutDir() != null && !options.getLocalCheckoutDir().isEmpty()){
             config.setLocalCheckoutDir(options.getLocalCheckoutDir());
         }
+        if(options.getMavenPropertiesFile() != null) {
+            config.setMavenPropertiesFiles(options.getMavenPropertiesFile());
+        }
+
 
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
