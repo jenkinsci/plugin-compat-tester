@@ -27,11 +27,13 @@ package org.jenkins.tools.test.model;
 
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +104,7 @@ public class PluginCompatTesterConfig {
     // Only if reportFile is not null
     private boolean generateHtmlReport = true;
 
+    private Map<String, String> mavenProperties = Collections.emptyMap();
     private String mavenPropertiesFile;
 
     // GoogleAppEngine property allowing to provide a security token to be able to write data
@@ -205,6 +208,19 @@ public class PluginCompatTesterConfig {
         this.excludePlugins = excludePlugins;
     }
 
+    public void setMavenProperties(@Nonnull Map<String, String> mavenProperties) {
+        this.mavenProperties = new HashMap<>(mavenProperties);
+    }
+
+    /**
+     * Gets a list of Maven properties defined in the config.
+     * It is not a full list of properties, {@link #retrieveMavenProperties()} should be used to construct it
+     */
+    @Nonnull
+    public Map<String, String> getMavenProperties() {
+        return Collections.unmodifiableMap(mavenProperties);
+    }
+
     public String getMavenPropertiesFile() {
         return mavenPropertiesFile;
     }
@@ -220,7 +236,7 @@ public class PluginCompatTesterConfig {
      * @since TODO
      */
     public Map<String, String> retrieveMavenProperties() throws IOException {
-        Map<String, String> res = new HashMap<>();
+        Map<String, String> res = new HashMap<>(mavenProperties);
 
         // Read properties from File
         if ( StringUtils.isNotBlank( mavenPropertiesFile )) {

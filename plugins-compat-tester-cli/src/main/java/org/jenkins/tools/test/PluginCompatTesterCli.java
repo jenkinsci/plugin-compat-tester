@@ -35,6 +35,8 @@ import org.jenkins.tools.test.model.TestStatus;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Plugin compatibility tester frontend for the CLI
@@ -126,6 +128,20 @@ public class PluginCompatTesterCli {
         if(options.getLocalCheckoutDir() != null && !options.getLocalCheckoutDir().isEmpty()){
             config.setLocalCheckoutDir(options.getLocalCheckoutDir());
         }
+
+        // Handle properties
+        if (options.getMavenProperties() != null) {
+            String[] split = options.getMavenProperties().split("\\s*:\\s*");
+            Map<String, String> mavenProps = new HashMap<>(split.length);
+            for (String expr : split) {
+                String[] split2 = expr.split("=");
+                String key = split2[0];
+                String value = split2.length >= 2 ? split2[1] : null;
+                mavenProps.put(key, value);
+            }
+            config.setMavenProperties(mavenProps);
+        }
+        //TODO: Read property file here as well? No sense to do it letter unless PCT Hooks modify file
         if(options.getMavenPropertiesFile() != null) {
             config.setMavenPropertiesFiles(options.getMavenPropertiesFile());
         }
