@@ -211,25 +211,7 @@ public class PluginCompatTester {
         // TODO REMOVE
         mconfig.userProperties.put( "failIfNoTests", "false" );
         mconfig.userProperties.put( "argLine", "-XX:MaxPermSize=128m" );
-        String mavenPropertiesFilePath = this.config.getMavenPropertiesFile();
-        if ( StringUtils.isNotBlank( mavenPropertiesFilePath )) {
-            File file = new File (mavenPropertiesFilePath);
-            if (file.exists()) {
-                FileInputStream fileInputStream = null;
-                try {
-                    fileInputStream = new FileInputStream( file );
-                    Properties properties = new Properties(  );
-                    properties.load( fileInputStream  );
-                    for (Map.Entry<Object,Object> entry : properties.entrySet()) {
-                        mconfig.userProperties.put((String) entry.getKey(), (String) entry.getValue());
-                    }
-                } finally {
-                    IOUtils.closeQuietly( fileInputStream );
-                }
-            } else {
-                System.out.println("File " + mavenPropertiesFilePath + " not exists" );
-            }
-        }
+        mconfig.userProperties.putAll(this.config.retrieveMavenProperties());
 
 		SCMManagerFactory.getInstance().start();
         for(MavenCoordinates coreCoordinates : testedCores){

@@ -25,10 +25,19 @@
  */
 package org.jenkins.tools.test.model;
 
+import org.apache.commons.lang.StringUtils;
+
+import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * POJO used to configure PluginCompatTester execution
@@ -95,6 +104,7 @@ public class PluginCompatTesterConfig {
     // Only if reportFile is not null
     private boolean generateHtmlReport = true;
 
+    private Map<String, String> mavenProperties = Collections.emptyMap();
     private String mavenPropertiesFile;
 
     // GoogleAppEngine property allowing to provide a security token to be able to write data
@@ -198,12 +208,52 @@ public class PluginCompatTesterConfig {
         this.excludePlugins = excludePlugins;
     }
 
+    public void setMavenProperties(@Nonnull Map<String, String> mavenProperties) {
+        this.mavenProperties = new HashMap<>(mavenProperties);
+    }
+
+    /**
+     * Gets a list of Maven properties defined in the config.
+     * It is not a full list of properties, {@link #retrieveMavenProperties()} should be used to construct it
+     */
+    @Nonnull
+    public Map<String, String> getMavenProperties() {
+        return Collections.unmodifiableMap(mavenProperties);
+    }
+
     public String getMavenPropertiesFile() {
         return mavenPropertiesFile;
     }
 
     public void setMavenPropertiesFiles( String mavenPropertiesFile ) {
         this.mavenPropertiesFile = mavenPropertiesFile;
+    }
+
+    /**
+     * Retrieves Maven Properties from available sources like {@link #mavenPropertiesFile}.
+     * @return Map of properties
+     * @throws IOException Property read failure
+     * @since TODO
+     */
+    public Map<String, String> retrieveMavenProperties() throws IOException {
+        Map<String, String> res = new HashMap<>(mavenProperties);
+
+        // Read properties from File
+        if ( StringUtils.isNotBlank( mavenPropertiesFile )) {
+            File file = new File (mavenPropertiesFile);
+            if (file.exists() && file.isFile()) {
+                try(FileInputStream fileInputStream = new FileInputStream(file)) {
+                    Properties properties = new Properties(  );
+                    properties.load( fileInputStream  );
+                    for (Map.Entry<Object,Object> entry : properties.entrySet()) {
+                        res.put((String) entry.getKey(), (String) entry.getValue());
+                    }
+                }
+            } else {
+                throw new IOException("Extra Maven Properties File " + mavenPropertiesFile + " does not exist or not a File" );
+            }
+        }
+        return res;
     }
 
     public TestStatus getCacheThresholStatus() {
