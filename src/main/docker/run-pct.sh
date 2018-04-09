@@ -17,6 +17,13 @@ if [ -n "${ARTIFACT_ID}" ]; then
   echo "Running PCT for plugin ${ARTIFACT_ID}"
 fi
 
+if [ -f "/pct/m2-settings.xml" ] ; then
+    echo "Using a custom Maven settings file specified by the volume"
+    MVN_SETTINGS_FILE="/pct/m2-settings.xml"
+else
+    MVN_SETTINGS_FILE="/pct/default-m2-settings.xml"
+fi
+
 if [ -n "${CHECKOUT_SRC}" ] ; then
   echo "Using custom checkout source: ${CHECKOUT_SRC}"
 else
@@ -50,10 +57,10 @@ if [ -f "${JENKINS_WAR_PATH}" ]; then
     unzip -q -c "jenkins.war" "WEB-INF/lib/jenkins-core-${JENKINS_VERSION}.jar" > "war-exploded/jenkins-core.jar"
     unzip -q -c "jenkins.war" "WEB-INF/lib/cli-${JENKINS_VERSION}.jar" > "war-exploded/jenkins-cli.jar"
     unzip -q -c "jenkins.war" "META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml" > "war-exploded/jenkins-pom.xml"
-    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dfile="jenkins.war"
-    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dfile="war-exploded/jenkins-core.jar"
-    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dfile="war-exploded/jenkins-cli.jar"
-    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dpackaging=pom -Dfile="war-exploded/jenkins-pom.xml" -DpomFile="war-exploded/jenkins-pom.xml" -Dversion="${JENKINS_VERSION}" -DartifactId="pom" -DgroupId="org.jenkins-ci.main"
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file ${JAVA_OPTS} -m2SettingsFile "${MVN_SETTINGS_FILE}" -Dfile="jenkins.war"
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file ${JAVA_OPTS} -m2SettingsFile "${MVN_SETTINGS_FILE}" -Dfile="war-exploded/jenkins-core.jar"
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file ${JAVA_OPTS} -m2SettingsFile "${MVN_SETTINGS_FILE}" -Dfile="war-exploded/jenkins-cli.jar"
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file -Dpackaging=pom ${JAVA_OPTS} -m2SettingsFile "${MVN_SETTINGS_FILE}"  -Dfile="war-exploded/jenkins-pom.xml" -DpomFile="war-exploded/jenkins-pom.xml" -Dversion="${JENKINS_VERSION}" -DartifactId="pom" -DgroupId="org.jenkins-ci.main"
   fi
 else
   WAR_PATH_OPT=""
@@ -67,12 +74,7 @@ if [[ "$DEBUG" ]] ; then
   )
 fi
 
-if [ -f "/pct/m2-settings.xml" ] ; then
-    echo "Using a custom Maven settings file specified by the volume"
-    MVN_SETTINGS_FILE="/pct/m2-settings.xml"
-else
-    MVN_SETTINGS_FILE="/pct/default-m2-settings.xml"
-fi
+
 
 ###
 # Checkout sources
@@ -98,7 +100,7 @@ fi
 ###
 cd "${TMP_CHECKOUT_DIR}"
 if [ -z "${ARTIFACT_ID}" ] ; then
-  ARTIFACT_ID=$(mvn org.apache.maven.plugins:maven-help-plugin:2.2:evaluate -Dexpression=project.artifactId | grep -Ev '(^\[|Download.*)')
+  ARTIFACT_ID=$(mvn org.apache.maven.plugins:maven-help-plugin:2.2:evaluate ${JAVA_OPTS} -m2SettingsFile "${MVN_SETTINGS_FILE}" -Dexpression=project.artifactId | grep -Ev '(^\[|Download.*)')
   echo "ARTIFACT_ID is not specified, using ${ARTIFACT_ID} defined in the POM file"
   mvn clean
 fi
