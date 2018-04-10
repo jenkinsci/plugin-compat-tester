@@ -52,6 +52,6 @@ VOLUME /pct/plugin-src
 VOLUME /pct/jenkins.war
 VOLUME /pct/out
 VOLUME /pct/tmp
-VOLUME /pct/m2-settings.xml
+VOLUME /pct/m2-settings
 VOLUME /root/.m2
 ENTRYPOINT ["run-pct"]
