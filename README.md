@@ -55,7 +55,7 @@ Volumes:
 
 * `/pct/plugin-src` - Plugin sources to be used for the PCT run. Sources will be checked out if not specified
 * `/pct/jenkins.war` - Jenkins WAR file to be used for the PCT run
-* `/pct/m2-settings.xml - Custom Maven Settings if `M2_SETTINGS_FILE` environment variable exists `run-pct` will ignore this location and use the one specified in the varaible`
+* `/pct/m2-settings.xml` - Custom Maven Settings (optional) if `M2_SETTINGS_FILE` environment variable exists `run-pct` will ignore this location and use the one specified in the variable
 * `/pct/out` - Output directory for PCT. All reports will be stored there
 * `/pct/tmp` - Temporary directory. Can be exposed to analyze run failures
 * `/root/.m2` - Maven repository. It can be used to pass settings.xml or to cache artifacts
