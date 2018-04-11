@@ -49,13 +49,13 @@ The image will be able to determine this ID automatically if `CHECKOUT_SRC` or `
 * `CHECKOUT_SRC` - Custom Git clone source (e.g. `https://github.com/oleg-nenashev/job-restrictions-plugin.git`). `https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git` by default
 * `JAVA_OPTS` - Java options to be passed to the PCT CLI
 * `DEBUG` - Boolean flag, which enables the Remote Debug mode (port == 5000)
-* `M2_SETTINGS_FILE` -  If set indicates the name of the custom maven settinmgs file to use (see volumes below), defaults to settings.xml
+* `M2_SETTINGS_FILE` -  If set indicates the path of the custom maven settinmgs file to use (see volumes below)
 
 Volumes:
 
 * `/pct/plugin-src` - Plugin sources to be used for the PCT run. Sources will be checked out if not specified
 * `/pct/jenkins.war` - Jenkins WAR file to be used for the PCT run
-* `/pct/m2-settings - Custom Maven Settings parent folder, if specified the PCT will use the maven settings file indicated by `M2_SETTINGS_FILE` environment variable
+* `/pct/m2-settings.xml - Custom Maven Settings if `M2_SETTINGS_FILE` environment variable exists `run-pct` will ignore this location and use the one specified in the varaible`
 * `/pct/out` - Output directory for PCT. All reports will be stored there
 * `/pct/tmp` - Temporary directory. Can be exposed to analyze run failures
 * `/root/.m2` - Maven repository. It can be used to pass settings.xml or to cache artifacts

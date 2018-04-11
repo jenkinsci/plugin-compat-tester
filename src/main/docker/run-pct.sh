@@ -17,9 +17,11 @@ if [ -n "${ARTIFACT_ID}" ]; then
   echo "Running PCT for plugin ${ARTIFACT_ID}"
 fi
 
-if [ -f "/pct/m2-settings.xml" ] ; then
-    echo "Using a custom Maven settings file specified by the volume"
-    MVN_SETTINGS_FILE="/pct/m2-settings.xml"
+CUSTOM_MAVEN_SETTINGS=${M2_SETTINGS_FILE:-"/pct/m2-settings.xml"}
+
+if [ -f "${CUSTOM_MAVEN_SETTINGS}" ] ; then
+    echo "Using a custom Maven settings file"
+    MVN_SETTINGS_FILE="${CUSTOM_MAVEN_SETTINGS}"
 else
     MVN_SETTINGS_FILE="/pct/default-m2-settings.xml"
 fi
@@ -72,15 +74,6 @@ if [[ "$DEBUG" ]] ; then
     '-Xdebug' \
     '-Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=y' \
   )
-fi
-
-CUSTOM_MAVEN_SETTINGS=${M2_SETTINGS_FILE:-settings.xml}
-
-if [ -f "/pct/m2-settings/${CUSTOM_MAVEN_SETTINGS}" ] ; then
-    echo "Using a custom Maven settings file specified by the volume"
-    MVN_SETTINGS_FILE="/pct/m2-settings/${CUSTOM_MAVEN_SETTINGS}"
-else
-    MVN_SETTINGS_FILE="/pct/default-m2-settings.xml"
 fi
 
 ###
