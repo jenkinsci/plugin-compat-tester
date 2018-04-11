@@ -49,7 +49,7 @@ The image will be able to determine this ID automatically if `CHECKOUT_SRC` or `
 * `CHECKOUT_SRC` - Custom Git clone source (e.g. `https://github.com/oleg-nenashev/job-restrictions-plugin.git`). `https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git` by default
 * `JAVA_OPTS` - Java options to be passed to the PCT CLI
 * `DEBUG` - Boolean flag, which enables the Remote Debug mode (port == 5000)
-* `M2_SETTINGS_FILE` -  If set indicates the path of the custom maven settinmgs file to use (see volumes below)
+* `M2_SETTINGS_FILE` -  If set indicates the path of the custom maven settings file to use (see volumes below)
 
 Volumes:
 
