@@ -1,6 +1,6 @@
 # The MIT License
 #
-#  Copyright (c) 2017 CloudBees, Inc.
+#  Copyright (c) 2017-2018 CloudBees, Inc.
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@ WORKDIR /pct/src/
 RUN mvn clean install -DskipTests
 
 FROM maven:3.5.2-jdk-8
+MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 LABEL Description="Base image for running Jenkins Plugin Compat Tester (PCT) against custom plugins and Jenkins cores" Vendor="Jenkins project"
 ENV JENKINS_WAR_PATH=/pct/jenkins.war
 ENV PCT_OUTPUT_DIR=/pct/out
