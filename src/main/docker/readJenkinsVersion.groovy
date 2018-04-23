@@ -1,7 +1,7 @@
 import java.util.zip.*
 import java.util.jar.*
 
-static String readManifest(String sourceJARFile) throws IOException {
+static String readManifest(String sourceJARFile, String attributeName) throws IOException {
     def zipFile = new ZipFile(sourceJARFile)
     InputStream is
     try {
@@ -14,7 +14,7 @@ static String readManifest(String sourceJARFile) throws IOException {
                 def mainAttribs = manifest.getMainAttributes()
                 def version = mainAttribs.getValue("Jenkins-Version")
                 if(version != null) {
-                    return version
+                    return version.split("\\s+")[0]
                 }
             }
         }
@@ -28,4 +28,4 @@ static String readManifest(String sourceJARFile) throws IOException {
     throw new IllegalStateException("Manifest not found in" + sourceJARFile);
 }
 
-println readManifest(this.args[0])
+println readManifest(this.args[0], this.args.length > 1 ? this.args[1] : "Jenkins-Version")

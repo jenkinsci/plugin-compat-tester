@@ -45,24 +45,35 @@ fi
 
 if [ -f "${JENKINS_WAR_PATH}" ]; then
   mkdir -p "${PCT_TMP}"
-  # WAR is accessed many times in the PCT runs, let's keep it local insead of pulling it from a volume
+  # WAR is accessed many times in the PCT runs, let's keep it local instead of pulling it from a volume
   cp "${JENKINS_WAR_PATH}" "${PCT_TMP}/jenkins.war"
   WAR_PATH_OPT="-war ${PCT_TMP}/jenkins.war "
-  JENKINS_VERSION=$(groovy /pct/readJenkinsVersion.groovy ${PCT_TMP}/jenkins.war)
+  JENKINS_VERSION=$(groovy /pct/scripts/readJenkinsVersion.groovy ${PCT_TMP}/jenkins.war)
   echo "Using custom Jenkins WAR v. ${JENKINS_VERSION} from ${JENKINS_WAR_PATH}"
 
-  if [[ "$JENKINS_VERSION" =~ .*SNAPSHOT.* ]]
-  then
+  if [[ "$JENKINS_VERSION" =~ .*SNAPSHOT.* ]] ; then
     cd "${PCT_TMP}"
     echo "Version is a snapshot, will install artifacts to the local maven repo"
-    mkdir -p "war-exploded"
-    unzip -q -c "jenkins.war" "WEB-INF/lib/jenkins-core-${JENKINS_VERSION}.jar" > "war-exploded/jenkins-core.jar"
-    unzip -q -c "jenkins.war" "WEB-INF/lib/cli-${JENKINS_VERSION}.jar" > "war-exploded/jenkins-cli.jar"
-    unzip -q -c "jenkins.war" "META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml" > "war-exploded/jenkins-pom.xml"
-    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" -Dfile="jenkins.war"
-    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" -Dfile="war-exploded/jenkins-core.jar"
-    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" -Dfile="war-exploded/jenkins-cli.jar"
-    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode -Dpackaging=pom ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}"  -Dfile="war-exploded/jenkins-pom.xml" -DpomFile="war-exploded/jenkins-pom.xml" -Dversion="${JENKINS_VERSION}" -DartifactId="pom" -DgroupId="org.jenkins-ci.main"
+    mkdir -p "exploded/war"
+    unzip -q "jenkins.war" -d "exploded/war"
+    # TODO: Bug or feature?
+    # Implementation-Version and Jenkins-Version may differ.
+    # We specify version explicitly to use Jenkins-Version like PCT does
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
+        -Dpackaging=war -Dversion="${JENKINS_VERSION}" -Dfile="jenkins.war" \
+        -DpomFile="exploded/war/META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml"
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
+        -Dpackaging=jar -Dfile="exploded/war/WEB-INF/lib/jenkins-core-${JENKINS_VERSION}.jar"
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
+        -Dpackaging=jar -Dfile="exploded/war/WEB-INF/lib/cli-${JENKINS_VERSION}.jar"
+    mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode -Dpackaging=pom ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}"  \
+        -Dfile="exploded/war/META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml" \
+        -DpomFile="exploded/war/META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml" \
+        -Dversion="${JENKINS_VERSION}" -DartifactId="jenkins-war" -DgroupId="org.jenkins-ci.main"
+    if [ "$INSTALL_BUNDLED_SNAPSHOTS" ] ; then
+        # Install HPI, JAR and POM
+        groovy /pct/scripts/installWARSnapshots.groovy "$(pwd)/exploded/war/WEB-INF/plugins" "$(pwd)/exploded" "${MVN_SETTINGS_FILE}" "${JAVA_OPTS}"
+    fi
   fi
 else
   WAR_PATH_OPT=""

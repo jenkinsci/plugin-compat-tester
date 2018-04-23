@@ -50,6 +50,8 @@ The image will be able to determine this ID automatically if `CHECKOUT_SRC` or `
 * `JAVA_OPTS` - Java options to be passed to the PCT CLI
 * `DEBUG` - Boolean flag, which enables the Remote Debug mode (port == 5000)
 * `M2_SETTINGS_FILE` -  If set indicates the path of the custom maven settings file to use (see volumes below)
+* `INSTALL_BUNDLED_SNAPSHOTS` - Install JAR and plugin snapshots to local repository.
+        `true` by default. WAR snapshots will be always installed.
 
 Volumes:
 
