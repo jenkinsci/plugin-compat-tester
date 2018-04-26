@@ -3,7 +3,7 @@ set -e
 set -x
 
 if [ $# -eq 1 ]; then
-  # if `docker run` only has one argument, we assume that the user is running an alternate command 
+  # if `docker run` only has one argument, we assume that the user is running an alternate command
   # like `bash` to inspect the image. All options passed to the executable shoud have at least 2 arguments.
   echo "Only one argument is specified, running a custom command"
   exec "$@"
@@ -96,7 +96,7 @@ TMP_CHECKOUT_DIR="${PCT_TMP}/localCheckoutDir/undefined"
 if [ -e "/pct/plugin-src/pom.xml" ] ; then
   echo "Located custom plugin sources on the volume"
   mkdir "${TMP_CHECKOUT_DIR}"
-  cp -R /pct/plugin-src/* "${TMP_CHECKOUT_DIR}/"
+  cp -r /pct/plugin-src/. "${TMP_CHECKOUT_DIR}"
   # Due to whatever reason PCT blows up if you have work in the repo
   cd "${TMP_CHECKOUT_DIR}" && mvn clean && rm -rf work
 else
