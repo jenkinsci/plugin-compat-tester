@@ -94,11 +94,12 @@ public class CliOptions {
                     "as part of the cache")
     private String cacheThresholdStatus = TestStatus.COMPILATION_ERROR.toString();
 
-    @Parameter(names="-mavenProperties", description = "Define extra properties to be passed to the build. These options will be used a la -D")
+    @Parameter(names="-mavenProperties", description = "Define extra properties to be passed to the build." +
+            "Format: 'KEY1=VALUE1:KEY2=VALUE2'. These options will be used a la -D.\n" + 
+            "If your property values contain ':' you must use the 'mavenPropertiesFile' option instead.")
     private String mavenProperties;
 
-    @Parameter(names="-mavenPropertiesFile", description = "Allow loading some maven properties from *.prop file. " +
-            "Format: 'KEY1=VALUE1:KEY2=VALUE2'" +
+    @Parameter(names="-mavenPropertiesFile", description = "Allow loading some maven properties from a file using the standard java.util.Properties file format. " +
             "These options will be used a la -D")
     private String mavenPropertiesFile;
 
