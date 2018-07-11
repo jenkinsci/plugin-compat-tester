@@ -323,11 +323,11 @@ public class PluginCompatTester {
             }
         }
 
-        // Generating HTML report if needed
-        if(config.reportFile != null){
-            if(config.isGenerateHtmlReport()){
-                generateHtmlReportFile();
-            }
+        // Generating HTML report only if needed, if the file does not exist is because no test has been executed
+        if(config.isGenerateHtmlReport() && config.reportFile != null && config.reportFile.exists()) {
+            generateHtmlReportFile();
+        } else {
+            System.out.println("No HTML report is generated, because it has been disabled or no tests have been executed");
         }
 
         return report;
