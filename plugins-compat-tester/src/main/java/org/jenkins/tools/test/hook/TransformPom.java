@@ -5,6 +5,7 @@ import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
+import javax.annotation.CheckForNull;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         PomData pomData = (PomData)info.get("pomData");
         MavenCoordinates parent = pomData.parent;
         MavenCoordinates coreCoordinates = (MavenCoordinates)info.get("coreCoordinates");
+        @CheckForNull  MavenCoordinates warCoordinates = (MavenCoordinates)info.get("warCoordinates");
         boolean isDeclarativePipeline = parent.matches("org.jenkinsci.plugins", "pipeline-model-parent");
         boolean isCB = parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
                 // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
@@ -43,7 +45,12 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
 
         if (isDeclarativePipeline || isBO || isCB || isStructs || (pluginPOM && parentV2)) {
             List<String> argsToMod = (List<String>)info.get("args");
-            argsToMod.add("-Djenkins.version=" + coreCoordinates.version);
+            if (warCoordinates == null) {
+                argsToMod.add("-Djenkins.version=" + coreCoordinates.version);
+            } else {
+                argsToMod.add("-Djenkins-core.version=" + coreCoordinates.version);
+                argsToMod.add("-Djenkins-war.version=" + warCoordinates.version);
+            }
             // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores
             // the plugin may be Java 6 and the dependencies bring Java 7
             argsToMod.add("-Denforcer.skip=true");

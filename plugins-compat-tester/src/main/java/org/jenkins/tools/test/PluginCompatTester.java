@@ -36,7 +36,6 @@ import java.io.BufferedReader;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
@@ -64,6 +63,8 @@ import org.jenkins.tools.test.model.TestExecutionResult;
 import org.jenkins.tools.test.model.TestStatus;
 import org.springframework.core.io.ClassPathResource;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -86,6 +87,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
@@ -101,6 +103,8 @@ import java.util.stream.Stream;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
+
+import static com.google.common.base.Objects.firstNonNull;
 
 /**
  * Frontend for plugin compatibility tests
@@ -215,7 +219,15 @@ public class PluginCompatTester {
 
 		SCMManagerFactory.getInstance().start();
         for(MavenCoordinates coreCoordinates : testedCores){
-            System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
+            final MavenCoordinates warCoordinates;
+            if (config.getWar() == null) {
+                // Using the built-in version
+                warCoordinates = new MavenCoordinates(PluginCompatTesterConfig.DEFAULT_PARENT_GROUP, PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT, data.core.version)
+            } else {
+                // Determine version from WAR
+
+            }
+            System.out.println("Starting plugin tests on core: "+coreCoordinates.toString() + " and war: " + );
             for (Plugin plugin : pluginsToCheck.values()) {
                 if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
                     PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
@@ -273,7 +285,7 @@ public class PluginCompatTester {
                     List<String> warningMessages = new ArrayList<String>();
                     if (errorMessage == null) {
                     try {
-                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth);
+                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, warCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth);
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
@@ -366,8 +378,8 @@ public class PluginCompatTester {
     private static String createBuildLogFilePathFor(String pluginName, String pluginVersion, MavenCoordinates coreCoords){
         return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
     }
-	
-	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds, PluginCompatTesterHooks pcth)
+
+	private TestExecutionResult testPluginAgainst(@Nonnull MavenCoordinates coreCoordinates, @CheckForNull MavenCoordinates warCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds, PluginCompatTesterHooks pcth)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
@@ -440,7 +452,7 @@ public class PluginCompatTester {
 			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
 		}
         
-        File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
+        File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, warCoordinates);
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
         FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
@@ -452,6 +464,7 @@ public class PluginCompatTester {
         beforeCompile.put("pomData", pomData);
         beforeCompile.put("config", config);
         beforeCompile.put("core", coreCoordinates);
+        beforeCompile.put("war", warCoordinates);
         Map<String, Object> hookInfo = pcth.runBeforeCompilation(beforeCompile);
 
         boolean ranCompile = hookInfo.containsKey(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) ? (boolean) hookInfo.get(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) : false;
@@ -494,6 +507,7 @@ public class PluginCompatTester {
             forExecutionHooks.put("pomData", pomData);
             forExecutionHooks.put("pom", pom);
             forExecutionHooks.put("coreCoordinates", coreCoordinates);
+            forExecutionHooks.put("warCoordinates", warCoordinates);
             forExecutionHooks.put("config", config);
             forExecutionHooks.put("pluginDir", pluginCheckoutDir);
             pcth.runBeforeExecution(forExecutionHooks);
@@ -665,7 +679,8 @@ public class PluginCompatTester {
         }
     }
 
-    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion) throws PomExecutionException, IOException {
+    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds,
+                                            String coreVersion) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
