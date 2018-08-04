@@ -113,7 +113,7 @@ cd "${TMP_CHECKOUT_DIR}"
 if [ -z "${ARTIFACT_ID}" ] ; then
   ARTIFACT_ID=$(mvn org.apache.maven.plugins:maven-help-plugin:2.2:evaluate ${JAVA_OPTS} --batch-mode -s "${MVN_SETTINGS_FILE}" -Dexpression=project.artifactId | grep -Ev '(^\[|Download.*)')
   echo "ARTIFACT_ID is not specified, using ${ARTIFACT_ID} defined in the POM file"
-  mvn clean
+  mvn clean -s "${MVN_SETTINGS_FILE}"
 fi
 mv "${TMP_CHECKOUT_DIR}" "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
 
