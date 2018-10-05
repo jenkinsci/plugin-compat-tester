@@ -51,7 +51,7 @@ public class CliOptions {
     private File war = null;
 
     @Parameter(names = "-workDirectory", required = true,
-            description = "Work directory where plugin sources will be checkouted")
+            description = "Work directory where plugin sources will be checked out")
     private File workDirectory;
 
     @Parameter(names = "-reportFile", required = true,
