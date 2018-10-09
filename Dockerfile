@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM maven:3.5.2-jdk-8 as builder
+FROM maven:3.5.4-jdk-8 as builder
 
 COPY plugins-compat-tester/ /pct/src/plugins-compat-tester/
 COPY plugins-compat-tester-cli/ /pct/src/plugins-compat-tester-cli/
@@ -33,7 +33,7 @@ COPY LICENSE.txt /pct/src/LICENSE.txt
 WORKDIR /pct/src/
 RUN mvn clean install -DskipTests
 
-FROM maven:3.5.2-jdk-8
+FROM maven:3.5.4-jdk-8
 MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
 LABEL Description="Base image for running Jenkins Plugin Compat Tester (PCT) against custom plugins and Jenkins cores" Vendor="Jenkins project"
 ENV JENKINS_WAR_PATH=/pct/jenkins.war
