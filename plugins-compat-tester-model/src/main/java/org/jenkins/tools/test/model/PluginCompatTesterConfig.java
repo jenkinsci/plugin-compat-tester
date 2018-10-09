@@ -53,7 +53,7 @@ public class PluginCompatTesterConfig {
     // Update center used to retrieve plugins informations
     public final String updateCenterUrl;
 
-    // A working directory where will be checkouted tested plugin's sources
+    // A working directory where the tested plugin's sources will be checked out
     public final File workDirectory;
 
     // A report file where will be generated testing report
