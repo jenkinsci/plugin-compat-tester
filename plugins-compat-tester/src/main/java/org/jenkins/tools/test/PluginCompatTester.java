@@ -210,7 +210,6 @@ public class PluginCompatTester {
         mconfig.userSettingsFile = config.getM2SettingsFile();
         // TODO REMOVE
         mconfig.userProperties.put( "failIfNoTests", "false" );
-        mconfig.userProperties.put( "argLine", "-XX:MaxPermSize=128m" );
         mconfig.userProperties.putAll(this.config.retrieveMavenProperties());
 
 		SCMManagerFactory.getInstance().start();
@@ -482,7 +481,7 @@ public class PluginCompatTester {
 
             List<String> args = new ArrayList<String>();
             args.add("--define=maven.test.redirectTestOutputToFile=false");
-            args.add("--define=concurrency=1");
+            args.add("--define=forkCount=1");
             args.add("hpi:resolve-test-dependencies");
             args.add("hpi:test-hpl");
             args.add("surefire:test");

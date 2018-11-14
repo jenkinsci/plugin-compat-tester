@@ -105,7 +105,6 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         mconfig.userSettingsFile = config.getM2SettingsFile();
         // TODO REMOVE
         mconfig.userProperties.put("failIfNoTests", "false");
-        mconfig.userProperties.put("argLine", "-XX:MaxPermSize=128m");
         mconfig.userProperties.putAll(config.retrieveMavenProperties());
 
         return mconfig;
