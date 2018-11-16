@@ -27,6 +27,7 @@ package org.jenkins.tools.test.model;
 
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,6 +76,15 @@ public class PluginCompatTesterConfig {
     private String parentVersion = null;
 
     private File war = null;
+
+    /**
+     * A Java HOME to be used for running tests in plugins.
+     */
+    @CheckForNull
+    private File testJDKHome = null;
+
+    @CheckForNull
+    private String testJavaArgs = null;
 
     private File externalMaven = null;
 
@@ -196,6 +206,16 @@ public class PluginCompatTesterConfig {
         return parentGroupId;
     }
 
+    @CheckForNull
+    public File getTestJDKHome() {
+        return testJDKHome;
+    }
+
+    @CheckForNull
+    public String getTestJavaArgs() {
+        return testJavaArgs;
+    }
+
     public String getParentArtifactId() {
         return parentArtifactId;
     }
@@ -303,6 +323,18 @@ public class PluginCompatTesterConfig {
     public void setHookPrefixes(List<String> hookPrefixes) {
         // Want to also process the default
         this.hookPrefixes.addAll(hookPrefixes);
+    }
+
+    /**
+     * Sets JDK Home for tests
+     * @param testJDKHome JDK home to be used. {@code null} for using defaul system one.
+     */
+    public void setTestJDKHome(@CheckForNull File testJDKHome) {
+        this.testJDKHome = testJDKHome;
+    }
+
+    public void setTestJavaArgs(@CheckForNull String testJavaArgs) {
+        this.testJavaArgs = testJavaArgs;
     }
 
     public File getLocalCheckoutDir() {

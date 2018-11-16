@@ -212,6 +212,21 @@ public class PluginCompatTester {
         mconfig.userProperties.put( "failIfNoTests", "false" );
         mconfig.userProperties.putAll(this.config.retrieveMavenProperties());
 
+        // Override JDK if passed explicitly
+        if (config.getTestJDKHome() != null) {
+            //TODO: move up
+            File jdkHome = config.getTestJDKHome();
+            if (!jdkHome.exists() || !jdkHome.isDirectory()) {
+                throw new IOException("Wrong Test JDK Home: " + jdkHome);
+            } else {
+                System.out.println("Using custom Test JDK, home=" + jdkHome);
+            }
+            mconfig.userProperties.put("jvm", new File(jdkHome, "bin/java").getAbsolutePath());
+        }
+        if (StringUtils.isNotBlank(config.getTestJavaArgs())) {
+            mconfig.userProperties.put("argLine", config.getTestJavaArgs());
+        }
+
 		SCMManagerFactory.getInstance().start();
         for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
@@ -496,6 +511,8 @@ public class PluginCompatTester {
             forExecutionHooks.put("config", config);
             forExecutionHooks.put("pluginDir", pluginCheckoutDir);
             pcth.runBeforeExecution(forExecutionHooks);
+
+            // Execute with tests
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>)forExecutionHooks.get("args")).toArray(new String[args.size()]));
 
             return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages());
