@@ -1,5 +1,5 @@
 #Makefile
-JAVA11_HOME?=/Users/nenashev/Documents/tools/jdk-11/jdk-11.jdk/Contents/Home
+TEST_JDK_HOME?=$(JAVA_HOME)
 PLUGIN_NAME?=mailer
 
 .PHONY: all
@@ -29,14 +29,27 @@ tmp/javax.activation.jar: tmp
 	curl -fsSL http://central.maven.org/maven2/com/sun/xml/bind/jaxb-impl/2.3.0.1/jaxb-impl-2.3.0.1.jar -o tmp/jaxb-impl.jar
 	curl -fsSL https://github.com/javaee/activation/releases/download/JAF-1_2_0/javax.activation.jar -o tmp/javax.activation.jar
 
-.PHONY: test-java11
-test-java11: tmp/javax.activation.jar tmp/jenkins.war
+.PHONY: print-java-home
+print-java-home:
+	echo "Using JAVA_HOME for tests $(TEST_JDK_HOME)"
+
+.PHONY: demo-jdk8 print-java-home
+demo-jdk8:
+	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli-0.0.3-SNAPSHOT.jar \
+	     -reportFile $(CURDIR)/out/pct-report.xml \
+	     -workDirectory $(CURDIR)/work -skipTestCache true \
+	     -mvn $(shell which mvn) -war tmp/jenkins.war \
+	     -testJDKHome $(TEST_JDK_HOME) \
+	     -includePlugins $(PLUGIN_NAME)
+
+.PHONY: demo-jdk11
+demo-jdk11: tmp/javax.activation.jar tmp/jenkins.war print-java-home
 	# TODO Cleanup once the JAXB bundling issue is resolved.
 	# https://issues.jenkins-ci.org/browse/JENKINS-52186
 	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli-0.0.3-SNAPSHOT.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -workDirectory $(CURDIR)/work -skipTestCache true \
 	     -mvn $(shell which mvn) -war tmp/jenkins.war \
-	     -testJDKHome $(JAVA11_HOME) \
+	     -testJDKHome $(TEST_JDK_HOME) \
 	     -testJavaArgs "-p $(CURDIR)/tmp/jaxb-api.jar:$(CURDIR)/tmp/javax.activation.jar --add-modules java.xml.bind,java.activation -cp $(CURDIR)/tmp/jaxb-impl.jar:$(CURDIR)/tmp/jaxb-core.jar" \
-	     -includePlugins $(PLUGIN_NAME) -localCheckoutDir /Users/nenashev/Documents/jenkins/test/jep-200/manual/jacoco-plugin
+	     -includePlugins $(PLUGIN_NAME)

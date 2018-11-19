@@ -86,6 +86,25 @@ You can run the CLI with the `-help` argument to get a full list of supported op
 
 :exclamation: For the moment testing more than one plugin at once requires plugins to be released, so for testing SNAPSHOTS you need to execute the last step for every plugin you want to test*
 
+### Running PCT with custom Java versions
+
+Plugin compat tester supports running Test Suites with a Java version different 
+from the one being used to run PCT and build the plugins.
+For example, such mode can be used to run tests with JDK11 while
+the plugin build flow is not adapted to it.
+
+Two options can be passed to PCT CLI for such purpose:
+
+* `testJDKHome` - A path to JDK HOME to be used for running tests in plugins
+* `testJavaArgs` - Java test arguments to be used for test runs.
+                   For JDK 11 this option may be used to pass modules and the classpath
+
+You can run the example by running the following command:
+
+    make demo-jdk11 -e TEST_JDK_HOME=${YOUR_JDK11_HOME}
+
+Full list of options for JDK11 can be found [here](./Makefile).
+
 ## Developer Info
 
 ### Debugging PCT in Docker

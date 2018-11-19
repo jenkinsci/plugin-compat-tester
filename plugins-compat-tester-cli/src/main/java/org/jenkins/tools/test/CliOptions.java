@@ -52,7 +52,7 @@ public class CliOptions {
 
     @CheckForNull
     @Parameter(names = "-testJDKHome",
-            description = "A Java HOME to be used for running tests in plugins.")
+            description = "A path to JDK HOME to be used for running tests in plugins.")
     private File testJDKHome = null;
 
     @CheckForNull
