@@ -27,7 +27,7 @@ tmp:
 
 tmp/jenkins-war-$(JENKINS_VERSION).war: tmp
 	mvn dependency:copy -Dartifact=org.jenkins-ci.main:jenkins-war:$(JENKINS_VERSION):war -DoutputDirectory=tmp
-	touch tmp/jenkins-$(JENKINS_VERSION).war
+	touch tmp/jenkins-war-$(JENKINS_VERSION).war
 
 tmp/jaxb-api-$(JAXB_API_VERSION).jar: tmp
 	mvn dependency:copy -Dartifact=javax.xml.bind:jaxb-api:$(JAXB_API_VERSION) -DoutputDirectory=tmp
