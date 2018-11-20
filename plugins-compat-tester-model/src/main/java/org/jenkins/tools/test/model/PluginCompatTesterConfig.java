@@ -273,6 +273,36 @@ public class PluginCompatTesterConfig {
                 throw new IOException("Extra Maven Properties File " + mavenPropertiesFile + " does not exist or not a File" );
             }
         }
+
+        // Read other explicit CLI arguments
+
+        // Override JDK if passed explicitly
+        if (testJDKHome != null) {
+            if (!testJDKHome.exists() || !testJDKHome.isDirectory()) {
+                throw new IOException("Wrong Test JDK Home passed as a parameter: " + testJDKHome);
+            }
+
+            if (res.containsKey("jvm")) {
+                System.out.println("WARNING: Maven properties already contain the 'jvm' argument. " +
+                        "Overriding the previous Test JDK home value '" + res.get("jvm") +
+                        "' by the explicit argument: " + testJDKHome);
+            } else {
+                System.out.println("Using custom Test JDK home: " + testJDKHome);
+            }
+            res.put("jvm", new File(testJDKHome, "bin/java").getAbsolutePath());
+        }
+
+        // Merge test Java args if needed
+        if (StringUtils.isNotBlank(testJavaArgs)) {
+            if (res.containsKey("argLine")) {
+                System.out.println("WARNING: Maven properties already contain the 'argLine' argument. " +
+                        "Merging value from properties and from the command line");
+                res.put("argLine", res.get("argLine") + " " + testJavaArgs);
+            } else {
+                res.put("argLine", testJavaArgs);
+            }
+        }
+
         return res;
     }
 
