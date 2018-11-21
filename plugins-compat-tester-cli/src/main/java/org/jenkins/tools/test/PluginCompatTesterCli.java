@@ -128,6 +128,12 @@ public class PluginCompatTesterCli {
         if(options.getLocalCheckoutDir() != null && !options.getLocalCheckoutDir().isEmpty()){
             config.setLocalCheckoutDir(options.getLocalCheckoutDir());
         }
+        if(options.getTestJDKHome() != null) {
+            config.setTestJDKHome(options.getTestJDKHome());
+        }
+        if (options.getTestJavaArgs() != null && !options.getTestJavaArgs().isEmpty()) {
+            config.setTestJavaArgs(options.getTestJavaArgs());
+        }
 
         // Handle properties
         if (options.getMavenProperties() != null) {

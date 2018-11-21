@@ -27,6 +27,7 @@ package org.jenkins.tools.test.model;
 
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,6 +76,15 @@ public class PluginCompatTesterConfig {
     private String parentVersion = null;
 
     private File war = null;
+
+    /**
+     * A Java HOME to be used for running tests in plugins.
+     */
+    @CheckForNull
+    private File testJDKHome = null;
+
+    @CheckForNull
+    private String testJavaArgs = null;
 
     private File externalMaven = null;
 
@@ -196,6 +206,16 @@ public class PluginCompatTesterConfig {
         return parentGroupId;
     }
 
+    @CheckForNull
+    public File getTestJDKHome() {
+        return testJDKHome;
+    }
+
+    @CheckForNull
+    public String getTestJavaArgs() {
+        return testJavaArgs;
+    }
+
     public String getParentArtifactId() {
         return parentArtifactId;
     }
@@ -253,6 +273,36 @@ public class PluginCompatTesterConfig {
                 throw new IOException("Extra Maven Properties File " + mavenPropertiesFile + " does not exist or not a File" );
             }
         }
+
+        // Read other explicit CLI arguments
+
+        // Override JDK if passed explicitly
+        if (testJDKHome != null) {
+            if (!testJDKHome.exists() || !testJDKHome.isDirectory()) {
+                throw new IOException("Wrong Test JDK Home passed as a parameter: " + testJDKHome);
+            }
+
+            if (res.containsKey("jvm")) {
+                System.out.println("WARNING: Maven properties already contain the 'jvm' argument. " +
+                        "Overriding the previous Test JDK home value '" + res.get("jvm") +
+                        "' by the explicit argument: " + testJDKHome);
+            } else {
+                System.out.println("Using custom Test JDK home: " + testJDKHome);
+            }
+            res.put("jvm", new File(testJDKHome, "bin/java").getAbsolutePath());
+        }
+
+        // Merge test Java args if needed
+        if (StringUtils.isNotBlank(testJavaArgs)) {
+            if (res.containsKey("argLine")) {
+                System.out.println("WARNING: Maven properties already contain the 'argLine' argument. " +
+                        "Merging value from properties and from the command line");
+                res.put("argLine", res.get("argLine") + " " + testJavaArgs);
+            } else {
+                res.put("argLine", testJavaArgs);
+            }
+        }
+
         return res;
     }
 
@@ -303,6 +353,18 @@ public class PluginCompatTesterConfig {
     public void setHookPrefixes(List<String> hookPrefixes) {
         // Want to also process the default
         this.hookPrefixes.addAll(hookPrefixes);
+    }
+
+    /**
+     * Sets JDK Home for tests
+     * @param testJDKHome JDK home to be used. {@code null} for using defaul system one.
+     */
+    public void setTestJDKHome(@CheckForNull File testJDKHome) {
+        this.testJDKHome = testJDKHome;
+    }
+
+    public void setTestJavaArgs(@CheckForNull String testJavaArgs) {
+        this.testJavaArgs = testJavaArgs;
     }
 
     public File getLocalCheckoutDir() {

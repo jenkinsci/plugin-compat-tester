@@ -212,6 +212,7 @@ public class PluginCompatTester {
         mconfig.userProperties.put( "failIfNoTests", "false" );
         mconfig.userProperties.putAll(this.config.retrieveMavenProperties());
 
+
 		SCMManagerFactory.getInstance().start();
         for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
@@ -496,6 +497,8 @@ public class PluginCompatTester {
             forExecutionHooks.put("config", config);
             forExecutionHooks.put("pluginDir", pluginCheckoutDir);
             pcth.runBeforeExecution(forExecutionHooks);
+
+            // Execute with tests
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>)forExecutionHooks.get("args")).toArray(new String[args.size()]));
 
             return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages());
