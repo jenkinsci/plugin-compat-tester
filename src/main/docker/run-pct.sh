@@ -120,6 +120,14 @@ mv "${TMP_CHECKOUT_DIR}" "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
 mkdir -p "${PCT_TMP}/work"
 mkdir -p "${PCT_OUTPUT_DIR}"
 
+###
+# Determine if we test the plugin against another JDK
+###
+if [[ "${JDK11}" ]] ; then
+  TEST_JDK_HOME="/usr/lib/jvm/java-11-opendjdk-amd64"
+  TEST_JAVA_ARGS="-p /pct/jdk11-libs/jaxb-api.jar:/pct/jdk11-libs/javax.activation.jar --add-modules java.xml.bind,java.activation -cp /pct/jdk11-libs/jaxb-impl.jar:/pct/jdk11-libs/jaxb-core.jar"
+fi
+
 # The image always uses external Maven due to https://issues.jenkins-ci.org/browse/JENKINS-48710
 exec java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -jar /pct/pct-cli.jar \
@@ -130,4 +138,6 @@ exec java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -includePlugins "${ARTIFACT_ID}" \
   -mvn "/usr/bin/mvn" \
   -m2SettingsFile "${MVN_SETTINGS_FILE}" \
+  -testJDKHome "${TEST_JDK_HOME:-$JAVA_HOME}" \
+  -testJavaArgs "${TEST_JAVA_ARGS:-}" \
   "$@"
