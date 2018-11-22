@@ -5,7 +5,7 @@ PLUGIN_NAME?=mailer
 JENKINS_VERSION=2.150
 JAXB_API_VERSION=2.3.0
 JAXB_VERSION=2.3.0.1
-JAF_VERSION=1.2.0
+JAX_VERSION=1.2.0
 
 .PHONY: all
 all: clean package docker
@@ -36,14 +36,14 @@ tmp/jaxb-api-$(JAXB_API_VERSION).jar: tmp
 
 tmp/jaxb-core-$(JAXB_VERSION).jar: tmp
 	mvn dependency:copy -Dartifact=com.sun.xml.bind:jaxb-core:$(JAXB_VERSION) -DoutputDirectory=tmp
-	touch tmp/jaxb-api-$(JAXB_API_VERSION).jar
+	touch tmp/jaxb-core-$(JAXB_VERSION).jar
 
 tmp/jaxb-impl-$(JAXB_VERSION).jar: tmp
 	mvn dependency:copy -Dartifact=com.sun.xml.bind:jaxb-impl:$(JAXB_VERSION) -DoutputDirectory=tmp
 	touch tmp/jaxb-impl-$(JAXB_VERSION).jar
 
 tmp/javax.activation-$(JAX_VERSION).jar: tmp
-	mvn dependency:copy -Dartifact=com.sun.activation:javax.activation:$(JAF_VERSION) -DoutputDirectory=tmp
+	mvn dependency:copy -Dartifact=com.sun.activation:javax.activation:$(JAX_VERSION) -DoutputDirectory=tmp
 	touch tmp/javax.activation-$(JAX_VERSION).jar
 
 .PHONY: print-java-home
@@ -68,5 +68,5 @@ demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/j
 	     -workDirectory $(CURDIR)/work -skipTestCache true \
 	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
 	     -testJDKHome $(TEST_JDK_HOME) \
-	     -testJavaArgs "-p $(CURDIR)/tmp/jaxb-api-$(JAXB_API_VERSION).jar:$(CURDIR)/tmp/javax.activation-${JAF_VERSION}.jar --add-modules java.xml.bind,java.activation -cp $(CURDIR)/tmp/jaxb-impl-$(JAXB_VERSION).jar:$(CURDIR)/tmp/jaxb-core-$(JAXB_VERSION).jar" \
+	     -testJavaArgs "-p $(CURDIR)/tmp/jaxb-api-$(JAXB_API_VERSION).jar:$(CURDIR)/tmp/javax.activation-${JAX_VERSION}.jar --add-modules java.xml.bind,java.activation -cp $(CURDIR)/tmp/jaxb-impl-$(JAXB_VERSION).jar:$(CURDIR)/tmp/jaxb-core-$(JAXB_VERSION).jar" \
 	     -includePlugins $(PLUGIN_NAME)
