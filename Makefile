@@ -14,9 +14,10 @@ all: clean package docker
 clean:
 	mvn clean
 
+plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar:
+	mvn verify
 .PHONY: package
-package:
-	mvn package verify
+package: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar
 
 .PHONY: docker
 docker:
@@ -39,7 +40,7 @@ tmp/jaxb-core-$(JAXB_VERSION).jar: tmp
 
 tmp/jaxb-impl-$(JAXB_VERSION).jar: tmp
 	mvn dependency:copy -Dartifact=com.sun.xml.bind:jaxb-impl:$(JAXB_VERSION) -DoutputDirectory=tmp
-	touch tmp/jaxb-impl-$(JAXB_API_VERSION).jar
+	touch tmp/jaxb-impl-$(JAXB_VERSION).jar
 
 tmp/javax.activation-$(JAX_VERSION).jar: tmp
 	mvn dependency:copy -Dartifact=com.sun.activation:javax.activation:$(JAF_VERSION) -DoutputDirectory=tmp
@@ -50,8 +51,8 @@ print-java-home:
 	echo "Using JAVA_HOME for tests $(TEST_JDK_HOME)"
 
 .PHONY: demo-jdk8
-demo-jdk8: tmp/jenkins-war-$(JENKINS_VERSION).war print-java-home
-	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli-0.0.3-SNAPSHOT.jar \
+demo-jdk8: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/jenkins-war-$(JENKINS_VERSION).war print-java-home
+	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -workDirectory $(CURDIR)/work -skipTestCache true \
 	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
@@ -59,10 +60,10 @@ demo-jdk8: tmp/jenkins-war-$(JENKINS_VERSION).war print-java-home
 	     -includePlugins $(PLUGIN_NAME)
 
 .PHONY: demo-jdk11
-demo-jdk11: tmp/javax.activation-$(JAX_VERSION).jar tmp/jaxb-api-$(JAXB_API_VERSION).jar tmp/jenkins-war-$(JENKINS_VERSION).war tmp/jaxb-impl-$(JAXB_VERSION).jar tmp/jaxb-core-$(JAXB_VERSION).jar print-java-home
+demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/javax.activation-$(JAX_VERSION).jar tmp/jaxb-api-$(JAXB_API_VERSION).jar tmp/jenkins-war-$(JENKINS_VERSION).war tmp/jaxb-impl-$(JAXB_VERSION).jar tmp/jaxb-core-$(JAXB_VERSION).jar print-java-home
 	# TODO Cleanup when/if the JAXB bundling issue is resolved.
 	# https://issues.jenkins-ci.org/browse/JENKINS-52186
-	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli-0.0.3-SNAPSHOT.jar \
+	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -workDirectory $(CURDIR)/work -skipTestCache true \
 	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \

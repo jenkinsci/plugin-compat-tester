@@ -1,17 +1,17 @@
-/plugins-compat-tester/target
-/plugins-compat-tester/.settings
-/plugins-compat-tester/.classpath
-/plugins-compat-tester/.project
-/plugins-compat-tester/plugins-compat-tester (1).iml
-/plugins-compat-tester-cli/plugins-compat-tester-cli.iml
-plugins-compat-tester.iml
-target
-/plugins-compat-tester-cli/nbactions*.xml
-/plugins-compat-tester-cli/nb-configuration.xml
-reports
-/plugins-compat-tester-cli/dependency-reduced-pom.xml
+### Maven
+target/
+plugins-compat-tester-cli/dependency-reduced-pom.xml
+
+### IntelliJ IDEA
+.idea/
+*.ipr
 *.iml
+
+### Jenkins
 work/
 ^jenkins/
-.idea
-out
+
+### CLI
+out/
+tmp/
+reports/
