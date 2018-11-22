@@ -34,7 +34,7 @@ WORKDIR /pct/src/
 RUN mvn clean install -DskipTests
 
 FROM maven:3.6.0-jdk-8
-MAINTAINER Oleg Nenashev <o.v.nenashev@gmail.com>
+LABEL Maintainer="Oleg Nenashev <o.v.nenashev@gmail.com>"
 LABEL Description="Base image for running Jenkins Plugin Compat Tester (PCT) against custom plugins and Jenkins cores" Vendor="Jenkins project"
 ENV JENKINS_WAR_PATH=/pct/jenkins.war
 ENV PCT_OUTPUT_DIR=/pct/out
