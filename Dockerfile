@@ -54,6 +54,15 @@ COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tes
 COPY src/main/docker/run-pct.sh /usr/local/bin/run-pct
 COPY src/main/docker/pct-default-settings.xml /pct/default-m2-settings.xml
 
+ARG JAXB_API_VERSION="2.3.0"
+ARG JAXB_VERSION="2.3.0.1"
+ARG JAF_VERSION="1.2.0"
+RUN mkdir -p /pct/jdk11-libs && \
+    curl -L http://repo.jenkins-ci.org/public/javax/xml/bind/jaxb-api/${JAXB_API_VERSION}/jaxb-api-${JAXB_API_VERSION}.jar -o /pct/jdk11-libs/jaxb-api.jar && \
+    curl -L http://repo.jenkins-ci.org/public/com/sun/xml/bind/jaxb-core/${JAXB_VERSION}/jaxb-core-${JAXB_VERSION}.jar -o /pct/jdk11-libs/jaxb-core.jar && \
+    curl -L http://repo.jenkins-ci.org/public/com/sun/xml/bind/jaxb-impl/${JAXB_VERSION}/jaxb-impl-${JAXB_VERSION}.jar -o /pct/jdk11-libs/jaxb-impl.jar && \
+    curl -L http://repo.jenkins-ci.org/public/com/sun/activation/${JAF_VERSION}/javax.activation-${JAF_VERSION}.jar -o /pct/jdk11-libs/javax.activation.jar
+
 EXPOSE 5005
 
 VOLUME /pct/plugin-src
