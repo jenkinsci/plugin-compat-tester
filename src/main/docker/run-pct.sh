@@ -120,5 +120,25 @@ mv "${TMP_CHECKOUT_DIR}" "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
 mkdir -p "${PCT_TMP}/work"
 mkdir -p "${PCT_OUTPUT_DIR}"
 
+###
+# Determine if we test the plugin against another JDK
+###
+TEST_JDK_HOME=${:-"/usr/lib/jvm/java-${JDK_VERSION:-8}-opendjdk-amd64"}
+if [[ "${JDK_VERSION}" = "11" ]] ; then
+  echo "JDK_VERSION detected is 11. Adding JAXB and modules to the command lines."
+  TEST_JAVA_ARGS="${TEST_JAVA_ARGS:-} -p /pct/jdk11-libs/jaxb-api.jar:/pct/jdk11-libs/javax.activation.jar --add-modules java.xml.bind,java.activation -cp /pct/jdk11-libs/jaxb-impl.jar:/pct/jdk11-libs/jaxb-core.jar"
+fi
+
 # The image always uses external Maven due to https://issues.jenkins-ci.org/browse/JENKINS-48710
-exec java ${JAVA_OPTS} ${extra_java_opts[@]} -jar /pct/pct-cli.jar -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} -skipTestCache true -localCheckoutDir "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}" -includePlugins "${ARTIFACT_ID}" -mvn "/usr/bin/mvn" -m2SettingsFile "${MVN_SETTINGS_FILE}" "$@"
+exec java ${JAVA_OPTS} ${extra_java_opts[@]} \
+  -jar /pct/pct-cli.jar \
+  -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml \
+  -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} \
+  -skipTestCache true \
+  -localCheckoutDir "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}" \
+  -includePlugins "${ARTIFACT_ID}" \
+  -mvn "/usr/bin/mvn" \
+  -m2SettingsFile "${MVN_SETTINGS_FILE}" \
+  -testJDKHome "${TEST_JDK_HOME}" \
+  -testJavaArgs "${TEST_JAVA_ARGS:-}" \
+  "$@"
