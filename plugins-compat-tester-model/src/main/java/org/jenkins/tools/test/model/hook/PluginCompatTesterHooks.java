@@ -160,7 +160,7 @@ public class PluginCompatTesterHooks {
     }
 
     /**
-     * Seems rediculous, but is needed to actually convert between the two types of Sets.
+     * Seems ridiculous, but is needed to actually convert between the two types of Sets.
      * Gets around generics error: {@code incompatible types: inference variable T has incompatible bounds}
      */
     private Class<? extends PluginCompatTesterHook> casting(Class<? extends PluginCompatTesterHook> c) {
