@@ -56,7 +56,7 @@ public class PluginCompatTesterHooks {
     }
 
     /**
-     * Evaluate and execute hooks for a given stage.  There is 1 required object for evaluting any
+     * Evaluate and execute hooks for a given stage.  There is 1 required object for evaluating any
      * hook.  [String, "pluginName"] 
      *
      * @param stage    stage which 
