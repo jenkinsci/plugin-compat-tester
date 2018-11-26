@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * POJO storing a plugin compatibiliy test result
+ * POJO storing a plugin compatibility test result
  * @author Frederic Camblor
  */
 public class PluginCompatResult implements Comparable<PluginCompatResult> {
