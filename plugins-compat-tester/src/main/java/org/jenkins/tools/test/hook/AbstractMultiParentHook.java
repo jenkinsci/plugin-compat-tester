@@ -80,7 +80,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     protected abstract String getParentProjectName();
 
     /**
-     * Returns the plugin folder name, by default it will be the plugin name, but can be overriden to support plugins
+     * Returns the plugin folder name, by default it will be the plugin name, but can be overridden to support plugins
      * (like structs) that are not located in a folder with the same name than the plugin itself
      */
     protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
