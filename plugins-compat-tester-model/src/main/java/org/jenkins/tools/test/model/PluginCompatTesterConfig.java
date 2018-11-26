@@ -71,7 +71,7 @@ public class PluginCompatTesterConfig {
     // ArtifactId which will be used to replace tested plugin's parent artifactId
     // If null, every recorded core coordinates (in report xml) will be played
     private String parentArtifactId = null;
-    // Version which will be used to replace tested plugin's parent verison
+    // Version which will be used to replace tested plugin's parent version
     // If null, latest core version (retrieved via the update center) will be used
     private String parentVersion = null;
 
