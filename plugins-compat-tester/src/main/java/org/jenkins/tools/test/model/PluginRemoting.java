@@ -144,7 +144,7 @@ public class PluginRemoting {
     public static void computeScmConnection(PomData pomData) {
         String transformedConnectionUrl = pomData.getConnectionUrl();
 
-        // Triming url
+        // Trimming url
         transformedConnectionUrl = transformedConnectionUrl.trim();
 
         // Generally, when connectionUrl is empty, is implies it is declared in a parent pom
