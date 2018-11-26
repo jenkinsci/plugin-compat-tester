@@ -105,6 +105,10 @@ You can run the example by running the following command:
 
 Full list of options for JDK11 can be found [here](./Makefile).
 
+When using the docker image, it is possible to use `JDK_VERSION` variable to select 
+the version to use. The version needs to be bundled in the docker image. By specifying 
+`11`, the modules and jaxb libraries are also added to the command line. 
+
 ## Developer Info
 
 ### Debugging PCT in Docker
