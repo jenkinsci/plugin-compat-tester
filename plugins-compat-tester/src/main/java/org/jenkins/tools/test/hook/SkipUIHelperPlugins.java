@@ -14,7 +14,7 @@ import java.util.Map;
  * be tested through Maven.
  *
  * Currently UI features are handed through the acceptance test harness.
- * Future work for testing Javascript? Up to the user.
+ * Future work for testing JavaScript? Up to the user.
  *
  * @see <a href="js-libs">https://github.com/jenkinsci/js-libs</a> 
  */
