@@ -30,7 +30,7 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
     }
 
     /**
-     * The plugin was identified as somethig that should be skipped. 
+     * The plugin was identified as something that should be skipped. 
      * Create a TestExecution result preventing forward movement.
      * Also, indicates that we should skip the checkout completely.
      */
