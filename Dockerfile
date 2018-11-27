@@ -50,7 +50,7 @@ RUN curl -L --show-error https://download.java.net/java/GA/jdk11/13/GPL/openjdk-
     rm openjdk.tar.gz
 
 COPY src/main/docker/*.groovy /pct/scripts/
-COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tester-cli-*.jar /pct/pct-cli.jar
+COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar /pct/pct-cli.jar
 COPY src/main/docker/run-pct.sh /usr/local/bin/run-pct
 COPY src/main/docker/pct-default-settings.xml /pct/default-m2-settings.xml
 

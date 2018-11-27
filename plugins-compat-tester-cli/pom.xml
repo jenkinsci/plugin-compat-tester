@@ -13,6 +13,7 @@
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
   
   <build>
+    <finalName>${project.artifactId}</finalName>
 	  <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
