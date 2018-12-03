@@ -25,7 +25,10 @@
  */
 package org.jenkins.tools.test;
 
+import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
+import hudson.util.VersionNumber;
+import org.jenkins.tools.test.model.Plugin;
 import org.jenkins.tools.test.model.TestStatus;
 
 import javax.annotation.CheckForNull;
@@ -127,6 +130,9 @@ public class CliOptions {
     @Parameter(names="-help", description = "Print this help message")
     private boolean printHelp;
 
+    @Parameter(names = "-overridePlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies", converter = PluginConverter.class)
+    private List<Plugin> overridePlugins;
+
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
     }
@@ -213,5 +219,18 @@ public class CliOptions {
     @CheckForNull
     public String getTestJavaArgs() {
         return testJavaArgs;
+    }
+
+    public List<Plugin> getOverridePlugins() {
+        return overridePlugins;
+    }
+
+    public static class PluginConverter implements IStringConverter<Plugin> {
+        @Override
+        public Plugin convert(String s) {
+            String[] details = s.split("=");
+            assert details.length == 2;
+            return new Plugin(details[0], new VersionNumber(details[1]));
+        }
     }
 }

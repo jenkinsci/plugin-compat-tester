@@ -135,6 +135,10 @@ public class PluginCompatTesterCli {
             config.setTestJavaArgs(options.getTestJavaArgs());
         }
 
+        if(options.getOverridePlugins() != null && !options.getOverridePlugins().isEmpty()) {
+            config.setOverridePlugins(options.getOverridePlugins());
+        }
+
         // Handle properties
         if (options.getMavenProperties() != null) {
             String[] split = options.getMavenProperties().split("\\s*:\\s*");

@@ -128,6 +128,8 @@ public class PluginCompatTesterConfig {
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
     private File localCheckoutDir;
 
+    private List<Plugin> overridePlugins;
+
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
                 workDirectory, reportFile, m2SettingsFile);
@@ -373,5 +375,13 @@ public class PluginCompatTesterConfig {
 
     public void setLocalCheckoutDir(String localCheckoutDir) {
         this.localCheckoutDir = new File(localCheckoutDir);
+    }
+
+    public void setOverridePlugins(List<Plugin> overridePlugins) {
+        this.overridePlugins = overridePlugins;
+    }
+
+    public List<Plugin> getOverridePlugins() {
+        return overridePlugins;
     }
 }

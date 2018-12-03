@@ -273,7 +273,7 @@ public class PluginCompatTester {
                     List<String> warningMessages = new ArrayList<String>();
                     if (errorMessage == null) {
                     try {
-                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth);
+                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridePlugins());
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
@@ -366,8 +366,8 @@ public class PluginCompatTester {
     private static String createBuildLogFilePathFor(String pluginName, String pluginVersion, MavenCoordinates coreCoords){
         return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
     }
-	
-	private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds, PluginCompatTesterHooks pcth)
+
+    private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, PluginCompatTesterHooks pcth, List<org.jenkins.tools.test.model.Plugin> overridePlugins)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
@@ -473,7 +473,7 @@ public class PluginCompatTester {
             // Much simpler to do use the parent POM to set up the test classpath. 
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
-                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version);
+                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version, overridePlugins);
             } catch (Exception x) {
                 x.printStackTrace();
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
@@ -667,7 +667,7 @@ public class PluginCompatTester {
         }
     }
 
-    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String,Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion) throws PomExecutionException, IOException {
+    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion, List<org.jenkins.tools.test.model.Plugin> overridePlugins) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
@@ -742,6 +742,11 @@ public class PluginCompatTester {
             Map<String,VersionNumber> toReplace = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toAddTest = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toReplaceTest = new HashMap<String,VersionNumber>();
+            overridePlugins.forEach(plugin -> {
+                toReplace.put(plugin.getName(), plugin.getVersion());
+                toReplaceTest.put(plugin.getName(), plugin.getVersion());
+            });
+
             for (String split : splits) {
                 String[] pieces = split.split(" ");
                 String plugin = pieces[0];
