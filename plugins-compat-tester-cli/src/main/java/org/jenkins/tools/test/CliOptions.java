@@ -25,8 +25,10 @@
  */
 package org.jenkins.tools.test;
 
+import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import hudson.util.VersionNumber;
 import org.jenkins.tools.test.model.Plugin;
 import org.jenkins.tools.test.model.TestStatus;
@@ -130,7 +132,8 @@ public class CliOptions {
     @Parameter(names="-help", description = "Print this help message")
     private boolean printHelp;
 
-    @Parameter(names = "-overridePlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies", converter = PluginConverter.class)
+    @Parameter(names = "-overridePlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies." +
+          "Format: 'PLUGIN_NAME=PLUGIN_VERSION", converter = PluginConverter.class, validateWith = PluginValidator.class)
     private List<Plugin> overridePlugins;
 
     public String getUpdateCenterUrl() {
@@ -229,8 +232,17 @@ public class CliOptions {
         @Override
         public Plugin convert(String s) {
             String[] details = s.split("=");
-            assert details.length == 2;
             return new Plugin(details[0], new VersionNumber(details[1]));
+        }
+    }
+
+    public static class PluginValidator implements IParameterValidator {
+        @Override
+        public void validate(String name, String value) throws ParameterException {
+            final String[] split = value.split("=");
+            if (split.length != 2) {
+                throw new ParameterException(name + " must be formatted as NAME=VERSION");
+            }
         }
     }
 }
