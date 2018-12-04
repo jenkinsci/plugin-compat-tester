@@ -123,7 +123,7 @@ mkdir -p "${PCT_OUTPUT_DIR}"
 ###
 # Determine if we test the plugin against another JDK
 ###
-TEST_JDK_HOME=${:-"/usr/lib/jvm/java-${JDK_VERSION:-8}-opendjdk-amd64"}
+TEST_JDK_HOME=${TEST_JAVA_ARGS:-"/usr/lib/jvm/java-${JDK_VERSION:-8}-opendjdk-amd64"}
 if [[ "${JDK_VERSION}" = "11" ]] ; then
   echo "JDK_VERSION detected is 11. Adding JAXB and modules to the command lines."
   TEST_JAVA_ARGS="${TEST_JAVA_ARGS:-} -p /pct/jdk11-libs/jaxb-api.jar:/pct/jdk11-libs/javax.activation.jar --add-modules java.xml.bind,java.activation -cp /pct/jdk11-libs/jaxb-impl.jar:/pct/jdk11-libs/jaxb-core.jar"
