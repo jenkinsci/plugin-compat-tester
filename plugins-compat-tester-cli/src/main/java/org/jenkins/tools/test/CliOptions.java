@@ -239,9 +239,11 @@ public class CliOptions {
     public static class PluginValidator implements IParameterValidator {
         @Override
         public void validate(String name, String value) throws ParameterException {
-            final String[] split = value.split("=");
-            if (split.length != 2) {
-                throw new ParameterException(name + " must be formatted as NAME=VERSION");
+            for (String s : value.split(",")) {
+                final String[] split = s.split("=");
+                if (split.length != 2) {
+                    throw new ParameterException(name + " must be formatted as NAME=VERSION");
+                }
             }
         }
     }
