@@ -70,3 +70,23 @@ demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/j
 	     -testJDKHome $(TEST_JDK_HOME) \
 	     -testJavaArgs "-p $(CURDIR)/tmp/jaxb-api-$(JAXB_API_VERSION).jar:$(CURDIR)/tmp/javax.activation-$(JAF_VERSION).jar --add-modules java.xml.bind,java.activation -cp $(CURDIR)/tmp/jaxb-impl-$(JAXB_VERSION).jar:$(CURDIR)/tmp/jaxb-core-$(JAXB_VERSION).jar" \
 	     -includePlugins $(PLUGIN_NAME)
+
+# We do not automatically rebuild Docker here
+.PHONY: demo-jdk11-docker
+demo-jdk11-docker: tmp/jenkins-war-$(JENKINS_VERSION).war
+	docker run --rm -v maven-repo:/root/.m2 \
+	     -v $(shell pwd)/out:/pct/out \
+	     -v $(shell pwd)/tmp/jenkins-war-$(JENKINS_VERSION).war:/pct/jenkins.war:ro \
+	     -e ARTIFACT_ID=$(PLUGIN_NAME) \
+	     -e JDK_VERSION=11 \
+	     jenkins/pct
+
+.PHONY: demo-jdk11-docker-src
+demo-jdk11-docker-src: tmp/jenkins-war-$(JENKINS_VERSION).war
+	docker run --rm -v maven-repo:/root/.m2 \
+	     -v $(shell pwd)/out:/pct/out \
+	     -v $(shell pwd)/work/$(PLUGIN_NAME):/pct/plugin-src:ro \
+	     -v $(shell pwd)/tmp/jenkins-war-$(JENKINS_VERSION).war:/pct/jenkins.war:ro \
+	     -e ARTIFACT_ID=$(PLUGIN_NAME) \
+	     -e JDK_VERSION=11 \
+	     jenkins/pct
