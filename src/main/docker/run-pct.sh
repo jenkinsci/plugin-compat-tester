@@ -137,6 +137,7 @@ exec java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml \
   -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} \
   -skipTestCache true \
+  -failOnError \
   -localCheckoutDir "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}" \
   -includePlugins "${ARTIFACT_ID}" \
   -mvn "/usr/bin/mvn" \
