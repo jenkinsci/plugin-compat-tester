@@ -143,10 +143,10 @@ echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -testJDKHome "${TEST_JDK_HOME}" \
   -testJavaArgs ${TEST_JAVA_ARGS:-} \
   "$@" \
-  "|| echo $? > /pct/tmp/pct_exit_code" > /pct/tmp/pct_command
+  "|| echo \$? > /pct/tmp/pct_exit_code" > /pct/tmp/pct_command
 chmod +x /pct/tmp/pct_command
 cat /pct/tmp/pct_command
-exec /pct/tmp/pct_command
+sh -ex /pct/tmp/pct_command || "Execution failed with code $?"
 
 if [ -f "/pct/tmp/pct_exit_code" ]; then
   pctExitCode=$(cat "/pct/tmp/pct_exit_code")
