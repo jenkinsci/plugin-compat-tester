@@ -25,7 +25,12 @@
  */
 package org.jenkins.tools.test;
 
+import com.beust.jcommander.IParameterValidator;
+import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
+import hudson.util.VersionNumber;
+import org.jenkins.tools.test.model.Plugin;
 import org.jenkins.tools.test.model.TestStatus;
 
 import javax.annotation.CheckForNull;
@@ -130,6 +135,10 @@ public class CliOptions {
     @Parameter(names="-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
     private boolean failOnError;
 
+    @Parameter(names = "-overridePlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies." +
+          "Format: 'PLUGIN_NAME=PLUGIN_VERSION", converter = PluginConverter.class, validateWith = PluginValidator.class)
+    private List<Plugin> overridePlugins;
+
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
     }
@@ -220,5 +229,29 @@ public class CliOptions {
 
     public boolean isFailOnError() {
         return failOnError;
+    }
+
+    public List<Plugin> getOverridePlugins() {
+        return overridePlugins;
+    }
+
+    public static class PluginConverter implements IStringConverter<Plugin> {
+        @Override
+        public Plugin convert(String s) {
+            String[] details = s.split("=");
+            return new Plugin(details[0], new VersionNumber(details[1]));
+        }
+    }
+
+    public static class PluginValidator implements IParameterValidator {
+        @Override
+        public void validate(String name, String value) throws ParameterException {
+            for (String s : value.split(",")) {
+                final String[] split = s.split("=");
+                if (split.length != 2) {
+                    throw new ParameterException(name + " must be formatted as NAME=VERSION");
+                }
+            }
+        }
     }
 }

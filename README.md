@@ -110,6 +110,25 @@ When using the docker image, it is possible to use `JDK_VERSION` variable to sel
 the version to use. The version needs to be bundled in the docker image. By specifying 
 `11`, the modules and jaxb libraries are also added to the command line. 
 
+### Running PCT with different version of dependencies
+
+Plugin Compat Tester supports overriding the plugin dependency version. 
+For example, we might want to validate that a newer version of a plugin is not breaking the latest version of the plugin we want to test.
+
+To do that, the option `overridePlugins` can be passed to PCT CLI.
+The format of the value **must** be `PLUGIN_NAME=PLUGIN_VERSION`.
+
+So, running
+
+```
+java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+  [...]
+  -overridePlugins display-url-api=2.3.0
+  -includePlugins mailer
+```
+
+will run the PCT on the `mailer` plugin, but replacing the `display-url-api` dependency of Mailer (which is `1.0`) with the version `2.3.0`.
+
 ## Developer Info
 
 ### Debugging PCT in Docker
