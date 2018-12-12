@@ -49,11 +49,6 @@ RUN curl -L --show-error https://download.java.net/java/GA/jdk11/13/GPL/openjdk-
     mv jdk-11.0.1/ /usr/lib/jvm/java-11-opendjdk-amd64 && \
     rm openjdk.tar.gz
 
-COPY src/main/docker/*.groovy /pct/scripts/
-COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar /pct/pct-cli.jar
-COPY src/main/docker/run-pct.sh /usr/local/bin/run-pct
-COPY src/main/docker/pct-default-settings.xml /pct/default-m2-settings.xml
-
 ARG JAXB_API_VERSION="2.3.0"
 ARG JAXB_VERSION="2.3.0.1"
 ARG JAF_VERSION="1.2.0"
@@ -67,6 +62,11 @@ RUN mkdir -p /pct/jdk11-libs && \
 23574ca124d0a694721ce3ef13cd720095f18fdd  /pct/jdk11-libs/jaxb-core.jar\n\
 2e979dabb3e5e74a0686115075956391a14dece8  /pct/jdk11-libs/jaxb-impl.jar\n\
 84e709cb8271e5e7ff7da61528d52d36298aa733  /pct/jdk11-libs/javax.activation.jar" | sha1sum -c
+
+COPY src/main/docker/*.groovy /pct/scripts/
+COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar /pct/pct-cli.jar
+COPY src/main/docker/run-pct.sh /usr/local/bin/run-pct
+COPY src/main/docker/pct-default-settings.xml /pct/default-m2-settings.xml
 
 EXPOSE 5005
 
