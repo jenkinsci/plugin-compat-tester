@@ -95,6 +95,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -110,6 +111,7 @@ import org.jenkins.tools.test.maven.MavenRunner;
  */
 public class PluginCompatTester {
 
+    private static final Logger LOGGER = Logger.getLogger(PluginCompatTester.class.getName());
     private static final String DEFAULT_SOURCE_ID = "default";
 
     /** First version with new parent POM. */
@@ -263,6 +265,7 @@ public class PluginCompatTester {
                         }
                     } catch (Throwable t) {
                         status = TestStatus.INTERNAL_ERROR;
+                        LOGGER.log(Level.SEVERE, String.format("Internal error while executing a test for core %s and plugin %s", coreCoordinates.version, plugin.getDisplayName()), t);
                         errorMessage = t.getMessage();
                         pomData = null;
                     }
@@ -294,6 +297,7 @@ public class PluginCompatTester {
                         throw e;
                     } catch (Throwable t){
                         status = TestStatus.INTERNAL_ERROR;
+                        LOGGER.log(Level.SEVERE, String.format("Internal error while executing a test for core %s and plugin %s", coreCoordinates.version, plugin.getDisplayName()), t);
                         errorMessage = t.getMessage();
                     }
                     }
