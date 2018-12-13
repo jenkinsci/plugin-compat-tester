@@ -56,6 +56,11 @@ public class VersionComparator implements Comparator<String> {
                 chunk2 = splitO2Version[i];
             }
 
+            if (chunk1.getClass() != chunk2.getClass()) {
+                throw new IllegalArgumentException("Comparing different types in chunk " + i +
+                        ". Version 1 = " + o1 + ", version 2 = " + o2);
+            }
+
             if(!splitO1Version[i].equals(splitO2Version[i])){
                 return chunk1.compareTo(chunk2);
             }
