@@ -84,6 +84,8 @@ demo-jdk11-docker: tmp/jenkins-war-$(JENKINS_VERSION).war
 	     -e JDK_VERSION=11 \
 	     jenkins/pct
 
+# TODO: take other default directory to avoid collisions?
+# Runs the build with local source located in /work
 .PHONY: demo-jdk11-docker-src
 demo-jdk11-docker-src: tmp/jenkins-war-$(JENKINS_VERSION).war
 	docker run --rm -v maven-repo:/root/.m2 \
