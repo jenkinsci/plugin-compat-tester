@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2004-2010, Sun Microsystems, Inc., Kohsuke Kawaguchi,
+ * Copyright (c) 2004-2018, Sun Microsystems, Inc., Kohsuke Kawaguchi,
  * Erik Ramfelt, Koichi Fujikawa, Red Hat, Inc., Seiji Sogabe,
  * Stephen Connolly, Tom Huybrechts, Yahoo! Inc., Alan Harder, CloudBees, Inc.
  *
@@ -33,6 +33,7 @@ import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,6 +46,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.xml.xpath.XPath;
@@ -55,6 +58,7 @@ import javax.xml.xpath.XPath;
  */
 public class PluginRemoting {
 
+    private static final Logger LOGGER = Logger.getLogger(PluginRemoting.class.getName());
     private String hpiRemoteUrl;
     private File pomFile;
 
@@ -108,7 +112,7 @@ public class PluginRemoting {
 		String scmConnection = null;
         String artifactId = null;
 		String pomContent = this.retrievePomContent();
-        MavenCoordinates parent;
+        @CheckForNull MavenCoordinates parent = null;
 		
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 		try {
@@ -123,10 +127,20 @@ public class PluginRemoting {
 			scmConnection = (String)scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
             artifactId = (String)artifactIdXPath.evaluate(doc, XPathConstants.STRING);
 
-            parent = new MavenCoordinates(
-                    getValueOrFail(doc, xpath, "/project/parent/groupId"),
-                    getValueOrFail(doc, xpath, "/project/parent/artifactId"),
-                    getValueOrFail(doc, xpath, "/project/parent/version"));
+            String parentNode = xpath.evaluate("/project/parent", doc);
+            if (StringUtils.isNotBlank(parentNode)) {
+                LOGGER.log(Level.SEVERE, parentNode.toString());
+                parent = new MavenCoordinates(
+                        getValueOrFail(doc, xpath, "/project/parent/groupId"),
+                        getValueOrFail(doc, xpath, "/project/parent/artifactId"),
+                        getValueOrFail(doc, xpath, "/project/parent/version"));
+            } else {
+                LOGGER.log(Level.WARNING, "No parent POM reference for artifact {0}, " +
+                                "likely a plugin with Incrementals support is used (Jenkins JEP-305). " +
+                                "Will try to ignore it. " +
+                                "hpiRemoteUrl={1}, pomFile={2}",
+                        new Object[] {artifactId, hpiRemoteUrl, pomFile});
+            }
 		} catch (ParserConfigurationException | SAXException | IOException e) {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
