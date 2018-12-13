@@ -27,11 +27,13 @@ package org.jenkins.tools.test.model;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.filters.StringInputStream;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.annotation.Nonnull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -121,14 +123,11 @@ public class PluginRemoting {
 			scmConnection = (String)scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
             artifactId = (String)artifactIdXPath.evaluate(doc, XPathConstants.STRING);
 
-            parent = new MavenCoordinates(xpath.evaluate("/project/parent/groupId/text()", doc), xpath.evaluate("/project/parent/artifactId/text()", doc), xpath.evaluate("/project/parent/version/text()", doc));
-		} catch (ParserConfigurationException e) {
-			System.err.println("Error : " + e.getMessage());
-			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
-		} catch (SAXException e) {
-			System.err.println("Error : " + e.getMessage());
-			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
-		} catch (IOException e) {
+            parent = new MavenCoordinates(
+                    getValueOrFail(doc, xpath, "/project/parent/groupId"),
+                    getValueOrFail(doc, xpath, "/project/parent/artifactId"),
+                    getValueOrFail(doc, xpath, "/project/parent/version"));
+		} catch (ParserConfigurationException | SAXException | IOException e) {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
 		} catch (XPathExpressionException e) {
@@ -140,6 +139,26 @@ public class PluginRemoting {
         computeScmConnection(pomData);
         return pomData;
 	}
+
+    /**
+     * Retrieves a field value by XPath.
+     * The value must exist and be non-empty
+     * @throws IOException parsing error
+     */
+	@Nonnull
+	private static String getValueOrFail(Document doc, XPath xpath, String field) throws IOException {
+        String res;
+	    try {
+	        res = xpath.evaluate(field + "/text()", doc);
+        } catch (XPathExpressionException e) {
+            throw new IOException("Expression failed for the field " + field, e);
+        }
+
+        if (StringUtils.isBlank(res)) {
+            throw new IOException("Field is either null or blank: " + field);
+        }
+        return res;
+    }
 
     public static void computeScmConnection(PomData pomData) {
         String transformedConnectionUrl = pomData.getConnectionUrl();
