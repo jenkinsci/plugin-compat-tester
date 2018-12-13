@@ -25,9 +25,12 @@
  */
 package org.jenkins.tools.test.model;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
+
+import javax.annotation.Nonnull;
 
 /**
  * Class representing Maven GAV
@@ -39,10 +42,24 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
     public final String version;
     // No classifier/type for the moment...
 
-    public MavenCoordinates(String groupId, String artifactId, String version){
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
+    /**
+     * Constructor.
+     * @throws IllegalArgumentException one of the parameters is invalid.
+     */
+    public MavenCoordinates(@Nonnull String groupId, @Nonnull String artifactId, @Nonnull String version){
+        this.groupId = verifyInput( groupId, artifactId, version,"groupId", groupId);
+        this.artifactId = verifyInput( groupId, artifactId, version,"artifactId", artifactId);
+        this.version = verifyInput( groupId, artifactId, version,"version", version);
+    }
+
+    private static String verifyInput(String groupId, String artifactId, String version,
+                                      String fieldName, String value) throws IllegalArgumentException {
+        if (value == null || StringUtils.isBlank(value)) {
+            throw new IllegalArgumentException(
+                    String.format("Invalid parameter passed for %s:%s:%s: Field %s; %s",
+                            groupId, artifactId, version, fieldName, value));
+        }
+        return value.trim();
     }
 
     public boolean equals(Object o){
