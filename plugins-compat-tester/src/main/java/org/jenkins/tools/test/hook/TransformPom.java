@@ -47,7 +47,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         } else {
             //TODO(oleg_nenashev): all these assumptions are unreliable at best (JENKINS-55169)
             LOGGER.log(Level.WARNING, "Parent POM is missing for {0}. " +
-                    "Likely it is Incrementals Plugin, hence assuming it's not a CloudBees one and that the version is above 3.4 (JENKINS-55169)");
+                    "Likely it is Incrementals Plugin, hence assuming it's not a CloudBees one and that the version is above 3.4 (JENKINS-55169)", pomData.artifactId);
             isCB = false;
             parentV2 = true;
             parentUnder233 = false;
