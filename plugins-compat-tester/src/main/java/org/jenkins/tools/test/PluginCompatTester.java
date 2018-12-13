@@ -253,14 +253,18 @@ public class PluginCompatTester {
                     PomData pomData;
                     try {
                         pomData = remote.retrievePomData();
-                        System.out.println("detected parent POM " + pomData.parent.toGAV());
-                        if ((pomData.parent.groupId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_GROUP)
-                                && pomData.parent.artifactId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT)
-                                || pomData.parent.groupId.equals("org.jvnet.hudson.plugins"))
-                                && coreCoordinates.version.matches("1[.][0-9]+[.][0-9]+")
-                                && new VersionNumber(coreCoordinates.version).compareTo(new VersionNumber("1.485")) < 0) { // TODO unless 1.480.3+
-                            System.out.println("Cannot test against " + coreCoordinates.version + " due to lack of deployed POM for " + coreCoordinates.toGAV());
-                            actualCoreCoordinates = new MavenCoordinates(coreCoordinates.groupId, coreCoordinates.artifactId, coreCoordinates.version.replaceFirst("[.][0-9]+$", ""));
+                        MavenCoordinates parentPom = pomData.parent;
+                        if (parentPom != null) {
+                            // Parent POM is used here only to detect old versions of core
+                            LOGGER.log(Level.INFO,"Detected parent POM: {0}", parentPom.toGAV());
+                            if ((parentPom.groupId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_GROUP)
+                                    && parentPom.artifactId.equals(PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT)
+                                    || parentPom.groupId.equals("org.jvnet.hudson.plugins"))
+                                    && coreCoordinates.version.matches("1[.][0-9]+[.][0-9]+")
+                                    && new VersionNumber(coreCoordinates.version).compareTo(new VersionNumber("1.485")) < 0) { // TODO unless 1.480.3+
+                                LOGGER.log(Level.WARNING, "Cannot test against " + coreCoordinates.version + " due to lack of deployed POM for " + coreCoordinates.toGAV());
+                                actualCoreCoordinates = new MavenCoordinates(coreCoordinates.groupId, coreCoordinates.artifactId, coreCoordinates.version.replaceFirst("[.][0-9]+$", ""));
+                            }
                         }
                     } catch (Throwable t) {
                         status = TestStatus.INTERNAL_ERROR;

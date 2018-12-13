@@ -111,6 +111,7 @@ public class PluginRemoting {
 	public PomData retrievePomData() throws PluginSourcesUnavailableException {
 		String scmConnection = null;
         String artifactId = null;
+        String packaging;
 		String pomContent = this.retrievePomContent();
         @CheckForNull MavenCoordinates parent = null;
 		
@@ -123,9 +124,11 @@ public class PluginRemoting {
             XPath xpath = xpathFactory.newXPath();
 			XPathExpression scmConnectionXPath = xpath.compile("/project/scm/connection/text()");
             XPathExpression artifactIdXPath = xpath.compile("/project/artifactId/text()");
+            XPathExpression packagingXPath = xpath.compile("/project/packaging/text()");
 
 			scmConnection = (String)scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
             artifactId = (String)artifactIdXPath.evaluate(doc, XPathConstants.STRING);
+            packaging = StringUtils.trimToNull((String)packagingXPath.evaluate(doc, XPathConstants.STRING));
 
             String parentNode = xpath.evaluate("/project/parent", doc);
             if (StringUtils.isNotBlank(parentNode)) {
@@ -137,7 +140,7 @@ public class PluginRemoting {
             } else {
                 LOGGER.log(Level.WARNING, "No parent POM reference for artifact {0}, " +
                                 "likely a plugin with Incrementals support is used (Jenkins JEP-305). " +
-                                "Will try to ignore it. " +
+                                "Will try to ignore it (FTR https://issues.jenkins-ci.org/browse/JENKINS-55169). " +
                                 "hpiRemoteUrl={1}, pomFile={2}",
                         new Object[] {artifactId, hpiRemoteUrl, pomFile});
             }
@@ -149,7 +152,7 @@ public class PluginRemoting {
 			throw new PluginSourcesUnavailableException("Problem while retrieving plugin's scm connection", e);
 		}
 		
-		PomData pomData = new PomData(artifactId, scmConnection, parent);
+		PomData pomData = new PomData(artifactId, packaging, scmConnection, parent);
         computeScmConnection(pomData);
         return pomData;
 	}

@@ -25,6 +25,8 @@
  */
 package org.jenkins.tools.test.model;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,12 +36,18 @@ import java.util.List;
  */
 public class PomData {
     public final String artifactId;
+
+    @Nonnull
+    private final String packaging;
+
+    @CheckForNull
     public final MavenCoordinates parent;
     private String connectionUrl;
     private List<String> warningMessages = new ArrayList<String>();
 
-    public PomData(String artifactId, String connectionUrl, MavenCoordinates parent){
+    public PomData(String artifactId, @CheckForNull String packaging, String connectionUrl, @CheckForNull MavenCoordinates parent){
         this.artifactId = artifactId;
+        this.packaging = packaging != null ? packaging : "jar";
         this.setConnectionUrl(connectionUrl);
         this.parent = parent;
     }
@@ -54,5 +62,18 @@ public class PomData {
 
     public List<String> getWarningMessages() {
         return warningMessages;
+    }
+
+    @Nonnull
+    public String getPackaging() {
+        return packaging;
+    }
+
+    public boolean isPluginPOM() {
+        if (parent != null) {
+            return parent.matches("org.jenkins-ci.plugins", "plugin");
+        } else { // Interpolate by packaging
+            return "hpi".equalsIgnoreCase(packaging);
+        }
     }
 }
