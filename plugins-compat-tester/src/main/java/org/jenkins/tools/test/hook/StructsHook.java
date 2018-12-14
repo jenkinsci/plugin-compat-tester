@@ -4,8 +4,13 @@ import hudson.model.UpdateSite;
 import org.jenkins.tools.test.model.PomData;
 
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class StructsHook extends AbstractMultiParentHook {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(StructsHook.class.getName());
 
     @Override
     protected String getParentFolder() {
@@ -44,8 +49,10 @@ public class StructsHook extends AbstractMultiParentHook {
         } else if (!"structs".equalsIgnoreCase(data.artifactId)) {
             return false;
         } else {
-            throw new IllegalStateException("Structs Plugin may have been incrementalified, and PCT does not supports the discovery now. " +
-                    "See JENKINS-55169 and linked tickets");
+            LOGGER.log(Level.WARNING, "Structs Plugin may have been incrementalified. " +
+                    "See JENKINS-55169 and linked tickets. Will guess by the packaging: {0}",
+                    data.getPackaging());
+            return "hpi".equalsIgnoreCase(data.getPackaging());
         }
     }
 }
