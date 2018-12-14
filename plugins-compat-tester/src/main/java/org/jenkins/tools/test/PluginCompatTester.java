@@ -784,6 +784,9 @@ public class PluginCompatTester {
                 System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
                 pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, convertFromTestDep);
             }
+
+            // Remove the self-dependency if any
+            pom.removeDependency(pluginGroupIds.get(thisPlugin), thisPlugin);
         }
     }
 

@@ -35,17 +35,24 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 
+import javax.annotation.Nonnull;
+
 /**
  * Class encapsulating business around maven poms
  * @author Frederic Camblor
  */
 public class MavenPom {
+
+    private static final Logger LOGGER = Logger.getLogger(MavenPom.class.getName());
 
     private final static String GROUP_ID_ELEMENT = "groupId";
     private final static String ARTIFACT_ID_ELEMENT = "artifactId";
@@ -99,6 +106,39 @@ public class MavenPom {
 			throw new PomTransformationException("Error while transforming pom : "+pom.getAbsolutePath(), e);
 		}
 	}
+
+    /**
+     * Removes the dependency if it exists.
+     */
+	public void removeDependency(@Nonnull String groupdId, @Nonnull String artifactId) throws IOException {
+        File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
+        Document doc;
+        try {
+            doc = new SAXReader().read(pom);
+        } catch (DocumentException x) {
+            throw new IOException(x);
+        }
+        Element dependencies = doc.getRootElement().element("dependencies");
+        if (dependencies == null) {
+            dependencies = doc.getRootElement().addElement("dependencies");
+        }
+
+        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
+            Element artifactIdElem = mavenDependency.element(ARTIFACT_ID_ELEMENT);
+            if (artifactIdElem == null || !artifactId.equalsIgnoreCase(artifactIdElem.getText())) {
+                continue;
+            }
+
+            Element groupIdElem = mavenDependency.element(GROUP_ID_ELEMENT);
+            if (groupIdElem != null && groupdId.equalsIgnoreCase(groupIdElem.getText()) ) {
+                LOGGER.log(Level.WARNING, "Removing dependency on {0}:{1}",
+                        new Object[] {groupdId, artifactId});
+                dependencies.remove(mavenDependency);
+            }
+        }
+
+        writeDocument(pom, doc);
+    }
 
     public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, Map<String,VersionNumber> toAddTest, Map<String,VersionNumber> toReplaceTest, VersionNumber coreDep, Map<String,String> pluginGroupIds, List<String> toConvert) 
         throws IOException 
