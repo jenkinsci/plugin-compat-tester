@@ -111,6 +111,9 @@ the version to use. The version needs to be bundled in the docker image. By spec
 
 ### Running PCT with different version of dependencies
 
+IMPORTANT: At this moment, the replacement of a dependency will not update the transitive dependencies.
+Because of this, you might have to provide on the same parameter the new versions of the transitive dependencies.
+
 Plugin Compat Tester supports overriding the plugin dependency version. 
 For example, we might want to validate that a newer version of a plugin is not breaking the latest version of the plugin we want to test.
 
