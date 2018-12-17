@@ -224,6 +224,7 @@ public class CliOptions {
         return testJavaArgs;
     }
 
+    @CheckForNull
     public List<Plugin> getOverridePlugins() {
         return overridePlugins;
     }

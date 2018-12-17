@@ -381,6 +381,7 @@ public class PluginCompatTesterConfig {
         this.overridePlugins = overridePlugins;
     }
 
+    @CheckForNull
     public List<Plugin> getOverridePlugins() {
         return overridePlugins;
     }

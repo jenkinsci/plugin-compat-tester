@@ -742,10 +742,12 @@ public class PluginCompatTester {
             Map<String,VersionNumber> toReplace = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toAddTest = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toReplaceTest = new HashMap<String,VersionNumber>();
-            overridePlugins.forEach(plugin -> {
-                toReplace.put(plugin.getName(), plugin.getVersion());
-                toReplaceTest.put(plugin.getName(), plugin.getVersion());
-            });
+            if (overridePlugins != null) {
+                overridePlugins.forEach(plugin -> {
+                    toReplace.put(plugin.getName(), plugin.getVersion());
+                    toReplaceTest.put(plugin.getName(), plugin.getVersion());
+                });
+            }
 
             for (String split : splits) {
                 String[] pieces = split.split(" ");
