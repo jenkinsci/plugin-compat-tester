@@ -50,18 +50,9 @@ import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.PomTransformationException;
-import org.jenkins.tools.test.model.MavenCoordinates;
-import org.jenkins.tools.test.model.MavenPom;
-import org.jenkins.tools.test.model.PluginCompatReport;
-import org.jenkins.tools.test.model.PluginCompatResult;
-import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.*;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
-import org.jenkins.tools.test.model.PluginInfos;
-import org.jenkins.tools.test.model.PluginRemoting;
-import org.jenkins.tools.test.model.PomData;
-import org.jenkins.tools.test.model.TestExecutionResult;
-import org.jenkins.tools.test.model.TestStatus;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.transform.Result;
@@ -115,7 +106,7 @@ public class PluginCompatTester {
 
     private PluginCompatTesterConfig config;
     private final MavenRunner runner;
-	
+
     private List<String> splits;
     private Set<String> splitCycles;
 
@@ -273,7 +264,7 @@ public class PluginCompatTester {
                     List<String> warningMessages = new ArrayList<String>();
                     if (errorMessage == null) {
                     try {
-                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridePlugins());
+                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridenPlugins());
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
@@ -367,7 +358,7 @@ public class PluginCompatTester {
         return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
     }
 
-    private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, PluginCompatTesterHooks pcth, List<org.jenkins.tools.test.model.Plugin> overridePlugins)
+    private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, PluginCompatTesterHooks pcth, List<PCTPlugin> overridenPlugins)
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
@@ -439,7 +430,7 @@ public class PluginCompatTester {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
 		}
-        
+
         File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
         FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
@@ -473,7 +464,7 @@ public class PluginCompatTester {
             // Much simpler to do use the parent POM to set up the test classpath. 
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
-                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version, overridePlugins);
+                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version, overridenPlugins);
             } catch (Exception x) {
                 x.printStackTrace();
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
@@ -546,7 +537,7 @@ public class PluginCompatTester {
 		}catch(IOException e){
 			throw new RuntimeException("Invalid update center url : "+config.updateCenterUrl, e);
 		}
-		
+
         String json = jsonp.substring(jsonp.indexOf('(')+1,jsonp.lastIndexOf(')'));
         UpdateSite us = new UpdateSite(DEFAULT_SOURCE_ID, url.toExternalForm());
 
@@ -667,7 +658,7 @@ public class PluginCompatTester {
         }
     }
 
-    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion, List<org.jenkins.tools.test.model.Plugin> overridePlugins) throws PomExecutionException, IOException {
+    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion, List<PCTPlugin> overridenPlugins) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
@@ -742,12 +733,10 @@ public class PluginCompatTester {
             Map<String,VersionNumber> toReplace = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toAddTest = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toReplaceTest = new HashMap<String,VersionNumber>();
-            if (overridePlugins != null) {
-                overridePlugins.forEach(plugin -> {
-                    toReplace.put(plugin.getName(), plugin.getVersion());
-                    toReplaceTest.put(plugin.getName(), plugin.getVersion());
-                });
-            }
+            overridenPlugins.forEach(plugin -> {
+                toReplace.put(plugin.getName(), plugin.getVersion());
+                toReplaceTest.put(plugin.getName(), plugin.getVersion());
+            });
 
             for (String split : splits) {
                 String[] pieces = split.split(" ");
@@ -825,13 +814,13 @@ public class PluginCompatTester {
 
     /**
      * Search the dependents of a given plugin to determine if we need to use the bundled version.
-     * This helps in cases where tests fail due to new insufficient versions as well as more 
+     * This helps in cases where tests fail due to new insufficient versions as well as more
      * accurately representing the totality of upgraded plugins for provided war files.
      */
     private void updateAllDependents(String parent, Plugin dependent, Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins, List<String> inTest, List<String> toConvertFromTest) {
         // Check if this exists with an undesired scope
         String pluginName = dependent.name;
-        if (inTest.contains(pluginName)) { 
+        if (inTest.contains(pluginName)) {
             // This is now required in the compile scope.  For example: copyartifact's dependency matrix-project requires junit
             System.out.println("Converting " + pluginName + " from the test scope since it was a dependency of " + parent);
             toConvertFromTest.add(pluginName);
@@ -928,14 +917,14 @@ public class PluginCompatTester {
     /**
      * Finds the difference of the given maps.
      * In set theory: base - toAdd
-     * 
+     *
      * @param base the left map; all returned items are not in this map
      * @param toAdd the right map; all returned items are found in this map
      */
     private Map<String, VersionNumber> difference(Map<String, VersionNumber> base, Map<String, VersionNumber> toAdd) {
         Map<String, VersionNumber> diff = new HashMap<String, VersionNumber>();
         for (Map.Entry<String,VersionNumber> adding : toAdd.entrySet()) {
-            if (!base.containsKey(adding.getKey())) { 
+            if (!base.containsKey(adding.getKey())) {
                 diff.put(adding.getKey(), adding.getValue());
             }
         }

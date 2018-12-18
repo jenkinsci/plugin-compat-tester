@@ -135,8 +135,8 @@ public class PluginCompatTesterCli {
             config.setTestJavaArgs(options.getTestJavaArgs());
         }
 
-        if(options.getOverridePlugins() != null && !options.getOverridePlugins().isEmpty()) {
-            config.setOverridePlugins(options.getOverridePlugins());
+        if(options.getOverridenPlugins() != null && !options.getOverridenPlugins().isEmpty()) {
+            config.setOverridenPlugins(options.getOverridenPlugins());
         }
 
         // Handle properties
