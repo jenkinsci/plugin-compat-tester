@@ -132,7 +132,7 @@ public class CliOptions {
     @Parameter(names="-help", description = "Print this help message")
     private boolean printHelp;
 
-    @Parameter(names = "-overridePlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies." +
+    @Parameter(names = "-overridenPlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies." +
           "Format: 'PLUGIN_NAME=PLUGIN_VERSION", converter = PluginConverter.class, validateWith = PluginValidator.class)
     private List<PCTPlugin> overridenPlugins;
 
