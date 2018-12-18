@@ -126,13 +126,14 @@ mkdir -p "${PCT_OUTPUT_DIR}"
 TEST_JDK_HOME=${TEST_JAVA_ARGS:-"/usr/lib/jvm/java-${JDK_VERSION:-8}-openjdk-amd64"}
 if [[ "${JDK_VERSION}" = "11" ]] ; then
   echo "JDK_VERSION detected is 11. Adding JAXB and modules to the command lines."
-  TEST_JAVA_ARGS="${TEST_JAVA_ARGS:-} -p /pct/jdk11-libs/jaxb-api.jar:/pct/jdk11-libs/javax.activation.jar --add-modules java.xml.bind,java.activation -cp /pct/jdk11-libs/jaxb-impl.jar:/pct/jdk11-libs/jaxb-core.jar -Xmx768M -Djava.awt.headless=true -Djdk.net.URLClassPath.disableClassPathURLCheck=true"
+  TEST_JAVA_ARGS="'${TEST_JAVA_ARGS:-} -p /pct/jdk11-libs/jaxb-api.jar:/pct/jdk11-libs/javax.activation.jar --add-modules java.xml.bind,java.activation -cp /pct/jdk11-libs/jaxb-impl.jar:/pct/jdk11-libs/jaxb-core.jar -Xmx768M -Djava.awt.headless=true -Djdk.net.URLClassPath.disableClassPathURLCheck=true'"
 else
-  TEST_JAVA_ARGS="${TEST_JAVA_ARGS:-} -Xmx768M -Djava.awt.headless=true -Djdk.net.URLClassPath.disableClassPathURLCheck=true"
+  TEST_JAVA_ARGS="'${TEST_JAVA_ARGS:-} -Xmx768M -Djava.awt.headless=true -Djdk.net.URLClassPath.disableClassPathURLCheck=true'"
 fi
 
 # The image always uses external Maven due to https://issues.jenkins-ci.org/browse/JENKINS-48710
-exec java ${JAVA_OPTS} ${extra_java_opts[@]} \
+pctExitCode=0
+echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -jar /pct/pct-cli.jar \
   -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml \
   -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} \
@@ -142,5 +143,25 @@ exec java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -mvn "/usr/bin/mvn" \
   -m2SettingsFile "${MVN_SETTINGS_FILE}" \
   -testJDKHome "${TEST_JDK_HOME}" \
-  -testJavaArgs "${TEST_JAVA_ARGS:-}" \
-  "$@"
+  -testJavaArgs ${TEST_JAVA_ARGS:-} \
+  "$@" \
+  "|| echo \$? > /pct/tmp/pct_exit_code" > /pct/tmp/pct_command
+chmod +x /pct/tmp/pct_command
+cat /pct/tmp/pct_command
+sh -ex /pct/tmp/pct_command || "Execution failed with code $?"
+
+if [ -f "/pct/tmp/pct_exit_code" ]; then
+  pctExitCode=$(cat "/pct/tmp/pct_exit_code")
+fi
+
+if [[ "${pctExitCode}" != "0" ]] ; then
+  echo "ERROR: PCT failed with code ${pctExitCode}. Will check for Maven Surefire dumps if it crashed"
+  dumpFiles=$(find /pct/tmp/work/${ARTIFACT_ID}/target/surefire-reports/*.dump* || echo "")
+  if [ -n "${dumpFiles}" ] ; then
+    echo "${dumpFiles}" | while read file; do
+      echo "Found Maven Surefire dump file: ${file}"
+      cat "${file}"
+    done
+  fi
+  exit "${pctExitCode}"
+fi
