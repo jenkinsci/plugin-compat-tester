@@ -37,6 +37,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -191,6 +192,23 @@ public class PluginCompatTesterTest {
 		fileName = "WEB-INF/lib/jenkins-core-256.0-2090468d82e49345519a2457f1d1e7426f01540b-2090468d82e49345519a2457f1d1e7426f01540b-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
+	}
+
+	@Test
+	public void testCustomWAR() throws Throwable {
+		PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
+				new File("../reports/PluginCompatReport.xml"),
+				new ClassPathResource("m2-settings.xml").getFile());
+
+		config.setIncludePlugins(Arrays.asList("windows-slaves"));
+		config.setSkipTestCache(true);
+		config.setCacheThresholStatus(TestStatus.TEST_FAILURES);
+		config.setTestCacheTimeout(345600000);
+		config.setWar(new File("/Users/nenashev/Documents/jenkins/core/remoting/src/test/it/tmp/output/target/jenkins-remoting-it-2.107.3-remoting-it-SNAPSHOT.war"));
+		config.setGenerateHtmlReport(true);
+
+		PluginCompatTester tester = new PluginCompatTester(config);
+		tester.testPlugins();
 	}
 
 }

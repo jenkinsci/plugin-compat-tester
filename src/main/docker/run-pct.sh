@@ -61,11 +61,11 @@ if [ -f "${JENKINS_WAR_PATH}" ]; then
     # We specify version explicitly to use Jenkins-Version like PCT does
     mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
         -Dpackaging=war -Dversion="${JENKINS_VERSION}" -Dfile="jenkins.war" \
-        -DpomFile="exploded/war/META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml"
+        -Dversion="${JENKINS_VERSION}" -DpomFile="exploded/war/META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml"
     mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
-        -Dpackaging=jar -Dfile="exploded/war/WEB-INF/lib/jenkins-core-${JENKINS_VERSION}.jar"
+        -Dversion="${JENKINS_VERSION}" -Dpackaging=jar -Dfile="exploded/war/WEB-INF/lib/jenkins-core-${JENKINS_VERSION}.jar"
     mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
-        -Dpackaging=jar -Dfile="exploded/war/WEB-INF/lib/cli-${JENKINS_VERSION}.jar"
+        -Dversion="${JENKINS_VERSION}" -Dpackaging=jar -Dfile="exploded/war/WEB-INF/lib/cli-${JENKINS_VERSION}.jar"
     mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode -Dpackaging=pom ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}"  \
         -Dfile="exploded/war/META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml" \
         -DpomFile="exploded/war/META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml" \
