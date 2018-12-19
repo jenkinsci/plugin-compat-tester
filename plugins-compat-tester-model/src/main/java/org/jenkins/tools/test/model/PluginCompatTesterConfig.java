@@ -380,7 +380,7 @@ public class PluginCompatTesterConfig {
         this.localCheckoutDir = new File(localCheckoutDir);
     }
 
-    public void setOverridenPlugins(List<PCTPlugin> overridePlugins) {
+    public void setOverridenPlugins(List<PCTPlugin> overridenPlugins) {
         this.overridenPlugins = overridenPlugins;
     }
 
