@@ -139,6 +139,10 @@ public class PluginCompatTesterCli {
             config.setFailOnError(true);
         }
 
+        if(options.getOverridenPlugins() != null && !options.getOverridenPlugins().isEmpty()) {
+            config.setOverridenPlugins(options.getOverridenPlugins());
+        }
+
         // Handle properties
         if (options.getMavenProperties() != null) {
             String[] split = options.getMavenProperties().split("\\s*:\\s*");

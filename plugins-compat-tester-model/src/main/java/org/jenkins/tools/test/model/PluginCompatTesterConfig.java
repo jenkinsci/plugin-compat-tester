@@ -128,6 +128,8 @@ public class PluginCompatTesterConfig {
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
     private File localCheckoutDir;
 
+    private List<PCTPlugin> overridenPlugins = new ArrayList<>();
+
     // Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code
     private boolean failOnError;
 
@@ -376,6 +378,14 @@ public class PluginCompatTesterConfig {
 
     public void setLocalCheckoutDir(String localCheckoutDir) {
         this.localCheckoutDir = new File(localCheckoutDir);
+    }
+
+    public void setOverridenPlugins(List<PCTPlugin> overridePlugins) {
+        this.overridenPlugins = overridenPlugins;
+    }
+
+    public List<PCTPlugin> getOverridenPlugins() {
+        return overridenPlugins;
     }
 
     public boolean isFailOnError() {
