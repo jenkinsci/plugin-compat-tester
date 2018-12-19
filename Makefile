@@ -54,6 +54,7 @@ print-java-home:
 demo-jdk8: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/jenkins-war-$(JENKINS_VERSION).war print-java-home
 	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
+	     -failOnError \
 	     -workDirectory $(CURDIR)/work -skipTestCache true \
 	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
 	     -testJDKHome $(TEST_JDK_HOME) \
@@ -65,6 +66,7 @@ demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/j
 	# https://issues.jenkins-ci.org/browse/JENKINS-52186
 	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
+	     -failOnError \
 	     -workDirectory $(CURDIR)/work -skipTestCache true \
 	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
 	     -testJDKHome $(TEST_JDK_HOME) \

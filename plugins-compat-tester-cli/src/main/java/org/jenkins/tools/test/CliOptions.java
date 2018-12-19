@@ -127,6 +127,9 @@ public class CliOptions {
     @Parameter(names="-help", description = "Print this help message")
     private boolean printHelp;
 
+    @Parameter(names="-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
+    private boolean failOnError;
+
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
     }
@@ -213,5 +216,9 @@ public class CliOptions {
     @CheckForNull
     public String getTestJavaArgs() {
         return testJavaArgs;
+    }
+
+    public boolean isFailOnError() {
+        return failOnError;
     }
 }

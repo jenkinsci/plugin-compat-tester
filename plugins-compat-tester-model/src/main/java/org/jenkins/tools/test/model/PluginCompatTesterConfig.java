@@ -128,6 +128,9 @@ public class PluginCompatTesterConfig {
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
     private File localCheckoutDir;
 
+    // Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code
+    private boolean failOnError;
+
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
                 workDirectory, reportFile, m2SettingsFile);
@@ -373,5 +376,13 @@ public class PluginCompatTesterConfig {
 
     public void setLocalCheckoutDir(String localCheckoutDir) {
         this.localCheckoutDir = new File(localCheckoutDir);
+    }
+
+    public boolean isFailOnError() {
+        return failOnError;
+    }
+
+    public void setFailOnError(boolean failOnError) {
+        this.failOnError = failOnError;
     }
 }
