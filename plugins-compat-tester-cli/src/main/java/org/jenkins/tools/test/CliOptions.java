@@ -110,7 +110,7 @@ public class CliOptions {
     private String cacheThresholdStatus = TestStatus.COMPILATION_ERROR.toString();
 
     @Parameter(names="-mavenProperties", description = "Define extra properties to be passed to the build." +
-            "Format: 'KEY1=VALUE1:KEY2=VALUE2'. These options will be used a la -D.\n" + 
+          "Format: 'KEY1=VALUE1:KEY2=VALUE2'. These options will be used a la -D.\n" +
             "If your property values contain ':' you must use the 'mavenPropertiesFile' option instead.")
     private String mavenProperties;
 
@@ -136,6 +136,9 @@ public class CliOptions {
           "Format: 'PLUGIN_NAME=PLUGIN_VERSION", converter = PluginConverter.class, validateWith = PluginValidator.class)
     private List<PCTPlugin> overridenPlugins;
 
+    @Parameter(names = "-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
+    private boolean failOnError;
+
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
     }
@@ -143,7 +146,7 @@ public class CliOptions {
     public String getParentCoord() {
         return parentCoord;
     }
-    
+
     public File getWar() {
         return war;
     }
@@ -163,7 +166,7 @@ public class CliOptions {
     public File getM2SettingsFile() {
         return m2SettingsFile;
     }
-    
+
     public File getExternalMaven() {
         return externalMaven;
     }
@@ -227,6 +230,10 @@ public class CliOptions {
     @CheckForNull
     public List<PCTPlugin> getOverridenPlugins() {
         return overridenPlugins;
+    }
+
+    public boolean isFailOnError() {
+        return failOnError;
     }
 
     public static class PluginConverter implements IStringConverter<PCTPlugin> {

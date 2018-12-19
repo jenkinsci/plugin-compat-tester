@@ -27,6 +27,7 @@ package org.jenkins.tools.test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import hudson.AbortException;
 import hudson.Functions;
 import hudson.maven.MavenEmbedderException;
 import hudson.model.UpdateSite;
@@ -85,6 +86,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -203,9 +205,9 @@ public class PluginCompatTester {
         mconfig.userProperties.put( "failIfNoTests", "false" );
         mconfig.userProperties.putAll(this.config.retrieveMavenProperties());
 
-
+        boolean failed = false;
 		SCMManagerFactory.getInstance().start();
-        for(MavenCoordinates coreCoordinates : testedCores){
+        ROOT_CYCLE: for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
             for (Plugin plugin : pluginsToCheck.values()) {
                 if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
@@ -308,6 +310,13 @@ public class PluginCompatTester {
                         }
                         report.save(config.reportFile);
                     }
+
+                    if (status != TestStatus.SUCCESS) {
+                        failed = true;
+                        if (config.isFailOnError()) {
+                            break ROOT_CYCLE;
+                        }
+                    }
                 } else {
                     System.out.println("Plugin "+plugin.name+" not in included plugins => test skipped !");
                 }
@@ -319,6 +328,10 @@ public class PluginCompatTester {
             generateHtmlReportFile();
         } else {
             System.out.println("No HTML report is generated, because it has been disabled or no tests have been executed");
+        }
+
+        if (failed && config.isFailOnError()) {
+		    throw new AbortException("Execution was aborted due to the failure in a plugin test (-failOnerror is set)");
         }
 
         return report;

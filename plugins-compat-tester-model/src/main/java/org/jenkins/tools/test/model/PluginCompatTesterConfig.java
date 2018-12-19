@@ -130,6 +130,9 @@ public class PluginCompatTesterConfig {
 
     private List<PCTPlugin> overridenPlugins = new ArrayList<>();
 
+    // Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code
+    private boolean failOnError;
+
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
                 workDirectory, reportFile, m2SettingsFile);
@@ -383,5 +386,13 @@ public class PluginCompatTesterConfig {
 
     public List<PCTPlugin> getOverridenPlugins() {
         return overridenPlugins;
+    }
+
+    public boolean isFailOnError() {
+        return failOnError;
+    }
+
+    public void setFailOnError(boolean failOnError) {
+        this.failOnError = failOnError;
     }
 }
