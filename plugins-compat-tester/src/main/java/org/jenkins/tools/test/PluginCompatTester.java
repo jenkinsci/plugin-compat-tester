@@ -785,6 +785,7 @@ public class PluginCompatTester {
                 pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, convertFromTestDep);
             }
 
+	    // TODO(oleg_nenashev): This is a hack, logic above should be refactored somehow (JENKINS-55279)
             // Remove the self-dependency if any
             pom.removeDependency(pluginGroupIds.get(thisPlugin), thisPlugin);
         }
