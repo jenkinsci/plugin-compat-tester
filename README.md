@@ -112,10 +112,13 @@ the version to use. The version needs to be bundled in the docker image. By spec
 
 ### Running PCT with different version of dependencies
 
+IMPORTANT: At this moment, the replacement of a dependency will not update the transitive dependencies.
+Because of this, you might have to provide on the same parameter the new versions of the transitive dependencies.
+
 Plugin Compat Tester supports overriding the plugin dependency version. 
 For example, we might want to validate that a newer version of a plugin is not breaking the latest version of the plugin we want to test.
 
-To do that, the option `overridePlugins` can be passed to PCT CLI.
+To do that, the option `overridenPlugins` can be passed to PCT CLI.
 The format of the value **must** be `PLUGIN_NAME=PLUGIN_VERSION`.
 
 So, running
@@ -123,7 +126,7 @@ So, running
 ```
 java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
   [...]
-  -overridePlugins display-url-api=2.3.0
+  -overridenPlugins display-url-api=2.3.0
   -includePlugins mailer
 ```
 

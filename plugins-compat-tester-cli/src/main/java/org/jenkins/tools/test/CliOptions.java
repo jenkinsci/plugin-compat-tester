@@ -30,7 +30,7 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import hudson.util.VersionNumber;
-import org.jenkins.tools.test.model.Plugin;
+import org.jenkins.tools.test.model.PCTPlugin;
 import org.jenkins.tools.test.model.TestStatus;
 
 import javax.annotation.CheckForNull;
@@ -110,7 +110,7 @@ public class CliOptions {
     private String cacheThresholdStatus = TestStatus.COMPILATION_ERROR.toString();
 
     @Parameter(names="-mavenProperties", description = "Define extra properties to be passed to the build." +
-            "Format: 'KEY1=VALUE1:KEY2=VALUE2'. These options will be used a la -D.\n" + 
+          "Format: 'KEY1=VALUE1:KEY2=VALUE2'. These options will be used a la -D.\n" +
             "If your property values contain ':' you must use the 'mavenPropertiesFile' option instead.")
     private String mavenProperties;
 
@@ -132,12 +132,12 @@ public class CliOptions {
     @Parameter(names="-help", description = "Print this help message")
     private boolean printHelp;
 
-    @Parameter(names="-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
-    private boolean failOnError;
-
-    @Parameter(names = "-overridePlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies." +
+    @Parameter(names = "-overridenPlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies." +
           "Format: 'PLUGIN_NAME=PLUGIN_VERSION", converter = PluginConverter.class, validateWith = PluginValidator.class)
-    private List<Plugin> overridePlugins;
+    private List<PCTPlugin> overridenPlugins;
+
+    @Parameter(names = "-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
+    private boolean failOnError;
 
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
@@ -146,7 +146,7 @@ public class CliOptions {
     public String getParentCoord() {
         return parentCoord;
     }
-    
+
     public File getWar() {
         return war;
     }
@@ -166,7 +166,7 @@ public class CliOptions {
     public File getM2SettingsFile() {
         return m2SettingsFile;
     }
-    
+
     public File getExternalMaven() {
         return externalMaven;
     }
@@ -227,19 +227,20 @@ public class CliOptions {
         return testJavaArgs;
     }
 
+    @CheckForNull
+    public List<PCTPlugin> getOverridenPlugins() {
+        return overridenPlugins;
+    }
+
     public boolean isFailOnError() {
         return failOnError;
     }
 
-    public List<Plugin> getOverridePlugins() {
-        return overridePlugins;
-    }
-
-    public static class PluginConverter implements IStringConverter<Plugin> {
+    public static class PluginConverter implements IStringConverter<PCTPlugin> {
         @Override
-        public Plugin convert(String s) {
+        public PCTPlugin convert(String s) {
             String[] details = s.split("=");
-            return new Plugin(details[0], new VersionNumber(details[1]));
+            return new PCTPlugin(details[0], new VersionNumber(details[1]));
         }
     }
 
