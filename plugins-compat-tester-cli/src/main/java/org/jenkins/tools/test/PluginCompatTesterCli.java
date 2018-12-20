@@ -134,6 +134,14 @@ public class PluginCompatTesterCli {
         if (options.getTestJavaArgs() != null && !options.getTestJavaArgs().isEmpty()) {
             config.setTestJavaArgs(options.getTestJavaArgs());
         }
+        if (options.isFailOnError()) {
+            //TODO: also interpolate it for the case when a single plugin passed?
+            config.setFailOnError(true);
+        }
+
+        if(options.getOverridenPlugins() != null && !options.getOverridenPlugins().isEmpty()) {
+            config.setOverridenPlugins(options.getOverridenPlugins());
+        }
 
         // Handle properties
         if (options.getMavenProperties() != null) {

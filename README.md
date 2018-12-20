@@ -79,6 +79,7 @@ java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli-${PCT_VERSI
   -includePlugins ${PLUGIN_ARTIFACT_ID} \
   -war jenkins.war -localCheckoutDir ${PLUGIN_SRC} \
   -skipTestCache true \
+  -failOnError \
   -mvn ${PATH_TO_MAVEN}
 ```
 
@@ -108,6 +109,28 @@ Full list of options for JDK11 can be found [here](./Makefile).
 When using the docker image, it is possible to use `JDK_VERSION` variable to select 
 the version to use. The version needs to be bundled in the docker image. By specifying 
 `11`, the modules and jaxb libraries are also added to the command line. 
+
+### Running PCT with different version of dependencies
+
+IMPORTANT: At this moment, the replacement of a dependency will not update the transitive dependencies.
+Because of this, you might have to provide on the same parameter the new versions of the transitive dependencies.
+
+Plugin Compat Tester supports overriding the plugin dependency version. 
+For example, we might want to validate that a newer version of a plugin is not breaking the latest version of the plugin we want to test.
+
+To do that, the option `overridenPlugins` can be passed to PCT CLI.
+The format of the value **must** be `PLUGIN_NAME=PLUGIN_VERSION`.
+
+So, running
+
+```
+java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+  [...]
+  -overridenPlugins display-url-api=2.3.0
+  -includePlugins mailer
+```
+
+will run the PCT on the `mailer` plugin, but replacing the `display-url-api` dependency of Mailer (which is `1.0`) with the version `2.3.0`.
 
 ## Developer Info
 
