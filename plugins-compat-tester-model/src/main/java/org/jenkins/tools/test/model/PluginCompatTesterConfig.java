@@ -25,13 +25,17 @@
  */
 package org.jenkins.tools.test.model;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tools.ant.filters.StringInputStream;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -294,7 +298,9 @@ public class PluginCompatTesterConfig {
             } else {
                 System.out.println("Using custom Test JDK home: " + testJDKHome);
             }
-            res.put("jvm", new File(testJDKHome, "bin/java").getAbsolutePath());
+            final String javaCmdAbsolutePath = new File(testJDKHome, "bin/java").getAbsolutePath();
+            res.put("jvm", javaCmdAbsolutePath);
+            res.put("javaVersion", getJavaVersion(javaCmdAbsolutePath));
         }
 
         // Merge test Java args if needed
@@ -309,6 +315,18 @@ public class PluginCompatTesterConfig {
         }
 
         return res;
+    }
+
+    /**
+     * Gets Java version from the binary path to the <code>java</code> command.
+     * @return a string identifying the jvm in use
+     */
+    private String getJavaVersion(String javaCmdAbsolutePath) throws IOException {
+        final Process process = new ProcessBuilder().command(javaCmdAbsolutePath, "-fullversion").redirectErrorStream(true).start();
+        final String javaVersionOutput = IOUtils.toString(process.getInputStream());
+        // Expected format is something like openjdk full version "1.8.0_181-8u181-b13-2~deb9u1-b13"
+        // We shorten it by removing the "full version" in the middle
+        return javaVersionOutput.replace(" full version ", " ");
     }
 
     public TestStatus getCacheThresholStatus() {

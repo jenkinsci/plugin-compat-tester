@@ -78,7 +78,7 @@
             <tr>
                 <xsl:for-each select="$testedJenkinsCoordinates" >
                     <th class="version">
-                        <xsl:value-of select="version" />
+                        <xsl:value-of select="version" />  / <xsl:value-of select="/report/testJdkVersion" />
                     </th>
                 </xsl:for-each>
                 <xsl:for-each select="$testedHudsonCoordinates" >
