@@ -11,6 +11,7 @@ import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             MavenCoordinates core = (MavenCoordinates) moreInfo.get("core");
 
             runner = config.getExternalMaven() == null ? new InternalMavenRunner() : new ExternalMavenRunner(config.getExternalMaven());
-            mavenConfig = getMavenConfig(config);
+            mavenConfig = getMavenConfig(config, core);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
             System.out.println("Plugin dir is " + pluginDir);
@@ -100,12 +101,16 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         }
     }
 
-    private MavenRunner.Config getMavenConfig(PluginCompatTesterConfig config) throws IOException {
+    private MavenRunner.Config getMavenConfig(PluginCompatTesterConfig config, @CheckForNull MavenCoordinates coreCoordinates) throws IOException {
         MavenRunner.Config mconfig = new MavenRunner.Config();
         mconfig.userSettingsFile = config.getM2SettingsFile();
         // TODO REMOVE
         mconfig.userProperties.put("failIfNoTests", "false");
         mconfig.userProperties.putAll(config.retrieveMavenProperties());
+        if (coreCoordinates != null && config.isSetJenkinsVersionOnPrecompile()) {
+            mconfig.userProperties.put("jenkins.version", coreCoordinates.version);
+            mconfig.userProperties.put("enforcer.skip", null);
+        }
 
         return mconfig;
     }

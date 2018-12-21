@@ -133,6 +133,8 @@ public class PluginCompatTesterConfig {
     // Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code
     private boolean failOnError;
 
+    private boolean setJenkinsVersionOnPrecompile;
+
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
                 workDirectory, reportFile, m2SettingsFile);
@@ -394,5 +396,13 @@ public class PluginCompatTesterConfig {
 
     public void setFailOnError(boolean failOnError) {
         this.failOnError = failOnError;
+    }
+
+    public boolean isSetJenkinsVersionOnPrecompile() {
+        return setJenkinsVersionOnPrecompile;
+    }
+
+    public void setSetJenkinsVersionOnPrecompile(boolean setJenkinsVersionOnPrecompile) {
+        this.setJenkinsVersionOnPrecompile = setJenkinsVersionOnPrecompile;
     }
 }

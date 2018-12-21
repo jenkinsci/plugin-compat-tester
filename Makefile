@@ -1,6 +1,7 @@
 #Makefile
 TEST_JDK_HOME?=$(JAVA_HOME)
 PLUGIN_NAME?=mailer
+LOCAL_SRC?=$(shell pwd)/work/$(PLUGIN_NAME)
 
 # Weekly with the latest Java 11 patches is used by default
 JENKINS_VERSION=2.155
@@ -65,7 +66,7 @@ demo-jdk8: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/je
 demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/javax.activation-$(JAF_VERSION).jar tmp/jaxb-api-$(JAXB_API_VERSION).jar tmp/jenkins-war-$(JENKINS_VERSION).war tmp/jaxb-impl-$(JAXB_VERSION).jar tmp/jaxb-core-$(JAXB_VERSION).jar print-java-home
 	# TODO Cleanup when/if the JAXB bundling issue is resolved.
 	# https://issues.jenkins-ci.org/browse/JENKINS-52186
-	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+	$(TEST_JDK_HOME)/bin/java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -failOnError \
 	     -workDirectory $(CURDIR)/work -skipTestCache true \
@@ -82,6 +83,7 @@ demo-jdk11-docker: tmp/jenkins-war-$(JENKINS_VERSION).war
 	     -v $(shell pwd)/tmp/jenkins-war-$(JENKINS_VERSION).war:/pct/jenkins.war:ro \
 	     -e ARTIFACT_ID=$(PLUGIN_NAME) \
 	     -e JDK_VERSION=11 \
+	     -e USE_TEST_JDK_HOME_EXEC=1 \
 	     jenkins/pct
 
 # TODO: take other default directory to avoid collisions?
@@ -90,8 +92,9 @@ demo-jdk11-docker: tmp/jenkins-war-$(JENKINS_VERSION).war
 demo-jdk11-docker-src: tmp/jenkins-war-$(JENKINS_VERSION).war
 	docker run --rm -v maven-repo:/root/.m2 \
 	     -v $(shell pwd)/out:/pct/out \
-	     -v $(shell pwd)/work/$(PLUGIN_NAME):/pct/plugin-src:ro \
+	     -v $(LOCAL_SRC):/pct/plugin-src:ro \
 	     -v $(shell pwd)/tmp/jenkins-war-$(JENKINS_VERSION).war:/pct/jenkins.war:ro \
 	     -e ARTIFACT_ID=$(PLUGIN_NAME) \
 	     -e JDK_VERSION=11 \
+	     -e USE_TEST_JDK_HOME_EXEC=1 \
 	     jenkins/pct

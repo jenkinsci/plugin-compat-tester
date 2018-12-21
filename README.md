@@ -106,9 +106,15 @@ You can run the example by running the following command:
 
 Full list of options for JDK11 can be found [here](./Makefile).
 
+#### Running PCT with custom Java versions in Docker
+
 When using the docker image, it is possible to use `JDK_VERSION` variable to select 
-the version to use. The version needs to be bundled in the docker image. By specifying 
+the version to use to. The version needs to be bundled in the docker image. By specifying 
 `11`, the modules and jaxb libraries are also added to the command line. 
+
+`USE_TEST_JDK_HOME_EXEC` can be used to use the Java executable from `TEST_JDK_HOME` for the PCT run.
+Such mode requires recent versions of [plugin POM](https://github.com/jenkinsci/plugin-pom) to be defined in the plugin
+(JDK11 build support, version 3.32 or above is recommended).
 
 ### Running PCT with different version of dependencies
 

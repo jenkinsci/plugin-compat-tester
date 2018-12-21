@@ -139,6 +139,10 @@ public class PluginCompatTesterCli {
             config.setFailOnError(true);
         }
 
+        if (options.isSetJenkinsVersionOnPrecompile()) {
+            config.setSetJenkinsVersionOnPrecompile(true);
+        }
+
         if(options.getOverridenPlugins() != null && !options.getOverridenPlugins().isEmpty()) {
             config.setOverridenPlugins(options.getOverridenPlugins());
         }
