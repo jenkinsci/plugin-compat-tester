@@ -26,6 +26,7 @@ public class ExternalMavenRunner implements MavenRunner {
     public void run(Config config, File baseDirectory, File buildLogFile, String... goals) throws PomExecutionException {
         List<String> cmd = new ArrayList<String>();
         cmd.add(mvn.getAbsolutePath());
+        cmd.add("--show-version");
         cmd.add("--batch-mode");
         if (config.userSettingsFile != null) {
             cmd.add("--settings=" + config.userSettingsFile);

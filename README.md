@@ -17,20 +17,20 @@ You can find it [here](https://hub.docker.com/r/jenkins/pct/).
 This command will clone of a repository and run PCT against the latest Jenkins Core:
 
 ```shell
-docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e ARTIFACT_ID=ssh-slaves -e VERSION=ssh-slaves-1.24 jenkins/pct
+docker run -ti --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e ARTIFACT_ID=ssh-slaves -e VERSION=ssh-slaves-1.24 jenkins/pct
 ```
 
 This command will run PCT for the latest plugin version against the specified Jenkins WAR.
 PCT supports running against SNAPSHOT builds, but PCT will have to install local Maven artifacts in such case.
 
 ```shell
-docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -e ARTIFACT_ID=ssh-slaves jenkins/pct
+docker run -ti --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -e ARTIFACT_ID=ssh-slaves jenkins/pct
 ```
 
 This command will run PCT against custom versions of Jenkins and the plugin specified by volumes.
 
 ```shell
-docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -v my/plugin:/pct/plugin-src:ro jenkins/pct
+docker run -ti --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -v my/plugin:/pct/plugin-src:ro jenkins/pct
 ```
 
 The command below will run PCT for a branch in a custom repository.
