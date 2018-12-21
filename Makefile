@@ -1,7 +1,7 @@
 #Makefile
 TEST_JDK_HOME?=$(JAVA_HOME)
 PLUGIN_NAME?=mailer
-LOCAL_SRC?=$(shell pwd)/work/$(PLUGIN_NAME)
+LOCAL_SRC?=$(CURDIR)/work/$(PLUGIN_NAME)
 USE_TEST_JDK_HOME_EXEC?=
 
 # Weekly with the latest Java 11 patches is used by default
