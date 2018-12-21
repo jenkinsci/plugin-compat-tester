@@ -2,6 +2,7 @@
 TEST_JDK_HOME?=$(JAVA_HOME)
 PLUGIN_NAME?=mailer
 LOCAL_SRC?=$(shell pwd)/work/$(PLUGIN_NAME)
+USE_TEST_JDK_HOME_EXEC?=
 
 # Weekly with the latest Java 11 patches is used by default
 JENKINS_VERSION=2.155
@@ -83,7 +84,7 @@ demo-jdk11-docker: tmp/jenkins-war-$(JENKINS_VERSION).war
 	     -v $(shell pwd)/tmp/jenkins-war-$(JENKINS_VERSION).war:/pct/jenkins.war:ro \
 	     -e ARTIFACT_ID=$(PLUGIN_NAME) \
 	     -e JDK_VERSION=11 \
-	     -e USE_TEST_JDK_HOME_EXEC=1 \
+	     -e USE_TEST_JDK_HOME_EXEC=$(USE_TEST_JDK_HOME_EXEC) \
 	     jenkins/pct
 
 # TODO: take other default directory to avoid collisions?
@@ -96,5 +97,5 @@ demo-jdk11-docker-src: tmp/jenkins-war-$(JENKINS_VERSION).war
 	     -v $(shell pwd)/tmp/jenkins-war-$(JENKINS_VERSION).war:/pct/jenkins.war:ro \
 	     -e ARTIFACT_ID=$(PLUGIN_NAME) \
 	     -e JDK_VERSION=11 \
-	     -e USE_TEST_JDK_HOME_EXEC=1 \
+	     -e USE_TEST_JDK_HOME_EXEC=$(USE_TEST_JDK_HOME_EXEC) \
 	     jenkins/pct
