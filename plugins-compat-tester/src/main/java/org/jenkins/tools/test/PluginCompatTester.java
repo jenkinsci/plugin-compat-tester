@@ -74,6 +74,7 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -475,7 +476,13 @@ public class PluginCompatTester {
             // and ensures that we are testing a plugin binary as close as possible to what was actually released.
             // We also skip potential javadoc execution to avoid general test failure.
             if (!ranCompile) {
-                runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+                List<String> goals;
+                goals = new ArrayList<>(Arrays.asList("clean", "process-test-classes", "-Dmaven.javadoc.skip"));
+                if (config.isSetJenkinsVersionOnPrecompile()) {
+                    goals.add("-Djenkins.version="+coreCoordinates.version);
+                    goals.add("-Denforcer.skip");
+                }
+                runner.run(mconfig, pluginCheckoutDir, buildLogFile, goals.toArray(new String[0]));
             }
             ranCompile = true;
 

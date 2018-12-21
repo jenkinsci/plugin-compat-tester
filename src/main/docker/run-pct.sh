@@ -131,9 +131,18 @@ else
   TEST_JAVA_ARGS="'${TEST_JAVA_ARGS:-} -Xmx768M -Djava.awt.headless=true -Djdk.net.URLClassPath.disableClassPathURLCheck=true'"
 fi
 
+EXTRA_PCT_OPTIONS=""
+JAVA_EXECUTABLE="java"
+if [[ "${USE_TEST_JDK_HOME_EXEC}" ]] ; then
+  JAVA_EXECUTABLE=${TEST_JDK_HOME}/bin/java
+  export JAVA_HOME=${TEST_JDK_HOME}
+  #TODO: move to the external call?
+  EXTRA_PCT_OPTIONS="-setJenkinsVersionOnPrecompile"
+fi
+
 # The image always uses external Maven due to https://issues.jenkins-ci.org/browse/JENKINS-48710
 pctExitCode=0
-echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
+echo ${JAVA_EXECUTABLE} ${JAVA_OPTS} ${extra_java_opts[@]} \
   -jar /pct/pct-cli.jar \
   -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml \
   -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} \
@@ -145,6 +154,7 @@ echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -m2SettingsFile "${MVN_SETTINGS_FILE}" \
   -testJDKHome "${TEST_JDK_HOME}" \
   -testJavaArgs ${TEST_JAVA_ARGS:-} \
+  ${EXTRA_PCT_OPTIONS} \
   "$@" \
   "|| echo \$? > /pct/tmp/pct_exit_code" > /pct/tmp/pct_command
 chmod +x /pct/tmp/pct_command
