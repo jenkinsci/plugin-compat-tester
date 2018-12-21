@@ -22,6 +22,12 @@
 
 FROM maven:3.6.0-jdk-8 as builder
 
+# Warmup to avoid downloading the world each time
+RUN git clone https://github.com/jenkinsci/plugin-compat-tester &&\
+    cd plugin-compat-tester && \
+    mvn clean package -DskipTests dependency:go-offline && \
+    mvn clean
+
 COPY plugins-compat-tester/ /pct/src/plugins-compat-tester/
 COPY plugins-compat-tester-cli/ /pct/src/plugins-compat-tester-cli/
 COPY plugins-compat-tester-gae/ /pct/src/plugins-compat-tester-gae/
