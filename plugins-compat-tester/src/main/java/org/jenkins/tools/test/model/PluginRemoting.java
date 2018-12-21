@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2004-2010, Sun Microsystems, Inc., Kohsuke Kawaguchi,
+ * Copyright (c) 2004-2018, Sun Microsystems, Inc., Kohsuke Kawaguchi,
  * Erik Ramfelt, Koichi Fujikawa, Red Hat, Inc., Seiji Sogabe,
  * Stephen Connolly, Tom Huybrechts, Yahoo! Inc., Alan Harder, CloudBees, Inc.
  *
@@ -27,11 +27,14 @@ package org.jenkins.tools.test.model;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.filters.StringInputStream;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,6 +46,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.xml.xpath.XPath;
@@ -53,6 +58,7 @@ import javax.xml.xpath.XPath;
  */
 public class PluginRemoting {
 
+    private static final Logger LOGGER = Logger.getLogger(PluginRemoting.class.getName());
     private String hpiRemoteUrl;
     private File pomFile;
 
@@ -105,8 +111,9 @@ public class PluginRemoting {
 	public PomData retrievePomData() throws PluginSourcesUnavailableException {
 		String scmConnection = null;
         String artifactId = null;
+        String packaging;
 		String pomContent = this.retrievePomContent();
-        MavenCoordinates parent;
+        @CheckForNull MavenCoordinates parent = null;
 		
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 		try {
@@ -117,18 +124,27 @@ public class PluginRemoting {
             XPath xpath = xpathFactory.newXPath();
 			XPathExpression scmConnectionXPath = xpath.compile("/project/scm/connection/text()");
             XPathExpression artifactIdXPath = xpath.compile("/project/artifactId/text()");
+            XPathExpression packagingXPath = xpath.compile("/project/packaging/text()");
 
 			scmConnection = (String)scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
             artifactId = (String)artifactIdXPath.evaluate(doc, XPathConstants.STRING);
+            packaging = StringUtils.trimToNull((String)packagingXPath.evaluate(doc, XPathConstants.STRING));
 
-            parent = new MavenCoordinates(xpath.evaluate("/project/parent/groupId/text()", doc), xpath.evaluate("/project/parent/artifactId/text()", doc), xpath.evaluate("/project/parent/version/text()", doc));
-		} catch (ParserConfigurationException e) {
-			System.err.println("Error : " + e.getMessage());
-			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
-		} catch (SAXException e) {
-			System.err.println("Error : " + e.getMessage());
-			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
-		} catch (IOException e) {
+            String parentNode = xpath.evaluate("/project/parent", doc);
+            if (StringUtils.isNotBlank(parentNode)) {
+                LOGGER.log(Level.SEVERE, parentNode.toString());
+                parent = new MavenCoordinates(
+                        getValueOrFail(doc, xpath, "/project/parent/groupId"),
+                        getValueOrFail(doc, xpath, "/project/parent/artifactId"),
+                        getValueOrFail(doc, xpath, "/project/parent/version"));
+            } else {
+                LOGGER.log(Level.WARNING, "No parent POM reference for artifact {0}, " +
+                                "likely a plugin with Incrementals support is used (Jenkins JEP-305). " +
+                                "Will try to ignore it (FTR https://issues.jenkins-ci.org/browse/JENKINS-55169). " +
+                                "hpiRemoteUrl={1}, pomFile={2}",
+                        new Object[] {artifactId, hpiRemoteUrl, pomFile});
+            }
+		} catch (ParserConfigurationException | SAXException | IOException e) {
 			System.err.println("Error : " + e.getMessage());
 			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
 		} catch (XPathExpressionException e) {
@@ -136,10 +152,30 @@ public class PluginRemoting {
 			throw new PluginSourcesUnavailableException("Problem while retrieving plugin's scm connection", e);
 		}
 		
-		PomData pomData = new PomData(artifactId, scmConnection, parent);
+		PomData pomData = new PomData(artifactId, packaging, scmConnection, parent);
         computeScmConnection(pomData);
         return pomData;
 	}
+
+    /**
+     * Retrieves a field value by XPath.
+     * The value must exist and be non-empty
+     * @throws IOException parsing error
+     */
+	@Nonnull
+	private static String getValueOrFail(Document doc, XPath xpath, String field) throws IOException {
+        String res;
+	    try {
+	        res = xpath.evaluate(field + "/text()", doc);
+        } catch (XPathExpressionException e) {
+            throw new IOException("Expression failed for the field " + field, e);
+        }
+
+        if (StringUtils.isBlank(res)) {
+            throw new IOException("Field is either null or blank: " + field);
+        }
+        return res;
+    }
 
     public static void computeScmConnection(PomData pomData) {
         String transformedConnectionUrl = pomData.getConnectionUrl();

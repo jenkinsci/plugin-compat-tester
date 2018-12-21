@@ -7,8 +7,11 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TransformPom extends PluginCompatTesterHookBeforeExecution {
+    private static final Logger LOGGER = Logger.getLogger(TransformPom.class.getName());
     private static final String CORE_NEW_PARENT_POM = "1.646";
     private static final String CORE_WITHOUT_WAR_FOR_TEST = "2.64";
     private static final String PLUGINS_PARENT_POM_FOR_CORE_WITHOUT_WAR_TEST = "2.33";
@@ -28,16 +31,28 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         PomData pomData = (PomData)info.get("pomData");
         MavenCoordinates parent = pomData.parent;
         MavenCoordinates coreCoordinates = (MavenCoordinates)info.get("coreCoordinates");
-        boolean isDeclarativePipeline = parent.matches("org.jenkinsci.plugins", "pipeline-model-parent");
-        boolean isCB = parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
-                // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
-                parent.matches("com.cloudbees.operations-center.common", "operations-center-parent") ||
-                parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client");
-        boolean isBO = parent.matches("io.jenkins.blueocean", "blueocean-parent");
-        boolean isStructs = parent.matches("org.jenkins-ci.plugins", "structs-parent");
-        boolean pluginPOM = parent.matches("org.jenkins-ci.plugins", "plugin");
-        boolean parentV2 = parent.compareVersionTo("2.0") >= 0;
-        boolean parentUnder233 = parentV2 && parent.compareVersionTo(PLUGINS_PARENT_POM_FOR_CORE_WITHOUT_WAR_TEST) < 0;
+
+        final boolean isCB, parentV2, parentUnder233;
+        boolean isStructs = StructsHook.isStructsPlugin(pomData);
+        boolean isBO = BlueOceanHook.isBOPlugin(pomData);
+        boolean isDeclarativePipeline = DeclarativePipelineHook.isDPPlugin(pomData);
+        boolean pluginPOM = pomData.isPluginPOM();
+        if (parent != null) {
+            isCB = parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
+                    // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
+                    parent.matches("com.cloudbees.operations-center.common", "operations-center-parent") ||
+                    parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client");
+            parentV2 = parent.compareVersionTo("2.0") >= 0;
+            parentUnder233 = parentV2 && parent.compareVersionTo(PLUGINS_PARENT_POM_FOR_CORE_WITHOUT_WAR_TEST) < 0;
+        } else {
+            //TODO(oleg_nenashev): all these assumptions are unreliable at best (JENKINS-55169)
+            LOGGER.log(Level.WARNING, "Parent POM is missing for {0}. " +
+                    "Likely it is Incrementals Plugin, hence assuming it's not a CloudBees one and that the version is above 3.4 (JENKINS-55169)", pomData.artifactId);
+            isCB = false;
+            parentV2 = true;
+            parentUnder233 = false;
+        }
+
         boolean coreRequiresNewParentPOM = coreCoordinates.compareVersionTo(CORE_NEW_PARENT_POM) >= 0;
         boolean coreRequiresPluginOver233 = coreCoordinates.compareVersionTo(CORE_WITHOUT_WAR_FOR_TEST) >= 0;
 

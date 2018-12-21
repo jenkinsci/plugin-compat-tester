@@ -34,6 +34,18 @@ public class StructsHook extends AbstractMultiParentHook {
 
     public static boolean isStructsPlugin(Map<String, Object> moreInfo) {
         PomData data = (PomData) moreInfo.get("pomData");
-        return data.parent.artifactId.equalsIgnoreCase("structs-parent");
+        return isStructsPlugin(data);
+    }
+
+    public static boolean isStructsPlugin(PomData data) {
+        if (data.parent != null) {
+            // Non-incrementals
+            return data.parent.artifactId.equalsIgnoreCase("structs-parent");
+        } else if (!"structs".equalsIgnoreCase(data.artifactId)) {
+            return false;
+        } else {
+            throw new IllegalStateException("Structs Plugin may have been incrementalified, and PCT does not supports the discovery now. " +
+                    "See JENKINS-55169 and linked tickets");
+        }
     }
 }
