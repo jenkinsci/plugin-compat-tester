@@ -129,7 +129,7 @@ public class CliOptions {
     @Parameter(names="-localCheckoutDir", description = "Folder containing either a local (possibly modified) clone of a plugin repository or a set of local clone of different plugins")
     private String localCheckoutDir;
 
-    @Parameter(names="-help", description = "Print this help message")
+    @Parameter(names="-help", description = "Print this help message", help = true)
     private boolean printHelp;
 
     @Parameter(names = "-overridenPlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies." +
