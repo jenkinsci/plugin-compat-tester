@@ -1,12 +1,18 @@
 #Makefile
 TEST_JDK_HOME?=$(JAVA_HOME)
 PLUGIN_NAME?=mailer
+LOCAL_CHECKOUT_DIR?=
 
 # Weekly with the latest Java 11 patches is used by default
 JENKINS_VERSION=2.155
 JAXB_API_VERSION=2.3.0
 JAXB_VERSION=2.3.0.1
 JAF_VERSION=1.2.0
+
+LOCAL_CHECKOUT_DIR_CMD=
+ifneq ($(strip $(LOCAL_CHECKOUT_DIR)),)
+LOCAL_CHECKOUT_DIR_CMD=-localCheckoutDir "$(LOCAL_CHECKOUT_DIR)"
+endif
 
 .PHONY: all
 all: clean package docker
@@ -59,7 +65,7 @@ demo-jdk8: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/je
 	     -workDirectory $(CURDIR)/work -skipTestCache true \
 	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
 	     -testJDKHome $(TEST_JDK_HOME) \
-	     -includePlugins $(PLUGIN_NAME)
+			 $(LOCAL_CHECKOUT_DIR_CMD) -includePlugins $(PLUGIN_NAME)
 
 .PHONY: demo-jdk11
 demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/javax.activation-$(JAF_VERSION).jar tmp/jaxb-api-$(JAXB_API_VERSION).jar tmp/jenkins-war-$(JENKINS_VERSION).war tmp/jaxb-impl-$(JAXB_VERSION).jar tmp/jaxb-core-$(JAXB_VERSION).jar print-java-home
@@ -72,7 +78,7 @@ demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/j
 	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
 	     -testJDKHome $(TEST_JDK_HOME) \
 	     -testJavaArgs "-p $(CURDIR)/tmp/jaxb-api-$(JAXB_API_VERSION).jar:$(CURDIR)/tmp/javax.activation-$(JAF_VERSION).jar --add-modules java.xml.bind,java.activation -cp $(CURDIR)/tmp/jaxb-impl-$(JAXB_VERSION).jar:$(CURDIR)/tmp/jaxb-core-$(JAXB_VERSION).jar" \
-	     -includePlugins $(PLUGIN_NAME)
+			 $(LOCAL_CHECKOUT_DIR_CMD) -includePlugins $(PLUGIN_NAME)
 
 # We do not automatically rebuild Docker here
 .PHONY: demo-jdk11-docker
