@@ -1,6 +1,7 @@
 #Makefile
 TEST_JDK_HOME?=$(JAVA_HOME)
 PLUGIN_NAME?=mailer
+MVN?=$(shell which mvn)
 LOCAL_CHECKOUT_DIR?=
 
 # Weekly with the latest Java 11 patches is used by default
@@ -19,10 +20,10 @@ all: clean package docker
 
 .PHONY: clean
 clean:
-	mvn clean
+	$(MVN) clean
 
 plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar:
-	mvn verify
+	$(MVN) verify
 .PHONY: package
 package: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar
 
@@ -34,23 +35,23 @@ tmp:
 	mkdir tmp
 
 tmp/jenkins-war-$(JENKINS_VERSION).war: tmp
-	mvn dependency:copy -Dartifact=org.jenkins-ci.main:jenkins-war:$(JENKINS_VERSION):war -DoutputDirectory=tmp
+	$(MVN) dependency:copy -Dartifact=org.jenkins-ci.main:jenkins-war:$(JENKINS_VERSION):war -DoutputDirectory=tmp
 	touch tmp/jenkins-war-$(JENKINS_VERSION).war
 
 tmp/jaxb-api-$(JAXB_API_VERSION).jar: tmp
-	mvn dependency:copy -Dartifact=javax.xml.bind:jaxb-api:$(JAXB_API_VERSION) -DoutputDirectory=tmp
+	$(MVN) dependency:copy -Dartifact=javax.xml.bind:jaxb-api:$(JAXB_API_VERSION) -DoutputDirectory=tmp
 	touch tmp/jaxb-api-$(JAXB_API_VERSION).jar
 
 tmp/jaxb-core-$(JAXB_VERSION).jar: tmp
-	mvn dependency:copy -Dartifact=com.sun.xml.bind:jaxb-core:$(JAXB_VERSION) -DoutputDirectory=tmp
+	$(MVN) dependency:copy -Dartifact=com.sun.xml.bind:jaxb-core:$(JAXB_VERSION) -DoutputDirectory=tmp
 	touch tmp/jaxb-core-$(JAXB_VERSION).jar
 
 tmp/jaxb-impl-$(JAXB_VERSION).jar: tmp
-	mvn dependency:copy -Dartifact=com.sun.xml.bind:jaxb-impl:$(JAXB_VERSION) -DoutputDirectory=tmp
+	$(MVN) dependency:copy -Dartifact=com.sun.xml.bind:jaxb-impl:$(JAXB_VERSION) -DoutputDirectory=tmp
 	touch tmp/jaxb-impl-$(JAXB_VERSION).jar
 
 tmp/javax.activation-$(JAF_VERSION).jar: tmp
-	mvn dependency:copy -Dartifact=com.sun.activation:javax.activation:$(JAF_VERSION) -DoutputDirectory=tmp
+	$(MVN) dependency:copy -Dartifact=com.sun.activation:javax.activation:$(JAF_VERSION) -DoutputDirectory=tmp
 	touch tmp/javax.activation-$(JAF_VERSION).jar
 
 .PHONY: print-java-home
@@ -63,7 +64,7 @@ demo-jdk8: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/je
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -failOnError \
 	     -workDirectory $(CURDIR)/work -skipTestCache true \
-	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
+	     -mvn $(MVN) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
 	     -testJDKHome $(TEST_JDK_HOME) \
 			 $(LOCAL_CHECKOUT_DIR_CMD) -includePlugins $(PLUGIN_NAME)
 
@@ -75,7 +76,7 @@ demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/j
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -failOnError \
 	     -workDirectory $(CURDIR)/work -skipTestCache true \
-	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
+	     -mvn $(MVN) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
 	     -testJDKHome $(TEST_JDK_HOME) \
 	     -testJavaArgs "-p $(CURDIR)/tmp/jaxb-api-$(JAXB_API_VERSION).jar:$(CURDIR)/tmp/javax.activation-$(JAF_VERSION).jar --add-modules java.xml.bind,java.activation -cp $(CURDIR)/tmp/jaxb-impl-$(JAXB_VERSION).jar:$(CURDIR)/tmp/jaxb-core-$(JAXB_VERSION).jar" \
 			 $(LOCAL_CHECKOUT_DIR_CMD) -includePlugins $(PLUGIN_NAME)
