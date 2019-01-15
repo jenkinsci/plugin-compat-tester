@@ -21,28 +21,33 @@ plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar:
 package: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar
 
 .PHONY: docker
-docker:
+docker: Dockerfile 
 	docker build -t jenkins/pct .
 
 tmp:
 	mkdir tmp
 
+.PRECIOUS: tmp/jenkins-war-$(JENKINS_VERSION).war
 tmp/jenkins-war-$(JENKINS_VERSION).war: tmp
 	mvn dependency:copy -Dartifact=org.jenkins-ci.main:jenkins-war:$(JENKINS_VERSION):war -DoutputDirectory=tmp
 	touch tmp/jenkins-war-$(JENKINS_VERSION).war
 
+.PRECIOUS: tmp/jaxb-api-$(JAXB_API_VERSION).jar
 tmp/jaxb-api-$(JAXB_API_VERSION).jar: tmp
 	mvn dependency:copy -Dartifact=javax.xml.bind:jaxb-api:$(JAXB_API_VERSION) -DoutputDirectory=tmp
 	touch tmp/jaxb-api-$(JAXB_API_VERSION).jar
 
+.PRECIOUS: tmp/jaxb-core-$(JAXB_VERSION).jar
 tmp/jaxb-core-$(JAXB_VERSION).jar: tmp
 	mvn dependency:copy -Dartifact=com.sun.xml.bind:jaxb-core:$(JAXB_VERSION) -DoutputDirectory=tmp
 	touch tmp/jaxb-core-$(JAXB_VERSION).jar
 
+.PRECIOUS: tmp/jaxb-impl-$(JAXB_VERSION).jar
 tmp/jaxb-impl-$(JAXB_VERSION).jar: tmp
 	mvn dependency:copy -Dartifact=com.sun.xml.bind:jaxb-impl:$(JAXB_VERSION) -DoutputDirectory=tmp
 	touch tmp/jaxb-impl-$(JAXB_VERSION).jar
 
+.PRECIOUS: tmp/javax.activation-$(JAF_VERSION).jar
 tmp/javax.activation-$(JAF_VERSION).jar: tmp
 	mvn dependency:copy -Dartifact=com.sun.activation:javax.activation:$(JAF_VERSION) -DoutputDirectory=tmp
 	touch tmp/javax.activation-$(JAF_VERSION).jar
