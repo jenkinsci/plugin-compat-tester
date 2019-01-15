@@ -61,8 +61,10 @@ demo-jdk8: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/je
 	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -failOnError \
-	     -workDirectory $(CURDIR)/work -skipTestCache true \
-	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
+	     -workDirectory $(CURDIR)/work \
+	     -skipTestCache true \
+	     -mvn $(shell which mvn) \
+	     -war $(CURDIR)/tmp/jenkins-war-$(JENKINS_VERSION).war \
 	     -testJDKHome $(TEST_JDK_HOME) \
 	     -includePlugins $(PLUGIN_NAME)
 
@@ -73,8 +75,10 @@ demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/j
 	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -failOnError \
-	     -workDirectory $(CURDIR)/work -skipTestCache true \
-	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
+	     -workDirectory $(CURDIR)/work \
+	     -skipTestCache true \
+	     -mvn $(shell which mvn) \
+	     -war $(CURDIR)/tmp/jenkins-war-$(JENKINS_VERSION).war \
 	     -testJDKHome $(TEST_JDK_HOME) \
 	     -testJavaArgs "-p $(CURDIR)/tmp/jaxb-api-$(JAXB_API_VERSION).jar:$(CURDIR)/tmp/javax.activation-$(JAF_VERSION).jar --add-modules java.xml.bind,java.activation -cp $(CURDIR)/tmp/jaxb-impl-$(JAXB_VERSION).jar:$(CURDIR)/tmp/jaxb-core-$(JAXB_VERSION).jar" \
 	     -includePlugins $(PLUGIN_NAME)
