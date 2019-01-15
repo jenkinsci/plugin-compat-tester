@@ -25,7 +25,7 @@ FROM maven:3.6.0-jdk-8 as builder
 # Warmup to avoid downloading the world each time
 RUN git clone https://github.com/jenkinsci/plugin-compat-tester &&\
     cd plugin-compat-tester && \
-    mvn clean package -DskipTests dependency:go-offline && \
+    mvn clean package -Dmaven.test.skip=true dependency:go-offline && \
     mvn clean
 
 COPY plugins-compat-tester/ /pct/src/plugins-compat-tester/
@@ -37,7 +37,7 @@ COPY *.xml /pct/src/
 COPY LICENSE.txt /pct/src/LICENSE.txt
 
 WORKDIR /pct/src/
-RUN mvn clean install -DskipTests
+RUN mvn clean package -Dmaven.test.skip=true
 
 FROM maven:3.6.0-jdk-8
 LABEL Maintainer="Oleg Nenashev <o.v.nenashev@gmail.com>"
