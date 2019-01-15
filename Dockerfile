@@ -63,11 +63,11 @@ RUN mkdir -p /pct/jdk11-libs && \
     curl -LSs https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/${JAXB_API_VERSION}/jaxb-api-${JAXB_API_VERSION}.jar -o /pct/jdk11-libs/jaxb-api.jar && \
     curl -LSs https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-core/${JAXB_VERSION}/jaxb-core-${JAXB_VERSION}.jar -o /pct/jdk11-libs/jaxb-core.jar && \
     curl -LSs https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/${JAXB_VERSION}/jaxb-impl-${JAXB_VERSION}.jar -o /pct/jdk11-libs/jaxb-impl.jar && \
-    curl -LSs https://repo1.maven.org/maven2/com/sun/activation/${JAF_VERSION}/javax.activation-${JAF_VERSION}.jar -o /pct/jdk11-libs/javax.activation.jar && \
+    curl -LSs https://repo1.maven.org/maven2/com/sun/activation/javax.activation/${JAF_VERSION}/javax.activation-${JAF_VERSION}.jar -o /pct/jdk11-libs/javax.activation.jar && \
     echo "99f802e0cb3e953ba3d6e698795c4aeb98d37c48  /pct/jdk11-libs/jaxb-api.jar\n\
 23574ca124d0a694721ce3ef13cd720095f18fdd  /pct/jdk11-libs/jaxb-core.jar\n\
 2e979dabb3e5e74a0686115075956391a14dece8  /pct/jdk11-libs/jaxb-impl.jar\n\
-84e709cb8271e5e7ff7da61528d52d36298aa733  /pct/jdk11-libs/javax.activation.jar" | sha1sum -c
+bf744c1e2776ed1de3c55c8dac1057ec331ef744  /pct/jdk11-libs/javax.activation.jar" | sha1sum -c
 
 COPY src/main/docker/*.groovy /pct/scripts/
 COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar /pct/pct-cli.jar
