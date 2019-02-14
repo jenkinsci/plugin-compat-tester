@@ -10,6 +10,13 @@ if [ $# -eq 1 ]; then
   exit 0
 fi
 
+explodeWARIfNeeded() {
+  if [ ! -f "${PCT_TMP}/exploded/war" ]; then
+    mkdir -p "${PCT_TMP}/exploded/war"
+    unzip -q "${JENKINS_WAR_PATH}" -d "${PCT_TMP}/exploded/war"
+  fi
+}
+
 ###
 # Process arguments
 ###
@@ -39,14 +46,11 @@ else
   fi
 fi
 
-if [ -z "${VERSION}" ] ; then
-  VERSION="master"
-fi
-
 if [ -f "${JENKINS_WAR_PATH}" ]; then
   mkdir -p "${PCT_TMP}"
   # WAR is accessed many times in the PCT runs, let's keep it local instead of pulling it from a volume
   cp "${JENKINS_WAR_PATH}" "${PCT_TMP}/jenkins.war"
+  JENKINS_WAR_PATH="${PCT_TMP}/jenkins.war"
   WAR_PATH_OPT="-war ${PCT_TMP}/jenkins.war "
   JENKINS_VERSION=$(groovy /pct/scripts/readJenkinsVersion.groovy ${PCT_TMP}/jenkins.war)
   echo "Using custom Jenkins WAR v. ${JENKINS_VERSION} from ${JENKINS_WAR_PATH}"
@@ -54,8 +58,7 @@ if [ -f "${JENKINS_WAR_PATH}" ]; then
   if [[ "$JENKINS_VERSION" =~ .*SNAPSHOT.* ]] ; then
     cd "${PCT_TMP}"
     echo "Version is a snapshot, will install artifacts to the local maven repo"
-    mkdir -p "exploded/war"
-    unzip -q "jenkins.war" -d "exploded/war"
+    explodeWARIfNeeded
     # TODO: Bug or feature?
     # Implementation-Version and Jenkins-Version may differ.
     # We specify version explicitly to use Jenkins-Version like PCT does
@@ -79,6 +82,20 @@ else
   WAR_PATH_OPT=""
 fi
 
+SHOULD_CHECKOUT=1
+if [ -z "${VERSION}" ] ; then
+  echo "Version is not not explicitly specified, will try to discover it from the WAR file"
+  explodeWARIfNeeded
+  HPI_PATH="${PCT_TMP}/exploded/war/WEB-INF/plugins/${ARTIFACT_ID}.hpi"
+  if [ -f "${HPI_PATH}" ] ; then
+    VERSION=$(groovy /pct/scripts/readJenkinsVersion.groovy "${HPI_PATH}" "Plugin-Version")
+    SHOULD_CHECKOUT=0
+  else
+    VERSION="master"
+  fi
+fi
+echo "Will be testing with ${ARTIFACT_ID}:${VERSION}, shouldCheckout=${SHOULD_CHECKOUT}"
+
 extra_java_opts=()
 if [[ "$DEBUG" ]] ; then
   extra_java_opts+=( \
@@ -87,35 +104,40 @@ if [[ "$DEBUG" ]] ; then
   )
 fi
 
-###
-# Checkout sources
-###
-mkdir -p "${PCT_TMP}/localCheckoutDir"
-cd "${PCT_TMP}/localCheckoutDir"
-TMP_CHECKOUT_DIR="${PCT_TMP}/localCheckoutDir/undefined"
-if [ -e "/pct/plugin-src/pom.xml" ] ; then
-  echo "Located custom plugin sources on the volume"
-  mkdir "${TMP_CHECKOUT_DIR}"
-  cp -r /pct/plugin-src/. "${TMP_CHECKOUT_DIR}"
-  # Due to whatever reason PCT blows up if you have work in the repo
-  cd "${TMP_CHECKOUT_DIR}" && mvn clean && rm -rf work
-else
-  echo "Checking out from ${CHECKOUT_SRC}:${VERSION}"
-  git clone "${CHECKOUT_SRC}"
-  mv $(ls .) ${TMP_CHECKOUT_DIR}
-  cd ${TMP_CHECKOUT_DIR} && git checkout "${VERSION}"
+LOCAL_CHECKOUT_ARG=""
+if [ "${SHOULD_CHECKOUT}" -eq 1 ] ; then
+  ###
+  # Checkout sources
+  ###
+  mkdir -p "${PCT_TMP}/localCheckoutDir"
+  cd "${PCT_TMP}/localCheckoutDir"
+  TMP_CHECKOUT_DIR="${PCT_TMP}/localCheckoutDir/undefined"
+  if [ -e "/pct/plugin-src/pom.xml" ] ; then
+    echo "Located custom plugin sources on the volume"
+    mkdir "${TMP_CHECKOUT_DIR}"
+    cp -r /pct/plugin-src/. "${TMP_CHECKOUT_DIR}"
+    # Due to whatever reason PCT blows up if you have work in the repo
+    cd "${TMP_CHECKOUT_DIR}" && mvn clean && rm -rf work
+  else
+    echo "Checking out from ${CHECKOUT_SRC}:${VERSION}"
+    git clone "${CHECKOUT_SRC}"
+    mv $(ls .) ${TMP_CHECKOUT_DIR}
+    cd ${TMP_CHECKOUT_DIR} && git checkout "${VERSION}"
+  fi
+
+  ###
+  # Determine artifact ID and then move the project to a proper location
+  ###
+  cd "${TMP_CHECKOUT_DIR}"
+  if [ -z "${ARTIFACT_ID}" ] ; then
+    ARTIFACT_ID=$(mvn org.apache.maven.plugins:maven-help-plugin:2.2:evaluate ${JAVA_OPTS} --batch-mode -s "${MVN_SETTINGS_FILE}" -Dexpression=project.artifactId | grep -Ev '(^\[|Download.*)')
+    echo "ARTIFACT_ID is not specified, using ${ARTIFACT_ID} defined in the POM file"
+    mvn clean -s "${MVN_SETTINGS_FILE}"
+  fi
+  mv "${TMP_CHECKOUT_DIR}" "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
+  LOCAL_CHECKOUT_ARG="-localCheckoutDir ${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
 fi
 
-###
-# Determine artifact ID and then move the project to a proper location
-###
-cd "${TMP_CHECKOUT_DIR}"
-if [ -z "${ARTIFACT_ID}" ] ; then
-  ARTIFACT_ID=$(mvn org.apache.maven.plugins:maven-help-plugin:2.2:evaluate ${JAVA_OPTS} --batch-mode -s "${MVN_SETTINGS_FILE}" -Dexpression=project.artifactId | grep -Ev '(^\[|Download.*)')
-  echo "ARTIFACT_ID is not specified, using ${ARTIFACT_ID} defined in the POM file"
-  mvn clean -s "${MVN_SETTINGS_FILE}"
-fi
-mv "${TMP_CHECKOUT_DIR}" "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
 
 mkdir -p "${PCT_TMP}/work"
 mkdir -p "${PCT_OUTPUT_DIR}"
@@ -139,7 +161,7 @@ echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} \
   -skipTestCache true \
   -failOnError \
-  -localCheckoutDir "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}" \
+  ${LOCAL_CHECKOUT_ARG} \
   -includePlugins "${ARTIFACT_ID}" \
   -mvn "/usr/bin/mvn" \
   -m2SettingsFile "${MVN_SETTINGS_FILE}" \
