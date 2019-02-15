@@ -91,24 +91,25 @@ You can run the CLI with the `-help` argument to get a full list of supported op
 
 Plugin compat tester supports running Test Suites with a Java version different 
 from the one being used to run PCT and build the plugins.
-For example, such mode can be used to run tests with JDK11 while
-the plugin build flow is not adapted to it.
+For example, such mode can be used to run tests with JDK11 starting from Jenkins 2.163.
 
 Two options can be passed to PCT CLI for such purpose:
 
 * `testJDKHome` - A path to JDK HOME to be used for running tests in plugins
 * `testJavaArgs` - Java test arguments to be used for test runs.
-                   For JDK 11 this option may be used to pass modules and the classpath
+                   This option may be used to pass custom classpath and, in Java 11, additional modules
 
 You can run the example by running the following command:
 
-    make demo-jdk11 -e TEST_JDK_HOME=${YOUR_JDK11_HOME}
+    make demo-jdk11 -e TEST_JDK_HOME=${YOUR_JDK11_HOME} -e PLUGIN_NAME=git
+    
+When using the Docker image, it is possible to use `JDK_VERSION` variable to select 
+the version to use. The version needs to be bundled in the docker image.
+Currently Java 8 and Java 11 are bundled (JDK_VERSION= {8, 11}).
+    
+    make demo-jdk11-docker -e JDK_VERSION=11 PLUGIN_NAME=git
 
 Full list of options for JDK11 can be found [here](./Makefile).
-
-When using the docker image, it is possible to use `JDK_VERSION` variable to select 
-the version to use. The version needs to be bundled in the docker image. By specifying 
-`11`, the modules and jaxb libraries are also added to the command line. 
 
 ### Running PCT with different version of dependencies
 
