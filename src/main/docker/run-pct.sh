@@ -42,9 +42,7 @@ else
       exit -1
     fi
   else
-    if [ -z "${DO_NOT_CHECKOUT}" ] ; then
-        CHECKOUT_SRC="https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git"
-    fi
+    CHECKOUT_SRC="https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git"
   fi
 fi
 
