@@ -25,6 +25,7 @@ if [ -n "${ARTIFACT_ID}" ]; then
 fi
 
 CUSTOM_MAVEN_SETTINGS=${M2_SETTINGS_FILE:-"/pct/m2-settings.xml"}
+FAIL_ON_ERROR=${FAIL_ON_ERROR:-"true"}
 
 if [ -f "${CUSTOM_MAVEN_SETTINGS}" ] ; then
     echo "Using a custom Maven settings file"
@@ -155,7 +156,7 @@ echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml \
   -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} \
   -skipTestCache true \
-  -failOnError \
+  -failOnError ${FAIL_ON_ERROR}\
   ${LOCAL_CHECKOUT_ARG} \
   -includePlugins "${ARTIFACT_ID}" \
   -mvn "/usr/bin/mvn" \
