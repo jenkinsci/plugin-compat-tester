@@ -42,7 +42,9 @@ else
       exit -1
     fi
   else
-    CHECKOUT_SRC="https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git"
+    if [ -z "${DO_NOT_CHECKOUT}" ] ; then
+        CHECKOUT_SRC="https://github.com/jenkinsci/${ARTIFACT_ID}-plugin.git"
+    fi
   fi
 fi
 
@@ -105,7 +107,7 @@ if [[ "$DEBUG" ]] ; then
 fi
 
 LOCAL_CHECKOUT_ARG=""
-if [ "${SHOULD_CHECKOUT}" -eq 1 ] ; then
+if [ "${SHOULD_CHECKOUT}" -eq 1 ] && [ -z "${DO_NOT_OVERRIDE_PCT_CHECKOUT}" ] ; then
   ###
   # Checkout sources
   ###
