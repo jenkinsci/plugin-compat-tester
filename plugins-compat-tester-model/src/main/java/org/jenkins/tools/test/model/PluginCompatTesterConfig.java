@@ -25,13 +25,17 @@
  */
 package org.jenkins.tools.test.model;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tools.ant.filters.StringInputStream;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,12 +43,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * POJO used to configure PluginCompatTester execution
  * @author Frederic Camblor
  */
 public class PluginCompatTesterConfig {
+
+    private static final Logger LOGGER = Logger.getLogger(PluginCompatTesterConfig.class.getName());
 
     public static final String DEFAULT_UPDATE_CENTER_URL = "http://updates.jenkins-ci.org/update-center.json";
     public static final String DEFAULT_PARENT_GROUP = "org.jenkins-ci.plugins";
@@ -296,7 +303,8 @@ public class PluginCompatTesterConfig {
             } else {
                 System.out.println("Using custom Test JDK home: " + testJDKHome);
             }
-            res.put("jvm", new File(testJDKHome, "bin/java").getAbsolutePath());
+            final String javaCmdAbsolutePath = getTestJavaCommandPath();
+            res.put("jvm", javaCmdAbsolutePath);
         }
 
         // Merge test Java args if needed
@@ -311,6 +319,33 @@ public class PluginCompatTesterConfig {
         }
 
         return res;
+    }
+
+        @CheckForNull
+    private String getTestJavaCommandPath() {
+        if(testJDKHome==null) {
+            return null;
+        }
+        return new File(testJDKHome, "bin/java").getAbsolutePath();
+    }
+
+    /**
+     * Gets the Java version used for testing, using the binary path to the <code>java</code> command.
+     * @return a string identifying the jvm in use
+     */
+    public String getTestJavaVersion() throws IOException {
+        String javaCmdAbsolutePath = getTestJavaCommandPath();
+        if (javaCmdAbsolutePath == null) {
+            LOGGER.info("testJdkHome unset, using java available from the PATH");
+            javaCmdAbsolutePath = "java";
+        }
+        final Process process = new ProcessBuilder().command(javaCmdAbsolutePath, "-fullversion").redirectErrorStream(true).start();
+        final String javaVersionOutput = IOUtils.toString(process.getInputStream());
+        // Expected format is something like openjdk full version "1.8.0_181-8u181-b13-2~deb9u1-b13"
+        // We shorten it by removing the "full version" in the middle
+        return javaVersionOutput.
+                replace(" full version ", " ").
+                replaceAll("\"", "");
     }
 
     public TestStatus getCacheThresholStatus() {

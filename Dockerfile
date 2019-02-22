@@ -22,6 +22,12 @@
 
 FROM maven:3.6.0-jdk-8 as builder
 
+# Warmup to avoid downloading the world each time
+RUN git clone https://github.com/jenkinsci/plugin-compat-tester &&\
+    cd plugin-compat-tester && \
+    mvn clean package -Dmaven.test.skip=true dependency:go-offline && \
+    mvn clean
+
 COPY plugins-compat-tester/ /pct/src/plugins-compat-tester/
 COPY plugins-compat-tester-cli/ /pct/src/plugins-compat-tester-cli/
 COPY plugins-compat-tester-gae/ /pct/src/plugins-compat-tester-gae/
@@ -31,7 +37,7 @@ COPY *.xml /pct/src/
 COPY LICENSE.txt /pct/src/LICENSE.txt
 
 WORKDIR /pct/src/
-RUN mvn clean install -DskipTests
+RUN mvn clean package -Dmaven.test.skip=true
 
 FROM maven:3.6.0-jdk-8
 LABEL Maintainer="Oleg Nenashev <o.v.nenashev@gmail.com>"
@@ -48,20 +54,6 @@ RUN curl -L --show-error https://download.java.net/java/GA/jdk11/13/GPL/openjdk-
     tar xvzf openjdk.tar.gz && \
     mv jdk-11.0.1/ /usr/lib/jvm/java-11-openjdk-amd64 && \
     rm openjdk.tar.gz
-
-ARG JAXB_API_VERSION="2.3.0"
-ARG JAXB_VERSION="2.3.0.1"
-ARG JAF_VERSION="1.2.0"
-# Checksum for JavaBean Activation Framework lib is not matching the Maven Central one. 
-RUN mkdir -p /pct/jdk11-libs && \
-    curl -LSs https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/${JAXB_API_VERSION}/jaxb-api-${JAXB_API_VERSION}.jar -o /pct/jdk11-libs/jaxb-api.jar && \
-    curl -LSs https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-core/${JAXB_VERSION}/jaxb-core-${JAXB_VERSION}.jar -o /pct/jdk11-libs/jaxb-core.jar && \
-    curl -LSs https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb-impl/${JAXB_VERSION}/jaxb-impl-${JAXB_VERSION}.jar -o /pct/jdk11-libs/jaxb-impl.jar && \
-    curl -LSs https://repo1.maven.org/maven2/com/sun/activation/${JAF_VERSION}/javax.activation-${JAF_VERSION}.jar -o /pct/jdk11-libs/javax.activation.jar && \
-    echo "99f802e0cb3e953ba3d6e698795c4aeb98d37c48  /pct/jdk11-libs/jaxb-api.jar\n\
-23574ca124d0a694721ce3ef13cd720095f18fdd  /pct/jdk11-libs/jaxb-core.jar\n\
-2e979dabb3e5e74a0686115075956391a14dece8  /pct/jdk11-libs/jaxb-impl.jar\n\
-84e709cb8271e5e7ff7da61528d52d36298aa733  /pct/jdk11-libs/javax.activation.jar" | sha1sum -c
 
 COPY src/main/docker/*.groovy /pct/scripts/
 COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar /pct/pct-cli.jar

@@ -78,7 +78,8 @@
             <tr>
                 <xsl:for-each select="$testedJenkinsCoordinates" >
                     <th class="version">
-                        <xsl:value-of select="version" />
+                        <span class="jenkinsVersion"><xsl:value-of select="version" /></span> /
+                        <span class="jdkVersion"><xsl:value-of select="/report/testJavaVersion" /></span>
                     </th>
                 </xsl:for-each>
                 <xsl:for-each select="$testedHudsonCoordinates" >

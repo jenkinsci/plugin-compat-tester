@@ -207,6 +207,7 @@ public class PluginCompatTester {
         // TODO REMOVE
         mconfig.userProperties.put( "failIfNoTests", "false" );
         mconfig.userProperties.putAll(this.config.retrieveMavenProperties());
+        report.setTestJavaVersion(config.getTestJavaVersion());
 
         boolean failed = false;
 		SCMManagerFactory.getInstance().start();

@@ -17,20 +17,20 @@ You can find it [here](https://hub.docker.com/r/jenkins/pct/).
 This command will clone of a repository and run PCT against the latest Jenkins Core:
 
 ```shell
-docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e ARTIFACT_ID=ssh-slaves -e VERSION=ssh-slaves-1.24 jenkins/pct
+docker run -ti --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e ARTIFACT_ID=ssh-slaves -e VERSION=ssh-slaves-1.24 jenkins/pct
 ```
 
 This command will run PCT for the latest plugin version against the specified Jenkins WAR.
 PCT supports running against SNAPSHOT builds, but PCT will have to install local Maven artifacts in such case.
 
 ```shell
-docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -e ARTIFACT_ID=ssh-slaves jenkins/pct
+docker run -ti --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -e ARTIFACT_ID=ssh-slaves jenkins/pct
 ```
 
 This command will run PCT against custom versions of Jenkins and the plugin specified by volumes.
 
 ```shell
-docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -v my/plugin:/pct/plugin-src:ro jenkins/pct
+docker run -ti --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -v my/plugin:/pct/plugin-src:ro jenkins/pct
 ```
 
 The command below will run PCT for a branch in a custom repository.
@@ -91,18 +91,23 @@ You can run the CLI with the `-help` argument to get a full list of supported op
 
 Plugin compat tester supports running Test Suites with a Java version different 
 from the one being used to run PCT and build the plugins.
-For example, such mode can be used to run tests with JDK11 while
-the plugin build flow is not adapted to it.
+For example, such mode can be used to run tests with JDK11 starting from Jenkins 2.163.
 
 Two options can be passed to PCT CLI for such purpose:
 
 * `testJDKHome` - A path to JDK HOME to be used for running tests in plugins
 * `testJavaArgs` - Java test arguments to be used for test runs.
-                   For JDK 11 this option may be used to pass modules and the classpath
+                   This option may be used to pass custom classpath and, in Java 11, additional modules
 
 You can run the example by running the following command:
 
-    make demo-jdk11 -e TEST_JDK_HOME=${YOUR_JDK11_HOME}
+    make demo-jdk11 -e TEST_JDK_HOME=${YOUR_JDK11_HOME} -e PLUGIN_NAME=git
+    
+When using the Docker image, it is possible to use `JDK_VERSION` variable to select 
+the version to use. The version needs to be bundled in the docker image.
+Currently Java 8 and Java 11 are bundled (JDK_VERSION= {8, 11}).
+    
+    make demo-jdk11-docker -e JDK_VERSION=11 PLUGIN_NAME=git
 
 Full list of options for JDK11 can be found [here](./Makefile).
 

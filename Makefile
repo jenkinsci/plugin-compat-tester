@@ -4,11 +4,9 @@ PLUGIN_NAME?=mailer
 LOCAL_SRC?=$(CURDIR)/work/$(PLUGIN_NAME)
 USE_TEST_JDK_HOME_EXEC?=
 
+# TODO: Switch to 2.164.1 LTS once it is released
 # Weekly with the latest Java 11 patches is used by default
-JENKINS_VERSION=2.155
-JAXB_API_VERSION=2.3.0
-JAXB_VERSION=2.3.0.1
-JAF_VERSION=1.2.0
+JENKINS_VERSION=2.164
 
 .PHONY: all
 all: clean package docker
@@ -23,31 +21,16 @@ plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar:
 package: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar
 
 .PHONY: docker
-docker:
+docker: Dockerfile 
 	docker build -t jenkins/pct .
 
 tmp:
 	mkdir tmp
 
+.PRECIOUS: tmp/jenkins-war-$(JENKINS_VERSION).war
 tmp/jenkins-war-$(JENKINS_VERSION).war: tmp
 	mvn dependency:copy -Dartifact=org.jenkins-ci.main:jenkins-war:$(JENKINS_VERSION):war -DoutputDirectory=tmp
 	touch tmp/jenkins-war-$(JENKINS_VERSION).war
-
-tmp/jaxb-api-$(JAXB_API_VERSION).jar: tmp
-	mvn dependency:copy -Dartifact=javax.xml.bind:jaxb-api:$(JAXB_API_VERSION) -DoutputDirectory=tmp
-	touch tmp/jaxb-api-$(JAXB_API_VERSION).jar
-
-tmp/jaxb-core-$(JAXB_VERSION).jar: tmp
-	mvn dependency:copy -Dartifact=com.sun.xml.bind:jaxb-core:$(JAXB_VERSION) -DoutputDirectory=tmp
-	touch tmp/jaxb-core-$(JAXB_VERSION).jar
-
-tmp/jaxb-impl-$(JAXB_VERSION).jar: tmp
-	mvn dependency:copy -Dartifact=com.sun.xml.bind:jaxb-impl:$(JAXB_VERSION) -DoutputDirectory=tmp
-	touch tmp/jaxb-impl-$(JAXB_VERSION).jar
-
-tmp/javax.activation-$(JAF_VERSION).jar: tmp
-	mvn dependency:copy -Dartifact=com.sun.activation:javax.activation:$(JAF_VERSION) -DoutputDirectory=tmp
-	touch tmp/javax.activation-$(JAF_VERSION).jar
 
 .PHONY: print-java-home
 print-java-home:
@@ -58,22 +41,25 @@ demo-jdk8: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/je
 	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -failOnError \
-	     -workDirectory $(CURDIR)/work -skipTestCache true \
-	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
+	     -workDirectory $(CURDIR)/work \
+	     -skipTestCache true \
+	     -mvn $(shell which mvn) \
+	     -war $(CURDIR)/tmp/jenkins-war-$(JENKINS_VERSION).war \
 	     -testJDKHome $(TEST_JDK_HOME) \
 	     -includePlugins $(PLUGIN_NAME)
 
 .PHONY: demo-jdk11
-demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/javax.activation-$(JAF_VERSION).jar tmp/jaxb-api-$(JAXB_API_VERSION).jar tmp/jenkins-war-$(JENKINS_VERSION).war tmp/jaxb-impl-$(JAXB_VERSION).jar tmp/jaxb-core-$(JAXB_VERSION).jar print-java-home
+demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/jenkins-war-$(JENKINS_VERSION).war print-java-home
 	# TODO Cleanup when/if the JAXB bundling issue is resolved.
 	# https://issues.jenkins-ci.org/browse/JENKINS-52186
 	$(TEST_JDK_HOME)/bin/java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -failOnError \
-	     -workDirectory $(CURDIR)/work -skipTestCache true \
-	     -mvn $(shell which mvn) -war tmp/jenkins-war-$(JENKINS_VERSION).war \
+	     -workDirectory $(CURDIR)/work \
+	     -skipTestCache true \
+	     -mvn $(shell which mvn) \
+	     -war $(CURDIR)/tmp/jenkins-war-$(JENKINS_VERSION).war \
 	     -testJDKHome $(TEST_JDK_HOME) \
-	     -testJavaArgs "-p $(CURDIR)/tmp/jaxb-api-$(JAXB_API_VERSION).jar:$(CURDIR)/tmp/javax.activation-$(JAF_VERSION).jar --add-modules java.xml.bind,java.activation -cp $(CURDIR)/tmp/jaxb-impl-$(JAXB_VERSION).jar:$(CURDIR)/tmp/jaxb-core-$(JAXB_VERSION).jar" \
 	     -includePlugins $(PLUGIN_NAME)
 
 # We do not automatically rebuild Docker here

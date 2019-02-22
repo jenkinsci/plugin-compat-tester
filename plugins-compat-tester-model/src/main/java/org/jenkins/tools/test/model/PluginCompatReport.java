@@ -40,6 +40,7 @@ import java.util.*;
 public class PluginCompatReport {
     private Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests;
     private SortedSet<MavenCoordinates> testedCoreCoordinates;
+    private String testJavaVersion;
 
     public PluginCompatReport(){
         this.pluginCompatTests = new TreeMap<PluginInfos, List<PluginCompatResult>>();
@@ -183,6 +184,15 @@ public class PluginCompatReport {
 
     public SortedSet<MavenCoordinates> getTestedCoreCoordinates() {
         return new TreeSet(testedCoreCoordinates);
+    }
+
+
+    public void setTestJavaVersion(String testJavaVersion) {
+        this.testJavaVersion = testJavaVersion;
+    }
+
+    public String getTestJavaVersion() {
+        return testJavaVersion;
     }
 
     public Map<PluginInfos, List<PluginCompatResult>> getPluginCompatTests(){

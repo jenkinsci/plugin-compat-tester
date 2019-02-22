@@ -12,7 +12,7 @@ static String readManifest(String sourceJARFile, String attributeName) throws IO
                 is = zipFile.getInputStream(zipEntry)
                 def manifest = new Manifest(is)
                 def mainAttribs = manifest.getMainAttributes()
-                def version = mainAttribs.getValue("Jenkins-Version")
+                def version = mainAttribs.getValue(attributeName)
                 if(version != null) {
                     return version.split("\\s+")[0]
                 }

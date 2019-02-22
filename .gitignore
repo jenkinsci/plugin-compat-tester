@@ -7,6 +7,12 @@ plugins-compat-tester-cli/dependency-reduced-pom.xml
 *.ipr
 *.iml
 
+### Eclipse
+.factorypath
+.classpath
+.settings/
+.project
+
 ### Jenkins
 work/
 ^jenkins/
