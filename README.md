@@ -39,6 +39,21 @@ The command below will run PCT for a branch in a custom repository.
 docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e CHECKOUT_SRC=https://github.com/oleg-nenashev/job-restrictions-plugin.git -e VERSION=JENKINS-26374 jenkins/pct
 ```
 
+#### Full PCT runs using a war file as input with Docker
+
+The PCT cli supports to pass a war file containing plugins (generated with Custom war Packager for example) as input, in this case the version of
+the plugins is infered from the war file contents.
+
+In such scenarios is tipical to want to run the PCT for all plugins contained in the war file, to avoid having to spawn a new docker container for each plugin
+you can use the env variables `DO_NOT_OVERRIDE_PCT_CHECKOUT=true` and `FAIL_ON_ERROR=false` to let the PCT CLI (instead of the `run-pct` script) checkout the proper
+versions of the plugins and make sure the PCT does not stop before testing all plugins.
+
+By using those env variables you can pass a comma separated list of plugins ids using the `ARTIFACT_ID` env variable
+
+```shell
+docker run -ti --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -e ARTIFACT_ID=ssh-slaves,credentials -e DO_NOT_OVERRIDE_PCT_CHECKOUT=true -e FAIL_ON_ERROR=false jenkins/pct
+```
+
 #### Configuration
 
 Environment variables:
