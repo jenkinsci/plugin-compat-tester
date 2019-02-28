@@ -48,19 +48,18 @@ public class PluginCompatTesterCli {
         CliOptions options = new CliOptions();
         JCommander jcommander = null;
         try {
-            jcommander = new JCommander(options, args);
+            jcommander = JCommander.newBuilder()
+                    .addObject(options)
+                    .build();
+            jcommander.parse(args);
+            if (options.isPrintHelp()) {
+                jcommander.usage();
+                System.exit(0);
+            }
         }catch(ParameterException e){
             System.err.println(e.getMessage());
-            if(jcommander == null){
-                jcommander = new JCommander(options);
-            }
             jcommander.usage();
             System.exit(1);
-        }
-
-        if (options.isPrintHelp()) {
-            jcommander.usage();
-            System.exit(0);
         }
 
         options.getWorkDirectory().mkdirs();
