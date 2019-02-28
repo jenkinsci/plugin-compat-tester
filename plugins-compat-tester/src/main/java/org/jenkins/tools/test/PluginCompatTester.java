@@ -924,7 +924,7 @@ public class PluginCompatTester {
                 if (jdkVersion.isNewerThan(new VersionNumber(tokens[3]))) {
                     filterSplits.add(split);
                 } else {
-                    System.out.println("Not adding " + split + "as split because jdk specified " + tokens[3] + " is newer than running jdk " + jdkVersion);
+                    System.out.println("Not adding " + split + " as split because jdk specified " + tokens[3] + " is newer than running jdk " + jdkVersion);
                 }
             } else {
                 filterSplits.add(split);
