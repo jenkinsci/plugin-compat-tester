@@ -222,5 +222,9 @@
       <artifactId>powermock-api-mockito</artifactId>
       <scope>test</scope>
    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci</groupId>
+      <artifactId>version-number</artifactId>
+    </dependency>
   </dependencies>
 </project>

@@ -34,6 +34,8 @@ import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import hudson.util.VersionNumber;
 import java.io.BufferedReader;
+
+import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -877,7 +879,7 @@ public class PluginCompatTester {
     private void populateSplits(File war) throws IOException {
         System.out.println("Checking " + war + " for plugin split metadata…");
         System.out.println("Checking jdk version as splits may depend on a jdk version");
-        VersionNumber jdkVersion = new VersionNumber(config.getTestJavaVersion()); // From Java 9 onwards there is a standard for versions see JEP-223
+        JavaSpecificationVersion jdkVersion = new JavaSpecificationVersion(config.getTestJavaVersion()); // From Java 9 onwards there is a standard for versions see JEP-223
         try (JarFile jf = new JarFile(war, false)) {
             Enumeration<JarEntry> warEntries = jf.entries();
             while (warEntries.hasMoreElements()) {
@@ -916,7 +918,7 @@ public class PluginCompatTester {
         throw new IOException("no jenkins-core-*.jar found in " + war);
     }
 
-    private List<String> removeSplitsBasedOnJDK(List<String> splits, VersionNumber jdkVersion) {
+    private List<String> removeSplitsBasedOnJDK(List<String> splits, JavaSpecificationVersion jdkVersion) {
         List<String> filterSplits = new LinkedList();
         for (String split : splits) {
             String[] tokens = split.trim().split("\\s+");
