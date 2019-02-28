@@ -34,6 +34,8 @@ import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import hudson.util.VersionNumber;
 import java.io.BufferedReader;
+
+import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -76,6 +78,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -876,6 +879,8 @@ public class PluginCompatTester {
     /** Use JENKINS-47634 to load metadata from jenkins-core.jar if available. */
     private void populateSplits(File war) throws IOException {
         System.out.println("Checking " + war + " for plugin split metadata…");
+        System.out.println("Checking jdk version as splits may depend on a jdk version");
+        JavaSpecificationVersion jdkVersion = new JavaSpecificationVersion(config.getTestJavaVersion()); // From Java 9 onwards there is a standard for versions see JEP-223
         try (JarFile jf = new JarFile(war, false)) {
             Enumeration<JarEntry> warEntries = jf.entries();
             while (warEntries.hasMoreElements()) {
@@ -888,6 +893,9 @@ public class PluginCompatTester {
                         while ((entry = jis.getNextJarEntry()) != null) {
                             if (entry.getName().equals("jenkins/split-plugins.txt")) {
                                 splits = configLines(jis).collect(Collectors.toList());
+                                // Since https://github.com/jenkinsci/jenkins/pull/3865 splits can depend on jdk version
+                                // So make sure we are not applying splits not intended for our JDK
+                                splits = removeSplitsBasedOnJDK(splits, jdkVersion);
                                 System.out.println("found splits: " + splits);
                                 found++;
                             } else if (entry.getName().equals("jenkins/split-plugin-cycles.txt")) {
@@ -910,6 +918,24 @@ public class PluginCompatTester {
         }
         throw new IOException("no jenkins-core-*.jar found in " + war);
     }
+
+    private List<String> removeSplitsBasedOnJDK(List<String> splits, JavaSpecificationVersion jdkVersion) {
+        List<String> filterSplits = new LinkedList();
+        for (String split : splits) {
+            String[] tokens = split.trim().split("\\s+");
+            if (tokens.length == 4 ) { // We have a jdk field in the splits file
+                if (jdkVersion.isNewerThan(new JavaSpecificationVersion(tokens[3]))) {
+                    filterSplits.add(split);
+                } else {
+                    System.out.println("Not adding " + split + " as split because jdk specified " + tokens[3] + " is newer than running jdk " + jdkVersion);
+                }
+            } else {
+                filterSplits.add(split);
+            }
+        }
+        return filterSplits;
+    }
+
     // Matches syntax in ClassicPluginStrategy:
     private static Stream<String> configLines(InputStream is) throws IOException {
         return IOUtils.readLines(is, StandardCharsets.UTF_8).stream().filter(line -> !line.matches("#.*|\\s*"));

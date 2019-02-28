@@ -337,8 +337,19 @@ public class PluginCompatTesterConfig {
             LOGGER.info("testJdkHome unset, using java available from the PATH");
             javaCmdAbsolutePath = "java";
         }
-        final Process process = new ProcessBuilder().command(javaCmdAbsolutePath, "-fullversion").redirectErrorStream(true).start();
+        final Process process = new ProcessBuilder().command(javaCmdAbsolutePath, "-XshowSettings:properties -version").redirectErrorStream(true).start();
         final String javaVersionOutput = IOUtils.toString(process.getInputStream());
+        final String[] lines = javaVersionOutput.split("[\\r\\n]+");
+        for (String line: lines) {
+            String trimed = line.trim();
+            if (trimed.contains("java.specification.version")) {
+                //java.specification.version = version
+                return trimed.split("=")[1].trim();
+            }
+        }
+        // Default to fullversion output as before
+        final Process process2 = new ProcessBuilder().command(javaCmdAbsolutePath, "-fullversion").redirectErrorStream(true).start();
+        final String javaVersionOutput2 = IOUtils.toString(process2.getInputStream());
         // Expected format is something like openjdk full version "1.8.0_181-8u181-b13-2~deb9u1-b13"
         // We shorten it by removing the "full version" in the middle
         return javaVersionOutput.
