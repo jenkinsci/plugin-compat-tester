@@ -20,7 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM maven:3.6.0-jdk-8 as builder
+FROM maven:3.6.0-jdk-13 as builder
 
 # Warmup to avoid downloading the world each time
 RUN git clone https://github.com/jenkinsci/plugin-compat-tester &&\
@@ -39,7 +39,7 @@ COPY LICENSE.txt /pct/src/LICENSE.txt
 WORKDIR /pct/src/
 RUN mvn clean package -Dmaven.test.skip=true
 
-FROM maven:3.6.0-jdk-8
+FROM maven:3.6.0-jdk-13
 LABEL Maintainer="Oleg Nenashev <o.v.nenashev@gmail.com>"
 LABEL Description="Base image for running Jenkins Plugin Compat Tester (PCT) against custom plugins and Jenkins cores" Vendor="Jenkins project"
 ENV JENKINS_WAR_PATH=/pct/jenkins.war
