@@ -13,7 +13,7 @@
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
   
   <properties>
-  	<maven.scm.providers.version>1.5</maven.scm.providers.version>
+  	<maven.scm.providers.version>1.11.1</maven.scm.providers.version>
   </properties>
 
   <dependencies>
