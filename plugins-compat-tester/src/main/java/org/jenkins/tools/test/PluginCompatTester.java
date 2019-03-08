@@ -39,7 +39,6 @@ import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
@@ -66,7 +65,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -81,7 +79,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -175,7 +172,16 @@ public class PluginCompatTester {
 
         // Determine the plugin data
         HashMap<String,String> pluginGroupIds = new HashMap<String, String>();  // Used to track real plugin groupIds from WARs
-        UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds);
+        // Scan normal plugins
+        UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
+        // Scan detached plugins
+        UpdateSite.Data detachedData = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
+        // Add detached if and only if no added as normal one
+        detachedData.plugins.entrySet().stream().forEach(entry -> {
+            if (!data.plugins.containsKey(entry.getKey())) {
+                data.plugins.put(entry.getKey(), entry.getValue());
+            }
+        });
         final Map<String, Plugin> pluginsToCheck;
         final List<String> pluginsToInclude = config.getIncludePlugins();
         if (data.plugins.isEmpty() && pluginsToInclude != null && !pluginsToInclude.isEmpty()) {
@@ -585,10 +591,12 @@ public class PluginCompatTester {
      * Scans through a WAR file, accumulating plugin information
      * @param war WAR to scan
      * @param pluginGroupIds Map pluginName to groupId if set in the manifest, MUTATED IN THE EXECUTION
+     * @param pluginRegExp The plugin regexp to use, can be used to diferentiate between detached or "normal" plugins
+     *                     in the war file
      * @return Update center data
      * @throws IOException
      */
-    private UpdateSite.Data scanWAR(File war, Map<String, String> pluginGroupIds) throws IOException {
+    private UpdateSite.Data scanWAR(File war, Map<String, String> pluginGroupIds, String pluginRegExp) throws IOException {
         JSONObject top = new JSONObject();
         top.put("id", DEFAULT_SOURCE_ID);
         JSONObject plugins = new JSONObject();
@@ -610,10 +618,8 @@ public class PluginCompatTester {
                     // We do not really care about the value
                     top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", "https://foobar"));
                 }
-
-                // We should also scan detached plugins to make sure we get the proper groupId for detached not using the
-                // default org.jenkins-ci one
-                m = Pattern.compile("WEB-INF/(?:(optional-|detached-))?plugins/([^/.]+)[.][hj]pi").matcher(name);
+                
+                m = Pattern.compile(pluginRegExp).matcher(name);
                 if (m.matches()) {
                     JSONObject plugin = new JSONObject().accumulate("url", "");
                     InputStream is = jf.getInputStream(entry);
