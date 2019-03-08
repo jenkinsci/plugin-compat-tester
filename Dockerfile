@@ -60,6 +60,10 @@ COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tes
 COPY src/main/docker/run-pct.sh /usr/local/bin/run-pct
 COPY src/main/docker/pct-default-settings.xml /pct/default-m2-settings.xml
 
+# TODO: remove .git addition and generate a commit.txt file once we don't use Docker Hub anymore
+ADD .git /tmp/repo
+RUN cd /tmp/repo && git rev-parse HEAD > /commit.txt && rm -rf /tmp/repo
+
 EXPOSE 5005
 
 VOLUME /pct/plugin-src
