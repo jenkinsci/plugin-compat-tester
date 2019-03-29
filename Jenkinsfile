@@ -53,3 +53,22 @@ for (int i = 0; i < platforms.size(); ++i) {
 
 /* Execute our platforms in parallel */
 parallel(branches)
+
+node('docker') {
+    checkout scm
+
+    stage('Build Docker Image') {
+        sh 'make docker'
+    }
+
+    stage("Run known successful case(s)") {
+        sh '''docker run --rm \
+                         -v $(pwd)/out:/pct/out -e JDK_VERSION=11 \
+                         -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
+                         jenkins/pct > output
+        '''
+
+        sh 'cat output | grep "Tests : Success"'
+
+    }
+}
