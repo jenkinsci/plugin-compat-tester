@@ -65,10 +65,11 @@ node('docker') {
         sh '''docker run --rm \
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=11 \
                          -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
-                         jenkins/pct > output
+                         jenkins/pct
         '''
+        archiveArtifacts artifacts: "out/**"
 
-        sh 'cat output | grep "Tests : Success"'
+        sh 'cat out/pct-report.html | grep "Tests : Success"'
 
     }
 }
