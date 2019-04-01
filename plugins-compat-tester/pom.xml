@@ -20,7 +20,6 @@
     <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>version-number</artifactId>
-      <version>1.4</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.tests</groupId>
@@ -222,9 +221,5 @@
       <artifactId>powermock-api-mockito</artifactId>
       <scope>test</scope>
    </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci</groupId>
-      <artifactId>version-number</artifactId>
-    </dependency>
   </dependencies>
 </project>
