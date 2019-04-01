@@ -69,6 +69,7 @@ node('docker') {
 
     stage("Run known successful case(s)") {
         sh '''docker run --rm \
+                         -v $(pwd)/jenkins.war:/pct/jenkins.war:ro
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=11 \
                          -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
                          jenkins/pct
