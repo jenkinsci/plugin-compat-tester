@@ -611,9 +611,8 @@ public class PluginCompatTester {
                     top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", "https://foobar"));
                 }
 
-                // We should also scan detached plugins to make sure we get the proper groupId for detached not using the
-                // default org.jenkins-ci one
-                m = Pattern.compile("WEB-INF/(?:(optional-|detached-))?plugins/([^/.]+)[.][hj]pi").matcher(name);
+                //TODO: should it also scan detached plugins info?
+                m = Pattern.compile("WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi").matcher(name);
                 if (m.matches()) {
                     JSONObject plugin = new JSONObject().accumulate("url", "");
                     InputStream is = jf.getInputStream(entry);
