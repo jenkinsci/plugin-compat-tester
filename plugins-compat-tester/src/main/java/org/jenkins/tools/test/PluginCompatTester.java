@@ -494,7 +494,7 @@ public class PluginCompatTester {
             // -Dmaven-surefire-plugin.version=2.15 -Dmaven.test.dependency.excludes=org.jenkins-ci.main:jenkins-war -Dmaven.test.additionalClasspath=/…/org/jenkins-ci/main/jenkins-war/1.580.1/jenkins-war-1.580.1.war clean test
             // (2.15+ required for ${maven.test.dependency.excludes} and ${maven.test.additionalClasspath} to be honored from CLI)
             // but it does not work; there are lots of linkage errors as some things are expected to be in the test classpath which are not.
-            // Much simpler to do use the parent POM to set up the test classpath. 
+            // Much simpler to do use the parent POM to set up the test classpath.
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
                 addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version, overridenPlugins);
@@ -618,8 +618,9 @@ public class PluginCompatTester {
                     // We do not really care about the value
                     top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", "https://foobar"));
                 }
-                
-                m = Pattern.compile(pluginRegExp).matcher(name);
+
+                // TODO: should it also scan detached plugins info?
+                m = Pattern.compile("WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi").matcher(name);
                 if (m.matches()) {
                     JSONObject plugin = new JSONObject().accumulate("url", "");
                     InputStream is = jf.getInputStream(entry);
