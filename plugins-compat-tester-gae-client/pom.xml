@@ -4,11 +4,11 @@
   <parent>
       <groupId>org.jenkins-ci.tests</groupId>
       <artifactId>plugins-compat-tester-aggregator</artifactId>
-      <version>0.0.3</version>
+      <version>0.0.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>plugins-compat-tester-gae-client</artifactId>
-  <version>0.0.3</version>
+  <version>0.0.4-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Plugins compatibility tester for Google App Engine client side API</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version - GAE app client</description>
@@ -18,7 +18,7 @@
     <dependency>
       <groupId>org.jenkins-ci.tests</groupId>
       <artifactId>plugins-compat-tester-model</artifactId>
-      <version>0.0.3</version>
+      <version>0.0.4-SNAPSHOT</version>
     </dependency>
     <dependency>
         <groupId>org.apache.httpcomponents</groupId>
