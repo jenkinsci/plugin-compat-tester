@@ -2,9 +2,7 @@
 TEST_JDK_HOME?=$(JAVA_HOME)
 PLUGIN_NAME?=mailer
 
-# TODO: Switch to 2.164.1 LTS once it is released
-# Weekly with the latest Java 11 patches is used by default
-JENKINS_VERSION=2.164
+JENKINS_VERSION=2.164.2
 
 .PHONY: all
 all: clean package docker

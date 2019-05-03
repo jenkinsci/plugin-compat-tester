@@ -172,16 +172,22 @@ public class PluginCompatTester {
 
         // Determine the plugin data
         HashMap<String,String> pluginGroupIds = new HashMap<String, String>();  // Used to track real plugin groupIds from WARs
-        // Scan normal plugins
-        UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
-        // Scan detached plugins
-        UpdateSite.Data detachedData = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
-        // Add detached if and only if no added as normal one
-        detachedData.plugins.entrySet().stream().forEach(entry -> {
-            if (!data.plugins.containsKey(entry.getKey())) {
-                data.plugins.put(entry.getKey(), entry.getValue());
-            }
-        });
+        
+        // Scan bundled plugins
+        // If there is any bundled plugin, only these plugins will be taken under the consideration for the PCT run
+        UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");        
+        if (!data.plugins.isEmpty()) {
+            // Scan detached plugins to recover proper Group IDs for them
+            UpdateSite.Data detachedData = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
+        
+            // Add detached if and only if no added as normal one
+            detachedData.plugins.entrySet().stream().forEach(entry -> {
+                if (!data.plugins.containsKey(entry.getKey())) {
+                    data.plugins.put(entry.getKey(), entry.getValue());
+                }
+            });
+        }
+
         final Map<String, Plugin> pluginsToCheck;
         final List<String> pluginsToInclude = config.getIncludePlugins();
         if (data.plugins.isEmpty() && pluginsToInclude != null && !pluginsToInclude.isEmpty()) {
@@ -930,7 +936,7 @@ public class PluginCompatTester {
         for (String split : splits) {
             String[] tokens = split.trim().split("\\s+");
             if (tokens.length == 4 ) { // We have a jdk field in the splits file
-                if (jdkVersion.isNewerThan(new JavaSpecificationVersion(tokens[3]))) {
+                if (jdkVersion.isNewerThanOrEqualTo(new JavaSpecificationVersion(tokens[3]))) {
                     filterSplits.add(split);
                 } else {
                     System.out.println("Not adding " + split + " as split because jdk specified " + tokens[3] + " is newer than running jdk " + jdkVersion);
