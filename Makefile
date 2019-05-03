@@ -48,8 +48,6 @@ demo-jdk8: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/je
 
 .PHONY: demo-jdk11
 demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar tmp/jenkins-war-$(JENKINS_VERSION).war print-java-home
-	# TODO Cleanup when/if the JAXB bundling issue is resolved.
-	# https://issues.jenkins-ci.org/browse/JENKINS-52186
 	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -failOnError \
