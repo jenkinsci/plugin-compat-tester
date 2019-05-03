@@ -74,6 +74,7 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -485,7 +486,13 @@ public class PluginCompatTester {
             // and ensures that we are testing a plugin binary as close as possible to what was actually released.
             // We also skip potential javadoc execution to avoid general test failure.
             if (!ranCompile) {
-                runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+                List<String> goals;
+                goals = new ArrayList<>(Arrays.asList("clean", "process-test-classes", "-Dmaven.javadoc.skip"));
+                if (config.isSetJenkinsVersionOnPrecompile()) {
+                    goals.add("-Djenkins.version="+coreCoordinates.version);
+                    goals.add("-Denforcer.skip");
+                }
+                runner.run(mconfig, pluginCheckoutDir, buildLogFile, goals.toArray(new String[0]));
             }
             ranCompile = true;
 
@@ -767,6 +774,7 @@ public class PluginCompatTester {
             Map<String,VersionNumber> toReplace = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toAddTest = new HashMap<String,VersionNumber>();
             Map<String,VersionNumber> toReplaceTest = new HashMap<String,VersionNumber>();
+
             overridenPlugins.forEach(plugin -> {
                 toReplace.put(plugin.getName(), plugin.getVersion());
                 toReplaceTest.put(plugin.getName(), plugin.getVersion());
@@ -814,8 +822,8 @@ public class PluginCompatTester {
                 System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
                 pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, convertFromTestDep);
             }
-
-	    // TODO(oleg_nenashev): This is a hack, logic above should be refactored somehow (JENKINS-55279)
+            
+	        // TODO(oleg_nenashev): This is a hack, logic above should be refactored somehow (JENKINS-55279)
             // Remove the self-dependency if any
             pom.removeDependency(pluginGroupIds.get(thisPlugin), thisPlugin);
         }

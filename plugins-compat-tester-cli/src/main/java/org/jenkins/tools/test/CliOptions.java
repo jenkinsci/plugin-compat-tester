@@ -139,6 +139,9 @@ public class CliOptions {
     @Parameter(names = "-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
     private boolean failOnError;
 
+    @Parameter(names = "-setJenkinsVersionOnPrecompile", description = "Sets Jenkins version on precompile steps. It may be needed if the plugin cannot compile on the target Java version by default")
+    private boolean setJenkinsVersionOnPrecompile;
+
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
     }
@@ -234,6 +237,10 @@ public class CliOptions {
 
     public boolean isFailOnError() {
         return failOnError;
+    }
+
+    public boolean isSetJenkinsVersionOnPrecompile() {
+        return setJenkinsVersionOnPrecompile;
     }
 
     public static class PluginConverter implements IStringConverter<PCTPlugin> {
