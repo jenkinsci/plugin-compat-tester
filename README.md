@@ -66,7 +66,8 @@ The image will be able to determine this ID automatically if `CHECKOUT_SRC` or `
 * `DEBUG` - Boolean flag, which enables the Remote Debug mode (port == 5000)
 * `M2_SETTINGS_FILE` -  If set indicates the path of the custom maven settings file to use (see volumes below)
 * `INSTALL_BUNDLED_SNAPSHOTS` - Install JAR and plugin snapshots to local repository.
-        `true` by default. WAR snapshots will be always installed.
+        `true` by default.
+* `SKIP_LOCAL_SNAPSHOT_INSTALLATION` - If exists WAR snapshots (core and plugins) will not be installed, if not present war snapshots will be installed
 
 Volumes:
 
