@@ -72,7 +72,7 @@ if [ -f "${JENKINS_WAR_PATH}" ]; then
     # TODO: Bug or feature?
     # Implementation-Version and Jenkins-Version may differ.
     # We specify version explicitly to use Jenkins-Version like PCT does
-    if [ -z "${skipLocalInstall}" ] ; then
+    if [ -z "${SKIP_LOCAL_SNAPSHOT_INSTALLATION}" ] ; then
         mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
             -Dpackaging=war -Dversion="${JENKINS_VERSION}" -Dfile="jenkins.war" \
             -DpomFile="exploded/war/META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml"
