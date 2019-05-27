@@ -101,7 +101,9 @@ if [ -z "${VERSION}" ] ; then
   HPI_PATH="${PCT_TMP}/exploded/war/WEB-INF/plugins/${ARTIFACT_ID}.hpi"
   if [ -f "${HPI_PATH}" ] ; then
     VERSION=$(groovy /pct/scripts/readJenkinsVersion.groovy "${HPI_PATH}" "Plugin-Version")
-    SHOULD_CHECKOUT=0
+    if [[ $VERSION != *"SNAPSHOT"* ]]; then
+      SHOULD_CHECKOUT=0  
+    fi
   else
     VERSION="master"
   fi
