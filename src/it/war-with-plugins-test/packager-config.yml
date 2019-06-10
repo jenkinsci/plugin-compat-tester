@@ -1,0 +1,15 @@
+bundle:
+  groupId: "io.jenkins.tools.war-packager.demo"
+  artifactId: "war-with-plugins-test"
+  vendor: "Jenkins project"
+war:
+  groupId: "org.jenkins-ci.main"
+  artifactId: "jenkins-war"
+  source:
+    version: 2.164.3
+plugins:
+  - groupId: "io.jenkins.plugins"
+    artifactId: "artifact-manager-s3"
+    source:
+      version: 1.6
+
