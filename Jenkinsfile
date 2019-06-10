@@ -80,7 +80,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK11'] = {
             sh '''docker run --rm \
                          -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=11 \
-                         -v $(pwd)/${settingsXML}:/pct/m2-settings.xml \
+                         -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
                          -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
                          jenkins/pct
             '''
@@ -113,7 +113,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
         stage("Run known successful case(s)") {
             sh '''docker run --rm \
                          -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
-                         -v $(pwd)/${settingsXML}:/pct/m2-settings.xml \
+                         -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
                          -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
                          jenkins/pct
@@ -134,10 +134,12 @@ itBranches['WAR with Plugins - smoke test'] = {
         checkout scm
         dir("src/it/war-with-plugins-test") {
             def settingsXML="mvn-settings.xml"
+            infra.retrieveMavenSettingsFile(settingsXML)
+            
             infra.runMaven(["clean", "package"])
             sh '''docker run --rm \
-                            -v $(pwd)/tmp/output/target/war-with-plugins-test=1.0.war:/pct/jenkins.war:ro \
-                            -v $(pwd)/${settingsXML}:/pct/m2-settings.xml \
+                            -v $(pwd)/tmp/output/target/war-with-plugins-test-1.0.war:/pct/jenkins.war:ro \
+                            -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
                             -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
                             -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.6 \
                             jenkins/pct
