@@ -8,19 +8,25 @@ $(CUSTOM_JENKINS_WAR): tmp
 	mvn clean package
 	touch $(CUSTOM_JENKINS_WAR).war
 
+tmp:
+	mkdir tmp
+
 out:
 	mkdir out
 
+.PHONY: build
+build: $(CUSTOM_JENKINS_WAR)
+
 .PHONY: test
-test: out
+test: out $(CUSTOM_JENKINS_WAR)
 	docker run -ti --rm -v maven-repo:/root/.m2 \
 	    -v $(CURDIR)/out:/pct/out \
 	    -v $(CURDIR)/$(CUSTOM_JENKINS_WAR):/pct/jenkins.war:ro \
 	    -e ARTIFACT_ID=artifact-manager-s3 \
 	    -e VERSION=artifact-manager-s3-1.6 \
 	    jenkins/pct \
-	    -overridenPlugins 'configuration-as-code=1.20' -overridenPlugins 'workflow-step-api=2.18'
+	    -overridenPlugins 'configuration-as-code=1.20'
 
 clean:
 	rm -rf out
-	rm =rf tmp
+	rm -rf tmp

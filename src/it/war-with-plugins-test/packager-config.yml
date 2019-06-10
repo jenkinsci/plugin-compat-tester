@@ -12,4 +12,11 @@ plugins:
     artifactId: "artifact-manager-s3"
     source:
       version: 1.6
-
+  - groupId: "org.jenkins-ci.plugins.workflow"
+    artifactId: "workflow-step-api"
+    source:
+      version: 2.18
+  - groupId: "org.jenkins-io.plugins"
+    artifactId: "scm-api"
+    source:
+      version: 2.2.7
