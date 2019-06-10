@@ -137,7 +137,7 @@ itBranches['WAR with Plugins - smoke test'] = {
             infra.runMaven(["clean", "package"])
             sh '''docker run --rm \
                             -v $(pwd)/tmp/output/target/war-with-plugins-test=1.0.war:/pct/jenkins.war:ro \
-                            -v $(pwd)/${settingsXML}:/pct/m2-settings.xml
+                            -v $(pwd)/${settingsXML}:/pct/m2-settings.xml \
                             -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
                             -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.6 \
                             jenkins/pct
