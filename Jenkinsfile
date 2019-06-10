@@ -134,9 +134,7 @@ itBranches['WAR with Plugins - smoke test'] = {
         checkout scm
         dir("src/it/war-with-plugins-test") {
             def settingsXML="mvn-settings.xml"
-            infra.retrieveMavenSettingsFile(settingsXML)
-
-            sh "mvn clean package -s ${settingsXML}"
+            infra.runMaven(["clean", "package"])
             sh '''docker run --rm \
                             -v $(pwd)/tmp/output/target/war-with-plugins-test=1.0.war:/pct/jenkins.war:ro \
                             -v $(pwd)/${settingsXML}:/pct/m2-settings.xml
