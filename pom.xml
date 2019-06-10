@@ -23,7 +23,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <logbackVersion>0.9.28</logbackVersion>
+    <logbackVersion>1.2.3</logbackVersion>
     <java.level>8</java.level>
 
     <!-- Components -->
