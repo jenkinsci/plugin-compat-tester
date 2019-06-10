@@ -90,6 +90,8 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK11'] = {
 itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
     node('docker') {
         checkout scm
+        def settingsXML="mvn-settings.xml"
+        infra.retrieveMavenSettingsFile()
 
         // should we build the image only once and somehow export and stash/unstash it then?
         // not sure this would be that quicker
@@ -107,6 +109,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
         stage("Run known successful case(s)") {
             sh '''docker run --rm \
                          -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
+                         -v $(pwd)/${settingsXML}:/pct/m2-settings.xml
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
                          -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
                          jenkins/pct
@@ -114,6 +117,19 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
             archiveArtifacts artifacts: "out/**"
 
             sh 'cat out/pct-report.html | grep "Tests : Success"'
+        }
+
+        stage("Run integration tests") {
+            dir("src/it/war-with-plugins-test") {
+                sh "mvn clean package -s ../../../${settingsXML}"
+                sh '''docker run --rm \
+                             -v $(pwd)/tmp/output/target/war-with-plugins-test=1.0.war:/pct/jenkins.war:ro \
+                             -v $(pwd)/../../../${settingsXML}:/pct/m2-settings.xml
+                             -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
+                             -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.6 \
+                             jenkins/pct
+                '''
+            }
         }
     }
 }
