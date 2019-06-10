@@ -7,7 +7,8 @@ properties([[$class: 'BuildDiscarderProperty',
 /* These platforms correspond to labels in ci.jenkins.io, see:
  *  https://github.com/jenkins-infra/documentation/blob/master/ci.adoc
  */
-List platforms = ['linux', 'windows']
+// TODO: restore
+List platforms = [] //'linux', 'windows']
 Map branches = [:]
 
 for (int i = 0; i < platforms.size(); ++i) {
@@ -59,6 +60,8 @@ def itBranches = [:]
 itBranches['buildtriggerbadge:2.10 tests success on JDK11'] = {
     node('docker') {
         checkout scm
+        def settingsXML="mvn-settings.xml"
+        infra.retrieveMavenSettingsFile()
 
         // should we build the image only once and somehow export and stash/unstash it then?
         // not sure this would be that quicker
@@ -77,6 +80,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK11'] = {
             sh '''docker run --rm \
                          -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=11 \
+                         -v $(pwd)/${settingsXML}:/pct/m2-settings.xml \
                          -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
                          jenkins/pct
             '''
@@ -109,7 +113,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
         stage("Run known successful case(s)") {
             sh '''docker run --rm \
                          -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
-                         -v $(pwd)/${settingsXML}:/pct/m2-settings.xml
+                         -v $(pwd)/${settingsXML}:/pct/m2-settings.xml \
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
                          -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
                          jenkins/pct
@@ -120,16 +124,26 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
         }
 
         stage("Run integration tests") {
-            dir("src/it/war-with-plugins-test") {
-                sh "mvn clean package -s ../../../${settingsXML}"
-                sh '''docker run --rm \
-                             -v $(pwd)/tmp/output/target/war-with-plugins-test=1.0.war:/pct/jenkins.war:ro \
-                             -v $(pwd)/../../../${settingsXML}:/pct/m2-settings.xml
-                             -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
-                             -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.6 \
-                             jenkins/pct
-                '''
-            }
+            
+        }
+    }
+}
+
+itBranches['WAR with Plugins - smoke test'] = {
+    node('docker') {
+        checkout scm
+        dir("src/it/war-with-plugins-test") {
+            def settingsXML="mvn-settings.xml"
+            infra.retrieveMavenSettingsFile()
+
+            sh "mvn clean package -s ${settingsXML}"
+            sh '''docker run --rm \
+                            -v $(pwd)/tmp/output/target/war-with-plugins-test=1.0.war:/pct/jenkins.war:ro \
+                            -v $(pwd)/${settingsXML}:/pct/m2-settings.xml
+                            -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
+                            -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.6 \
+                            jenkins/pct
+            '''
         }
     }
 }
