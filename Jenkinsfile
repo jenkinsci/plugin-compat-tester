@@ -61,7 +61,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK11'] = {
     node('docker') {
         checkout scm
         def settingsXML="mvn-settings.xml"
-        infra.retrieveMavenSettingsFile()
+        infra.retrieveMavenSettingsFile(settingsXML)
 
         // should we build the image only once and somehow export and stash/unstash it then?
         // not sure this would be that quicker
@@ -95,7 +95,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
     node('docker') {
         checkout scm
         def settingsXML="mvn-settings.xml"
-        infra.retrieveMavenSettingsFile()
+        infra.retrieveMavenSettingsFile(settingsXML)
 
         // should we build the image only once and somehow export and stash/unstash it then?
         // not sure this would be that quicker
@@ -134,7 +134,7 @@ itBranches['WAR with Plugins - smoke test'] = {
         checkout scm
         dir("src/it/war-with-plugins-test") {
             def settingsXML="mvn-settings.xml"
-            infra.retrieveMavenSettingsFile()
+            infra.retrieveMavenSettingsFile(settingsXML)
 
             sh "mvn clean package -s ${settingsXML}"
             sh '''docker run --rm \
