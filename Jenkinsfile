@@ -142,7 +142,8 @@ itBranches['WAR with Plugins - smoke test'] = {
                             -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
                             -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
                             -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.6 \
-                            jenkins/pct
+                            jenkins/pct \
+                            -overridenPlugins 'configuration-as-code=1.20' -overridenPlugins 'workflow-step-api=2.18'
             '''
         }
     }

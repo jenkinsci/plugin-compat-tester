@@ -19,7 +19,7 @@ test: out
 	    -e ARTIFACT_ID=artifact-manager-s3 \
 	    -e VERSION=artifact-manager-s3-1.6 \
 	    jenkins/pct \
-	    -overridenPlugins 'configuration-as-code=1.20'
+	    -overridenPlugins 'configuration-as-code=1.20' -overridenPlugins 'workflow-step-api=2.18'
 
 clean:
 	rm -rf out
