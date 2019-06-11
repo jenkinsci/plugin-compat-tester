@@ -128,6 +128,11 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
 itBranches['WAR with Plugins - smoke test'] = {
     node('docker') {
         checkout scm
+        
+        stage('Build Docker Image') {
+          sh 'make docker'
+        }
+      
         dir("src/it/war-with-plugins-test") {
             def settingsXML="mvn-settings.xml"
             infra.retrieveMavenSettingsFile(settingsXML)
@@ -136,10 +141,6 @@ itBranches['WAR with Plugins - smoke test'] = {
               infra.runMaven(["clean", "package"])
             }
             
-            stage('Build Docker Image') {
-              sh 'make docker'
-            }
-          
             stage('Run the integration test') {
               sh '''docker run --rm \
                             -v $(pwd)/tmp/output/target/war-with-plugins-test-1.0.war:/pct/jenkins.war:ro \
