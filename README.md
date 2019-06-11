@@ -160,6 +160,20 @@ use the `-e DEBUG=true -p 5005:5005` flags and then attach to the container usin
 docker run --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -e ARTIFACT_ID=job-restrictions -e DEBUG=true -p 5005:5005 -i jenkins/pct
 ```
 
+### Running PCT Makefiles on Windows
+
+Plugin Compat Tester support Windows on its own,
+but it might be tricky to get the development makefiles running there.
+The default guidance it to use Docker, but it might be impossible in some cases.
+
+One needs to install Make and Maven on Windows (e.g. using Chocolatey packages)
+and then to properly setup the environment.
+
+```batch
+   set JAVA_HOME=...
+   make demo-jdk8 -e PLUGIN_NAME=artifact-manager-s3 -e WAR_PATH=test-wars/mywar.war -e MVN_EXECUTABLE="C:\ProgramData\chocolatey\bin\mvn.exe" -e EXTRA_OPTS="-overridenPlugins 'configuration-as-code=1.20'"
+```
+
 ### TODOs
 
 To do (refile in `plugin-compat-tester` in JIRA!):
