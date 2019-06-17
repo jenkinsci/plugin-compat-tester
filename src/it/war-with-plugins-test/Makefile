@@ -17,6 +17,10 @@ out:
 .PHONY: build
 build: $(CUSTOM_JENKINS_WAR)
 
+.PHONY: run
+run:
+	JENKINS_HOME=$(CURDIR)/work java -jar tmp/output/target/war-with-plugins-test-1.0.war
+
 .PHONY: test
 test: out $(CUSTOM_JENKINS_WAR)
 	docker run -ti --rm -v maven-repo:/root/.m2 \
