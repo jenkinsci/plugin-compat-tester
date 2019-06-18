@@ -5,7 +5,7 @@ import org.jenkins.tools.test.model.PomData;
 import java.util.Map;
 
 /**
- * An abstract class that marks a hook that runs before the compilation stage of the
+ * An abstract class that marks a hook that runs before the execution stage of the
  * Plugins Compat Tester.
  *
  * This exists simply for the ability to check when a subclass should be implemented.
