@@ -37,4 +37,8 @@ plugins:
     artifactId: "workflow-job"
     source:
       version: 2.21
+  - groupId: "org.jenkins-ci.plugins"
+    artifactId: "junit"
+    source:
+      version: 2.3
   
