@@ -40,5 +40,5 @@ plugins:
   - groupId: "org.jenkins-ci.plugins"
     artifactId: "junit"
     source:
-      version: 2.3
+      version: 1.3
   
