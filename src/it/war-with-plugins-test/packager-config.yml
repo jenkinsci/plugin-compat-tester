@@ -33,3 +33,8 @@ plugins:
     artifactId: "workflow-cps"
     source:
       version: 2.53
+  - groupId: "org.jenkins-ci.plugins.workflow"
+    artifactId: "workflow-job"
+    source:
+      version: 2.21
+  
