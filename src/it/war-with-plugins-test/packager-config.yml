@@ -32,4 +32,4 @@ plugins:
   - groupId: "org.jenkins-ci.plugins.workflow"
     artifactId: "workflow-cps"
     source:
-      version: 2.46
+      version: 2.53
