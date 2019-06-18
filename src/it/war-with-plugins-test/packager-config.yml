@@ -41,4 +41,3 @@ plugins:
     artifactId: "junit"
     source:
       version: 1.3
-  
