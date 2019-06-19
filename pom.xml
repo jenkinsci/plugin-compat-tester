@@ -29,7 +29,7 @@
     <!-- Components -->
 
     <!-- Test libs -->
-    <powermock.version>1.4.8</powermock.version>
+    <powermock.version>1.6.1</powermock.version>
     <findbugs.effort>Max</findbugs.effort>
     <findbugs.failOnError>false</findbugs.failOnError>
   </properties>
