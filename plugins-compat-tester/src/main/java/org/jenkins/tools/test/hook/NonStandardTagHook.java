@@ -1,6 +1,7 @@
 package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
+import hudson.util.VersionNumber;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
@@ -9,6 +10,7 @@ import org.apache.maven.scm.repository.ScmRepository;
 import org.jenkins.tools.test.SCMManagerFactory;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.comparators.VersionComparator;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
 import java.io.File;
@@ -28,14 +30,20 @@ import java.util.Properties;
  */
 public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
 
-    final Properties affectedPlugins;
-    final List<String> transformedPlugins = new LinkedList<>();
+    private final Properties affectedPlugins;
+    private final List<String> transformedPlugins = new LinkedList<>();
+    private final VersionComparator comparator = new VersionComparator();
+    private static final String MINIMUM_VERSION_SUFFIX = "-minimumVersion";
 
     public NonStandardTagHook()  {
         affectedPlugins = new Properties();
         try (InputStream inputStream = ClassLoader.getSystemResourceAsStream("nonstandardtagplugins.properties")) {
             affectedPlugins.load(inputStream);
-            affectedPlugins.keySet().forEach(e -> transformedPlugins.add(e.toString()));
+            affectedPlugins.keySet().forEach(e -> {
+                if (!e.toString().contains(MINIMUM_VERSION_SUFFIX)) {
+                    transformedPlugins.add(e.toString());
+                }
+            });
         } catch (IOException e) {
             System.err.println("WARNING: NonStandardTagHook was not able to load affected plugins, the hook will do nothing");
             e.printStackTrace();
@@ -45,8 +53,11 @@ public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
 
     @Override
     public boolean check(Map<String, Object> info) throws Exception {
-        PomData pomData = (PomData)info.get("pomData");
-        return affectedPlugins.containsKey(pomData.artifactId);
+        UpdateSite.Plugin plugin = (UpdateSite.Plugin) info.get("plugin");
+        boolean definedPlugin = affectedPlugins.containsKey(plugin.name);
+        String minimumVersion= affectedPlugins.getProperty(plugin.name + MINIMUM_VERSION_SUFFIX);
+        boolean correctVersion = minimumVersion == null || comparator.compare(minimumVersion, plugin.version) <= 0;
+        return definedPlugin && correctVersion;
     }
 
     @Override
