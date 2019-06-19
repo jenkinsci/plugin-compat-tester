@@ -118,12 +118,12 @@ public class NonStandardTagHookTest {
         pluginData.put("dependencies", new JSONArray());
         UpdateSite.Plugin plugin = new UpdateSite("fake", "fake").new Plugin("NO Source",pluginData);
         info.put("plugin", plugin);
-        PluginCompatTesterConfig config = new PluginCompatTesterConfig(new File("/tmp/noexists"), null, null);
+        PluginCompatTesterConfig config = new PluginCompatTesterConfig(new File(testFolder.getRoot(), "noexists"), null, null);
         info.put("config", config);
 
         NonStandardTagHook hook = new NonStandardTagHook();
         Map<String, Object> returnedConfig = hook.action(info);
-        assertEquals("Checkout dir is not the expected", new File("/tmp/noexists/artifactID"), returnedConfig.get("checkoutDir"));
+        assertEquals("Checkout dir is not the expected", new File(testFolder.getRoot(), "noexists/artifactID"), returnedConfig.get("checkoutDir"));
         assertEquals("Checkout dir is not the same as plugin dir", returnedConfig.get("checkoutDir"), returnedConfig.get("pluginDir"));
         assertEquals("RunCheckout should be false", Boolean.FALSE, returnedConfig.get("runCheckout"));
 
