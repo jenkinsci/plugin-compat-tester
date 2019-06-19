@@ -155,9 +155,17 @@ If a plugin does not follow the standard tagging of the Jenkins community the PC
 find and checkout the proper code from github. For those cases the PCT provides a hook that will override the
 default checkout mechanism.
 
-This hook reads the property file []nonstandardtagplugins.properties](./plugins-compat-tester/src/main/resources/) to get the information about the tag format used for the affected plugins. Each plugin that wishes to use this mechanism
+This hook reads the property file [nonstandardtagplugins.properties](./plugins-compat-tester/src/main/resources/) to get the information about the tag format used for the affected plugins. Each plugin that wishes to use this mechanism
 has to add a new property with the artifactId of the plugin as key and a value compatible with [String.format](https://docs.oracle.com/javase/8/docs/api/java/lang/String.html#format-java.lang.String-java.lang.Object...-) the only argument
-allowed for the format string is the version to chekout
+allowed for the format string is the version to chekout.
+
+You can also specify a minimum version for the plugin to be processed by the hook, for that you add a new entry in the aforementioned properties file with the key `artifactId-minimumVersion` and value
+the lowest version of the plugin for the hook to activate, if you do that the hook will ignore any run of the plugin if the specified version is lower than the one in the properties file.
+
+```
+electricflow=cloudbees-flow-%s
+electricflow-minimumVersion=1.1.8
+```
 
 
 ## Developer Info
