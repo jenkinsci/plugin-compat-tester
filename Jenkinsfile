@@ -127,16 +127,22 @@ itBranches['CasC tests success'] = {
         }
 
         stage("Run known successful case(s)") {
-            sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
-                         -reportFile $(pwd)/out/pct-report.xml \
-                         -workDirectory $(pwd)/out/work \
-                         -skipTestCache true \
-                         -includePlugins configuration-as-code
-            '''
+            withEnv([
+                "JAVA_HOME=${tool 'jdk8'}",
+                "PATH+MVN=${tool 'mvn'}/bin",
+                'PATH+JDK=$JAVA_HOME/bin',
+            ]) {
+                sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+                             -reportFile $(pwd)/out/pct-report.xml \
+                             -workDirectory $(pwd)/out/work \
+                             -skipTestCache true \
+                             -includePlugins configuration-as-code
+                '''
 
-            archiveArtifacts artifacts: "out/**"
+                archiveArtifacts artifacts: "out/**"
 
-            sh 'cat out/pct-report.html | grep "Tests : Success"'
+                sh 'cat out/pct-report.html | grep "Tests : Success"'
+            }
         }
     }
 }
