@@ -118,5 +118,28 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
     }
 }
 
+itBranches['CasC tests success'] = {
+    node('linux') {
+        checkout scm
+
+        stage('Build PCT CLI') {
+            sh 'make allNoDocker'
+        }
+
+        stage("Run known successful case(s)") {
+            sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+                         -reportFile $(pwd)/out/pct-report.xml \
+                         -workDirectory $(pwd)/out/work \
+                         -skipTestCache true \
+                         -includePlugins configuration-as-code
+            '''
+
+            archiveArtifacts artifacts: "out/**"
+
+            sh 'cat out/pct-report.html | grep "Tests : Success"'
+        }
+    }
+}
+
 itBranches.failFast = false
 parallel itBranches

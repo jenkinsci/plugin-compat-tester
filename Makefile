@@ -14,12 +14,15 @@ JENKINS_VERSION=2.164.3
 .PHONY: all
 all: clean package docker
 
+.PHONY: allNoDocker
+allNoDocker: clean package
+
 .PHONY: clean
 clean:
 	mvn clean
 
 plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar:
-	mvn verify
+	mvn package
 .PHONY: package
 package: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar
 
