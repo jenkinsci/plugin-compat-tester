@@ -2,3 +2,4 @@ _extends: .github
 tag-template: plugins-compat-tester-aggregator-$NEXT_MINOR_VERSION
 # We want to use semver here... at some point
 version-template: $MAJOR.$MINOR.$PATCH
+name-template: Plugin Compatibility Tester $NEXT_PATCH_VERSION
