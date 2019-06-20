@@ -136,7 +136,7 @@ itBranches['CasC tests success'] = {
             withEnv([
                 "JAVA_HOME=${tool 'jdk8'}",
                 "MVN_PATH=${tool 'mvn'}/bin",
-                "PATH+MVN=$MVN_PATH",
+                "PATH+MVN=${tool 'mvn'}/bin",
                 'PATH+JDK=$JAVA_HOME/bin',
             ]) {
                 sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
