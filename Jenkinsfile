@@ -140,7 +140,7 @@ itBranches['CasC tests success'] = {
                 'PATH+JDK=$JAVA_HOME/bin',
             ]) {
                 sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
-                             -reportFile $(pwd)/out/work/pct-report.xml \
+                             -reportFile $(pwd)/out/pct-report.xml \
                              -workDirectory $(pwd)/out/work \
                              -skipTestCache true \
                              -mvn "$MVN_PATH/mvn" \
@@ -149,7 +149,7 @@ itBranches['CasC tests success'] = {
 
                 archiveArtifacts artifacts: "out/**"
 
-                sh 'cat out/work/pct-report.html | grep "Tests : Success"'
+                sh 'cat out/pct-report.html | grep "Tests : Success"'
             }
         }
     }
