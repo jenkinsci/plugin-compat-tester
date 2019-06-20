@@ -135,7 +135,7 @@ itBranches['CasC tests success'] = {
         stage("Run known successful case(s)") {
             withEnv([
                 "JAVA_HOME=${tool 'jdk8'}",
-                "MVN_PATH=${tool 'mvn'}/bin"
+                "MVN_PATH=${tool 'mvn'}/bin",
                 "PATH+MVN=${tool 'mvn'}/bin",
                 'PATH+JDK=$JAVA_HOME/bin',
             ]) {
