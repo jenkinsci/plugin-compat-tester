@@ -138,10 +138,17 @@ itBranches['CasC tests success'] = {
                 "PATH+MVN=${tool 'mvn'}/bin",
                 'PATH+JDK=$JAVA_HOME/bin',
             ]) {
+                echo 'TEST MESSAGE'
+                sh 'mvn -version'
+
+                echo 'ANOTHER TEST MESSAGE'
+                sh "${tool 'mvn'}/bin/mvn -version"
+
                 sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
                              -reportFile $(pwd)/out/pct-report.xml \
                              -workDirectory $(pwd)/out/work \
                              -skipTestCache true \
+                             -mvn "${tool 'mvn'}/bin/mvn" \
                              -includePlugins configuration-as-code
                 '''
 
