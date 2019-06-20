@@ -135,20 +135,21 @@ itBranches['CasC tests success'] = {
         stage("Run known successful case(s)") {
             withEnv([
                 "JAVA_HOME=${tool 'jdk8'}",
-                "PATH+MVN=${tool 'mvn'}/bin",
+                "MVN_PATH=${tool 'mvn'}/bin"
+                "PATH+MVN=$MVN_PATH",
                 'PATH+JDK=$JAVA_HOME/bin',
             ]) {
                 echo 'TEST MESSAGE'
                 sh 'mvn -version'
 
                 echo 'ANOTHER TEST MESSAGE'
-                sh "${tool 'mvn'}/bin/mvn -version"
+                sh "MVN_PATH/mvn -version"
 
                 sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
                              -reportFile $(pwd)/out/pct-report.xml \
                              -workDirectory $(pwd)/out/work \
                              -skipTestCache true \
-                             -mvn "${tool 'mvn'}/bin/mvn" \
+                             -mvn "$MVN_PATH/mvn" \
                              -includePlugins configuration-as-code
                 '''
 
