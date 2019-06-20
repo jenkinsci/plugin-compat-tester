@@ -123,7 +123,13 @@ itBranches['CasC tests success'] = {
         checkout scm
 
         stage('Build PCT CLI') {
-            sh 'make allNoDocker'
+            withEnv([
+                "JAVA_HOME=${tool 'jdk8'}",
+                "PATH+MVN=${tool 'mvn'}/bin",
+                'PATH+JDK=$JAVA_HOME/bin',
+            ]) {
+                sh 'make allNoDocker'
+            }
         }
 
         stage("Run known successful case(s)") {
