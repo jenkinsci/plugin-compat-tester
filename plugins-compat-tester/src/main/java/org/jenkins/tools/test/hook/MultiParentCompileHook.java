@@ -37,7 +37,6 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         try {
             System.out.println("Executing multi-parent compile hook");
             PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
-            MavenCoordinates core = (MavenCoordinates) moreInfo.get("core");
 
             runner = config.getExternalMaven() == null ? new InternalMavenRunner() : new ExternalMavenRunner(config.getExternalMaven());
             mavenConfig = getMavenConfig(config);
@@ -85,7 +84,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
     @Override
     public boolean check(Map<String, Object> info) throws Exception {
-        return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info) || StructsHook.isStructsPlugin(info);
+        return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info) || StructsHook.isStructsPlugin(info) || ConfigurationAsCodeHook.isCascPlugin(info);
     }
 
     private boolean isEslintFile(Path file) {

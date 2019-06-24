@@ -23,13 +23,13 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <logbackVersion>0.9.28</logbackVersion>
+    <logbackVersion>1.2.3</logbackVersion>
     <java.level>8</java.level>
 
     <!-- Components -->
 
     <!-- Test libs -->
-    <powermock.version>1.4.8</powermock.version>
+    <powermock.version>1.6.1</powermock.version>
     <findbugs.effort>Max</findbugs.effort>
     <findbugs.failOnError>false</findbugs.failOnError>
   </properties>
