@@ -78,6 +78,13 @@ Volumes:
 * `/pct/tmp` - Temporary directory. Can be exposed to analyze run failures
 * `/root/.m2` - Maven repository. It can be used to pass settings.xml or to cache artifacts
 
+:exclamation: Note that the entrypoint script of the PCT docker image tries to checkout the plugin sources *before* invoking the PCT if no war is provided. That means for plugins relying on `PreCheckoutHooks` (like multimodule ones) the standard docker run will fail to get sources as the `PreCheckoutHooks` are not run by the docker image entrypoint script. In that case possible workaorunds are:
+
+* Using a war file
+* Download the sources of the plugin and use the `/pct/plugin-src` volume to inform the PCT about them
+* Use the docker image but override the entry point and run manually the PCT inside the image
+* Run the PCT manually as explained below
+
 ### Running PCT manually
 
 PCT offers the CLI interface which can be used to run PCT locally.
