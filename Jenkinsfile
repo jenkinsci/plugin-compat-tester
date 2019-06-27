@@ -126,7 +126,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
 }
 
 
-itBranches['WAR with Plugins - smoke test'] = {
+itBranches['WAR with non-default groupId plugins - smoke test'] = {
     node('docker') {
         checkout scm
         

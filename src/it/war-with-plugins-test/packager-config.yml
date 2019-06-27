@@ -15,11 +15,11 @@ plugins:
   - groupId: "org.jenkins-ci.plugins.workflow"
     artifactId: "workflow-step-api"
     source:
-      version: 2.18
+      version: 2.19
   - groupId: "org.jenkins-ci.plugins"
     artifactId: "scm-api"
     source:
-      version: 2.2.7
+      version: 2.3.0
   # Resolved upper bounds conflict for artifact-manager-s3
   - groupId: "org.jenkins-ci.plugins"
     artifactId: "ssh-credentials"
@@ -28,16 +28,28 @@ plugins:
   - groupId: "org.jenkins-ci.plugins"
     artifactId: "git"
     source:
-      version: 3.10.0
+      version: 4.0.0-rc
   - groupId: "org.jenkins-ci.plugins.workflow"
     artifactId: "workflow-cps"
     source:
-      version: 2.53
+      version: 2.65
   - groupId: "org.jenkins-ci.plugins.workflow"
     artifactId: "workflow-job"
     source:
-      version: 2.21
+      version: 2.32
   - groupId: "org.jenkins-ci.plugins"
     artifactId: "junit"
     source:
-      version: 1.3
+      version: 1.20
+  - groupId: "org.jenkins-ci.plugins"
+    artifactId: "script-security"
+    source:
+      version: 1.56
+  - groupId: "org.jenkins-ci.plugins"
+    artifactId: "structs"
+    source:
+      version: 1.18
+  - groupId: "org.jenkins-ci.plugins"
+    artifactId: "matrix-project"
+    source:
+      version: 1.12
