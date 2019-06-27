@@ -150,6 +150,9 @@ itBranches['WAR with non-default groupId plugins - smoke test'] = {
                             jenkins/pct \
                             -overridenPlugins 'configuration-as-code=1.20'
               '''
+              archiveArtifacts artifacts: "out/**"
+
+              sh 'cat out/pct-report.html | grep "Tests : Success"'
             }
         }
     }
