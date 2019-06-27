@@ -1,0 +1,55 @@
+bundle:
+  groupId: "io.jenkins.tools.war-packager.demo"
+  artifactId: "war-with-plugins-test"
+  vendor: "Jenkins project"
+war:
+  groupId: "org.jenkins-ci.main"
+  artifactId: "jenkins-war"
+  source:
+    version: 2.164.3
+plugins:
+  - groupId: "io.jenkins.plugins"
+    artifactId: "artifact-manager-s3"
+    source:
+      version: 1.6
+  - groupId: "org.jenkins-ci.plugins.workflow"
+    artifactId: "workflow-step-api"
+    source:
+      version: 2.19
+  - groupId: "org.jenkins-ci.plugins"
+    artifactId: "scm-api"
+    source:
+      version: 2.3.0
+  # Resolved upper bounds conflict for artifact-manager-s3
+  - groupId: "org.jenkins-ci.plugins"
+    artifactId: "ssh-credentials"
+    source:
+      version: 1.17
+  - groupId: "org.jenkins-ci.plugins"
+    artifactId: "git"
+    source:
+      version: 4.0.0-rc
+  - groupId: "org.jenkins-ci.plugins.workflow"
+    artifactId: "workflow-cps"
+    source:
+      version: 2.65
+  - groupId: "org.jenkins-ci.plugins.workflow"
+    artifactId: "workflow-job"
+    source:
+      version: 2.32
+  - groupId: "org.jenkins-ci.plugins"
+    artifactId: "junit"
+    source:
+      version: 1.20
+  - groupId: "org.jenkins-ci.plugins"
+    artifactId: "script-security"
+    source:
+      version: 1.56
+  - groupId: "org.jenkins-ci.plugins"
+    artifactId: "structs"
+    source:
+      version: 1.18
+  - groupId: "org.jenkins-ci.plugins"
+    artifactId: "matrix-project"
+    source:
+      version: 1.12

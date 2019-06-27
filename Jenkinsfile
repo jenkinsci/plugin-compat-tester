@@ -59,6 +59,8 @@ def itBranches = [:]
 itBranches['buildtriggerbadge:2.10 tests success on JDK11'] = {
     node('docker') {
         checkout scm
+        def settingsXML="mvn-settings.xml"
+        infra.retrieveMavenSettingsFile(settingsXML)
 
         // should we build the image only once and somehow export and stash/unstash it then?
         // not sure this would be that quicker
@@ -77,6 +79,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK11'] = {
             sh '''docker run --rm \
                          -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=11 \
+                         -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
                          -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
                          jenkins/pct
             '''
@@ -90,6 +93,8 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK11'] = {
 itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
     node('docker') {
         checkout scm
+        def settingsXML="mvn-settings.xml"
+        infra.retrieveMavenSettingsFile(settingsXML)
 
         // should we build the image only once and somehow export and stash/unstash it then?
         // not sure this would be that quicker
@@ -107,6 +112,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
         stage("Run known successful case(s)") {
             sh '''docker run --rm \
                          -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
+                         -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
                          -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
                          jenkins/pct
@@ -114,6 +120,37 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
             archiveArtifacts artifacts: "out/**"
 
             sh 'cat out/pct-report.html | grep "Tests : Success"'
+        }
+    }
+}
+
+
+itBranches['WAR with non-default groupId plugins - smoke test'] = {
+    node('docker') {
+        checkout scm
+        
+        stage('Build Docker Image') {
+          sh 'make docker'
+        }
+      
+        dir("src/it/war-with-plugins-test") {
+            def settingsXML="mvn-settings.xml"
+            infra.retrieveMavenSettingsFile(settingsXML)
+            
+            stage('Build the custom WAR file') {
+              infra.runMaven(["clean", "package"])
+            }
+            
+            stage('Run the integration test') {
+              sh '''docker run --rm \
+                            -v $(pwd)/tmp/output/target/war-with-plugins-test-1.0.war:/pct/jenkins.war:ro \
+                            -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
+                            -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
+                            -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.6 \
+                            jenkins/pct \
+                            -overridenPlugins 'configuration-as-code=1.20'
+              '''
+            }
         }
     }
 }
