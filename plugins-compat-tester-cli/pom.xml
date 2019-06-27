@@ -4,11 +4,11 @@
   <parent>
       <groupId>org.jenkins-ci.tests</groupId>
       <artifactId>plugins-compat-tester-aggregator</artifactId>
-      <version>0.1.0</version>
+      <version>0.1.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>plugins-compat-tester-cli</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1-SNAPSHOT</version>
   <name>Plugins compatibility tester CLI</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
   
@@ -59,7 +59,7 @@
   	<dependency>
         <groupId>org.jenkins-ci.tests</groupId>
         <artifactId>plugins-compat-tester</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1-SNAPSHOT</version>
   	</dependency>
     <dependency>
         <groupId>com.beust</groupId>
