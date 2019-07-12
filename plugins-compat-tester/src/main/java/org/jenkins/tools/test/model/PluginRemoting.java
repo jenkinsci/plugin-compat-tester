@@ -132,7 +132,7 @@ public class PluginRemoting {
 
             String parentNode = xpath.evaluate("/project/parent", doc);
             if (StringUtils.isNotBlank(parentNode)) {
-                LOGGER.log(Level.SEVERE, parentNode.toString());
+                LOGGER.log(Level.INFO, parentNode.toString());
                 parent = new MavenCoordinates(
                         getValueOrFail(doc, xpath, "/project/parent/groupId"),
                         getValueOrFail(doc, xpath, "/project/parent/artifactId"),
