@@ -111,6 +111,7 @@ public class PluginRemoting {
 	public PomData retrievePomData() throws PluginSourcesUnavailableException {
 		String scmConnection = null;
         String artifactId = null;
+        String groupId = null;
         String packaging;
 		String pomContent = this.retrievePomContent();
         @CheckForNull MavenCoordinates parent = null;
@@ -124,10 +125,12 @@ public class PluginRemoting {
             XPath xpath = xpathFactory.newXPath();
 			XPathExpression scmConnectionXPath = xpath.compile("/project/scm/connection/text()");
             XPathExpression artifactIdXPath = xpath.compile("/project/artifactId/text()");
+            XPathExpression groupIdXPath = xpath.compile("/project/groupId/text()");
             XPathExpression packagingXPath = xpath.compile("/project/packaging/text()");
 
 			scmConnection = (String)scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
             artifactId = (String)artifactIdXPath.evaluate(doc, XPathConstants.STRING);
+            groupId = (String)groupIdXPath.evaluate(doc, XPathConstants.STRING);
             packaging = StringUtils.trimToNull((String)packagingXPath.evaluate(doc, XPathConstants.STRING));
 
             String parentNode = xpath.evaluate("/project/parent", doc);
@@ -152,7 +155,7 @@ public class PluginRemoting {
 			throw new PluginSourcesUnavailableException("Problem while retrieving plugin's scm connection", e);
 		}
 		
-		PomData pomData = new PomData(artifactId, packaging, scmConnection, parent);
+		PomData pomData = new PomData(artifactId, packaging, scmConnection, parent, groupId);
         computeScmConnection(pomData);
         return pomData;
 	}
