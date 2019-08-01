@@ -43,12 +43,14 @@ public class PomData {
     @CheckForNull
     public final MavenCoordinates parent;
     private String connectionUrl;
+    private String scmTag;
     private List<String> warningMessages = new ArrayList<String>();
 
-    public PomData(String artifactId, @CheckForNull String packaging, String connectionUrl, @CheckForNull MavenCoordinates parent){
+    public PomData(String artifactId, @CheckForNull String packaging, String connectionUrl, String scmTag, @CheckForNull MavenCoordinates parent){
         this.artifactId = artifactId;
         this.packaging = packaging != null ? packaging : "jar";
         this.setConnectionUrl(connectionUrl);
+        this.scmTag = scmTag;
         this.parent = parent;
     }
 
@@ -67,6 +69,10 @@ public class PomData {
     @Nonnull
     public String getPackaging() {
         return packaging;
+    }
+
+    public String getScmTag() {
+        return scmTag;
     }
 
     public boolean isPluginPOM() {
