@@ -37,15 +37,15 @@ public class PipelineRestApiHook extends AbstractMultiParentHook {
 
     @Override
     public boolean check(Map<String, Object> info) throws Exception {
-        return isPSVPlugin(info);
+        return isPipelineStageViewPlugin(info);
     }
 
-    public static boolean isPSVPlugin(Map<String, Object> moreInfo) {
+    public static boolean isPipelineStageViewPlugin(Map<String, Object> moreInfo) {
         PomData data = (PomData) moreInfo.get("pomData");
-        return isPSVPlugin(data);
+        return isPipelineStageViewPlugin(data);
     }
 
-    public static boolean isPSVPlugin(PomData data) {
+    public static boolean isPipelineStageViewPlugin(PomData data) {
         return data.artifactId.contains("pipeline-rest-api");
     }
 }
