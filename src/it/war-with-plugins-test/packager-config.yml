@@ -50,6 +50,10 @@ plugins:
     source:
       version: 1.18
   - groupId: "org.jenkins-ci.plugins"
+    artifactId: "swarm"
+    source:
+      version: 3.17
+  - groupId: "org.jenkins-ci.plugins"
     artifactId: "matrix-project"
     source:
       version: 1.12
