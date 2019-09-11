@@ -550,7 +550,14 @@ public class PluginCompatTester {
 	}
 
     private void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException {
-        String scmTag = pomData.getScmTag() != null ? pomData.getScmTag() : name + "-" + version;
+        String scmTag;
+        if (pomData.getScmTag() != null) {
+            scmTag = pomData.getScmTag();
+            System.out.println(String.format("Using SCM tag '%s' from POM.", pomData.getScmTag()));
+        } else {
+            scmTag = name + "-" + version;
+            System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
+        }
         System.out.println("Checking out from SCM connection URL : " + pomData.getConnectionUrl() + " (" + name + "-" + version + ") at tag " + scmTag);
         ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
         ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
