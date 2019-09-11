@@ -553,7 +553,7 @@ public class PluginCompatTester {
         String scmTag;
         if (pomData.getScmTag() != null) {
             scmTag = pomData.getScmTag();
-            System.out.println(String.format("Using SCM tag '%s' from POM.", pomData.getScmTag()));
+            System.out.println(String.format("Using SCM tag '%s' from POM.", scmTag));
         } else {
             scmTag = name + "-" + version;
             System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
