@@ -36,6 +36,7 @@ import java.util.List;
  */
 public class PomData {
     public final String artifactId;
+    public final String groupId;
 
     @Nonnull
     private final String packaging;
@@ -46,8 +47,9 @@ public class PomData {
     private String scmTag;
     private List<String> warningMessages = new ArrayList<String>();
 
-    public PomData(String artifactId, @CheckForNull String packaging, String connectionUrl, String scmTag, @CheckForNull MavenCoordinates parent){
+    public PomData(String artifactId, @CheckForNull String packaging, String connectionUrl, String scmTag, @CheckForNull MavenCoordinates parent, String groupId){
         this.artifactId = artifactId;
+        this.groupId = groupId;
         this.packaging = packaging != null ? packaging : "jar";
         this.setConnectionUrl(connectionUrl);
         this.scmTag = scmTag;

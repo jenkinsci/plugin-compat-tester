@@ -54,7 +54,7 @@ public class NonStandardTagHookTest {
         NonStandardTagHook hook = new NonStandardTagHook();
         List<String> transformedPlugins = hook.transformedPlugins();
         assertNotNull("The list of transformed plugins must be non null", transformedPlugins);
-        assertEquals("List of affected plugins must be of size 2", 2, transformedPlugins.size());
+        assertEquals("List of affected plugins must be of size 3", 3, transformedPlugins.size());
         assertEquals("The element in transformedPlugins must be 'artifactID'", "artifactID", transformedPlugins.get(0));
     }
 
@@ -109,7 +109,7 @@ public class NonStandardTagHookTest {
 
 
         Map<String, Object> info = new HashMap<>();
-        PomData data = new PomData("artifactID", "hpi", null, null, null);
+        PomData data = new PomData("artifactID", "hpi", null, null, null, null);
         info.put("pomData", data);
         JSONObject pluginData = new JSONObject();
         pluginData.put("name","artifactId");
@@ -146,7 +146,7 @@ public class NonStandardTagHookTest {
             config.setGenerateHtmlReport(true);
 
             Map<String, Object> info = new HashMap<>();
-            PomData data = new PomData("electricflow", "hpi", "scm:git:git://github.com/jenkinsci/electricflow-plugin.git", "cloudbees-flow-1.1.8", new MavenCoordinates("org.jenkins-ci.plugins", "electricflow", "1.1.8"));
+            PomData data = new PomData("electricflow", "hpi", "scm:git:git://github.com/jenkinsci/electricflow-plugin.git", "cloudbees-flow-1.1.8", new MavenCoordinates("org.jenkins-ci.plugins", "electricflow", "1.1.8"), "org.jenkins-ci.plugins");
             info.put("pomData", data);
             JSONObject pluginData = new JSONObject();
             pluginData.put("name", "electricflow");
