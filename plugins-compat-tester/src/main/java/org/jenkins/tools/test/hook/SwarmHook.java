@@ -2,9 +2,13 @@ package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jenkins.tools.test.model.PomData;
 
 public class SwarmHook extends AbstractMultiParentHook {
+
+    private static final Logger LOGGER = Logger.getLogger(SwarmHook.class.getName());
 
     @Override
     protected String getParentFolder() {
@@ -37,6 +41,18 @@ public class SwarmHook extends AbstractMultiParentHook {
     }
 
     public static boolean isSwarmPlugin(PomData data) {
-        return data.parent.artifactId.equalsIgnoreCase("swarm-plugin");
+        if (data.parent != null) {
+            // Non-incrementals
+            return data.parent.artifactId.equalsIgnoreCase("swarm-plugin");
+        } else if (!"swarm".equalsIgnoreCase(data.artifactId)) {
+            return false;
+        } else {
+            LOGGER.log(
+                    Level.WARNING,
+                    "Swarm Plugin may have been incrementalified. "
+                            + "See JENKINS-55169 and linked tickets. Will guess by the packaging: {0}",
+                    data.getPackaging());
+            return "hpi".equalsIgnoreCase(data.getPackaging());
+        }
     }
 }
