@@ -103,10 +103,9 @@ public enum PluginCompatResultDAO {
     }
 
     private List<Entity> executePaginatedQueries(DatastoreService service, Query query, int limit){
-        List<Entity> results = new ArrayList<Entity>();
         PreparedQuery pq = service.prepare(query);
         QueryResultList<Entity> qrl = pq.asQueryResultList(FetchOptions.Builder.withLimit(limit));
-        results.addAll(qrl);
+        List<Entity> results = new ArrayList<Entity>(qrl);
 
         log.finer("Retrieved "+qrl.size()+" results from query "+query.toString());
         int pageNumber = 1;
