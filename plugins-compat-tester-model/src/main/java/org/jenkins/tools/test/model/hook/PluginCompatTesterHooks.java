@@ -151,7 +151,6 @@ public class PluginCompatTesterHooks {
                     } catch (Exception ex) {
                         System.out.println("Error when loading " + c.getName());
                         ex.printStackTrace();
-                        continue;
                     }
                 }
             }
