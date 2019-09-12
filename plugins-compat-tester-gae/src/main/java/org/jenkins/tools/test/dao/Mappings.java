@@ -13,20 +13,20 @@ import java.util.*;
  * @author fcamblor
  */
 public class Mappings {
-    public static enum PluginCompatResultProperties {
+    public enum PluginCompatResultProperties {
         compatTestExecutedOn, status, errorMessage, warningMessages, buildLogPath,
         coreCoordsKey, pluginInfosKey, computedCoreAndPlugin;
         public static final String KIND = "pluginCompatResult";
     }
-    public static enum PluginInfosProperties {
+    public enum PluginInfosProperties {
         pluginName, pluginVersion, pluginUrl;
         public static final String KIND = "pluginInfos";
     }
-    public static enum MavenCoordinatesProperties {
+    public enum MavenCoordinatesProperties {
         gav, groupId, artifactId, version
     }
     public static final String CORE_MAVEN_COORDS_KIND = "coreCoordinates";
-    public static enum LogProperties {
+    public enum LogProperties {
         resultKey, buildLogPath, logContent;
         public static final String KIND = "logs";
     }

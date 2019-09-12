@@ -37,7 +37,7 @@ import java.util.Map;
       *
       * Certain implementations could throw exceptions.
       */
-     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception;
+     Map<String, Object> action(Map<String, Object> moreInfo) throws Exception;
 
      /**
       * List the plugins this hook affects.  This can be a single, list, or simply all.
@@ -51,5 +51,5 @@ import java.util.Map;
      /**
       * Check that the object used for this hook. 
       */
-     public abstract void validate(Map<String, Object> toCheck) throws Exception; 
+     void validate(Map<String, Object> toCheck) throws Exception;
  }

@@ -12,18 +12,18 @@ import java.util.logging.Logger;
 public enum PluginCompatResultDAO {
     INSTANCE;
 
-    public static interface CoreMatcher {
+    public interface CoreMatcher {
 
         Query enhanceSearchCoreQuery(Query query);
         Query enhanceSearchResultQuery(Query query, Map<Key, MavenCoordinates> coords);
 
-        public static enum All implements CoreMatcher {
+        enum All implements CoreMatcher {
             INSTANCE;
             public Query enhanceSearchCoreQuery(Query query){ return query; }
             public Query enhanceSearchResultQuery(Query query, Map<Key, MavenCoordinates> coords){ return query; }
         }
 
-        public static class Parameterized implements CoreMatcher {
+        class Parameterized implements CoreMatcher {
             private List<MavenCoordinates> cores;
             public Parameterized(List<MavenCoordinates> cores){
                 this.cores = cores;
@@ -51,18 +51,18 @@ public enum PluginCompatResultDAO {
             }
         }
     }
-    public static interface PluginMatcher {
+    public interface PluginMatcher {
 
-        public Query enhanceSearchPluginQuery(Query query);
-        public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos);
+        Query enhanceSearchPluginQuery(Query query);
+        Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos);
 
-        public static enum All implements PluginMatcher {
+        enum All implements PluginMatcher {
             INSTANCE;
             public Query enhanceSearchPluginQuery(Query query){ return query; }
             public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos){ return query; }
         }
 
-        public static class Parameterized implements PluginMatcher {
+        class Parameterized implements PluginMatcher {
             private List<String> pluginNames;
             public Parameterized(List<String> pluginNames){
                 this.pluginNames = pluginNames;
