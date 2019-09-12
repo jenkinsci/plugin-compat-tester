@@ -186,9 +186,9 @@ public class PluginCompatTester {
 
 
             // Add detached if and only if no added as normal one
-            detachedData.plugins.entrySet().stream().forEach(entry -> {
-                if (!data.plugins.containsKey(entry.getKey())) {
-                    data.plugins.put(entry.getKey(), entry.getValue());
+            detachedData.plugins.forEach((key, value) -> {
+                if (!data.plugins.containsKey(key)) {
+                    data.plugins.put(key, value);
                 }
             });
         }
