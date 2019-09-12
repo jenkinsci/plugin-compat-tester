@@ -407,11 +407,11 @@ public class PluginCompatTester {
         throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
-        System.out.println(String.format("#############################################"));
-        System.out.println(String.format("#############################################"));
+        System.out.println("#############################################");
+        System.out.println("#############################################");
         System.out.println(String.format("##%n## Starting to test plugin %s v%s%n## against %s%n##", plugin.name, plugin.version, coreCoordinates));
-        System.out.println(String.format("#############################################"));
-        System.out.println(String.format("#############################################"));
+        System.out.println("#############################################");
+        System.out.println("#############################################");
         System.out.println(String.format("%n%n%n%n%n"));
 
         File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath() + File.separator + plugin.name + File.separator);
