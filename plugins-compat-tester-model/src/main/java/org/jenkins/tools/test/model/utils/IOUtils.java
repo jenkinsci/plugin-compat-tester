@@ -3,7 +3,6 @@ package org.jenkins.tools.test.model.utils;
 import org.apache.commons.codec.binary.Base64;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.*;
 

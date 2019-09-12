@@ -1,6 +1,5 @@
 package org.jenkins.tools.test;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -15,7 +14,6 @@ import org.jenkins.tools.test.model.PluginInfos;
 import org.jenkins.tools.test.model.utils.IOUtils;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;

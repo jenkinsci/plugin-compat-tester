@@ -29,9 +29,6 @@ import com.google.common.collect.ImmutableMap;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

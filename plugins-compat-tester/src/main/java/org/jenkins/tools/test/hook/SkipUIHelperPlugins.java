@@ -1,6 +1,5 @@
 package org.jenkins.tools.test.hook;
 
-import hudson.model.UpdateSite.Plugin;
 import org.jenkins.tools.test.model.TestExecutionResult;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 

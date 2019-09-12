@@ -27,7 +27,6 @@ package org.jenkins.tools.test;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import hudson.maven.MavenEmbedderException;
 import org.codehaus.plexus.PlexusContainerException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.TestStatus;

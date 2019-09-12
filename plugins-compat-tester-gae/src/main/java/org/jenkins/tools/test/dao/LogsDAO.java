@@ -1,10 +1,7 @@
 package org.jenkins.tools.test.dao;
 
 import com.google.appengine.api.datastore.*;
-import org.jenkins.tools.test.model.PluginInfos;
 
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 /**
