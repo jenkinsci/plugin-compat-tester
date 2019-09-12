@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
 
@@ -54,9 +55,9 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
                     pluginSourcesDir = pluginSourcesDir.getParent();
                 }
                 // Copy the file if it exists
-                Files.walk(pluginSourcesDir, 1)
-                    .filter(this::isEslintFile)
-                    .forEach(eslintrc -> copy(eslintrc, pluginDir));
+                try (Stream<Path> walk = Files.walk(pluginSourcesDir, 1)) {
+                    walk.filter(this::isEslintFile).forEach(eslintrc -> copy(eslintrc, pluginDir));
+                }
             }
 
             // We need to compile before generating effective pom overriding jenkins.version
