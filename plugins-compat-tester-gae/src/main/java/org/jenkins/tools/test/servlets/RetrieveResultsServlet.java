@@ -51,7 +51,7 @@ public class RetrieveResultsServlet extends HttpServlet {
                         :req.getParameterValues("cores[]")!=null?req.getParameterValues("cores[]"):new String[0];
                 List<String> coreGAV = Arrays.asList(paramValues);
                 // Converting GAVs into MavenCoordinates
-                List<MavenCoordinates> coreCoords = new ArrayList<MavenCoordinates>(coreGAV.size());
+                List<MavenCoordinates> coreCoords = new ArrayList<>(coreGAV.size());
                 for(String gav : coreGAV){
                     coreCoords.add(MavenCoordinates.fromGAV(gav));
                 }

@@ -43,13 +43,13 @@ public class PluginCompatReport {
     private String testJavaVersion;
 
     public PluginCompatReport(){
-        this.pluginCompatTests = new TreeMap<PluginInfos, List<PluginCompatResult>>();
-        this.testedCoreCoordinates = new TreeSet<MavenCoordinates>();
+        this.pluginCompatTests = new TreeMap<>();
+        this.testedCoreCoordinates = new TreeSet<>();
     }
 
     public void add(PluginInfos infos, PluginCompatResult result){
         if(!this.pluginCompatTests.containsKey(infos)){
-            this.pluginCompatTests.put(infos, new ArrayList<PluginCompatResult>());
+            this.pluginCompatTests.put(infos, new ArrayList<>());
         }
 
         List<PluginCompatResult> results = pluginCompatTests.get(infos);
@@ -159,7 +159,7 @@ public class PluginCompatReport {
 
         // Ensuring we are using a TreeMap for pluginCompatTests
         if(!(report.pluginCompatTests instanceof SortedMap)){
-            report.pluginCompatTests = new TreeMap<PluginInfos, List<PluginCompatResult>>(report.pluginCompatTests);
+            report.pluginCompatTests = new TreeMap<>(report.pluginCompatTests);
         }
 
         return report;
@@ -190,6 +190,6 @@ public class PluginCompatReport {
     }
 
     public Map<PluginInfos, List<PluginCompatResult>> getPluginCompatTests(){
-        return new TreeMap<PluginInfos, List<PluginCompatResult>>(pluginCompatTests);
+        return new TreeMap<>(pluginCompatTests);
     }
 }

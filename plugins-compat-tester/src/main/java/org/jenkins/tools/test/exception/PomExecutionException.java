@@ -52,9 +52,9 @@ public class PomExecutionException extends Exception {
 
     public PomExecutionException(String message, List<String> succeededPluginArtifactIds, List<Throwable> exceptionsThrown, List<String> pomWarningMessages){
         super(message, exceptionsThrown.isEmpty() ? null : exceptionsThrown.iterator().next());
-        this.exceptionsThrown = new ArrayList<Throwable>(exceptionsThrown);
-        this.succeededPluginArtifactIds = new ArrayList<String>(succeededPluginArtifactIds);
-        this.pomWarningMessages = new ArrayList<String>(pomWarningMessages);
+        this.exceptionsThrown = new ArrayList<>(exceptionsThrown);
+        this.succeededPluginArtifactIds = new ArrayList<>(succeededPluginArtifactIds);
+        this.pomWarningMessages = new ArrayList<>(pomWarningMessages);
     }
 
     public String getErrorMessage(){

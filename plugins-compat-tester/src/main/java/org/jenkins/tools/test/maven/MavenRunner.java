@@ -11,7 +11,7 @@ public interface MavenRunner {
 
     class Config {
         public File userSettingsFile;
-        public final Map<String,String> userProperties = new TreeMap<String,String>();
+        public final Map<String,String> userProperties = new TreeMap<>();
     }
 
 }

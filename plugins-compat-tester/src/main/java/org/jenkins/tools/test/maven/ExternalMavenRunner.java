@@ -24,7 +24,7 @@ public class ExternalMavenRunner implements MavenRunner {
     }
 
     public void run(Config config, File baseDirectory, File buildLogFile, String... goals) throws PomExecutionException {
-        List<String> cmd = new ArrayList<String>();
+        List<String> cmd = new ArrayList<>();
         cmd.add(mvn.getAbsolutePath());
         cmd.add("--show-version");
         cmd.add("--batch-mode");
@@ -38,7 +38,7 @@ public class ExternalMavenRunner implements MavenRunner {
         System.out.println("running " + cmd + " in " + baseDirectory + " >> " + buildLogFile);
         try {
             Process p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
-            List<String> succeededPluginArtifactIds = new ArrayList<String>();
+            List<String> succeededPluginArtifactIds = new ArrayList<>();
             InputStream is = p.getInputStream();
             try {
                 FileOutputStream os = new FileOutputStream(buildLogFile, true);

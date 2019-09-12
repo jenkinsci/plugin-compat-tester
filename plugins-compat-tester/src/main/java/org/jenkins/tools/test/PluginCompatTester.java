@@ -124,7 +124,7 @@ public class PluginCompatTester {
         // If parent GroupId/Artifact are not null, this will be fast : we will only test
         // against 1 core coordinate
         if(config.getParentGroupId() != null && config.getParentArtifactId() != null){
-            coreCoordinatesToTest = new TreeSet<MavenCoordinates>();
+            coreCoordinatesToTest = new TreeSet<>();
 
             // If coreVersion is not provided in PluginCompatTesterConfig, let's use latest core
             // version used in update center
@@ -170,7 +170,7 @@ public class PluginCompatTester {
         }
 
         // Determine the plugin data
-        HashMap<String,String> pluginGroupIds = new HashMap<String, String>();  // Used to track real plugin groupIds from WARs
+        HashMap<String,String> pluginGroupIds = new HashMap<>();  // Used to track real plugin groupIds from WARs
         
         // Scan bundled plugins
         // If there is any bundled plugin, only these plugins will be taken under the consideration for the PCT run
@@ -292,7 +292,7 @@ public class PluginCompatTester {
                         continue; // Don't do anything : we are in the cached interval ! :-)
                     }
 
-                    List<String> warningMessages = new ArrayList<String>();
+                    List<String> warningMessages = new ArrayList<>();
                     if (errorMessage == null) {
                     try {
                         TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridenPlugins());
@@ -417,7 +417,7 @@ public class PluginCompatTester {
 
 		try {
             // Run any precheckout hooks
-            Map<String, Object> beforeCheckout = new HashMap<String, Object>();
+            Map<String, Object> beforeCheckout = new HashMap<>();
             beforeCheckout.put("pluginName", plugin.name);
             beforeCheckout.put("plugin", plugin);
             beforeCheckout.put("pomData", pomData);
@@ -480,7 +480,7 @@ public class PluginCompatTester {
         FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
         // Ran the BeforeCompileHooks
-        Map<String, Object> beforeCompile = new HashMap<String, Object>();
+        Map<String, Object> beforeCompile = new HashMap<>();
         beforeCompile.put("pluginName", plugin.name);
         beforeCompile.put("plugin", plugin);
         beforeCompile.put("pluginDir", pluginCheckoutDir);
@@ -515,7 +515,7 @@ public class PluginCompatTester {
                 // but continue
             }
 
-            List<String> args = new ArrayList<String>();
+            List<String> args = new ArrayList<>();
             args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=forkCount=1");
             args.add("hpi:resolve-test-dependencies");
@@ -523,7 +523,7 @@ public class PluginCompatTester {
             args.add("surefire:test");
 
             // Run preexecution hooks
-            Map<String, Object> forExecutionHooks = new HashMap<String, Object>();
+            Map<String, Object> forExecutionHooks = new HashMap<>();
             forExecutionHooks.put("pluginName", plugin.name);
             forExecutionHooks.put("args", args);
             forExecutionHooks.put("pomData", pomData);
@@ -612,7 +612,7 @@ public class PluginCompatTester {
         JSONObject plugins = new JSONObject();
         JarFile jf = new JarFile(war);
         if (pluginGroupIds == null) {
-            pluginGroupIds = new HashMap<String, String>();
+            pluginGroupIds = new HashMap<>();
         }
         try {
             Enumeration<JarEntry> entries = jf.entries();
@@ -687,7 +687,7 @@ public class PluginCompatTester {
     }
 
     private SortedSet<MavenCoordinates> coreVersionFromWAR(UpdateSite.Data data) {
-        SortedSet<MavenCoordinates> result = new TreeSet<MavenCoordinates>();
+        SortedSet<MavenCoordinates> result = new TreeSet<>();
         result.add(new MavenCoordinates(PluginCompatTesterConfig.DEFAULT_PARENT_GROUP, PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT, data.core.version));
         return result;
     }
@@ -705,8 +705,8 @@ public class PluginCompatTester {
     private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion, List<PCTPlugin> overridenPlugins) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
-        Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
-        Map<String,VersionNumber> pluginDepsTest = new HashMap<String,VersionNumber>();
+        Map<String,VersionNumber> pluginDeps = new HashMap<>();
+        Map<String,VersionNumber> pluginDepsTest = new HashMap<>();
         try {
             runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
             Reader r = new FileReader(tmp);
@@ -773,10 +773,10 @@ public class PluginCompatTester {
         }
         System.out.println("Analysis: coreDep=" + coreDep + " pluginDeps=" + pluginDeps + " pluginDepsTest=" + pluginDepsTest);
         if (coreDep != null) {
-            Map<String,VersionNumber> toAdd = new HashMap<String,VersionNumber>();
-            Map<String,VersionNumber> toReplace = new HashMap<String,VersionNumber>();
-            Map<String,VersionNumber> toAddTest = new HashMap<String,VersionNumber>();
-            Map<String,VersionNumber> toReplaceTest = new HashMap<String,VersionNumber>();
+            Map<String,VersionNumber> toAdd = new HashMap<>();
+            Map<String,VersionNumber> toReplace = new HashMap<>();
+            Map<String,VersionNumber> toAddTest = new HashMap<>();
+            Map<String,VersionNumber> toReplaceTest = new HashMap<>();
             overridenPlugins.forEach(plugin -> {
                 toReplace.put(plugin.getName(), plugin.getVersion());
                 toReplaceTest.put(plugin.getName(), plugin.getVersion());
@@ -810,7 +810,7 @@ public class PluginCompatTester {
                 }
             }
 
-            List<String> convertFromTestDep = new ArrayList<String>();
+            List<String> convertFromTestDep = new ArrayList<>();
             checkDefinedDeps(pluginDeps, toAdd, toReplace, otherPlugins, new ArrayList<>(pluginDepsTest.keySet()), convertFromTestDep);
             pluginDepsTest.putAll(difference(pluginDepsTest, toAdd));
             pluginDepsTest.putAll(difference(pluginDepsTest, toReplace));
@@ -832,7 +832,7 @@ public class PluginCompatTester {
     }
 
     private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins) {
-        checkDefinedDeps(pluginList, adding, replacing, otherPlugins, new ArrayList<String>(), null);
+        checkDefinedDeps(pluginList, adding, replacing, otherPlugins, new ArrayList<>(), null);
     }
     private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins, List<String> inTest, List<String> toConvertFromTest) {
         for (Map.Entry<String,VersionNumber> pluginDep : pluginList.entrySet()) {
@@ -993,7 +993,7 @@ public class PluginCompatTester {
      * @param toAdd the right map; all returned items are found in this map
      */
     private Map<String, VersionNumber> difference(Map<String, VersionNumber> base, Map<String, VersionNumber> toAdd) {
-        Map<String, VersionNumber> diff = new HashMap<String, VersionNumber>();
+        Map<String, VersionNumber> diff = new HashMap<>();
         for (Map.Entry<String,VersionNumber> adding : toAdd.entrySet()) {
             if (!base.containsKey(adding.getKey())) {
                 diff.put(adding.getKey(), adding.getValue());

@@ -34,7 +34,7 @@ public enum PluginCompatResultDAO {
                     return query;
                 }
 
-                List<String> gavs = new ArrayList<String>(cores.size());
+                List<String> gavs = new ArrayList<>(cores.size());
                 for(MavenCoordinates coord : cores){
                     gavs.add(coord.toGAV());
                 }
@@ -46,7 +46,7 @@ public enum PluginCompatResultDAO {
                     return query;
                 } else {
                     return query.addFilter(Mappings.PluginCompatResultProperties.coreCoordsKey.name(),
-                            Query.FilterOperator.IN, new ArrayList<Key>(coords.keySet()));
+                            Query.FilterOperator.IN, new ArrayList<>(coords.keySet()));
                 }
             }
         }
@@ -79,7 +79,7 @@ public enum PluginCompatResultDAO {
                     return query;
                 } else {
                     return query.addFilter(Mappings.PluginCompatResultProperties.pluginInfosKey.name(),
-                            Query.FilterOperator.IN, new ArrayList<Key>(pluginInfos.keySet()));
+                            Query.FilterOperator.IN, new ArrayList<>(pluginInfos.keySet()));
                 }
             }
         }
@@ -105,7 +105,7 @@ public enum PluginCompatResultDAO {
     private List<Entity> executePaginatedQueries(DatastoreService service, Query query, int limit){
         PreparedQuery pq = service.prepare(query);
         QueryResultList<Entity> qrl = pq.asQueryResultList(FetchOptions.Builder.withLimit(limit));
-        List<Entity> results = new ArrayList<Entity>(qrl);
+        List<Entity> results = new ArrayList<>(qrl);
 
         log.finer("Retrieved "+qrl.size()+" results from query "+query.toString());
         int pageNumber = 1;
@@ -159,7 +159,7 @@ public enum PluginCompatResultDAO {
         List<Entity> coreEntities = executePaginatedQueries(datastore, searchCoresQuery, 1000);
         Map<Key, MavenCoordinates> cores = Mappings.mavenCoordsFromEntity(coreEntities);
 
-        return new TreeSet<MavenCoordinates>(cores.values());
+        return new TreeSet<>(cores.values());
     }
 
     public SortedSet<String> findAllPluginInfoNames(){
@@ -169,7 +169,7 @@ public enum PluginCompatResultDAO {
         List<Entity> pluginInfosEntities = executePaginatedQueries(datastore, searchPluginInfosQuery, 1000);
         Map<Key, PluginInfos> pluginInfos = Mappings.pluginInfosFromEntity(pluginInfosEntities);
 
-        SortedSet<String> names = new TreeSet<String>(new Comparator<String>() {
+        SortedSet<String> names = new TreeSet<>(new Comparator<String>() {
             public int compare(String s, String s1) {
                 return s.compareToIgnoreCase(s1);
             }
@@ -194,7 +194,7 @@ public enum PluginCompatResultDAO {
     }
 
     private List<String> cartesianProductOfCoreAndPlugins(Map<Key, MavenCoordinates> cores, Map<Key, PluginInfos> pluginInfos) {
-        List<String> computedCoreAndPlugins = new ArrayList<String>(cores.values().size() * pluginInfos.values().size());
+        List<String> computedCoreAndPlugins = new ArrayList<>(cores.values().size() * pluginInfos.values().size());
         for(MavenCoordinates coords : cores.values()){
             for(PluginInfos pi : pluginInfos.values()){
                 computedCoreAndPlugins.add(Mappings.computeCoreAndPlugin(coords, pi));

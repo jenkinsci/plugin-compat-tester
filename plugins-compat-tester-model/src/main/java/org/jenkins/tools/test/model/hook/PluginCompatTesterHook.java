@@ -45,7 +45,7 @@ import java.util.Map;
       * Apply this hook to all plugins unless otherwise specified.
       */
      default List<String> transformedPlugins() {
-         return new ArrayList<String>(Collections.singletonList("all"));
+         return new ArrayList<>(Collections.singletonList("all"));
      }
 
      /**

@@ -55,7 +55,7 @@ public class DataImporter {
         String url = baseGAEUrl+"/writePctResult";
 
         HttpPost method = new HttpPost(url);
-        List <NameValuePair> nvps = new ArrayList <NameValuePair>();
+        List <NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("token", securityToken));
         nvps.add(new BasicNameValuePair("pluginName", pluginInfos.pluginName));
         nvps.add(new BasicNameValuePair("pluginVersion", pluginInfos.pluginVersion));

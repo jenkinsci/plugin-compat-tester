@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class DAOUtils {
     public static List<Key> translateToKeyList(List<Entity> entities){
-        List<Key> keys = new ArrayList<Key>(entities.size());
+        List<Key> keys = new ArrayList<>(entities.size());
         for(Entity e : entities){
             keys.add(e.getKey());
         }

@@ -53,7 +53,7 @@ public class Mappings {
         // Transforming warning messages into text
         List<Text> textWarnMsg = null;
         if(result.warningMessages != null){
-            textWarnMsg = new ArrayList<Text>();
+            textWarnMsg = new ArrayList<>();
             for(String warnMsg : result.warningMessages){
                 if(warnMsg == null){
                     textWarnMsg.add(null);
@@ -81,7 +81,7 @@ public class Mappings {
         // Transforming warning messages from text
         List<String> strWarnMsg = null;
         if(warnMsgs != null){
-            strWarnMsg = new ArrayList<String>();
+            strWarnMsg = new ArrayList<>();
             for(Text warnMsg : warnMsgs){
                 if(warnMsg == null){
                     strWarnMsg.add(null);
@@ -114,7 +114,7 @@ public class Mappings {
     }
 
     public static Map<Key, PluginInfos> pluginInfosFromEntity(List<Entity> entities){
-        Map<Key, PluginInfos> pluginInfos = new HashMap<Key, PluginInfos> (entities.size());
+        Map<Key, PluginInfos> pluginInfos = new HashMap<>(entities.size());
         for(Entity e : entities){
             pluginInfos.put(e.getKey(), pluginInfosFromEntity(e));
         }
@@ -135,7 +135,7 @@ public class Mappings {
     }
 
     public static Map<Key, MavenCoordinates> mavenCoordsFromEntity(List<Entity> entities){
-        Map<Key, MavenCoordinates> coords = new HashMap<Key, MavenCoordinates> (entities.size());
+        Map<Key, MavenCoordinates> coords = new HashMap<>(entities.size());
         for(Entity e : entities){
             coords.put(e.getKey(), mavenCoordsFromEntity(e));
         }

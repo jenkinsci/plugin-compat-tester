@@ -24,15 +24,15 @@ import java.util.stream.Collectors;
  */
 
 public class PluginCompatTesterHooks {
-    private List<String> hookPrefixes = new ArrayList<String>();
-    private Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<String, Map<String, Queue<PluginCompatTesterHook>>>();
+    private List<String> hookPrefixes = new ArrayList<>();
+    private Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
 
     /**
      * Create and prepopulate the various hooks for this run of the plugin-compat-tester.
      * 
      */
     public PluginCompatTesterHooks() {
-        this(new ArrayList<String>());
+        this(new ArrayList<>());
     }
     public PluginCompatTesterHooks(List<String> extraPrefixes) {
         if(extraPrefixes != null) {
@@ -65,7 +65,7 @@ public class PluginCompatTesterHooks {
     private Map<String, Object> runHooks(String stage, Map<String, Object> elements) throws RuntimeException {
         String pluginName = (String)elements.get("pluginName");
         // List of hooks to execute for the given plugin
-        Queue<PluginCompatTesterHook> beforeHooks = new LinkedList<PluginCompatTesterHook>();
+        Queue<PluginCompatTesterHook> beforeHooks = new LinkedList<>();
 
         // Add any hooks that apply for all plugins
         if(hooksByType.get(stage).get("all") != null) {
@@ -100,7 +100,7 @@ public class PluginCompatTesterHooks {
     }
 
     private Map<String, Queue<PluginCompatTesterHook>> findHooks(String stage) {
-        Map<String, Queue<PluginCompatTesterHook>> sortedHooks = new HashMap<String, Queue<PluginCompatTesterHook>>();
+        Map<String, Queue<PluginCompatTesterHook>> sortedHooks = new HashMap<>();
         
         // Search for all hooks defined within the given classpath prefix
         for(String prefix : hookPrefixes) {
@@ -128,7 +128,7 @@ public class PluginCompatTesterHooks {
                         .collect(Collectors.toSet());
                     break;
                 default: // Not valid; nothing will get executed
-                    return new HashMap<String, Queue<PluginCompatTesterHook>>();
+                    return new HashMap<>();
             }
             
             for(Class<?> c : subTypes) {
@@ -143,7 +143,7 @@ public class PluginCompatTesterHooks {
                         for (String plugin : plugins) {
                             Queue<PluginCompatTesterHook> allForType = sortedHooks.get(plugin);
                             if (allForType == null) {
-                                allForType = new LinkedList<PluginCompatTesterHook>();
+                                allForType = new LinkedList<>();
                             }
                             allForType.add(hook);
                             sortedHooks.put(plugin, allForType);

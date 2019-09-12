@@ -36,7 +36,7 @@ public class InternalMavenRunner implements MavenRunner {
         } catch (Exception x) {
             throw new PomExecutionException(x);
         }
-        final List<String> succeededPlugins = new ArrayList<String>();
+        final List<String> succeededPlugins = new ArrayList<>();
         try {
             MavenRequest mavenRequest = buildMavenRequest(config, baseDirectory.getAbsolutePath(),
                     config.userSettingsFile == null
