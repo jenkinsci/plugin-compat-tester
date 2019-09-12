@@ -490,7 +490,7 @@ public class PluginCompatTester {
         beforeCompile.put("core", coreCoordinates);
         Map<String, Object> hookInfo = pcth.runBeforeCompilation(beforeCompile);
 
-        boolean ranCompile = hookInfo.containsKey(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) ? (boolean) hookInfo.get(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) : false;
+        boolean ranCompile = hookInfo.containsKey(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) && (boolean) hookInfo.get(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE);
         try {
             // First build against the original POM.
             // This defends against source incompatibilities (which we do not care about for this purpose);

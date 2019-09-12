@@ -61,7 +61,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
             // We need to compile before generating effective pom overriding jenkins.version
             // only if the plugin is not already compiled
-            boolean ranCompile = moreInfo.containsKey(OVERRIDE_DEFAULT_COMPILE) ? (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE) : false;
+            boolean ranCompile = moreInfo.containsKey(OVERRIDE_DEFAULT_COMPILE) && (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE);
             if (!ranCompile) {
                 compile(mavenConfig, pluginDir);
                 moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
