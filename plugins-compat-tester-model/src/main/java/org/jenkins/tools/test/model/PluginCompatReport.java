@@ -54,15 +54,11 @@ public class PluginCompatReport {
 
         List<PluginCompatResult> results = pluginCompatTests.get(infos);
         // Deleting existing result if it exists
-        if(results.contains(result)){
-            results.remove(result);
-        }
+        results.remove(result);
         results.add(result);
 
         // Updating maven testedMavenCoordinates
-        if(!this.testedCoreCoordinates.contains(result.coreCoordinates)){
-            this.testedCoreCoordinates.add(result.coreCoordinates);
-        }
+        this.testedCoreCoordinates.add(result.coreCoordinates);
     }
 
     public void save(File reportPath) throws IOException {
