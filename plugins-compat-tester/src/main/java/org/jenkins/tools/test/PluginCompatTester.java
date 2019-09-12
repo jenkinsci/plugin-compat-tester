@@ -942,7 +942,7 @@ public class PluginCompatTester {
     private static Stream<String> configLines(InputStream is) throws IOException {
         return IOUtils.readLines(is, StandardCharsets.UTF_8).stream().filter(line -> !line.matches("#.*|\\s*"));
     }
-    private static final List<String> HISTORICAL_SPLITS = ImmutableList.of(
+    private static final ImmutableList<String> HISTORICAL_SPLITS = ImmutableList.of(
         "maven-plugin 1.296 1.296",
         "subversion 1.310 1.0",
         "cvs 1.340 0.1",
@@ -960,7 +960,7 @@ public class PluginCompatTester {
         "bouncycastle-api 2.16 2.16.0",
         "command-launcher 2.86 1.0"
     );
-    private static final Set<String> HISTORICAL_SPLIT_CYCLES = ImmutableSet.of(
+    private static final ImmutableSet<String> HISTORICAL_SPLIT_CYCLES = ImmutableSet.of(
         "script-security matrix-auth",
         "script-security windows-slaves",
         "script-security antisamy-markup-formatter",
