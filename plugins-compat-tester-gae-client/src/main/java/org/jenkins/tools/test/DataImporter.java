@@ -112,7 +112,7 @@ public class DataImporter {
         boolean startingBuildLogConstraintVerified = startingBuildLog==null;
         for (Map.Entry<PluginInfos, List<PluginCompatResult>> test : report.getPluginCompatTests().entrySet()){
             for (PluginCompatResult pluginCompatResult : test.getValue()) {
-                if(i >= startingOffset.longValue()){
+                if (i >= startingOffset) {
                     if(startingBuildLog != null && startingBuildLog.equals(pluginCompatResult.getBuildLogPath())){
                         startingBuildLogConstraintVerified = true;
                     }

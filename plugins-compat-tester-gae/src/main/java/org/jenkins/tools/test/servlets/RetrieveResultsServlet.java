@@ -22,7 +22,7 @@ public class RetrieveResultsServlet extends HttpServlet {
 
     private static class PluginMatcherFactory {
         public static PluginCompatResultDAO.PluginMatcher create(HttpServletRequest req){
-            boolean everyPlugins = Boolean.valueOf(req.getParameter("everyPlugins")).booleanValue();
+            boolean everyPlugins = Boolean.parseBoolean(req.getParameter("everyPlugins"));
 
             PluginCompatResultDAO.PluginMatcher pluginMatcher = null;
             if(everyPlugins){
@@ -40,7 +40,7 @@ public class RetrieveResultsServlet extends HttpServlet {
 
     private static class CoreMatcherFactory {
         public static PluginCompatResultDAO.CoreMatcher create(HttpServletRequest req){
-            boolean everyCores = Boolean.valueOf(req.getParameter("everyCores")).booleanValue();
+            boolean everyCores = Boolean.parseBoolean(req.getParameter("everyCores"));
 
             PluginCompatResultDAO.CoreMatcher coreMatcher = null;
             if(everyCores){

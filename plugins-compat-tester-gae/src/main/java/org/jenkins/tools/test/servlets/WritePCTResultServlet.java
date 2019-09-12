@@ -42,7 +42,7 @@ public class WritePCTResultServlet extends HttpServlet {
         if(dateTimestampStr == null){
             date = new Date(); // If date is not set, use NOW
         } else {
-            date = new Date(Long.valueOf(dateTimestampStr));
+            date = new Date(Long.parseLong(dateTimestampStr));
         }
         String buildLogPath = req.getParameter("buildLogPath");
 

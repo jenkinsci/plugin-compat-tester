@@ -107,10 +107,10 @@ public class PluginCompatTesterCli {
             config.setExcludePlugins(Arrays.asList(options.getExcludePlugins().toLowerCase().split(",")));
         }
         if(options.getSkipTestCache() != null){
-            config.setSkipTestCache(Boolean.valueOf(options.getSkipTestCache()).booleanValue());
+            config.setSkipTestCache(Boolean.parseBoolean(options.getSkipTestCache()));
         }
         if(options.getTestCacheTimeout() != null){
-            config.setTestCacheTimeout(options.getTestCacheTimeout().longValue());
+            config.setTestCacheTimeout(options.getTestCacheTimeout());
         }
         if(options.getCacheThresholdStatus() != null){
             config.setCacheThresholStatus(TestStatus.valueOf(options.getCacheThresholdStatus()));
