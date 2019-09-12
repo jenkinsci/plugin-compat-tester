@@ -63,7 +63,7 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
     }
 
     public boolean equals(Object o){
-        if(o==null || !(o instanceof MavenCoordinates)){
+        if (!(o instanceof MavenCoordinates)) {
             return false;
         }
         MavenCoordinates c2 = (MavenCoordinates)o;

@@ -44,7 +44,7 @@ public class PluginInfos implements Comparable<PluginInfos> {
     }
 
     public boolean equals(Object o){
-        if(o==null || !(o instanceof PluginInfos)){
+        if (!(o instanceof PluginInfos)) {
             return false;
         }
         PluginInfos infos = (PluginInfos)o;

@@ -137,8 +137,7 @@ public enum PluginCompatResultDAO {
         Map<Key, PluginInfos> pluginInfos = Mappings.pluginInfosFromEntity(pluginInfoEntities);
 
         Query searchResultsQuery = new Query(Mappings.PluginCompatResultProperties.KIND);
-        if((pluginMatcher == PluginMatcher.All.INSTANCE && coreMatcher == CoreMatcher.All.INSTANCE)
-            || (pluginMatcher == PluginMatcher.All.INSTANCE || coreMatcher == CoreMatcher.All.INSTANCE)){
+        if ((pluginMatcher == PluginMatcher.All.INSTANCE || coreMatcher == CoreMatcher.All.INSTANCE)) {
 
             coreMatcher.enhanceSearchResultQuery(searchResultsQuery, cores);
             pluginMatcher.enhanceSearchResultQuery(searchResultsQuery, pluginInfos);

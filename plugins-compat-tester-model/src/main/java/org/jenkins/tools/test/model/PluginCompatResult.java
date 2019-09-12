@@ -68,7 +68,7 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
     }
 
     public boolean equals(Object o){
-        if(o==null || !(o instanceof PluginCompatResult)){
+        if (!(o instanceof PluginCompatResult)) {
             return false;
         }
         PluginCompatResult res = (PluginCompatResult)o;
