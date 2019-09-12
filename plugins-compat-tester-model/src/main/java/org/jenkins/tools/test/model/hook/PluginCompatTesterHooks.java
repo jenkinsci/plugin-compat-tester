@@ -131,7 +131,7 @@ public class PluginCompatTesterHooks {
                     return new HashMap<String, Queue<PluginCompatTesterHook>>();
             }
             
-            for(Class c : subTypes) {
+            for(Class<?> c : subTypes) {
                 // Ignore abstract hooks
                 if (!Modifier.isAbstract(c.getModifiers())) {
                     try {

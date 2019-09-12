@@ -182,7 +182,7 @@ public class PluginCompatReport {
     }
 
     public SortedSet<MavenCoordinates> getTestedCoreCoordinates() {
-        return new TreeSet(testedCoreCoordinates);
+        return new TreeSet<>(testedCoreCoordinates);
     }
 
 

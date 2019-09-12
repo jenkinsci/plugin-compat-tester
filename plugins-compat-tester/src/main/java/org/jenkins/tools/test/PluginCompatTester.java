@@ -937,7 +937,7 @@ public class PluginCompatTester {
     }
 
     private List<String> removeSplitsBasedOnJDK(List<String> splits, JavaSpecificationVersion jdkVersion) {
-        List<String> filterSplits = new LinkedList();
+        List<String> filterSplits = new LinkedList<>();
         for (String split : splits) {
             String[] tokens = split.trim().split("\\s+");
             if (tokens.length == 4 ) { // We have a jdk field in the splits file
