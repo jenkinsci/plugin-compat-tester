@@ -60,7 +60,7 @@ public class JsonUtil {
                 displayMessage(w, "err", res.errorMessage);
             }
 
-            if(res.warningMessages != null && !"".equals(res.warningMessages)){
+            if(res.warningMessages != null && !res.warningMessages.isEmpty()){
                 w.write(",");
                 displayMessages(w, "warn", res.warningMessages);
             }
