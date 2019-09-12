@@ -2,6 +2,7 @@ package org.jenkins.tools.test.model.hook;
 
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +45,7 @@ import java.util.Map;
       * Apply this hook to all plugins unless otherwise specified.
       */
      default List<String> transformedPlugins() {
-         return new ArrayList<String>(Arrays.asList("all"));
+         return new ArrayList<String>(Collections.singletonList("all"));
      }
 
      /**

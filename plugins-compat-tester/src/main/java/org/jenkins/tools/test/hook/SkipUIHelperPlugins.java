@@ -5,6 +5,7 @@ import org.jenkins.tools.test.model.TestExecutionResult;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
      */
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         moreInfo.put("executionResult", 
-            new TestExecutionResult(Arrays.asList("Plugin unsupported at this time, skipping")));
+            new TestExecutionResult(Collections.singletonList("Plugin unsupported at this time, skipping")));
         moreInfo.put("runCheckout", false);
         return moreInfo;
     }

@@ -130,7 +130,7 @@ public class PluginCompatTesterConfig {
     private String gaeBaseUrl;
  
     // Classpath prefixes of the extra hooks
-    private List<String> hookPrefixes = new ArrayList<String>(Arrays.asList("org.jenkins"));
+    private List<String> hookPrefixes = new ArrayList<String>(Collections.singletonList("org.jenkins"));
 
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
     private File localCheckoutDir;

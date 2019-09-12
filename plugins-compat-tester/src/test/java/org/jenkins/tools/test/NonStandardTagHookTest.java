@@ -28,6 +28,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,7 +139,7 @@ public class NonStandardTagHookTest {
             PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                     new File("../reports/PluginCompatReport.xml"),
                     new ClassPathResource("m2-settings.xml").getFile());
-            config.setIncludePlugins(Arrays.asList("electricflow"));
+            config.setIncludePlugins(Collections.singletonList("electricflow"));
             config.setSkipTestCache(true);
             config.setCacheThresholStatus(TestStatus.TEST_FAILURES);
             config.setTestCacheTimeout(345600000);
