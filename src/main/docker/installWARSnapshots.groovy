@@ -61,7 +61,7 @@ static PluginData readPluginManifest(File sourceHPI) throws IOException {
         def entries = zipFile.entries()
         while (entries.hasMoreElements()) {
             ZipEntry zipEntry = (ZipEntry) entries.nextElement()
-            if (zipEntry.getName().equals("META-INF/MANIFEST.MF")) {
+            if (zipEntry.getName() == "META-INF/MANIFEST.MF") {
                 is = zipFile.getInputStream(zipEntry)
                 def manifest = new Manifest(is)
                 def mainAttribs = manifest.getMainAttributes()
