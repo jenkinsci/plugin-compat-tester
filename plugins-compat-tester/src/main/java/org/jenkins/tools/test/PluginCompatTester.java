@@ -138,7 +138,7 @@ public class PluginCompatTester {
             coreCoordinatesToTest = previousReport.getTestedCoreCoordinates();
         } else {
             throw new IllegalStateException("config.parentGroupId and config.parentArtifactId should either be both null or both filled\n" +
-                    "config.parentGroupId="+String.valueOf(config.getParentGroupId())+", config.parentArtifactId="+String.valueOf(config.getParentArtifactId()));
+                    "config.parentGroupId=" + config.getParentGroupId() + ", config.parentArtifactId=" + config.getParentArtifactId());
         }
 
         return coreCoordinatesToTest;
