@@ -606,7 +606,6 @@ public class PluginCompatTester {
      * @param pluginRegExp The plugin regexp to use, can be used to diferentiate between detached or "normal" plugins
      *                     in the war file
      * @return Update center data
-     * @throws IOException
      */
     private UpdateSite.Data scanWAR(File war, Map<String, String> pluginGroupIds, String pluginRegExp) throws IOException {
         JSONObject top = new JSONObject();
