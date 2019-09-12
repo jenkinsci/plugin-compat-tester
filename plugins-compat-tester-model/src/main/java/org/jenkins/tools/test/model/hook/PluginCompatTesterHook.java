@@ -1,5 +1,10 @@
 package org.jenkins.tools.test.model.hook;
 
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /**
  * The hook interface for creating custom hooks at different points in 
  * the plugin compat tester.
@@ -11,12 +16,6 @@ package org.jenkins.tools.test.model.hook;
  * rather than throwing up its hands in defeat.
  *
  */
-
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
  public interface PluginCompatTesterHook {
 
      /**
