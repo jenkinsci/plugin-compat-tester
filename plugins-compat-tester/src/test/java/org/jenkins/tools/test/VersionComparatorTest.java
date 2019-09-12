@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test;
 
+import com.google.common.collect.ImmutableMap;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
 import org.junit.Test;
 
@@ -41,12 +42,11 @@ import static org.junit.Assert.assertThat;
  */
 public class VersionComparatorTest {
 
-    private static final Map<String, Integer> OPERAND_CONVERSION = new HashMap<String, Integer>() {{
-        put("<", -1);
-        put("=", 0);
-        put(">", 1);
-    }};
-
+    private static final ImmutableMap<String, Integer> OPERAND_CONVERSION = ImmutableMap.of(
+            "<", -1,
+            "=", 0,
+            ">", 1
+    );
 
     private void test(String v1, String operator, String v2){
         test(v1, OPERAND_CONVERSION.get(operator), v2);

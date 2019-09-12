@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test;
 
+import com.google.common.collect.ImmutableList;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.TestStatus;
 import org.junit.After;
@@ -36,8 +37,6 @@ import org.jvnet.hudson.test.Issue;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,10 +62,15 @@ public class PluginCompatTesterTest {
 	public void tearDown() {
 		SCMManagerFactory.getInstance().stop();
 	}
-	
+
 	@Test
 	public void testWithUrl() throws Throwable {
-        List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("accurev"); /*add("active-directory"); add("analysis-collector");*/ }};
+        ImmutableList<String> includedPlugins = ImmutableList.of(
+                "accurev"
+                /* "active-directory",
+                "analysis-collector",
+                "scm-sync-configuration" */
+        );
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                 new File("../reports/PluginCompatReport.xml"),
