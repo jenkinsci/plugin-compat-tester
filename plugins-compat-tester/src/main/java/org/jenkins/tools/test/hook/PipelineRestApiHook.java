@@ -13,8 +13,6 @@ import java.util.logging.Logger;
 
 public class PipelineRestApiHook extends AbstractMultiParentHook {
 
-    private static final Logger LOGGER = Logger.getLogger(PipelineRestApiHook.class.getName());
-
     @Override
     protected String getParentFolder() {
         return "pipeline-stage-view";
