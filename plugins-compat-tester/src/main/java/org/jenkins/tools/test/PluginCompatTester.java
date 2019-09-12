@@ -610,11 +610,10 @@ public class PluginCompatTester {
         JSONObject top = new JSONObject();
         top.put("id", DEFAULT_SOURCE_ID);
         JSONObject plugins = new JSONObject();
-        JarFile jf = new JarFile(war);
-        if (pluginGroupIds == null) {
-            pluginGroupIds = new HashMap<>();
-        }
-        try {
+        try (JarFile jf = new JarFile(war)) {
+            if (pluginGroupIds == null) {
+                pluginGroupIds = new HashMap<>();
+            }
             Enumeration<JarEntry> entries = jf.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
@@ -628,55 +627,45 @@ public class PluginCompatTester {
                     // We do not really care about the value
                     top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", "https://foobar"));
                 }
-                
+
                 m = Pattern.compile(pluginRegExp).matcher(name);
                 if (m.matches()) {
                     JSONObject plugin = new JSONObject().accumulate("url", "");
-                    InputStream is = jf.getInputStream(entry);
-                    try {
-                        JarInputStream jis = new JarInputStream(is);
-                        try {
-                            Manifest manifest = jis.getManifest();
-                            String shortName = manifest.getMainAttributes().getValue("Short-Name");
+                    try (InputStream is = jf.getInputStream(entry); JarInputStream jis = new JarInputStream(is)) {
+                        Manifest manifest = jis.getManifest();
+                        String shortName = manifest.getMainAttributes().getValue("Short-Name");
+                        if (shortName == null) {
+                            shortName = manifest.getMainAttributes().getValue("Extension-Name");
                             if (shortName == null) {
-                                shortName = manifest.getMainAttributes().getValue("Extension-Name");
-                                if (shortName == null) {
-                                    shortName = m.group(1);
-                                }
+                                shortName = m.group(1);
                             }
-                            plugin.put("name", shortName);
-                            pluginGroupIds.put(shortName, manifest.getMainAttributes().getValue("Group-Id"));
-                            String version = manifest.getMainAttributes().getValue("Plugin-Version");
-                            // Remove extra build information from the version number
-                            final Matcher matcher = Pattern.compile("^(.+-SNAPSHOT)(.+)$").matcher(version);
-                            if (matcher.matches()) {
-                                version = matcher.group(1);
-                            }
-                            plugin.put("version", version);
-                            plugin.put("url", "jar:" + war.toURI() + "!/" + name);
-                            JSONArray dependenciesA = new JSONArray();
-                            String dependencies = manifest.getMainAttributes().getValue("Plugin-Dependencies");
-                            if (dependencies != null) {
-                                // e.g. matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
-                                for (String pair : dependencies.split(",")) {
-                                    boolean optional = pair.endsWith("resolution:=optional");
-                                    String[] nameVer = pair.replace(";resolution:=optional", "").split(":");
-                                    assert nameVer.length == 2;
-                                    dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1]).accumulate("optional", String.valueOf(optional)));
-                                }
-                            }
-                            plugin.accumulate("dependencies", dependenciesA);
-                            plugins.put(shortName, plugin);
-                        } finally {
-                            jis.close();
                         }
-                    } finally {
-                        is.close();
+                        plugin.put("name", shortName);
+                        pluginGroupIds.put(shortName, manifest.getMainAttributes().getValue("Group-Id"));
+                        String version = manifest.getMainAttributes().getValue("Plugin-Version");
+                        // Remove extra build information from the version number
+                        final Matcher matcher = Pattern.compile("^(.+-SNAPSHOT)(.+)$").matcher(version);
+                        if (matcher.matches()) {
+                            version = matcher.group(1);
+                        }
+                        plugin.put("version", version);
+                        plugin.put("url", "jar:" + war.toURI() + "!/" + name);
+                        JSONArray dependenciesA = new JSONArray();
+                        String dependencies = manifest.getMainAttributes().getValue("Plugin-Dependencies");
+                        if (dependencies != null) {
+                            // e.g. matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
+                            for (String pair : dependencies.split(",")) {
+                                boolean optional = pair.endsWith("resolution:=optional");
+                                String[] nameVer = pair.replace(";resolution:=optional", "").split(":");
+                                assert nameVer.length == 2;
+                                dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1]).accumulate("optional", String.valueOf(optional)));
+                            }
+                        }
+                        plugin.accumulate("dependencies", dependenciesA);
+                        plugins.put(shortName, plugin);
                     }
                 }
             }
-        } finally {
-            jf.close();
         }
         top.put("plugins", plugins);
         if (!top.has("core")) {
@@ -709,8 +698,7 @@ public class PluginCompatTester {
         Map<String,VersionNumber> pluginDepsTest = new HashMap<>();
         try {
             runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
-            Reader r = new FileReader(tmp);
-            try {
+            try (Reader r = new FileReader(tmp)) {
                 BufferedReader br = new BufferedReader(r);
                 Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(provided|compile|runtime|system)");
                 Pattern p2 = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(test)");
@@ -765,8 +753,6 @@ public class PluginCompatTester {
                         }
                     }
                 }
-            } finally {
-                r.close();
             }
         } finally {
             tmp.delete();
