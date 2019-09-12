@@ -4,6 +4,7 @@ import org.apache.commons.codec.binary.Base64;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.*;
 
 /**
@@ -15,7 +16,7 @@ public class IOUtils {
         StringWriter sw = new StringWriter();
         char[] buffer = new char[1024];
         try {
-            Reader r = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            Reader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             int n;
             while((n = r.read(buffer)) != -1){
                 sw.write(buffer, 0, n);
@@ -27,7 +28,7 @@ public class IOUtils {
     }
 
     public static String gunzipString(String strToUncompress) throws IOException, ClassNotFoundException {
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(Base64.decodeBase64(strToUncompress.getBytes("UTF-8")));
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(Base64.decodeBase64(strToUncompress.getBytes(StandardCharsets.UTF_8)));
         GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
         ObjectInputStream ois = new ObjectInputStream(gzipInputStream);
 
@@ -41,7 +42,7 @@ public class IOUtils {
     }
 
     public static String gzipString(String strToCompress) throws IOException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(strToCompress.getBytes("UTF-8"));
+        ByteArrayInputStream bais = new ByteArrayInputStream(strToCompress.getBytes(StandardCharsets.UTF_8));
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         GZIPOutputStream gzipOutputStream = new GZIPOutputStream(baos);
@@ -55,6 +56,6 @@ public class IOUtils {
         bais.close();
         baos.close();
 
-        return new String(Base64.encodeBase64(baos.toByteArray()), "UTF-8");
+        return new String(Base64.encodeBase64(baos.toByteArray()), StandardCharsets.UTF_8);
     }
 }
