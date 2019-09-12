@@ -7,6 +7,7 @@ import org.jenkins.tools.test.model.*;
 import org.jenkins.tools.test.model.utils.IOUtils;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
@@ -168,7 +169,7 @@ public class Mappings {
         try {
             logContent = IOUtils.gunzipString(compressedLogContent);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
