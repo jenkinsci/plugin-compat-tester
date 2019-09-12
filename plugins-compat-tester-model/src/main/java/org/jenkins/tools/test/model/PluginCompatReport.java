@@ -163,8 +163,7 @@ public class PluginCompatReport {
 
         // Ensuring we are using a TreeMap for pluginCompatTests
         if(!(report.pluginCompatTests instanceof SortedMap)){
-            TreeMap<PluginInfos, List<PluginCompatResult>> sortedMap = new TreeMap<PluginInfos, List<PluginCompatResult>>(report.pluginCompatTests);
-            report.pluginCompatTests = sortedMap;
+            report.pluginCompatTests = new TreeMap<PluginInfos, List<PluginCompatResult>>(report.pluginCompatTests);
         }
 
         return report;

@@ -149,9 +149,8 @@ public enum PluginCompatResultDAO {
                     Query.FilterOperator.IN, cartesianProductOfCoreAndPlugins(cores, pluginInfos));
         }
         List<Entity> results = executePaginatedQueries(datastore, searchResultsQuery, 1000);
-        PluginCompatReport report = Mappings.pluginCompatReportFromResultsEntities(results, cores, pluginInfos);
 
-        return report;
+        return Mappings.pluginCompatReportFromResultsEntities(results, cores, pluginInfos);
     }
 
     public SortedSet<MavenCoordinates> findAllCores(){

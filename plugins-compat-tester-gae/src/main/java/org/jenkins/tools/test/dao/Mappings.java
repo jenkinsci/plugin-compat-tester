@@ -91,8 +91,7 @@ public class Mappings {
             }
         }
 
-        PluginCompatResult result = new PluginCompatResult(coreCoords, status, errMsgStr, strWarnMsg, buildLogPathStr, compatTestExecutedOn);
-        return result;
+        return new PluginCompatResult(coreCoords, status, errMsgStr, strWarnMsg, buildLogPathStr, compatTestExecutedOn);
     }
 
     public static String computeCoreAndPlugin(MavenCoordinates coreCoords, PluginInfos pluginInfos){
@@ -108,11 +107,10 @@ public class Mappings {
     }
 
     public static PluginInfos pluginInfosFromEntity(Entity entity){
-        PluginInfos infos = new PluginInfos(
+        return new PluginInfos(
                 (String)entity.getProperty(PluginInfosProperties.pluginName.name()),
                 (String)entity.getProperty(PluginInfosProperties.pluginVersion.name()),
                 (String)entity.getProperty(PluginInfosProperties.pluginUrl.name()));
-        return infos;
     }
 
     public static Map<Key, PluginInfos> pluginInfosFromEntity(List<Entity> entities){
@@ -133,8 +131,7 @@ public class Mappings {
     }
 
     public static MavenCoordinates mavenCoordsFromEntity(Entity entity){
-        MavenCoordinates coords = MavenCoordinates.fromGAV((String)entity.getProperty(MavenCoordinatesProperties.gav.name()));
-        return coords;
+        return MavenCoordinates.fromGAV((String) entity.getProperty(MavenCoordinatesProperties.gav.name()));
     }
 
     public static Map<Key, MavenCoordinates> mavenCoordsFromEntity(List<Entity> entities){
