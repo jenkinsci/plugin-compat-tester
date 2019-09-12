@@ -26,7 +26,7 @@ import java.util.Map;
       *
       * Always run this hook unless otherwise specified.
       */
-     default boolean check(Map<String, Object> info) throws Exception {
+     default boolean check(Map<String, Object> info) {
          return true;
      }
 
@@ -51,5 +51,5 @@ import java.util.Map;
      /**
       * Check that the object used for this hook. 
       */
-     void validate(Map<String, Object> toCheck) throws Exception;
+     void validate(Map<String, Object> toCheck);
  }

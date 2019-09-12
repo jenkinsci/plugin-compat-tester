@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class PluginCompatTesterCli {
 
-    public static void main(String[] args) throws IOException, PlexusContainerException, MavenEmbedderException {
+    public static void main(String[] args) throws IOException, PlexusContainerException {
         CliOptions options = new CliOptions();
         JCommander jcommander = null;
         try {

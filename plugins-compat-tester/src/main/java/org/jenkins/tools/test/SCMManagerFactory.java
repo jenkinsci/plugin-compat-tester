@@ -61,7 +61,7 @@ public class SCMManagerFactory {
 		return (ScmManager)this.plexus.lookup(ScmManager.ROLE);
 	}
 	
-	public void stop() throws Exception {
+	public void stop() {
 		this.plexus.dispose();
 		this.plexus = null;
 	}

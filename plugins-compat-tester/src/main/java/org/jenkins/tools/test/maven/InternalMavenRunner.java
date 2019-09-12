@@ -21,7 +21,7 @@ public class InternalMavenRunner implements MavenRunner {
 
     private MavenEmbedder embedder;
 
-    private void init(Config config) throws IOException, MavenEmbedderException {
+    private void init(Config config) throws MavenEmbedderException {
         if (embedder != null) {
             return;
         }
@@ -83,9 +83,7 @@ public class InternalMavenRunner implements MavenRunner {
         }
     }
 
-    private static MavenRequest buildMavenRequest(Config config, String rootDir,String settingsPath)
-        throws IOException
-    {
+    private static MavenRequest buildMavenRequest(Config config, String rootDir,String settingsPath) {
 
         MavenRequest mavenRequest = new MavenRequest();
 

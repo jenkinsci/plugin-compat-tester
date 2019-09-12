@@ -145,8 +145,7 @@ public class PluginCompatTester {
     }
 
 	public PluginCompatReport testPlugins()
-        throws PlexusContainerException, IOException, MavenEmbedderException
-    {
+        throws PlexusContainerException, IOException {
         File war = config.getWar();
         if (war != null) {
             populateSplits(war);
@@ -404,7 +403,7 @@ public class PluginCompatTester {
     }
 
     private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, PluginCompatTesterHooks pcth, List<PCTPlugin> overridenPlugins)
-        throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
+        throws PluginSourcesUnavailableException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
         System.out.println("#############################################");

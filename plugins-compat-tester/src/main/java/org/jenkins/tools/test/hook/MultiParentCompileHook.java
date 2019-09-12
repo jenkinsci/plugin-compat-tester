@@ -78,12 +78,12 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     }
 
     @Override
-    public void validate(Map<String, Object> toCheck) throws Exception {
+    public void validate(Map<String, Object> toCheck) {
 
     }
 
     @Override
-    public boolean check(Map<String, Object> info) throws Exception {
+    public boolean check(Map<String, Object> info) {
         return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info) || StructsHook.isStructsPlugin(info) ||
         SwarmHook.isSwarmPlugin(info) || ConfigurationAsCodeHook.isCascPlugin(info) || PipelineRestApiHook.isPipelineStageViewPlugin(info);
     }
@@ -118,7 +118,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         runner.run(mavenConfig, path, compilePomLogfile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
     }
 
-    private void removeNodeFolders(File path) throws PomExecutionException, IOException {
+    private void removeNodeFolders(File path) throws IOException {
         File nodeFolder = new File(path, "node");
         if (nodeFolder.exists() && nodeFolder.isDirectory()) {
             FileUtils.deleteDirectory(nodeFolder);

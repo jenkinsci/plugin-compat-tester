@@ -61,7 +61,7 @@ public class RetrieveResultsServlet extends HttpServlet {
         }
     }
 
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         PluginCompatReport report = PluginCompatResultDAO.INSTANCE.search(
                 PluginMatcherFactory.create(request), CoreMatcherFactory.create(request));

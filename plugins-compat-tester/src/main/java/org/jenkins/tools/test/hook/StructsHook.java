@@ -28,7 +28,7 @@ public class StructsHook extends AbstractMultiParentHook {
     }
 
     @Override
-    public boolean check(Map<String, Object> info) throws Exception {
+    public boolean check(Map<String, Object> info) {
         return isStructsPlugin(info);
     }
 

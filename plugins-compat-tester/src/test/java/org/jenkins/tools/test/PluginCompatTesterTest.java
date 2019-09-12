@@ -60,7 +60,7 @@ public class PluginCompatTesterTest {
 	}
 	
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SCMManagerFactory.getInstance().stop();
 	}
 	
@@ -84,7 +84,7 @@ public class PluginCompatTesterTest {
 	}
 
 	@Test
-	public void testMatcher() throws Throwable {
+	public void testMatcher() {
 
 		String fileName = "WEB-INF/lib/jenkins-core-2.7.3-alpha-33.jar";
 		Matcher m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
@@ -183,7 +183,7 @@ public class PluginCompatTesterTest {
 
 	@Test
 	@Issue("JENKINS-50454")
-	public void testCustomWarPackagerVersions() throws Throwable {
+	public void testCustomWarPackagerVersions() {
 	//TODO: needs more filtering
 		String fileName = "WEB-INF/lib/jenkins-core-256.0-my-branch-2090468d82e49345519a2457f1d1e7426f01540b-SNAPSHOT.jar";
 		Matcher m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);

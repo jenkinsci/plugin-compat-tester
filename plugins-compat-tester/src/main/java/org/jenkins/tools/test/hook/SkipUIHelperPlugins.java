@@ -35,7 +35,7 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
      * Create a TestExecution result preventing forward movement.
      * Also, indicates that we should skip the checkout completely.
      */
-    public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
+    public Map<String, Object> action(Map<String, Object> moreInfo) {
         moreInfo.put("executionResult", 
             new TestExecutionResult(Collections.singletonList("Plugin unsupported at this time, skipping")));
         moreInfo.put("runCheckout", false);

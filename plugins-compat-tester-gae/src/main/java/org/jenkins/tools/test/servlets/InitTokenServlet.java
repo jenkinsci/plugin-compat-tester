@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class InitTokenServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         SecurityTokenDAO.INSTANCE.initializeUniqueToken();
         resp.getWriter().println("Token generated successfully !");
     }

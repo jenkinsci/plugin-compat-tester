@@ -51,7 +51,7 @@ public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
     }
 
     @Override
-    public boolean check(Map<String, Object> info) throws Exception {
+    public boolean check(Map<String, Object> info) {
         UpdateSite.Plugin plugin = (UpdateSite.Plugin) info.get("plugin");
         boolean definedPlugin = affectedPlugins.containsKey(plugin.name);
         String minimumVersion= affectedPlugins.getProperty(plugin.name + MINIMUM_VERSION_SUFFIX);

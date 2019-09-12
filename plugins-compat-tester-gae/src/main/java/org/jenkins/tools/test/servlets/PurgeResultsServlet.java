@@ -13,7 +13,7 @@ import java.io.IOException;
  * @author fcamblor
  */
 public class PurgeResultsServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // Current servlet is secured !
         SecuritySupport.ensureTokenIsValid(request);
 

@@ -12,7 +12,7 @@ import java.io.IOException;
  * @author fcamblor
  */
 public class RetrieveBuildLogServlet extends HttpServlet {
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String buildLogPath = request.getParameter("buildLogPath");
 
         String logContent = LogsDAO.INSTANCE.getLogContent(buildLogPath);
