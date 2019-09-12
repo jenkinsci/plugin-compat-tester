@@ -1,6 +1,5 @@
 package org.jenkins.tools.test;
 
-import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -17,6 +16,8 @@ import org.jenkins.tools.test.model.utils.IOUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,7 @@ public class DataImporter {
             }
         }
         if(pluginCompatResult.getBuildLogPath() != null && !"".equals(pluginCompatResult.getBuildLogPath())){
-            String logContent = Files.toString(new File(logsBaseDir.getAbsolutePath()+File.separator+pluginCompatResult.getBuildLogPath()), Charset.forName("UTF-8"));
+            String logContent = new String(Files.readAllBytes(Paths.get(logsBaseDir.getAbsolutePath() + File.separator + pluginCompatResult.getBuildLogPath())), Charset.forName("UTF-8"));
             logContent = logContent.trim();
             // Only uploading non empty files
             if(!"".equals(logContent)){
