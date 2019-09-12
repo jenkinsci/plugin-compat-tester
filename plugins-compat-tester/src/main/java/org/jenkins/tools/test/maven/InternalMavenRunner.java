@@ -117,7 +117,7 @@ public class InternalMavenRunner implements MavenRunner {
                     throw (OutOfMemoryError)t;
                 }
             }
-            throw new PomExecutionException("Error while executing pom goals : "+ mavenRequest.getGoals(), Collections.<String>emptyList(), result.getExceptions(), Collections.<String>emptyList());
+            throw new PomExecutionException("Error while executing pom goals : "+ mavenRequest.getGoals(), Collections.emptyList(), result.getExceptions(), Collections.emptyList());
         }
     }
 

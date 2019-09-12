@@ -43,7 +43,7 @@ public class PomExecutionException extends Exception {
     private final List<String> pomWarningMessages;
 
     public PomExecutionException(Throwable cause) {
-        this(cause.toString(), Collections.<String>emptyList(), Collections.singletonList(cause), Collections.<String>emptyList());
+        this(cause.toString(), Collections.emptyList(), Collections.singletonList(cause), Collections.emptyList());
     }
 
     public PomExecutionException(PomExecutionException exceptionToCopy){
