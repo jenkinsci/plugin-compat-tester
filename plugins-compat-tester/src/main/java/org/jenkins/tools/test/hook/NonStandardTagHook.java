@@ -48,7 +48,6 @@ public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
             System.err.println("WARNING: NonStandardTagHook was not able to load affected plugins, the hook will do nothing");
             e.printStackTrace();
         }
-        ;
     }
 
     @Override

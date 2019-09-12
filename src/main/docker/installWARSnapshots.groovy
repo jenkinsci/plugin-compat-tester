@@ -11,7 +11,7 @@ class PluginData {
 static void installPluginSnapshots(File directory, File explodeDir, File mavenSettings = null, String javaOpts="") throws IOException {
     def plugins = directory.listFiles()
     if (plugins == null) {
-        return;
+        return
     }
 
     explodeDir.mkdirs()
@@ -29,9 +29,9 @@ static void installLocally(File plugin, File tmpDir, File mavenSettings = null, 
         return
     }
     println "Installing SNAPSHOT for ${pluginData.artifactId}:${pluginData.version}"
-    execOrFail("unzip -q ${plugin.absolutePath} -d ${tmpDir.absolutePath}");
+    execOrFail("unzip -q ${plugin.absolutePath} -d ${tmpDir.absolutePath}")
 
-    String mvnSettingsArg = mavenSettings != null ? "-s ${mavenSettings.absolutePath}" : "";
+    String mvnSettingsArg = mavenSettings != null ? "-s ${mavenSettings.absolutePath}" : ""
     execOrFail("mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file " +
         "--batch-mode ${javaOpts} ${mvnSettingsArg} " +
         "-Dfile=${plugin.absolutePath}")
@@ -65,11 +65,11 @@ static PluginData readPluginManifest(File sourceHPI) throws IOException {
                 is = zipFile.getInputStream(zipEntry)
                 def manifest = new Manifest(is)
                 def mainAttribs = manifest.getMainAttributes()
-                PluginData res = new PluginData();
+                PluginData res = new PluginData()
                 res.version = mainAttribs.getValue("Plugin-Version").split("\\s+")[0]
                 res.groupId = mainAttribs.getValue("Group-Id")
                 res.artifactId = mainAttribs.getValue("Short-Name")
-                return res;
+                return res
             }
         }
     } finally {

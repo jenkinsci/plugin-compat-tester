@@ -25,7 +25,7 @@ static String readManifest(String sourceJARFile, String attributeName) throws IO
         zipFile.close()
     }
 
-    throw new IllegalStateException("Manifest not found in" + sourceJARFile);
+    throw new IllegalStateException("Manifest not found in" + sourceJARFile)
 }
 
 println readManifest(this.args[0], this.args.length > 1 ? this.args[1] : "Jenkins-Version")

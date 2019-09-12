@@ -23,7 +23,7 @@ public class Mappings {
         public static final String KIND = "pluginInfos";
     }
     public static enum MavenCoordinatesProperties {
-        gav, groupId, artifactId, version;
+        gav, groupId, artifactId, version
     }
     public static final String CORE_MAVEN_COORDS_KIND = "coreCoordinates";
     public static enum LogProperties {
