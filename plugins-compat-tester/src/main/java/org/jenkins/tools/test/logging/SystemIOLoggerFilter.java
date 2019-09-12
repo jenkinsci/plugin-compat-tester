@@ -59,26 +59,31 @@ public class SystemIOLoggerFilter extends PrintStream {
             this.systemIO = systemIO;
         }
 
+        @Override
         public void write(int b) {
             loggerFilter.write(b);
             systemIO.write(b);
         }
 
+        @Override
         public void write(byte[] b, int off, int len) {
             loggerFilter.write(b, off, len);
             systemIO.write(b, off, len);
         }
 
+        @Override
         public void flush() {
             loggerFilter.flush();
             systemIO.flush();
         }
 
+        @Override
         public void close() {
             loggerFilter.close();
             systemIO.close();
         }
 
+        @Override
         public PrintStream format(Locale l, String format, Object... args) {
             loggerFilter.format(l, format, args);
             return systemIO.format(l, format, args);

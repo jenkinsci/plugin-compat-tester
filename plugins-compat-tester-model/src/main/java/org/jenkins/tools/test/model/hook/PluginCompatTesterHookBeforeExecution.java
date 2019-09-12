@@ -16,6 +16,7 @@ public abstract class PluginCompatTesterHookBeforeExecution implements PluginCom
      *  + args - the arguments with which to run `mvn test`
      *  + pomData - if the plugin should be checked out again
      */
+    @Override
     public void validate(Map<String, Object> toCheck) {
         if((toCheck.get("args") != null && 
             toCheck.get("args") instanceof String) &&

@@ -62,6 +62,7 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
         return value.trim();
     }
 
+    @Override
     public boolean equals(Object o){
         if (!(o instanceof MavenCoordinates)) {
             return false;
@@ -70,10 +71,12 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
         return new EqualsBuilder().append(groupId, c2.groupId).append(artifactId, c2.artifactId).append(version, c2.version).isEquals();
     }
 
+    @Override
     public int hashCode(){
         return new HashCodeBuilder().append(groupId).append(artifactId).append(version).toHashCode();
     }
 
+    @Override
     public String toString(){
         return "MavenCoordinates[groupId="+groupId+", artifactId="+artifactId+", version="+version+"]";
     }
@@ -87,6 +90,7 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
         return new MavenCoordinates(chunks[0], chunks[1], chunks[2]);
     }
 
+    @Override
     public int compareTo(MavenCoordinates o) {
         if((groupId+":"+artifactId).equals(o.groupId+":"+o.artifactId)){
             return compareVersionTo(o.version);

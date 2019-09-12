@@ -17,6 +17,7 @@ import java.util.SortedSet;
  * @author fcamblor
  */
 public class DataProviderServlet extends HttpServlet {
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String type = request.getParameter("type");
 

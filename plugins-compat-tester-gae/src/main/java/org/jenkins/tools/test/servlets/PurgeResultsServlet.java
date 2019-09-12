@@ -13,6 +13,7 @@ import java.io.IOException;
  * @author fcamblor
  */
 public class PurgeResultsServlet extends HttpServlet {
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // Current servlet is secured !
         SecuritySupport.ensureTokenIsValid(request);

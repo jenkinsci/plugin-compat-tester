@@ -67,6 +67,7 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
         this.compatTestExecutedOn = compatTestExecutedOn;
     }
 
+    @Override
     public boolean equals(Object o){
         if (!(o instanceof PluginCompatResult)) {
             return false;
@@ -75,10 +76,12 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
         return new EqualsBuilder().append(coreCoordinates, res.coreCoordinates).isEquals();
     }
 
+    @Override
     public int hashCode(){
         return new HashCodeBuilder().append(coreCoordinates).toHashCode();
     }
 
+    @Override
     public int compareTo(PluginCompatResult o) {
         return coreCoordinates.compareTo(o.coreCoordinates);
     }

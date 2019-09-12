@@ -23,6 +23,7 @@ public class ExternalMavenRunner implements MavenRunner {
         this.mvn = mvn;
     }
 
+    @Override
     public void run(Config config, File baseDirectory, File buildLogFile, String... goals) throws PomExecutionException {
         List<String> cmd = new ArrayList<>();
         cmd.add(mvn.getAbsolutePath());

@@ -19,8 +19,16 @@ public enum PluginCompatResultDAO {
 
         enum All implements CoreMatcher {
             INSTANCE;
-            public Query enhanceSearchCoreQuery(Query query){ return query; }
-            public Query enhanceSearchResultQuery(Query query, Map<Key, MavenCoordinates> coords){ return query; }
+
+            @Override
+            public Query enhanceSearchCoreQuery(Query query) {
+                return query;
+            }
+
+            @Override
+            public Query enhanceSearchResultQuery(Query query, Map<Key, MavenCoordinates> coords) {
+                return query;
+            }
         }
 
         class Parameterized implements CoreMatcher {
@@ -29,6 +37,7 @@ public enum PluginCompatResultDAO {
                 this.cores = cores;
             }
 
+            @Override
             public Query enhanceSearchCoreQuery(Query query){
                 if(this.cores.size() == 0){
                     return query;
@@ -41,6 +50,7 @@ public enum PluginCompatResultDAO {
                 return query.addFilter(Mappings.MavenCoordinatesProperties.gav.name(), Query.FilterOperator.IN, gavs);
             }
 
+            @Override
             public Query enhanceSearchResultQuery(Query query, Map<Key, MavenCoordinates> coords){
                 if(coords.size() == 0){
                     return query;
@@ -58,24 +68,37 @@ public enum PluginCompatResultDAO {
 
         enum All implements PluginMatcher {
             INSTANCE;
-            public Query enhanceSearchPluginQuery(Query query){ return query; }
-            public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos){ return query; }
+
+            @Override
+            public Query enhanceSearchPluginQuery(Query query) {
+                return query;
+            }
+
+            @Override
+            public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos) {
+                return query;
+            }
         }
 
         class Parameterized implements PluginMatcher {
             private List<String> pluginNames;
-            public Parameterized(List<String> pluginNames){
+
+            public Parameterized(List<String> pluginNames) {
                 this.pluginNames = pluginNames;
             }
-            public Query enhanceSearchPluginQuery(Query query){
-                if(this.pluginNames.size() == 0){
+
+            @Override
+            public Query enhanceSearchPluginQuery(Query query) {
+                if (this.pluginNames.size() == 0) {
                     return query;
                 }
 
                 return query.addFilter(Mappings.PluginInfosProperties.pluginName.name(), Query.FilterOperator.IN, pluginNames);
             }
-            public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos){
-                if(pluginInfos.size() == 0){
+
+            @Override
+            public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos) {
+                if (pluginInfos.size() == 0) {
                     return query;
                 } else {
                     return query.addFilter(Mappings.PluginCompatResultProperties.pluginInfosKey.name(),

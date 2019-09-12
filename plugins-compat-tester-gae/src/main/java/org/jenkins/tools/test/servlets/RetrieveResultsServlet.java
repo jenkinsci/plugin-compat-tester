@@ -61,6 +61,7 @@ public class RetrieveResultsServlet extends HttpServlet {
         }
     }
 
+    @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         PluginCompatReport report = PluginCompatResultDAO.INSTANCE.search(

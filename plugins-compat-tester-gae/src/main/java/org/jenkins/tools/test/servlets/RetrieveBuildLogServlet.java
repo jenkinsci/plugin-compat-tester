@@ -12,6 +12,7 @@ import java.io.IOException;
  * @author fcamblor
  */
 public class RetrieveBuildLogServlet extends HttpServlet {
+    @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String buildLogPath = request.getParameter("buildLogPath");
 

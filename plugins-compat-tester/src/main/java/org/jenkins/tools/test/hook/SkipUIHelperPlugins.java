@@ -26,6 +26,7 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
 
     public SkipUIHelperPlugins() {}
 
+    @Override
     public List<String> transformedPlugins() {
         return allBundlePlugins;
     }
@@ -35,6 +36,7 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
      * Create a TestExecution result preventing forward movement.
      * Also, indicates that we should skip the checkout completely.
      */
+    @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) {
         moreInfo.put("executionResult", 
             new TestExecutionResult(Collections.singletonList("Plugin unsupported at this time, skipping")));
