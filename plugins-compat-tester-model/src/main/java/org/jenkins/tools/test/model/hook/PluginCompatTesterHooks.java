@@ -164,6 +164,6 @@ public class PluginCompatTesterHooks {
      * Gets around generics error: {@code incompatible types: inference variable T has incompatible bounds}
      */
     private Class<? extends PluginCompatTesterHook> casting(Class<? extends PluginCompatTesterHook> c) {
-        return (Class<? extends PluginCompatTesterHook>)c;
+        return c;
     }
 }

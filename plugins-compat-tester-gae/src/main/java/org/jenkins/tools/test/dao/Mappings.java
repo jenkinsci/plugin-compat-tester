@@ -68,7 +68,7 @@ public class Mappings {
 
     public static PluginCompatResult pluginCompatResultFromEntity(Entity entity, Map<Key, MavenCoordinates> cores) {
 
-        MavenCoordinates coreCoords = cores.get((Key)entity.getProperty(PluginCompatResultProperties.coreCoordsKey.name()));
+        MavenCoordinates coreCoords = cores.get(entity.getProperty(PluginCompatResultProperties.coreCoordsKey.name()));
         TestStatus status = TestStatus.valueOf((String)entity.getProperty(PluginCompatResultProperties.status.name()));
         Date compatTestExecutedOn = (Date)entity.getProperty(PluginCompatResultProperties.compatTestExecutedOn.name());
         String buildLogPathStr = (String)entity.getProperty(PluginCompatResultProperties.buildLogPath.name());
@@ -146,7 +146,7 @@ public class Mappings {
         PluginCompatReport report = new PluginCompatReport();
         for(Entity e : results){
             PluginCompatResult result = pluginCompatResultFromEntity(e, cores);
-            PluginInfos pi = pluginInfos.get((Key)e.getProperty(PluginCompatResultProperties.pluginInfosKey.name()));
+            PluginInfos pi = pluginInfos.get(e.getProperty(PluginCompatResultProperties.pluginInfosKey.name()));
 
             report.add(pi, result);
         }
