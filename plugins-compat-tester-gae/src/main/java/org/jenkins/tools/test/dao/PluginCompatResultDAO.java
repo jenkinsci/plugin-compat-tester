@@ -169,7 +169,7 @@ public enum PluginCompatResultDAO {
         List<Entity> pluginInfosEntities = executePaginatedQueries(datastore, searchPluginInfosQuery, 1000);
         Map<Key, PluginInfos> pluginInfos = Mappings.pluginInfosFromEntity(pluginInfosEntities);
 
-        SortedSet<String> names = new TreeSet<>((s, s1) -> s.compareToIgnoreCase(s1));
+        SortedSet<String> names = new TreeSet<>(String::compareToIgnoreCase);
         for(PluginInfos pi : pluginInfos.values()){
             names.add(pi.pluginName);
         }

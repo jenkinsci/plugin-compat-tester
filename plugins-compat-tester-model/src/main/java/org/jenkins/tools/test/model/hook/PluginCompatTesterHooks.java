@@ -112,19 +112,19 @@ public class PluginCompatTesterHooks {
                 case "compilation" : 
                     Set<Class<? extends PluginCompatTesterHookBeforeCompile>> compSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCompile.class); 
                     subTypes = compSteps.stream()
-                        .map(elt -> casting(elt))
+                        .map(this::casting)
                         .collect(Collectors.toSet());
                     break;
                 case "execution" : 
                     Set<Class<? extends PluginCompatTesterHookBeforeExecution>> exeSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeExecution.class); 
                     subTypes = exeSteps.stream()
-                        .map(elt -> casting(elt))
+                        .map(this::casting)
                         .collect(Collectors.toSet());
                     break;
                 case "checkout" : 
                     Set<Class<? extends PluginCompatTesterHookBeforeCheckout>> checkSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCheckout.class); 
                     subTypes = checkSteps.stream()
-                        .map(elt -> casting(elt))
+                        .map(this::casting)
                         .collect(Collectors.toSet());
                     break;
                 default: // Not valid; nothing will get executed
