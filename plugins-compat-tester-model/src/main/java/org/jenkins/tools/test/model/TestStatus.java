@@ -32,7 +32,7 @@ package org.jenkins.tools.test.model;
 public enum TestStatus {
     INTERNAL_ERROR(0.0), COMPILATION_ERROR(1.0), TEST_FAILURES(2.0), SUCCESS(3.0);
 
-    private double weight;
+    private final double weight;
 
     TestStatus(double weight){
         this.weight = weight;
