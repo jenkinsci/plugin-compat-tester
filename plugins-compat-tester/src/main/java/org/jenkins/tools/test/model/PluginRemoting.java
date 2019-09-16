@@ -26,7 +26,6 @@
 package org.jenkins.tools.test.model;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.filters.StringInputStream;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
@@ -138,7 +137,7 @@ public class PluginRemoting {
 
             String parentNode = xpath.evaluate("/project/parent", doc);
             if (StringUtils.isNotBlank(parentNode)) {
-                LOGGER.log(Level.INFO, parentNode.toString());
+                LOGGER.log(Level.INFO, parentNode);
                 parent = new MavenCoordinates(
                         getValueOrFail(doc, xpath, "/project/parent/groupId"),
                         getValueOrFail(doc, xpath, "/project/parent/artifactId"),

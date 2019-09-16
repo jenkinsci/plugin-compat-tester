@@ -1,7 +1,6 @@
 package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
-import hudson.util.VersionNumber;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
@@ -16,7 +15,6 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +46,10 @@ public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
             System.err.println("WARNING: NonStandardTagHook was not able to load affected plugins, the hook will do nothing");
             e.printStackTrace();
         }
-        ;
     }
 
     @Override
-    public boolean check(Map<String, Object> info) throws Exception {
+    public boolean check(Map<String, Object> info) {
         UpdateSite.Plugin plugin = (UpdateSite.Plugin) info.get("plugin");
         boolean definedPlugin = affectedPlugins.containsKey(plugin.name);
         String minimumVersion= affectedPlugins.getProperty(plugin.name + MINIMUM_VERSION_SUFFIX);

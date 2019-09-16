@@ -32,6 +32,7 @@ import java.util.Comparator;
  * @author Frederic Camblor
  */
 public class VersionComparator implements Comparator<String> {
+    @Override
     public int compare(String o1, String o2) {
 
         String[] splitO1Version = o1.split("\\.|-");

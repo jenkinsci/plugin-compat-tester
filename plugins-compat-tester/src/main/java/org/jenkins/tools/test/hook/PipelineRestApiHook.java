@@ -4,16 +4,10 @@ package org.jenkins.tools.test.hook;
 import org.jenkins.tools.test.model.PomData;
 import hudson.model.UpdateSite;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class PipelineRestApiHook extends AbstractMultiParentHook {
-
-    private static final Logger LOGGER = Logger.getLogger(PipelineRestApiHook.class.getName());
 
     @Override
     protected String getParentFolder() {
@@ -36,7 +30,7 @@ public class PipelineRestApiHook extends AbstractMultiParentHook {
     }
 
     @Override
-    public boolean check(Map<String, Object> info) throws Exception {
+    public boolean check(Map<String, Object> info) {
         return isPipelineStageViewPlugin(info);
     }
 

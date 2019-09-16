@@ -12,74 +12,97 @@ import java.util.logging.Logger;
 public enum PluginCompatResultDAO {
     INSTANCE;
 
-    public static interface CoreMatcher {
+    public interface CoreMatcher {
 
         Query enhanceSearchCoreQuery(Query query);
         Query enhanceSearchResultQuery(Query query, Map<Key, MavenCoordinates> coords);
 
-        public static enum All implements CoreMatcher {
+        enum All implements CoreMatcher {
             INSTANCE;
-            public Query enhanceSearchCoreQuery(Query query){ return query; }
-            public Query enhanceSearchResultQuery(Query query, Map<Key, MavenCoordinates> coords){ return query; }
+
+            @Override
+            public Query enhanceSearchCoreQuery(Query query) {
+                return query;
+            }
+
+            @Override
+            public Query enhanceSearchResultQuery(Query query, Map<Key, MavenCoordinates> coords) {
+                return query;
+            }
         }
 
-        public static class Parameterized implements CoreMatcher {
+        class Parameterized implements CoreMatcher {
             private List<MavenCoordinates> cores;
             public Parameterized(List<MavenCoordinates> cores){
                 this.cores = cores;
             }
 
+            @Override
             public Query enhanceSearchCoreQuery(Query query){
                 if(this.cores.size() == 0){
                     return query;
                 }
 
-                List<String> gavs = new ArrayList<String>(cores.size());
+                List<String> gavs = new ArrayList<>(cores.size());
                 for(MavenCoordinates coord : cores){
                     gavs.add(coord.toGAV());
                 }
                 return query.addFilter(Mappings.MavenCoordinatesProperties.gav.name(), Query.FilterOperator.IN, gavs);
             }
 
+            @Override
             public Query enhanceSearchResultQuery(Query query, Map<Key, MavenCoordinates> coords){
                 if(coords.size() == 0){
                     return query;
                 } else {
                     return query.addFilter(Mappings.PluginCompatResultProperties.coreCoordsKey.name(),
-                            Query.FilterOperator.IN, new ArrayList<Key>(coords.keySet()));
+                            Query.FilterOperator.IN, new ArrayList<>(coords.keySet()));
                 }
             }
         }
     }
-    public static interface PluginMatcher {
+    public interface PluginMatcher {
 
-        public Query enhanceSearchPluginQuery(Query query);
-        public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos);
+        Query enhanceSearchPluginQuery(Query query);
+        Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos);
 
-        public static enum All implements PluginMatcher {
+        enum All implements PluginMatcher {
             INSTANCE;
-            public Query enhanceSearchPluginQuery(Query query){ return query; }
-            public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos){ return query; }
+
+            @Override
+            public Query enhanceSearchPluginQuery(Query query) {
+                return query;
+            }
+
+            @Override
+            public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos) {
+                return query;
+            }
         }
 
-        public static class Parameterized implements PluginMatcher {
+        class Parameterized implements PluginMatcher {
             private List<String> pluginNames;
-            public Parameterized(List<String> pluginNames){
+
+            public Parameterized(List<String> pluginNames) {
                 this.pluginNames = pluginNames;
             }
-            public Query enhanceSearchPluginQuery(Query query){
-                if(this.pluginNames.size() == 0){
+
+            @Override
+            public Query enhanceSearchPluginQuery(Query query) {
+                if (this.pluginNames.size() == 0) {
                     return query;
                 }
 
                 return query.addFilter(Mappings.PluginInfosProperties.pluginName.name(), Query.FilterOperator.IN, pluginNames);
             }
-            public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos){
-                if(pluginInfos.size() == 0){
+
+            @Override
+            public Query enhanceSearchResultQuery(Query query, Map<Key, PluginInfos> pluginInfos) {
+                if (pluginInfos.size() == 0) {
                     return query;
                 } else {
                     return query.addFilter(Mappings.PluginCompatResultProperties.pluginInfosKey.name(),
-                            Query.FilterOperator.IN, new ArrayList<Key>(pluginInfos.keySet()));
+                            Query.FilterOperator.IN, new ArrayList<>(pluginInfos.keySet()));
                 }
             }
         }
@@ -103,10 +126,9 @@ public enum PluginCompatResultDAO {
     }
 
     private List<Entity> executePaginatedQueries(DatastoreService service, Query query, int limit){
-        List<Entity> results = new ArrayList<Entity>();
         PreparedQuery pq = service.prepare(query);
         QueryResultList<Entity> qrl = pq.asQueryResultList(FetchOptions.Builder.withLimit(limit));
-        results.addAll(qrl);
+        List<Entity> results = new ArrayList<>(qrl);
 
         log.finer("Retrieved "+qrl.size()+" results from query "+query.toString());
         int pageNumber = 1;
@@ -138,8 +160,7 @@ public enum PluginCompatResultDAO {
         Map<Key, PluginInfos> pluginInfos = Mappings.pluginInfosFromEntity(pluginInfoEntities);
 
         Query searchResultsQuery = new Query(Mappings.PluginCompatResultProperties.KIND);
-        if((pluginMatcher == PluginMatcher.All.INSTANCE && coreMatcher == CoreMatcher.All.INSTANCE)
-            || (pluginMatcher == PluginMatcher.All.INSTANCE || coreMatcher == CoreMatcher.All.INSTANCE)){
+        if ((pluginMatcher == PluginMatcher.All.INSTANCE || coreMatcher == CoreMatcher.All.INSTANCE)) {
 
             coreMatcher.enhanceSearchResultQuery(searchResultsQuery, cores);
             pluginMatcher.enhanceSearchResultQuery(searchResultsQuery, pluginInfos);
@@ -150,9 +171,8 @@ public enum PluginCompatResultDAO {
                     Query.FilterOperator.IN, cartesianProductOfCoreAndPlugins(cores, pluginInfos));
         }
         List<Entity> results = executePaginatedQueries(datastore, searchResultsQuery, 1000);
-        PluginCompatReport report = Mappings.pluginCompatReportFromResultsEntities(results, cores, pluginInfos);
 
-        return report;
+        return Mappings.pluginCompatReportFromResultsEntities(results, cores, pluginInfos);
     }
 
     public SortedSet<MavenCoordinates> findAllCores(){
@@ -162,7 +182,7 @@ public enum PluginCompatResultDAO {
         List<Entity> coreEntities = executePaginatedQueries(datastore, searchCoresQuery, 1000);
         Map<Key, MavenCoordinates> cores = Mappings.mavenCoordsFromEntity(coreEntities);
 
-        return new TreeSet<MavenCoordinates>(cores.values());
+        return new TreeSet<>(cores.values());
     }
 
     public SortedSet<String> findAllPluginInfoNames(){
@@ -172,11 +192,7 @@ public enum PluginCompatResultDAO {
         List<Entity> pluginInfosEntities = executePaginatedQueries(datastore, searchPluginInfosQuery, 1000);
         Map<Key, PluginInfos> pluginInfos = Mappings.pluginInfosFromEntity(pluginInfosEntities);
 
-        SortedSet<String> names = new TreeSet<String>(new Comparator<String>() {
-            public int compare(String s, String s1) {
-                return s.compareToIgnoreCase(s1);
-            }
-        });
+        SortedSet<String> names = new TreeSet<>(String::compareToIgnoreCase);
         for(PluginInfos pi : pluginInfos.values()){
             names.add(pi.pluginName);
         }
@@ -197,7 +213,7 @@ public enum PluginCompatResultDAO {
     }
 
     private List<String> cartesianProductOfCoreAndPlugins(Map<Key, MavenCoordinates> cores, Map<Key, PluginInfos> pluginInfos) {
-        List<String> computedCoreAndPlugins = new ArrayList<String>(cores.values().size() * pluginInfos.values().size());
+        List<String> computedCoreAndPlugins = new ArrayList<>(cores.values().size() * pluginInfos.values().size());
         for(MavenCoordinates coords : cores.values()){
             for(PluginInfos pi : pluginInfos.values()){
                 computedCoreAndPlugins.add(Mappings.computeCoreAndPlugin(coords, pi));

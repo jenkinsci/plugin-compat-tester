@@ -1,5 +1,10 @@
 package org.jenkins.tools.test.model.hook;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 /**
  * The hook interface for creating custom hooks at different points in 
  * the plugin compat tester.
@@ -11,12 +16,6 @@ package org.jenkins.tools.test.model.hook;
  * rather than throwing up its hands in defeat.
  *
  */
-
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
  public interface PluginCompatTesterHook {
 
      /**
@@ -26,7 +25,7 @@ import java.util.Map;
       *
       * Always run this hook unless otherwise specified.
       */
-     default boolean check(Map<String, Object> info) throws Exception {
+     default boolean check(Map<String, Object> info) {
          return true;
      }
 
@@ -37,7 +36,7 @@ import java.util.Map;
       *
       * Certain implementations could throw exceptions.
       */
-     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception;
+     Map<String, Object> action(Map<String, Object> moreInfo) throws Exception;
 
      /**
       * List the plugins this hook affects.  This can be a single, list, or simply all.
@@ -45,11 +44,11 @@ import java.util.Map;
       * Apply this hook to all plugins unless otherwise specified.
       */
      default List<String> transformedPlugins() {
-         return new ArrayList<String>(Arrays.asList("all"));
+         return new ArrayList<>(Collections.singletonList("all"));
      }
 
      /**
       * Check that the object used for this hook. 
       */
-     public abstract void validate(Map<String, Object> toCheck) throws Exception; 
+     void validate(Map<String, Object> toCheck);
  }

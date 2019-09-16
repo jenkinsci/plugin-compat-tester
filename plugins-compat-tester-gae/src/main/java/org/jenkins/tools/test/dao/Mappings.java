@@ -7,26 +7,27 @@ import org.jenkins.tools.test.model.*;
 import org.jenkins.tools.test.model.utils.IOUtils;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
  * @author fcamblor
  */
 public class Mappings {
-    public static enum PluginCompatResultProperties {
+    public enum PluginCompatResultProperties {
         compatTestExecutedOn, status, errorMessage, warningMessages, buildLogPath,
         coreCoordsKey, pluginInfosKey, computedCoreAndPlugin;
         public static final String KIND = "pluginCompatResult";
     }
-    public static enum PluginInfosProperties {
+    public enum PluginInfosProperties {
         pluginName, pluginVersion, pluginUrl;
         public static final String KIND = "pluginInfos";
     }
-    public static enum MavenCoordinatesProperties {
-        gav, groupId, artifactId, version;
+    public enum MavenCoordinatesProperties {
+        gav, groupId, artifactId, version
     }
     public static final String CORE_MAVEN_COORDS_KIND = "coreCoordinates";
-    public static enum LogProperties {
+    public enum LogProperties {
         resultKey, buildLogPath, logContent;
         public static final String KIND = "logs";
     }
@@ -53,7 +54,7 @@ public class Mappings {
         // Transforming warning messages into text
         List<Text> textWarnMsg = null;
         if(result.warningMessages != null){
-            textWarnMsg = new ArrayList<Text>();
+            textWarnMsg = new ArrayList<>();
             for(String warnMsg : result.warningMessages){
                 if(warnMsg == null){
                     textWarnMsg.add(null);
@@ -68,7 +69,7 @@ public class Mappings {
 
     public static PluginCompatResult pluginCompatResultFromEntity(Entity entity, Map<Key, MavenCoordinates> cores) {
 
-        MavenCoordinates coreCoords = cores.get((Key)entity.getProperty(PluginCompatResultProperties.coreCoordsKey.name()));
+        MavenCoordinates coreCoords = cores.get(entity.getProperty(PluginCompatResultProperties.coreCoordsKey.name()));
         TestStatus status = TestStatus.valueOf((String)entity.getProperty(PluginCompatResultProperties.status.name()));
         Date compatTestExecutedOn = (Date)entity.getProperty(PluginCompatResultProperties.compatTestExecutedOn.name());
         String buildLogPathStr = (String)entity.getProperty(PluginCompatResultProperties.buildLogPath.name());
@@ -81,7 +82,7 @@ public class Mappings {
         // Transforming warning messages from text
         List<String> strWarnMsg = null;
         if(warnMsgs != null){
-            strWarnMsg = new ArrayList<String>();
+            strWarnMsg = new ArrayList<>();
             for(Text warnMsg : warnMsgs){
                 if(warnMsg == null){
                     strWarnMsg.add(null);
@@ -91,8 +92,7 @@ public class Mappings {
             }
         }
 
-        PluginCompatResult result = new PluginCompatResult(coreCoords, status, errMsgStr, strWarnMsg, buildLogPathStr, compatTestExecutedOn);
-        return result;
+        return new PluginCompatResult(coreCoords, status, errMsgStr, strWarnMsg, buildLogPathStr, compatTestExecutedOn);
     }
 
     public static String computeCoreAndPlugin(MavenCoordinates coreCoords, PluginInfos pluginInfos){
@@ -108,15 +108,14 @@ public class Mappings {
     }
 
     public static PluginInfos pluginInfosFromEntity(Entity entity){
-        PluginInfos infos = new PluginInfos(
+        return new PluginInfos(
                 (String)entity.getProperty(PluginInfosProperties.pluginName.name()),
                 (String)entity.getProperty(PluginInfosProperties.pluginVersion.name()),
                 (String)entity.getProperty(PluginInfosProperties.pluginUrl.name()));
-        return infos;
     }
 
     public static Map<Key, PluginInfos> pluginInfosFromEntity(List<Entity> entities){
-        Map<Key, PluginInfos> pluginInfos = new HashMap<Key, PluginInfos> (entities.size());
+        Map<Key, PluginInfos> pluginInfos = new HashMap<>(entities.size());
         for(Entity e : entities){
             pluginInfos.put(e.getKey(), pluginInfosFromEntity(e));
         }
@@ -133,12 +132,11 @@ public class Mappings {
     }
 
     public static MavenCoordinates mavenCoordsFromEntity(Entity entity){
-        MavenCoordinates coords = MavenCoordinates.fromGAV((String)entity.getProperty(MavenCoordinatesProperties.gav.name()));
-        return coords;
+        return MavenCoordinates.fromGAV((String) entity.getProperty(MavenCoordinatesProperties.gav.name()));
     }
 
     public static Map<Key, MavenCoordinates> mavenCoordsFromEntity(List<Entity> entities){
-        Map<Key, MavenCoordinates> coords = new HashMap<Key, MavenCoordinates> (entities.size());
+        Map<Key, MavenCoordinates> coords = new HashMap<>(entities.size());
         for(Entity e : entities){
             coords.put(e.getKey(), mavenCoordsFromEntity(e));
         }
@@ -149,7 +147,7 @@ public class Mappings {
         PluginCompatReport report = new PluginCompatReport();
         for(Entity e : results){
             PluginCompatResult result = pluginCompatResultFromEntity(e, cores);
-            PluginInfos pi = pluginInfos.get((Key)e.getProperty(PluginCompatResultProperties.pluginInfosKey.name()));
+            PluginInfos pi = pluginInfos.get(e.getProperty(PluginCompatResultProperties.pluginInfosKey.name()));
 
             report.add(pi, result);
         }
@@ -171,7 +169,7 @@ public class Mappings {
         try {
             logContent = IOUtils.gunzipString(compressedLogContent);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

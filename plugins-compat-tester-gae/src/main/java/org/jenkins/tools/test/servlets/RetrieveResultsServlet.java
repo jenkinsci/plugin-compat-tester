@@ -5,7 +5,6 @@ import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PluginCompatReport;
 import org.jenkins.tools.test.servlets.util.JsonUtil;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,7 +21,7 @@ public class RetrieveResultsServlet extends HttpServlet {
 
     private static class PluginMatcherFactory {
         public static PluginCompatResultDAO.PluginMatcher create(HttpServletRequest req){
-            boolean everyPlugins = Boolean.valueOf(req.getParameter("everyPlugins")).booleanValue();
+            boolean everyPlugins = Boolean.parseBoolean(req.getParameter("everyPlugins"));
 
             PluginCompatResultDAO.PluginMatcher pluginMatcher = null;
             if(everyPlugins){
@@ -40,7 +39,7 @@ public class RetrieveResultsServlet extends HttpServlet {
 
     private static class CoreMatcherFactory {
         public static PluginCompatResultDAO.CoreMatcher create(HttpServletRequest req){
-            boolean everyCores = Boolean.valueOf(req.getParameter("everyCores")).booleanValue();
+            boolean everyCores = Boolean.parseBoolean(req.getParameter("everyCores"));
 
             PluginCompatResultDAO.CoreMatcher coreMatcher = null;
             if(everyCores){
@@ -51,7 +50,7 @@ public class RetrieveResultsServlet extends HttpServlet {
                         :req.getParameterValues("cores[]")!=null?req.getParameterValues("cores[]"):new String[0];
                 List<String> coreGAV = Arrays.asList(paramValues);
                 // Converting GAVs into MavenCoordinates
-                List<MavenCoordinates> coreCoords = new ArrayList<MavenCoordinates>(coreGAV.size());
+                List<MavenCoordinates> coreCoords = new ArrayList<>(coreGAV.size());
                 for(String gav : coreGAV){
                     coreCoords.add(MavenCoordinates.fromGAV(gav));
                 }
@@ -61,7 +60,8 @@ public class RetrieveResultsServlet extends HttpServlet {
         }
     }
 
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         PluginCompatReport report = PluginCompatResultDAO.INSTANCE.search(
                 PluginMatcherFactory.create(request), CoreMatcherFactory.create(request));

@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test;
 
+import com.google.common.collect.ImmutableList;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.TestStatus;
 import org.junit.After;
@@ -36,12 +37,10 @@ import org.jvnet.hudson.test.Issue;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -59,13 +58,18 @@ public class PluginCompatTesterTest {
 	}
 	
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SCMManagerFactory.getInstance().stop();
 	}
-	
+
 	@Test
 	public void testWithUrl() throws Throwable {
-        List<String> includedPlugins = new ArrayList<String>(){{ /*add("scm-sync-configuration");*/ add("accurev"); /*add("active-directory"); add("analysis-collector");*/ }};
+        ImmutableList<String> includedPlugins = ImmutableList.of(
+                "accurev"
+                /* "active-directory",
+                "analysis-collector",
+                "scm-sync-configuration" */
+        );
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                 new File("../reports/PluginCompatReport.xml"),
@@ -83,106 +87,106 @@ public class PluginCompatTesterTest {
 	}
 
 	@Test
-	public void testMatcher() throws Throwable {
+	public void testMatcher() {
 
 		String fileName = "WEB-INF/lib/jenkins-core-2.7.3-alpha-33.jar";
 		Matcher m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-alpha-33"));
+		assertEquals("Invalid group", "2.7.3-alpha-33", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-ALPHA-33.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-ALPHA-33"));
+		assertEquals("Invalid group", "2.7.3-ALPHA-33", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-ALPHA-33-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-ALPHA-33-SNAPSHOT"));
+		assertEquals("Invalid group", "2.7.3-ALPHA-33-SNAPSHOT", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-alpha-33-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-alpha-33-SNAPSHOT"));
+		assertEquals("Invalid group", "2.7.3-alpha-33-SNAPSHOT", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-beta-33.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-beta-33"));
+		assertEquals("Invalid group", "2.7.3-beta-33", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-BETA-33.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-BETA-33"));
+		assertEquals("Invalid group", "2.7.3-BETA-33", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-BETA-33-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-BETA-33-SNAPSHOT"));
+		assertEquals("Invalid group", "2.7.3-BETA-33-SNAPSHOT", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-BETA-33-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-BETA-33-SNAPSHOT"));
+		assertEquals("Invalid group", "2.7.3-BETA-33-SNAPSHOT", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-rc-33.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-rc-33"));
+		assertEquals("Invalid group", "2.7.3-rc-33", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-RC-33.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-RC-33"));
+		assertEquals("Invalid group", "2.7.3-RC-33", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-RC-33-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-RC-33-SNAPSHOT"));
+		assertEquals("Invalid group", "2.7.3-RC-33-SNAPSHOT", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-rc-33-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-rc-33-SNAPSHOT"));
+		assertEquals("Invalid group", "2.7.3-rc-33-SNAPSHOT", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3"));
+		assertEquals("Invalid group", "2.7.3", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-SNAPSHOT"));
+		assertEquals("Invalid group", "2.7.3-SNAPSHOT", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-RC33.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-RC33"));
+		assertEquals("Invalid group", "2.7.3-RC33", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-alpha33-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-alpha33-SNAPSHOT"));
+		assertEquals("Invalid group", "2.7.3-alpha33-SNAPSHOT", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-rc-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-rc-SNAPSHOT"));
+		assertEquals("Invalid group", "2.7.3-rc-SNAPSHOT", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-milestone.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-milestone"));
+		assertEquals("Invalid group", "2.7.3-milestone", m.group(1));
 
 		fileName = "WEB-INF/lib/jenkins-core-2.7.3-rc-milestone.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
-		assertTrue("Invalid group", m.group(1).equals("2.7.3-rc-milestone"));	}
+		assertEquals("Invalid group", "2.7.3-rc-milestone", m.group(1));	}
 
 	@Test
 	@Issue("JENKINS-50454")
-	public void testCustomWarPackagerVersions() throws Throwable {
+	public void testCustomWarPackagerVersions() {
 	//TODO: needs more filtering
 		String fileName = "WEB-INF/lib/jenkins-core-256.0-my-branch-2090468d82e49345519a2457f1d1e7426f01540b-SNAPSHOT.jar";
 		Matcher m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);

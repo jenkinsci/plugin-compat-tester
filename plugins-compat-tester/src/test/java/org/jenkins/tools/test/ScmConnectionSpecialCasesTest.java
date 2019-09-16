@@ -49,7 +49,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldOldJavaNetSubversionRepoUrlBeenMigrated() throws Throwable{
+    public void shouldOldJavaNetSubversionRepoUrlBeenMigrated() {
         runComputeScmConnectionAgainst(
                 "scm:svn:https://guest@svn.dev.java.net/svn/hudson/tags/scm-sync-configuration/scm-sync-configuration-0.0.1", // old java.net url
                 "",
@@ -63,7 +63,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldProjectArtifactIdCorrectlyReplacedInUrls() throws Throwable{
+    public void shouldProjectArtifactIdCorrectlyReplacedInUrls() {
         runComputeScmConnectionAgainst(
                 "scm:git:git://github.com/jenkinsci/${project.artifactId}.git", // ${project.artifactId}
                 "scm-sync-configuration-plugin",
@@ -73,7 +73,7 @@ public class ScmConnectionSpecialCasesTest {
 
     @Ignore("disabled this transformation")
     @Test
-    public void shouldGithubUsernamedUrlBeFiltered() throws Throwable{
+    public void shouldGithubUsernamedUrlBeFiltered() {
         runComputeScmConnectionAgainst(
                 "scm:git:https://sikakura@github.com/jenkinsci/mail-commander-plugin.git", // user specific authent
                 "",
@@ -82,7 +82,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldPluginSuffixOnlyAppliedOnScmSyncConfiguration() throws Throwable{
+    public void shouldPluginSuffixOnlyAppliedOnScmSyncConfiguration() {
         runComputeScmConnectionAgainst(
                 "scm:git:git://github.com/jenkinsci/scm-sync-configuration.git",  // special case of scm-sync-configuration
                 "scm-sync-configuration",
@@ -101,7 +101,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldGithubDotComBeFollowedBySlashes() throws Throwable{
+    public void shouldGithubDotComBeFollowedBySlashes() {
         runComputeScmConnectionAgainst(
                 "scm:git:git://github.com:cittools/artifactdeployer-plugin.git", // No / after github.com
                 "",
@@ -110,7 +110,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test
-    public void shouldGitHudsonRepoBeMigratedToJenkinsCI() throws Throwable{
+    public void shouldGitHudsonRepoBeMigratedToJenkinsCI() {
         runComputeScmConnectionAgainst(
                 "scm:git:git://github.com/hudson/hudson-clearcase-plugin.git", // hudson repository
                 "",
@@ -120,7 +120,7 @@ public class ScmConnectionSpecialCasesTest {
 
 
     @Test
-    public void shouldScmConnectionBeTrimed() throws Throwable{
+    public void shouldScmConnectionBeTrimed() {
         runComputeScmConnectionAgainst(
                 "\n   scm:git:https://github.com/jenkinsci/cifs-plugin.git  \n   ", // ssh protocol requiring ssh host key
                 "",
@@ -130,7 +130,7 @@ public class ScmConnectionSpecialCasesTest {
 
     @Ignore("disabled this transformation")
     @Test
-    public void shouldGitAtGithubReplaceByGitProtocol() throws Throwable {
+    public void shouldGitAtGithubReplaceByGitProtocol() {
         runComputeScmConnectionAgainst(
                 "scm:git:git@github.com:jenkinsci/jquery-plugin.git", // git@github.com
                 "",
@@ -139,7 +139,7 @@ public class ScmConnectionSpecialCasesTest {
     }
 
     @Test()
-    public void shouldEmptyConnectionUrlImpliesGithubUrlGeneration() throws Throwable{
+    public void shouldEmptyConnectionUrlImpliesGithubUrlGeneration() {
         runComputeScmConnectionAgainst(
                 "", // ssh protocol requiring ssh host key
                 "hudsontrayapp",

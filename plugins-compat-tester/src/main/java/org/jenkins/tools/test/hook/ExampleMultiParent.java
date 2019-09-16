@@ -2,8 +2,6 @@ package org.jenkins.tools.test.hook;
 
 import org.jenkins.tools.test.SCMManagerFactory;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.PomData;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;

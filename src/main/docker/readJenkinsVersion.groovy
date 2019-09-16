@@ -8,7 +8,7 @@ static String readManifest(String sourceJARFile, String attributeName) throws IO
         def entries = zipFile.entries()
         while (entries.hasMoreElements()) {
             ZipEntry zipEntry = (ZipEntry) entries.nextElement()
-            if (zipEntry.getName().equals("META-INF/MANIFEST.MF")) {
+            if (zipEntry.getName() == "META-INF/MANIFEST.MF") {
                 is = zipFile.getInputStream(zipEntry)
                 def manifest = new Manifest(is)
                 def mainAttribs = manifest.getMainAttributes()
@@ -25,7 +25,7 @@ static String readManifest(String sourceJARFile, String attributeName) throws IO
         zipFile.close()
     }
 
-    throw new IllegalStateException("Manifest not found in" + sourceJARFile);
+    throw new IllegalStateException("Manifest not found in" + sourceJARFile)
 }
 
 println readManifest(this.args[0], this.args.length > 1 ? this.args[1] : "Jenkins-Version")

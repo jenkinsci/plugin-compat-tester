@@ -27,16 +27,12 @@ package org.jenkins.tools.test.model;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.tools.ant.filters.StringInputStream;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -105,7 +101,7 @@ public class PluginCompatTesterConfig {
 
     // Allows to skip a plugin test if this plugin test has already been performed
     // within testCacheTimeout ms
-    private long testCacheTimeout = 1000*60*60*24*100;
+    private long testCacheTimeout = 1000L * 60 * 60 * 24 * 100;
     // Skips test cache : plugin will be tested, no matter the test cache is
     private boolean skipTestCache = false;
     // Allows to define a minimal cache threshold for TestStatus
@@ -130,7 +126,7 @@ public class PluginCompatTesterConfig {
     private String gaeBaseUrl;
  
     // Classpath prefixes of the extra hooks
-    private List<String> hookPrefixes = new ArrayList<String>(Arrays.asList("org.jenkins"));
+    private List<String> hookPrefixes = new ArrayList<>(Collections.singletonList("org.jenkins"));
 
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
     private File localCheckoutDir;

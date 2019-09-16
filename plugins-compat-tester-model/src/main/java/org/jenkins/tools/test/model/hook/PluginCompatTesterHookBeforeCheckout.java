@@ -17,7 +17,8 @@ public abstract class PluginCompatTesterHookBeforeCheckout implements PluginComp
      *  + runCheckout - if the plugin should be checked out again
      *  + pluginDir - if set, the location of the plugin directory
      */
-    public void validate(Map<String, Object> toCheck) throws Exception {
+    @Override
+    public void validate(Map<String, Object> toCheck) {
         if((toCheck.get("runCheckout") != null &&
             (toCheck.get("runCheckout").getClass().isPrimitive() || ClassUtils.wrapperToPrimitive(toCheck.get("runCheckout").getClass()) != null)) &&
             (toCheck.get("pluginDir") != null && 

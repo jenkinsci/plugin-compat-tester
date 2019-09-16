@@ -1,24 +1,20 @@
 package org.jenkins.tools.test.hook;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
-import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
-import java.util.Properties;
+import java.util.stream.Stream;
 
 public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
 
@@ -54,14 +50,14 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
                     pluginSourcesDir = pluginSourcesDir.getParent();
                 }
                 // Copy the file if it exists
-                Files.walk(pluginSourcesDir, 1)
-                    .filter(this::isEslintFile)
-                    .forEach(eslintrc -> copy(eslintrc, pluginDir));
+                try (Stream<Path> walk = Files.walk(pluginSourcesDir, 1)) {
+                    walk.filter(this::isEslintFile).forEach(eslintrc -> copy(eslintrc, pluginDir));
+                }
             }
 
             // We need to compile before generating effective pom overriding jenkins.version
             // only if the plugin is not already compiled
-            boolean ranCompile = moreInfo.containsKey(OVERRIDE_DEFAULT_COMPILE) ? (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE) : false;
+            boolean ranCompile = moreInfo.containsKey(OVERRIDE_DEFAULT_COMPILE) && (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE);
             if (!ranCompile) {
                 compile(mavenConfig, pluginDir);
                 moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
@@ -78,14 +74,14 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     }
 
     @Override
-    public void validate(Map<String, Object> toCheck) throws Exception {
+    public void validate(Map<String, Object> toCheck) {
 
     }
 
     @Override
-    public boolean check(Map<String, Object> info) throws Exception {
+    public boolean check(Map<String, Object> info) {
         return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info) || StructsHook.isStructsPlugin(info) ||
-        ConfigurationAsCodeHook.isCascPlugin(info) || PipelineRestApiHook.isPipelineStageViewPlugin(info);
+        SwarmHook.isSwarmPlugin(info) || ConfigurationAsCodeHook.isCascPlugin(info) || PipelineRestApiHook.isPipelineStageViewPlugin(info);
     }
 
     private boolean isEslintFile(Path file) {
@@ -118,7 +114,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         runner.run(mavenConfig, path, compilePomLogfile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
     }
 
-    private void removeNodeFolders(File path) throws PomExecutionException, IOException {
+    private void removeNodeFolders(File path) throws IOException {
         File nodeFolder = new File(path, "node");
         if (nodeFolder.exists() && nodeFolder.isDirectory()) {
             FileUtils.deleteDirectory(nodeFolder);

@@ -45,7 +45,7 @@ public class PomData {
     public final MavenCoordinates parent;
     private String connectionUrl;
     private String scmTag;
-    private List<String> warningMessages = new ArrayList<String>();
+    private List<String> warningMessages = new ArrayList<>();
 
     public PomData(String artifactId, @CheckForNull String packaging, String connectionUrl, String scmTag, @CheckForNull MavenCoordinates parent, String groupId){
         this.artifactId = artifactId;
