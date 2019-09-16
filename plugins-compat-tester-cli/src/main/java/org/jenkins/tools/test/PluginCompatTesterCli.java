@@ -27,7 +27,6 @@ package org.jenkins.tools.test;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import hudson.maven.MavenEmbedderException;
 import org.codehaus.plexus.PlexusContainerException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.TestStatus;
@@ -44,7 +43,7 @@ import java.util.Map;
  */
 public class PluginCompatTesterCli {
 
-    public static void main(String[] args) throws IOException, PlexusContainerException, MavenEmbedderException {
+    public static void main(String[] args) throws IOException, PlexusContainerException {
         CliOptions options = new CliOptions();
         JCommander jcommander = null;
         try {
@@ -107,10 +106,10 @@ public class PluginCompatTesterCli {
             config.setExcludePlugins(Arrays.asList(options.getExcludePlugins().toLowerCase().split(",")));
         }
         if(options.getSkipTestCache() != null){
-            config.setSkipTestCache(Boolean.valueOf(options.getSkipTestCache()).booleanValue());
+            config.setSkipTestCache(Boolean.parseBoolean(options.getSkipTestCache()));
         }
         if(options.getTestCacheTimeout() != null){
-            config.setTestCacheTimeout(options.getTestCacheTimeout().longValue());
+            config.setTestCacheTimeout(options.getTestCacheTimeout());
         }
         if(options.getCacheThresholdStatus() != null){
             config.setCacheThresholStatus(TestStatus.valueOf(options.getCacheThresholdStatus()));

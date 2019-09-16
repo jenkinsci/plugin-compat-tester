@@ -6,7 +6,6 @@ import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginInfos;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
 
@@ -60,7 +59,7 @@ public class JsonUtil {
                 displayMessage(w, "err", res.errorMessage);
             }
 
-            if(res.warningMessages != null && !"".equals(res.warningMessages)){
+            if(res.warningMessages != null && !res.warningMessages.isEmpty()){
                 w.write(",");
                 displayMessages(w, "warn", res.warningMessages);
             }

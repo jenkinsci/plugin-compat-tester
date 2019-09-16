@@ -25,6 +25,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
     /**
      * Check if the pom should be transformed for the given plugin.
      */
+    @Override
     public boolean check(Map<String, Object> info) {
         boolean mustTransformPom = false;
         // TODO future versions of DEFAULT_PARENT_GROUP/ARTIFACT may be able to use this as well
@@ -80,6 +81,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         return mustTransformPom;
     }
 
+    @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         MavenCoordinates coreCoordinates = (MavenCoordinates)moreInfo.get("coreCoordinates");
 

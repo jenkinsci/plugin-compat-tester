@@ -21,6 +21,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
 
     protected boolean firstRun = true;
 
+    @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         PluginCompatTesterConfig config = (PluginCompatTesterConfig)moreInfo.get("config");
         UpdateSite.Plugin currentPlugin = (UpdateSite.Plugin)moreInfo.get("plugin");

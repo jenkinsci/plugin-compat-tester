@@ -43,18 +43,21 @@ public class PluginInfos implements Comparable<PluginInfos> {
         this.pluginUrl = pluginUrl;
     }
 
+    @Override
     public boolean equals(Object o){
-        if(o==null || !(o instanceof PluginInfos)){
+        if (!(o instanceof PluginInfos)) {
             return false;
         }
         PluginInfos infos = (PluginInfos)o;
         return new EqualsBuilder().append(pluginName, infos.pluginName).append(pluginVersion, infos.pluginVersion).isEquals();
     }
 
+    @Override
     public int hashCode(){
         return new HashCodeBuilder().append(pluginName).append(pluginVersion).toHashCode();
     }
 
+    @Override
     public int compareTo(PluginInfos o) {
         if(pluginName.equals(o.pluginName)){
             return pluginVersion.compareTo(o.pluginVersion);

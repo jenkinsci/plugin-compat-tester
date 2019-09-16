@@ -25,11 +25,9 @@
  */
 package org.jenkins.tools.test;
 
+import com.google.common.collect.ImmutableMap;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -41,13 +39,14 @@ import static org.junit.Assert.assertThat;
  */
 public class VersionComparatorTest {
 
-    private static final Map<String, Integer> OPERAND_CONVERSION = new HashMap<String, Integer>(){{
-       put("<", Integer.valueOf(-1)); put("=", Integer.valueOf(0)); put(">", Integer.valueOf(1));
-    }};
-
+    private static final ImmutableMap<String, Integer> OPERAND_CONVERSION = ImmutableMap.of(
+            "<", -1,
+            "=", 0,
+            ">", 1
+    );
 
     private void test(String v1, String operator, String v2){
-        test(v1, OPERAND_CONVERSION.get(operator).intValue(), v2);
+        test(v1, OPERAND_CONVERSION.get(operator), v2);
     }
 
     private void test(String v1, int compResult, String v2){
@@ -55,8 +54,8 @@ public class VersionComparatorTest {
     }
 
     private void testAndCommutate(String v1, String operand, String v2){
-        test(v1, OPERAND_CONVERSION.get(operand).intValue(), v2);
-        test(v2, OPERAND_CONVERSION.get(operand).intValue()*-1, v1);
+        test(v1, OPERAND_CONVERSION.get(operand), v2);
+        test(v2, OPERAND_CONVERSION.get(operand) * -1, v1);
     }
 
     @Test

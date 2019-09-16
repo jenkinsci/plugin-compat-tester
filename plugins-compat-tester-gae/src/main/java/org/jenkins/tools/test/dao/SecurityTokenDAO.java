@@ -12,7 +12,7 @@ public enum SecurityTokenDAO {
 
     private static final Logger log = Logger.getLogger(PluginCompatResultDAO.class.getName());
 
-    private static enum SecurityProperties {
+    private enum SecurityProperties {
         value, activated;
         public static final String KIND = "securityToken";
     }

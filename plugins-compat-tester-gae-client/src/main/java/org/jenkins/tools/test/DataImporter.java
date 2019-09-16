@@ -1,7 +1,5 @@
 package org.jenkins.tools.test;
 
-import com.google.common.io.Files;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -16,7 +14,9 @@ import org.jenkins.tools.test.model.PluginInfos;
 import org.jenkins.tools.test.model.utils.IOUtils;
 
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class DataImporter {
         String url = baseGAEUrl+"/writePctResult";
 
         HttpPost method = new HttpPost(url);
-        List <NameValuePair> nvps = new ArrayList <NameValuePair>();
+        List <NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("token", securityToken));
         nvps.add(new BasicNameValuePair("pluginName", pluginInfos.pluginName));
         nvps.add(new BasicNameValuePair("pluginVersion", pluginInfos.pluginVersion));
@@ -72,7 +72,7 @@ public class DataImporter {
             }
         }
         if(pluginCompatResult.getBuildLogPath() != null && !"".equals(pluginCompatResult.getBuildLogPath())){
-            String logContent = Files.toString(new File(logsBaseDir.getAbsolutePath()+File.separator+pluginCompatResult.getBuildLogPath()), Charset.forName("UTF-8"));
+            String logContent = new String(Files.readAllBytes(Paths.get(logsBaseDir.getAbsolutePath() + File.separator + pluginCompatResult.getBuildLogPath())), StandardCharsets.UTF_8);
             logContent = logContent.trim();
             // Only uploading non empty files
             if(!"".equals(logContent)){
@@ -110,7 +110,7 @@ public class DataImporter {
         boolean startingBuildLogConstraintVerified = startingBuildLog==null;
         for (Map.Entry<PluginInfos, List<PluginCompatResult>> test : report.getPluginCompatTests().entrySet()){
             for (PluginCompatResult pluginCompatResult : test.getValue()) {
-                if(i >= startingOffset.longValue()){
+                if (i >= startingOffset) {
                     if(startingBuildLog != null && startingBuildLog.equals(pluginCompatResult.getBuildLogPath())){
                         startingBuildLogConstraintVerified = true;
                     }

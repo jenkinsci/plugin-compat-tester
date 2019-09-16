@@ -67,18 +67,21 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
         this.compatTestExecutedOn = compatTestExecutedOn;
     }
 
+    @Override
     public boolean equals(Object o){
-        if(o==null || !(o instanceof PluginCompatResult)){
+        if (!(o instanceof PluginCompatResult)) {
             return false;
         }
         PluginCompatResult res = (PluginCompatResult)o;
         return new EqualsBuilder().append(coreCoordinates, res.coreCoordinates).isEquals();
     }
 
+    @Override
     public int hashCode(){
         return new HashCodeBuilder().append(coreCoordinates).toHashCode();
     }
 
+    @Override
     public int compareTo(PluginCompatResult o) {
         return coreCoordinates.compareTo(o.coreCoordinates);
     }

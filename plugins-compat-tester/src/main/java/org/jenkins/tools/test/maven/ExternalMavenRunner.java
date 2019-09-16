@@ -23,8 +23,9 @@ public class ExternalMavenRunner implements MavenRunner {
         this.mvn = mvn;
     }
 
+    @Override
     public void run(Config config, File baseDirectory, File buildLogFile, String... goals) throws PomExecutionException {
-        List<String> cmd = new ArrayList<String>();
+        List<String> cmd = new ArrayList<>();
         cmd.add(mvn.getAbsolutePath());
         cmd.add("--show-version");
         cmd.add("--batch-mode");
@@ -38,43 +39,30 @@ public class ExternalMavenRunner implements MavenRunner {
         System.out.println("running " + cmd + " in " + baseDirectory + " >> " + buildLogFile);
         try {
             Process p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
-            List<String> succeededPluginArtifactIds = new ArrayList<String>();
-            InputStream is = p.getInputStream();
-            try {
-                FileOutputStream os = new FileOutputStream(buildLogFile, true);
-                try {
-                    PrintWriter w = new PrintWriter(os);
-                    try {
-                        String completed = null;
-                        Pattern pattern = Pattern.compile("\\[INFO\\] --- (.+):.+:.+ [(].+[)] @ .+ ---");
-                        BufferedReader r = new BufferedReader(new InputStreamReader(is));
-                        String line;
-                        while ((line = r.readLine()) != null) {
-                            System.out.println(line);
-                            w.println(line);
-                            Matcher m = pattern.matcher(line);
-                            if (m.matches()) {
-                                if (completed != null) {
-                                    succeededPluginArtifactIds.add(completed);
-                                }
-                                completed = m.group(1);
-                            } else if (line.equals("[INFO] BUILD SUCCESS") && completed != null) {
-                                succeededPluginArtifactIds.add(completed);
-                            }
+            List<String> succeededPluginArtifactIds = new ArrayList<>();
+            try (InputStream is = p.getInputStream(); FileOutputStream os = new FileOutputStream(buildLogFile, true); PrintWriter w = new PrintWriter(os)) {
+                String completed = null;
+                Pattern pattern = Pattern.compile("\\[INFO\\] --- (.+):.+:.+ [(].+[)] @ .+ ---");
+                BufferedReader r = new BufferedReader(new InputStreamReader(is));
+                String line;
+                while ((line = r.readLine()) != null) {
+                    System.out.println(line);
+                    w.println(line);
+                    Matcher m = pattern.matcher(line);
+                    if (m.matches()) {
+                        if (completed != null) {
+                            succeededPluginArtifactIds.add(completed);
                         }
-                        w.flush();
-                        System.out.println("succeeded artifactIds: " + succeededPluginArtifactIds);
-                    } finally {
-                        w.close();
+                        completed = m.group(1);
+                    } else if (line.equals("[INFO] BUILD SUCCESS") && completed != null) {
+                        succeededPluginArtifactIds.add(completed);
                     }
-                } finally {
-                    os.close();
                 }
-            } finally {
-                is.close();
+                w.flush();
+                System.out.println("succeeded artifactIds: " + succeededPluginArtifactIds);
             }
             if (p.waitFor() != 0) {
-                throw new PomExecutionException(cmd + " failed in " + baseDirectory, succeededPluginArtifactIds, /* TODO */Collections.<Throwable>emptyList(), Collections.<String>emptyList());
+                throw new PomExecutionException(cmd + " failed in " + baseDirectory, succeededPluginArtifactIds, /* TODO */Collections.emptyList(), Collections.emptyList());
             }
         } catch (PomExecutionException x) {
             throw x;

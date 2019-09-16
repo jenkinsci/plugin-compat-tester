@@ -4,13 +4,9 @@ package org.jenkins.tools.test;
 import hudson.model.UpdateSite;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
-import org.apache.maven.scm.manager.NoSuchScmProviderException;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
-import org.apache.maven.scm.repository.ScmRepositoryException;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.jenkins.tools.test.hook.NonStandardTagHook;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
@@ -20,26 +16,23 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static hudson.model.UpdateSite.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.when;
 @RunWith(PowerMockRunner.class)
@@ -138,7 +131,7 @@ public class NonStandardTagHookTest {
             PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                     new File("../reports/PluginCompatReport.xml"),
                     new ClassPathResource("m2-settings.xml").getFile());
-            config.setIncludePlugins(Arrays.asList("electricflow"));
+            config.setIncludePlugins(Collections.singletonList("electricflow"));
             config.setSkipTestCache(true);
             config.setCacheThresholStatus(TestStatus.TEST_FAILURES);
             config.setTestCacheTimeout(345600000);

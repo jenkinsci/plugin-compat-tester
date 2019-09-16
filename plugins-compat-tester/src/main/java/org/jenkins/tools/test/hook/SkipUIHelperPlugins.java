@@ -1,10 +1,10 @@
 package org.jenkins.tools.test.hook;
 
-import hudson.model.UpdateSite.Plugin;
 import org.jenkins.tools.test.model.TestExecutionResult;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +25,7 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
 
     public SkipUIHelperPlugins() {}
 
+    @Override
     public List<String> transformedPlugins() {
         return allBundlePlugins;
     }
@@ -34,9 +35,10 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
      * Create a TestExecution result preventing forward movement.
      * Also, indicates that we should skip the checkout completely.
      */
-    public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
+    @Override
+    public Map<String, Object> action(Map<String, Object> moreInfo) {
         moreInfo.put("executionResult", 
-            new TestExecutionResult(Arrays.asList("Plugin unsupported at this time, skipping")));
+            new TestExecutionResult(Collections.singletonList("Plugin unsupported at this time, skipping")));
         moreInfo.put("runCheckout", false);
         return moreInfo;
     }

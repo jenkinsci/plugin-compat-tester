@@ -21,7 +21,7 @@ public class InternalMavenRunner implements MavenRunner {
 
     private MavenEmbedder embedder;
 
-    private void init(Config config) throws IOException, MavenEmbedderException {
+    private void init(Config config) throws MavenEmbedderException {
         if (embedder != null) {
             return;
         }
@@ -36,7 +36,7 @@ public class InternalMavenRunner implements MavenRunner {
         } catch (Exception x) {
             throw new PomExecutionException(x);
         }
-        final List<String> succeededPlugins = new ArrayList<String>();
+        final List<String> succeededPlugins = new ArrayList<>();
         try {
             MavenRequest mavenRequest = buildMavenRequest(config, baseDirectory.getAbsolutePath(),
                     config.userSettingsFile == null
@@ -83,9 +83,7 @@ public class InternalMavenRunner implements MavenRunner {
         }
     }
 
-    private static MavenRequest buildMavenRequest(Config config, String rootDir,String settingsPath)
-        throws IOException
-    {
+    private static MavenRequest buildMavenRequest(Config config, String rootDir,String settingsPath) {
 
         MavenRequest mavenRequest = new MavenRequest();
 
@@ -117,7 +115,7 @@ public class InternalMavenRunner implements MavenRunner {
                     throw (OutOfMemoryError)t;
                 }
             }
-            throw new PomExecutionException("Error while executing pom goals : "+ mavenRequest.getGoals(), Collections.<String>emptyList(), result.getExceptions(), Collections.<String>emptyList());
+            throw new PomExecutionException("Error while executing pom goals : "+ mavenRequest.getGoals(), Collections.emptyList(), result.getExceptions(), Collections.emptyList());
         }
     }
 

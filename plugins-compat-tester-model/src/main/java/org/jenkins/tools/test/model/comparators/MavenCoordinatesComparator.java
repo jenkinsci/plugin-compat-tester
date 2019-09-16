@@ -35,6 +35,7 @@ import java.util.Comparator;
  * @author Frederic Camblor
  */
 public class MavenCoordinatesComparator implements Comparator<MavenCoordinates> {
+    @Override
     public int compare(MavenCoordinates o1, MavenCoordinates o2) {
         return o1.compareTo(o2);
     }

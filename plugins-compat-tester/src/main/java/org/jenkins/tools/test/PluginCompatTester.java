@@ -29,7 +29,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import hudson.AbortException;
 import hudson.Functions;
-import hudson.maven.MavenEmbedderException;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import hudson.util.VersionNumber;
@@ -51,7 +50,6 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.exception.PomTransformationException;
 import org.jenkins.tools.test.model.*;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
@@ -124,7 +122,7 @@ public class PluginCompatTester {
         // If parent GroupId/Artifact are not null, this will be fast : we will only test
         // against 1 core coordinate
         if(config.getParentGroupId() != null && config.getParentArtifactId() != null){
-            coreCoordinatesToTest = new TreeSet<MavenCoordinates>();
+            coreCoordinatesToTest = new TreeSet<>();
 
             // If coreVersion is not provided in PluginCompatTesterConfig, let's use latest core
             // version used in update center
@@ -138,15 +136,14 @@ public class PluginCompatTester {
             coreCoordinatesToTest = previousReport.getTestedCoreCoordinates();
         } else {
             throw new IllegalStateException("config.parentGroupId and config.parentArtifactId should either be both null or both filled\n" +
-                    "config.parentGroupId="+String.valueOf(config.getParentGroupId())+", config.parentArtifactId="+String.valueOf(config.getParentArtifactId()));
+                    "config.parentGroupId=" + config.getParentGroupId() + ", config.parentArtifactId=" + config.getParentArtifactId());
         }
 
         return coreCoordinatesToTest;
     }
 
 	public PluginCompatReport testPlugins()
-        throws PlexusContainerException, IOException, MavenEmbedderException
-    {
+        throws PlexusContainerException, IOException {
         File war = config.getWar();
         if (war != null) {
             populateSplits(war);
@@ -171,7 +168,7 @@ public class PluginCompatTester {
         }
 
         // Determine the plugin data
-        HashMap<String,String> pluginGroupIds = new HashMap<String, String>();  // Used to track real plugin groupIds from WARs
+        HashMap<String,String> pluginGroupIds = new HashMap<>();  // Used to track real plugin groupIds from WARs
         
         // Scan bundled plugins
         // If there is any bundled plugin, only these plugins will be taken under the consideration for the PCT run
@@ -187,9 +184,9 @@ public class PluginCompatTester {
 
 
             // Add detached if and only if no added as normal one
-            detachedData.plugins.entrySet().stream().forEach(entry -> {
-                if (!data.plugins.containsKey(entry.getKey())) {
-                    data.plugins.put(entry.getKey(), entry.getValue());
+            detachedData.plugins.forEach((key, value) -> {
+                if (!data.plugins.containsKey(key)) {
+                    data.plugins.put(key, value);
                 }
             });
         }
@@ -293,7 +290,7 @@ public class PluginCompatTester {
                         continue; // Don't do anything : we are in the cached interval ! :-)
                     }
 
-                    List<String> warningMessages = new ArrayList<String>();
+                    List<String> warningMessages = new ArrayList<>();
                     if (errorMessage == null) {
                     try {
                         TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridenPlugins());
@@ -404,21 +401,21 @@ public class PluginCompatTester {
     }
 
     private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, PluginCompatTesterHooks pcth, List<PCTPlugin> overridenPlugins)
-        throws PluginSourcesUnavailableException, PomTransformationException, PomExecutionException, IOException
+        throws PluginSourcesUnavailableException, PomExecutionException, IOException
     {
         System.out.println(String.format("%n%n%n%n%n"));
-        System.out.println(String.format("#############################################"));
-        System.out.println(String.format("#############################################"));
+        System.out.println("#############################################");
+        System.out.println("#############################################");
         System.out.println(String.format("##%n## Starting to test plugin %s v%s%n## against %s%n##", plugin.name, plugin.version, coreCoordinates));
-        System.out.println(String.format("#############################################"));
-        System.out.println(String.format("#############################################"));
+        System.out.println("#############################################");
+        System.out.println("#############################################");
         System.out.println(String.format("%n%n%n%n%n"));
 
         File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath() + File.separator + plugin.name + File.separator);
 
 		try {
             // Run any precheckout hooks
-            Map<String, Object> beforeCheckout = new HashMap<String, Object>();
+            Map<String, Object> beforeCheckout = new HashMap<>();
             beforeCheckout.put("pluginName", plugin.name);
             beforeCheckout.put("plugin", plugin);
             beforeCheckout.put("pomData", pomData);
@@ -481,7 +478,7 @@ public class PluginCompatTester {
         FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
 
         // Ran the BeforeCompileHooks
-        Map<String, Object> beforeCompile = new HashMap<String, Object>();
+        Map<String, Object> beforeCompile = new HashMap<>();
         beforeCompile.put("pluginName", plugin.name);
         beforeCompile.put("plugin", plugin);
         beforeCompile.put("pluginDir", pluginCheckoutDir);
@@ -490,7 +487,7 @@ public class PluginCompatTester {
         beforeCompile.put("core", coreCoordinates);
         Map<String, Object> hookInfo = pcth.runBeforeCompilation(beforeCompile);
 
-        boolean ranCompile = hookInfo.containsKey(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) ? (boolean) hookInfo.get(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) : false;
+        boolean ranCompile = hookInfo.containsKey(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) && (boolean) hookInfo.get(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE);
         try {
             // First build against the original POM.
             // This defends against source incompatibilities (which we do not care about for this purpose);
@@ -516,7 +513,7 @@ public class PluginCompatTester {
                 // but continue
             }
 
-            List<String> args = new ArrayList<String>();
+            List<String> args = new ArrayList<>();
             args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=forkCount=1");
             args.add("hpi:resolve-test-dependencies");
@@ -524,7 +521,7 @@ public class PluginCompatTester {
             args.add("surefire:test");
 
             // Run preexecution hooks
-            Map<String, Object> forExecutionHooks = new HashMap<String, Object>();
+            Map<String, Object> forExecutionHooks = new HashMap<>();
             forExecutionHooks.put("pluginName", plugin.name);
             forExecutionHooks.put("args", args);
             forExecutionHooks.put("pomData", pomData);
@@ -606,17 +603,15 @@ public class PluginCompatTester {
      * @param pluginRegExp The plugin regexp to use, can be used to diferentiate between detached or "normal" plugins
      *                     in the war file
      * @return Update center data
-     * @throws IOException
      */
     private UpdateSite.Data scanWAR(File war, Map<String, String> pluginGroupIds, String pluginRegExp) throws IOException {
         JSONObject top = new JSONObject();
         top.put("id", DEFAULT_SOURCE_ID);
         JSONObject plugins = new JSONObject();
-        JarFile jf = new JarFile(war);
-        if (pluginGroupIds == null) {
-            pluginGroupIds = new HashMap<String, String>();
-        }
-        try {
+        try (JarFile jf = new JarFile(war)) {
+            if (pluginGroupIds == null) {
+                pluginGroupIds = new HashMap<>();
+            }
             Enumeration<JarEntry> entries = jf.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
@@ -630,55 +625,45 @@ public class PluginCompatTester {
                     // We do not really care about the value
                     top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", "https://foobar"));
                 }
-                
+
                 m = Pattern.compile(pluginRegExp).matcher(name);
                 if (m.matches()) {
                     JSONObject plugin = new JSONObject().accumulate("url", "");
-                    InputStream is = jf.getInputStream(entry);
-                    try {
-                        JarInputStream jis = new JarInputStream(is);
-                        try {
-                            Manifest manifest = jis.getManifest();
-                            String shortName = manifest.getMainAttributes().getValue("Short-Name");
+                    try (InputStream is = jf.getInputStream(entry); JarInputStream jis = new JarInputStream(is)) {
+                        Manifest manifest = jis.getManifest();
+                        String shortName = manifest.getMainAttributes().getValue("Short-Name");
+                        if (shortName == null) {
+                            shortName = manifest.getMainAttributes().getValue("Extension-Name");
                             if (shortName == null) {
-                                shortName = manifest.getMainAttributes().getValue("Extension-Name");
-                                if (shortName == null) {
-                                    shortName = m.group(1);
-                                }
+                                shortName = m.group(1);
                             }
-                            plugin.put("name", shortName);
-                            pluginGroupIds.put(shortName, manifest.getMainAttributes().getValue("Group-Id"));
-                            String version = manifest.getMainAttributes().getValue("Plugin-Version");
-                            // Remove extra build information from the version number
-                            final Matcher matcher = Pattern.compile("^(.+-SNAPSHOT)(.+)$").matcher(version);
-                            if (matcher.matches()) {
-                                version = matcher.group(1);
-                            }
-                            plugin.put("version", version);
-                            plugin.put("url", "jar:" + war.toURI() + "!/" + name);
-                            JSONArray dependenciesA = new JSONArray();
-                            String dependencies = manifest.getMainAttributes().getValue("Plugin-Dependencies");
-                            if (dependencies != null) {
-                                // e.g. matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
-                                for (String pair : dependencies.split(",")) {
-                                    boolean optional = pair.endsWith("resolution:=optional");
-                                    String[] nameVer = pair.replace(";resolution:=optional", "").split(":");
-                                    assert nameVer.length == 2;
-                                    dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1]).accumulate("optional", String.valueOf(optional)));
-                                }
-                            }
-                            plugin.accumulate("dependencies", dependenciesA);
-                            plugins.put(shortName, plugin);
-                        } finally {
-                            jis.close();
                         }
-                    } finally {
-                        is.close();
+                        plugin.put("name", shortName);
+                        pluginGroupIds.put(shortName, manifest.getMainAttributes().getValue("Group-Id"));
+                        String version = manifest.getMainAttributes().getValue("Plugin-Version");
+                        // Remove extra build information from the version number
+                        final Matcher matcher = Pattern.compile("^(.+-SNAPSHOT)(.+)$").matcher(version);
+                        if (matcher.matches()) {
+                            version = matcher.group(1);
+                        }
+                        plugin.put("version", version);
+                        plugin.put("url", "jar:" + war.toURI() + "!/" + name);
+                        JSONArray dependenciesA = new JSONArray();
+                        String dependencies = manifest.getMainAttributes().getValue("Plugin-Dependencies");
+                        if (dependencies != null) {
+                            // e.g. matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
+                            for (String pair : dependencies.split(",")) {
+                                boolean optional = pair.endsWith("resolution:=optional");
+                                String[] nameVer = pair.replace(";resolution:=optional", "").split(":");
+                                assert nameVer.length == 2;
+                                dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1]).accumulate("optional", String.valueOf(optional)));
+                            }
+                        }
+                        plugin.accumulate("dependencies", dependenciesA);
+                        plugins.put(shortName, plugin);
                     }
                 }
             }
-        } finally {
-            jf.close();
         }
         top.put("plugins", plugins);
         if (!top.has("core")) {
@@ -689,7 +674,7 @@ public class PluginCompatTester {
     }
 
     private SortedSet<MavenCoordinates> coreVersionFromWAR(UpdateSite.Data data) {
-        SortedSet<MavenCoordinates> result = new TreeSet<MavenCoordinates>();
+        SortedSet<MavenCoordinates> result = new TreeSet<>();
         result.add(new MavenCoordinates(PluginCompatTesterConfig.DEFAULT_PARENT_GROUP, PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT, data.core.version));
         return result;
     }
@@ -707,12 +692,11 @@ public class PluginCompatTester {
     private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion, List<PCTPlugin> overridenPlugins) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
-        Map<String,VersionNumber> pluginDeps = new HashMap<String,VersionNumber>();
-        Map<String,VersionNumber> pluginDepsTest = new HashMap<String,VersionNumber>();
+        Map<String,VersionNumber> pluginDeps = new HashMap<>();
+        Map<String,VersionNumber> pluginDepsTest = new HashMap<>();
         try {
             runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
-            Reader r = new FileReader(tmp);
-            try {
+            try (Reader r = new FileReader(tmp)) {
                 BufferedReader br = new BufferedReader(r);
                 Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(provided|compile|runtime|system)");
                 Pattern p2 = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(test)");
@@ -767,18 +751,16 @@ public class PluginCompatTester {
                         }
                     }
                 }
-            } finally {
-                r.close();
             }
         } finally {
             tmp.delete();
         }
         System.out.println("Analysis: coreDep=" + coreDep + " pluginDeps=" + pluginDeps + " pluginDepsTest=" + pluginDepsTest);
         if (coreDep != null) {
-            Map<String,VersionNumber> toAdd = new HashMap<String,VersionNumber>();
-            Map<String,VersionNumber> toReplace = new HashMap<String,VersionNumber>();
-            Map<String,VersionNumber> toAddTest = new HashMap<String,VersionNumber>();
-            Map<String,VersionNumber> toReplaceTest = new HashMap<String,VersionNumber>();
+            Map<String,VersionNumber> toAdd = new HashMap<>();
+            Map<String,VersionNumber> toReplace = new HashMap<>();
+            Map<String,VersionNumber> toAddTest = new HashMap<>();
+            Map<String,VersionNumber> toReplaceTest = new HashMap<>();
             overridenPlugins.forEach(plugin -> {
                 toReplace.put(plugin.getName(), plugin.getVersion());
                 toReplaceTest.put(plugin.getName(), plugin.getVersion());
@@ -812,7 +794,7 @@ public class PluginCompatTester {
                 }
             }
 
-            List<String> convertFromTestDep = new ArrayList<String>();
+            List<String> convertFromTestDep = new ArrayList<>();
             checkDefinedDeps(pluginDeps, toAdd, toReplace, otherPlugins, new ArrayList<>(pluginDepsTest.keySet()), convertFromTestDep);
             pluginDepsTest.putAll(difference(pluginDepsTest, toAdd));
             pluginDepsTest.putAll(difference(pluginDepsTest, toReplace));
@@ -834,7 +816,7 @@ public class PluginCompatTester {
     }
 
     private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins) {
-        checkDefinedDeps(pluginList, adding, replacing, otherPlugins, new ArrayList<String>(), null);
+        checkDefinedDeps(pluginList, adding, replacing, otherPlugins, new ArrayList<>(), null);
     }
     private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins, List<String> inTest, List<String> toConvertFromTest) {
         for (Map.Entry<String,VersionNumber> pluginDep : pluginList.entrySet()) {
@@ -938,7 +920,7 @@ public class PluginCompatTester {
     }
 
     private List<String> removeSplitsBasedOnJDK(List<String> splits, JavaSpecificationVersion jdkVersion) {
-        List<String> filterSplits = new LinkedList();
+        List<String> filterSplits = new LinkedList<>();
         for (String split : splits) {
             String[] tokens = split.trim().split("\\s+");
             if (tokens.length == 4 ) { // We have a jdk field in the splits file
@@ -958,7 +940,7 @@ public class PluginCompatTester {
     private static Stream<String> configLines(InputStream is) throws IOException {
         return IOUtils.readLines(is, StandardCharsets.UTF_8).stream().filter(line -> !line.matches("#.*|\\s*"));
     }
-    private static final List<String> HISTORICAL_SPLITS = ImmutableList.of(
+    private static final ImmutableList<String> HISTORICAL_SPLITS = ImmutableList.of(
         "maven-plugin 1.296 1.296",
         "subversion 1.310 1.0",
         "cvs 1.340 0.1",
@@ -976,7 +958,7 @@ public class PluginCompatTester {
         "bouncycastle-api 2.16 2.16.0",
         "command-launcher 2.86 1.0"
     );
-    private static final Set<String> HISTORICAL_SPLIT_CYCLES = ImmutableSet.of(
+    private static final ImmutableSet<String> HISTORICAL_SPLIT_CYCLES = ImmutableSet.of(
         "script-security matrix-auth",
         "script-security windows-slaves",
         "script-security antisamy-markup-formatter",
@@ -995,7 +977,7 @@ public class PluginCompatTester {
      * @param toAdd the right map; all returned items are found in this map
      */
     private Map<String, VersionNumber> difference(Map<String, VersionNumber> base, Map<String, VersionNumber> toAdd) {
-        Map<String, VersionNumber> diff = new HashMap<String, VersionNumber>();
+        Map<String, VersionNumber> diff = new HashMap<>();
         for (Map.Entry<String,VersionNumber> adding : toAdd.entrySet()) {
             if (!base.containsKey(adding.getKey())) {
                 diff.put(adding.getKey(), adding.getValue());

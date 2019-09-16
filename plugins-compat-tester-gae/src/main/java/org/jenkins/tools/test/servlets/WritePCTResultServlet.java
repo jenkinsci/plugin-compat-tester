@@ -8,7 +8,6 @@ import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginInfos;
 import org.jenkins.tools.test.model.TestStatus;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +22,7 @@ import java.util.List;
 public class WritePCTResultServlet extends HttpServlet {
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // Current servlet is secured !
         SecuritySupport.ensureTokenIsValid(req);
 
@@ -42,7 +41,7 @@ public class WritePCTResultServlet extends HttpServlet {
         if(dateTimestampStr == null){
             date = new Date(); // If date is not set, use NOW
         } else {
-            date = new Date(Long.valueOf(dateTimestampStr));
+            date = new Date(Long.parseLong(dateTimestampStr));
         }
         String buildLogPath = req.getParameter("buildLogPath");
 
