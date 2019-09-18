@@ -445,7 +445,7 @@ public class PluginCompatTester {
                             System.out.println("Copy plugin directory from : " + localCheckoutPluginDir.getAbsolutePath());
                             FileUtils.copyDirectoryStructure(localCheckoutPluginDir, pluginCheckoutDir);
                         } else {
-                            cloneFromSCM(pomData.getConnectionUrl(), plugin.name, plugin.version, pluginCheckoutDir);
+                            cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir);
                         }
                     } else {
                         // TODO this fails when it encounters symlinks (e.g. work/jobs/…/builds/lastUnstableBuild),
@@ -456,7 +456,7 @@ public class PluginCompatTester {
                     }
                 } else {
                     // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
-                    cloneFromSCM(pomData.getConnectionUrl(), plugin.name, plugin.version, pluginCheckoutDir);
+                    cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir);
                 }
             } else {
                 // If the plugin exists in a different directory (multimodule plugins)
@@ -546,11 +546,19 @@ public class PluginCompatTester {
         }
 	}
 
-	private void cloneFromSCM(String connectionUrl, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException {
-        System.out.println("Checking out from SCM connection URL : " + connectionUrl + " (" + name + "-" + version + ")");
+    private void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException {
+        String scmTag;
+        if (pomData.getScmTag() != null) {
+            scmTag = pomData.getScmTag();
+            System.out.println(String.format("Using SCM tag '%s' from POM.", scmTag));
+        } else {
+            scmTag = name + "-" + version;
+            System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
+        }
+        System.out.println("Checking out from SCM connection URL : " + pomData.getConnectionUrl() + " (" + name + "-" + version + ") at tag " + scmTag);
         ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-        ScmRepository repository = scmManager.makeScmRepository(connectionUrl);
-        CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(name + "-" + version));
+        ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
+        CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
 
         if (!result.isSuccess()) {
             throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());

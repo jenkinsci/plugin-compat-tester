@@ -102,7 +102,7 @@ public class NonStandardTagHookTest {
 
 
         Map<String, Object> info = new HashMap<>();
-        PomData data = new PomData("artifactID", "hpi", null, null, null);
+        PomData data = new PomData("artifactID", "hpi", null, null, null, null);
         info.put("pomData", data);
         JSONObject pluginData = new JSONObject();
         pluginData.put("name","artifactId");
@@ -139,7 +139,7 @@ public class NonStandardTagHookTest {
             config.setGenerateHtmlReport(true);
 
             Map<String, Object> info = new HashMap<>();
-            PomData data = new PomData("electricflow", "hpi", "scm:git:git://github.com/jenkinsci/electricflow-plugin.git", new MavenCoordinates("org.jenkins-ci.plugins", "electricflow", "1.1.8"), "org.jenkins-ci.plugins");
+            PomData data = new PomData("electricflow", "hpi", "scm:git:git://github.com/jenkinsci/electricflow-plugin.git", "cloudbees-flow-1.1.8", new MavenCoordinates("org.jenkins-ci.plugins", "electricflow", "1.1.8"), "org.jenkins-ci.plugins");
             info.put("pomData", data);
             JSONObject pluginData = new JSONObject();
             pluginData.put("name", "electricflow");

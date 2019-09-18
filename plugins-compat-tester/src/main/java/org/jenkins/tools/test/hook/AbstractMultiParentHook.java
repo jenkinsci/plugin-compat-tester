@@ -8,6 +8,7 @@ import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.jenkins.tools.test.SCMManagerFactory;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
 import java.io.File;
@@ -39,10 +40,19 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 // Checkout to the parent directory. All other processes will be on the child directory
                 File parentPath = new File(config.workDirectory.getAbsolutePath() + "/" + getParentFolder());
 
-                System.out.println("Checking out from SCM connection URL: " + getParentUrl() + " (" + getParentProjectName() + "-" + currentPlugin.version + ")");
+                PomData pomData = (PomData) moreInfo.get("pomData");
+                String scmTag;
+                if (pomData.getScmTag() != null) {
+                    scmTag = pomData.getScmTag();
+                    System.out.println(String.format("Using SCM tag '%s' from POM.", scmTag));
+                } else {
+                    scmTag = getParentProjectName() + "-" + currentPlugin.version;
+                    System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
+                }
+                System.out.println("Checking out from SCM connection URL: " + getParentUrl() + " (" + getParentProjectName() + "-" + currentPlugin.version + ") at tag " + scmTag);
                 ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
                 ScmRepository repository = scmManager.makeScmRepository(getParentUrl());
-                CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(getParentProjectName() + "-" + currentPlugin.version));
+                CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(scmTag));
 
                 if (!result.isSuccess()) {
                     // Throw an exception if there are any download errors.

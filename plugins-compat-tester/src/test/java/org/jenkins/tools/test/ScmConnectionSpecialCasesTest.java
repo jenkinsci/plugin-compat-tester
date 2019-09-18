@@ -42,8 +42,8 @@ import org.junit.Ignore;
 public class ScmConnectionSpecialCasesTest {
 
     private static void runComputeScmConnectionAgainst(String scmUrlToTest, String artifactId, String expectedComputedScmUrl) {
-        PomData pom = new PomData(artifactId, "hpi", scmUrlToTest,
-                new MavenCoordinates("org.jenkins-ci.main", "jenkins-cli", "2.150.1"), "org.jenkins-ci.main");
+        PomData pom = new PomData(artifactId, "hpi", scmUrlToTest, "jenkins-2.150.1",
+                new MavenCoordinates("org.jenkins-ci.main", "cli", "2.150.1"), "org.jenkins-ci.main");
         PluginRemoting.computeScmConnection(pom);
         assertThat(pom.getConnectionUrl(), is(equalTo(expectedComputedScmUrl)));
     }
