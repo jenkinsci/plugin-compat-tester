@@ -91,7 +91,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
-import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 
 /**
@@ -114,7 +113,7 @@ public class PluginCompatTester {
 
 	public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
-        runner = config.getExternalMaven() == null ? new InternalMavenRunner() : new ExternalMavenRunner(config.getExternalMaven());
+        runner = new ExternalMavenRunner(config.getExternalMaven());
 	}
 
     private SortedSet<MavenCoordinates> generateCoreCoordinatesToTest(UpdateSite.Data data, PluginCompatReport previousReport){

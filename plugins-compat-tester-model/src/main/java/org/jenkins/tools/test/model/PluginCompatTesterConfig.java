@@ -89,6 +89,7 @@ public class PluginCompatTesterConfig {
     @CheckForNull
     private String testJavaArgs = null;
 
+    @CheckForNull
     private File externalMaven = null;
 
     // List of plugin artefact ids on which tests will be performed
@@ -385,6 +386,7 @@ public class PluginCompatTesterConfig {
         this.war = war;
     }
 
+    @CheckForNull
     public File getExternalMaven() {
         return externalMaven;
     }

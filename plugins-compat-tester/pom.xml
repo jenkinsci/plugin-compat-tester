@@ -11,10 +11,6 @@
   <version>0.2.1-SNAPSHOT</version>
   <name>Plugins compatibility tester</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
-  
-  <properties>
-  	<maven.scm.providers.version>1.5</maven.scm.providers.version>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -36,8 +32,7 @@
 		  <artifactId>jenkins-core</artifactId>
   	</dependency>
 
-    <!-- Upper bounds between core and Maven Embedder -->
-    <!-- TODO: All of that stuff happens due to Maven detaching. Would it be sane to include Maven Plugin 3.0 as a JAR instead? -->
+    <!--TODO: cleanup after removing GAE and the Jenkins core update -->
     <dependency>
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
@@ -59,7 +54,6 @@
       <version>1.10.7</version>
     </dependency>
 
-    <!-- Upper bounds in Embedder -->
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
@@ -67,8 +61,13 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-container-default</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-classworlds</artifactId>
-      <version>2.5.2</version>
+      <version>2.6.0</version>
     </dependency>
 
   	<dependency>
@@ -82,84 +81,6 @@
           </exclusion>
       </exclusions>
   	</dependency>
-    <dependency>
-      <groupId>org.jenkins-ci.lib</groupId>
-      <artifactId>lib-jenkins-maven-embedder</artifactId>
-      <version>3.12.1</version>
-    </dependency>
-
-    <!-- scm providers declaration -->
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-accurev</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-bazaar</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-clearcase</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-cvsexe</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-cvsjava</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-gitexe</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-hg</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-local</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-perforce</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-starteam</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.maven-scm-provider-svnjava</groupId>
-      <artifactId>maven-scm-provider-svnjava</artifactId>
-      <version>1.12</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-synergy</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-vss</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-tfs</artifactId>
-      <version>${maven.scm.providers.version}</version>
-    </dependency>
-    <!-- end providers declaration -->
 
     <dependency>
       <groupId>org.jvnet.hudson</groupId>
