@@ -30,8 +30,6 @@ RUN git clone https://github.com/jenkinsci/plugin-compat-tester &&\
 
 COPY plugins-compat-tester/ /pct/src/plugins-compat-tester/
 COPY plugins-compat-tester-cli/ /pct/src/plugins-compat-tester-cli/
-COPY plugins-compat-tester-gae/ /pct/src/plugins-compat-tester-gae/
-COPY plugins-compat-tester-gae-client/ /pct/src/plugins-compat-tester-gae-client/
 COPY plugins-compat-tester-model/ /pct/src/plugins-compat-tester-model/
 COPY *.xml /pct/src/
 COPY LICENSE.txt /pct/src/LICENSE.txt

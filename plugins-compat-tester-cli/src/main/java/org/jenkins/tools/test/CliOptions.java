@@ -118,11 +118,6 @@ public class CliOptions {
             "These options will be used a la -D")
     private String mavenPropertiesFile;
 
-    @Parameter(names="-gaeSecurityToken", description = "Allows to pass GAE Security token needed to write data")
-    private String gaeSecurityToken;
-    @Parameter(names="-gaeBaseUrl", description = "Allows to pass GAE plugin compat tester base url")
-    private String gaeBaseUrl;
-
     @Parameter(names="-hookPrefixes", description = "Prefixes of the extra hooks' classes")
     private String hookPrefixes;
 
@@ -195,14 +190,6 @@ public class CliOptions {
 
     public String getCacheThresholdStatus() {
         return cacheThresholdStatus;
-    }
-
-    public String getGaeSecurityToken() {
-        return gaeSecurityToken;
-    }
-
-    public String getGaeBaseUrl() {
-        return gaeBaseUrl;
     }
 
     public String getHookPrefixes() {

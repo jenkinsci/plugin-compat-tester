@@ -119,11 +119,6 @@ public class PluginCompatTesterConfig {
 
     private Map<String, String> mavenProperties = Collections.emptyMap();
     private String mavenPropertiesFile;
-
-    // GoogleAppEngine property allowing to provide a security token to be able to write data
-    private String gaeSecurityToken;
-    // GoogleAppEngin base url for plugin compat tester
-    private String gaeBaseUrl;
  
     // Classpath prefixes of the extra hooks
     private List<String> hookPrefixes = new ArrayList<>(Collections.singletonList("org.jenkins"));
@@ -359,22 +354,6 @@ public class PluginCompatTesterConfig {
 
     public void setCacheThresholStatus(TestStatus cacheThresholStatus) {
         this.cacheThresholStatus = cacheThresholStatus;
-    }
-
-    public String getGaeSecurityToken() {
-        return gaeSecurityToken;
-    }
-
-    public void setGaeSecurityToken(String gaeSecurityToken) {
-        this.gaeSecurityToken = gaeSecurityToken;
-    }
-
-    public String getGaeBaseUrl() {
-        return gaeBaseUrl;
-    }
-
-    public void setGaeBaseUrl(String gaeBaseUrl) {
-        this.gaeBaseUrl = gaeBaseUrl;
     }
 
     public File getWar() {

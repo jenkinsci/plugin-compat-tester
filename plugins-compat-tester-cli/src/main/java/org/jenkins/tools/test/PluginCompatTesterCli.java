@@ -114,12 +114,6 @@ public class PluginCompatTesterCli {
         if(options.getCacheThresholdStatus() != null){
             config.setCacheThresholStatus(TestStatus.valueOf(options.getCacheThresholdStatus()));
         }
-        if(options.getGaeBaseUrl() != null){
-            config.setGaeBaseUrl(options.getGaeBaseUrl());
-        }
-        if(options.getGaeSecurityToken() != null){
-            config.setGaeSecurityToken(options.getGaeSecurityToken());
-        }
         if(options.getHookPrefixes() != null && !options.getHookPrefixes().isEmpty()){
             config.setHookPrefixes(Arrays.asList(options.getHookPrefixes().split(",")));
         }
