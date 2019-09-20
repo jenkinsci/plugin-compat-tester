@@ -12,6 +12,10 @@
   <name>Plugins compatibility tester</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
 
+  <properties>
+    <maven.scm.providers.version>1.5</maven.scm.providers.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.jenkins-ci</groupId>
@@ -69,18 +73,85 @@
       <artifactId>plexus-classworlds</artifactId>
       <version>2.6.0</version>
     </dependency>
-
   	<dependency>
       <groupId>org.apache.maven.scm</groupId>
       <artifactId>maven-scm-manager-plexus</artifactId>
       <version>1.5</version>
-      <exclusions>
-          <exclusion>
-              <groupId>org.codehaus.plexus</groupId>
-              <artifactId>plexus-container-default</artifactId>
-          </exclusion>
-      </exclusions>
   	</dependency>
+
+    <!--TODO(oleg_nenashev): Remove all providers except Git? -->
+    <!-- scm providers declaration -->
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-accurev</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-bazaar</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-clearcase</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-cvsexe</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-cvsjava</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-gitexe</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-hg</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-local</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-perforce</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-starteam</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.maven-scm-provider-svnjava</groupId>
+      <artifactId>maven-scm-provider-svnjava</artifactId>
+      <version>1.12</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-synergy</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-vss</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-tfs</artifactId>
+      <version>${maven.scm.providers.version}</version>
+    </dependency>
+    <!-- end providers declaration -->
 
     <dependency>
       <groupId>org.jvnet.hudson</groupId>
@@ -91,12 +162,6 @@
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-slf4j-logging</artifactId>
       <version>1.1</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.codehaus.plexus</groupId>
-          <artifactId>plexus-container-default</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
