@@ -162,11 +162,6 @@ public class PluginCompatTester {
             }
         }
 
-        DataImporter dataImporter = null;
-        if(config.getGaeBaseUrl() != null && config.getGaeSecurityToken() != null){
-            dataImporter = new DataImporter(config.getGaeBaseUrl(), config.getGaeSecurityToken());
-        }
-
         // Determine the plugin data
         HashMap<String,String> pluginGroupIds = new HashMap<>();  // Used to track real plugin groupIds from WARs
         
@@ -326,12 +321,6 @@ public class PluginCompatTester {
                     }
                     PluginCompatResult result = new PluginCompatResult(actualCoreCoordinates, status, errorMessage, warningMessages, buildLogFilePath);
                     report.add(pluginInfos, result);
-
-                    // Adding result to GAE
-                    if(dataImporter != null){
-                        dataImporter.importPluginCompatResult(result, pluginInfos, config.reportFile.getParentFile());
-                        // TODO: import log files
-                    }
 
                     if(config.reportFile != null){
                         if(!config.reportFile.exists()){
