@@ -503,7 +503,6 @@ public class PluginCompatTester {
             }
 
             List<String> args = new ArrayList<>();
-            args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=forkCount=1");
             args.add("hpi:resolve-test-dependencies");
             args.add("hpi:test-hpl");
