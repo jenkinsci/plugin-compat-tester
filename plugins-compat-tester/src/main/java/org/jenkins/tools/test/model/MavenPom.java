@@ -207,7 +207,12 @@ public class MavenPom {
                 }
             }
             version.addText(replacement.toString());
-            toReplaceUsed.put(trimmedArtifactId, replacement);
+            Element scope = mavenDependency.element("scope");
+            if (scope != null && scope.getTextTrim().equals("test")) {
+                toReplaceTestUsed.put(trimmedArtifactId, replacement);
+            } else {
+                toReplaceUsed.put(trimmedArtifactId, replacement);
+            }
         }
         // If the replacement dependencies weren't explicitly present in the pom, add them directly now
         toReplace.entrySet().removeAll(toReplaceUsed.entrySet());
