@@ -186,7 +186,6 @@ public class MavenPom {
             }
 
             String trimmedArtifactId = artifactId.getTextTrim();
-            excludeSecurity144Compat(mavenDependency);
             VersionNumber replacement = toReplace.get(trimmedArtifactId);
             if (replacement == null) {
                 replacement = toReplaceTest.get(trimmedArtifactId);
@@ -227,17 +226,6 @@ public class MavenPom {
         writeDocument(pom, doc);
     }
 
-    /** JENKINS-25625 workaround. */
-    private void excludeSecurity144Compat(Element dependency) {
-        Element exclusions = dependency.element("exclusions");
-        if (exclusions == null) {
-            exclusions = dependency.addElement("exclusions");
-        }
-        Element exclusion = exclusions.addElement("exclusion");
-        exclusion.addElement(GROUP_ID_ELEMENT).addText("org.jenkins-ci");
-        exclusion.addElement(ARTIFACT_ID_ELEMENT).addText("SECURITY-144-compat");
-    }
-
     /**
      * Add the given new plugins to the pom file. 
      */
@@ -259,7 +247,6 @@ public class MavenPom {
             if(scope != null) {
                 dependency.addElement("scope").addText(scope);
             }
-            excludeSecurity144Compat(dependency);
         }
     }
 
