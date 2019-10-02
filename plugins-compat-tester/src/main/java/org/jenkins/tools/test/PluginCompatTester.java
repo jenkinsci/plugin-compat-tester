@@ -503,7 +503,6 @@ public class PluginCompatTester {
             }
 
             List<String> args = new ArrayList<>();
-            args.add("--define=maven.test.redirectTestOutputToFile=false");
             args.add("--define=forkCount=1");
             args.add("hpi:resolve-test-dependencies");
             args.add("hpi:test-hpl");
@@ -519,9 +518,10 @@ public class PluginCompatTester {
             forExecutionHooks.put("config", config);
             forExecutionHooks.put("pluginDir", pluginCheckoutDir);
             pcth.runBeforeExecution(forExecutionHooks);
+            args = (List<String>)forExecutionHooks.get("args");
 
             // Execute with tests
-            runner.run(mconfig, pluginCheckoutDir, buildLogFile, ((List<String>)forExecutionHooks.get("args")).toArray(new String[args.size()]));
+            runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
 
             return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages());
         }catch(PomExecutionException e){
