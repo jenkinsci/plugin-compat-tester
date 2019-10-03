@@ -17,13 +17,16 @@ import org.jenkins.tools.test.exception.PomExecutionException;
 
 import javax.annotation.CheckForNull;
 
+/**
+ * Runs external Maven executable.
+ */
 public class ExternalMavenRunner implements MavenRunner {
 
     @CheckForNull
     private File mvn;
 
     /**
-     *
+     * Constructor.
      * @param mvn Path to Maven.
      *            If {@code null}, a default Maven executable from {@code PATH} will be used
      */
