@@ -39,8 +39,6 @@
     <module>plugins-compat-tester-cli</module>
     <module>plugins-compat-tester-model</module>
     <!--<module>plugins-compat-tester-rest</module>-->
-      <module>plugins-compat-tester-gae</module>
-      <module>plugins-compat-tester-gae-client</module>
   </modules>
 
   <dependencyManagement>
