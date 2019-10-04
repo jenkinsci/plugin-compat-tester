@@ -119,7 +119,7 @@ public class PluginCompatTester {
 	}
 
     private SortedSet<MavenCoordinates> generateCoreCoordinatesToTest(UpdateSite.Data data, PluginCompatReport previousReport){
-        SortedSet<MavenCoordinates> coreCoordinatesToTest = null;
+        SortedSet<MavenCoordinates> coreCoordinatesToTest;
         // If parent GroupId/Artifact are not null, this will be fast : we will only test
         // against 1 core coordinate
         if(config.getParentGroupId() != null && config.getParentArtifactId() != null){
@@ -367,7 +367,7 @@ public class PluginCompatTester {
             Result result = new StreamResult(PluginCompatReport.getHtmlFilepath(config.reportFile));
 
             TransformerFactory factory = TransformerFactory.newInstance();
-            Transformer transformer = null;
+            Transformer transformer;
             try {
                 transformer = factory.newTransformer(xsltSource);
                 transformer.transform(xmlSource, result);
@@ -569,8 +569,8 @@ public class PluginCompatTester {
      * @return Update site Data
      */
     private UpdateSite.Data extractUpdateCenterData(Map<String, String> groupIDs){
-		URL url = null;
-		String jsonp = null;
+		URL url;
+		String jsonp;
 		try {
 	        url = new URL(config.updateCenterUrl);
 	        jsonp = IOUtils.toString(url.openStream());

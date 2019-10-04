@@ -146,7 +146,7 @@ public class PluginCompatReport {
      */
     @Nonnull
     public static PluginCompatReport fromXml(File reportPath) throws IOException {
-        PluginCompatReport report = null;
+        PluginCompatReport report;
 
         // Reading report file from reportPath
         XStream xstream = createXStream();

@@ -108,10 +108,10 @@ public class PluginRemoting {
     }
 	
 	public PomData retrievePomData() throws PluginSourcesUnavailableException {
-		String scmConnection = null;
-        String scmTag = null;
-        String artifactId = null;
-        String groupId = null;
+		String scmConnection;
+        String scmTag;
+        String artifactId;
+        String groupId;
         String packaging;
 		String pomContent = this.retrievePomContent();
         @CheckForNull MavenCoordinates parent = null;
