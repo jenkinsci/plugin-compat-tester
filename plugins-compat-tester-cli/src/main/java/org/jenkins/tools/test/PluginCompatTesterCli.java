@@ -27,16 +27,15 @@ package org.jenkins.tools.test;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import org.codehaus.plexus.PlexusContainerException;
-import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.TestStatus;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.codehaus.plexus.PlexusContainerException;
+import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.TestStatus;
 
 /**
  * Plugin compatibility tester frontend for the CLI

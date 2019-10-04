@@ -1,19 +1,18 @@
 package org.jenkins.tools.test.hook;
 
-import org.jenkins.tools.test.SCMManagerFactory;
-import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-
+import hudson.model.UpdateSite.Plugin;
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
-import hudson.model.UpdateSite.Plugin;
+import org.jenkins.tools.test.SCMManagerFactory;
+import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 /**
  * An example hook for dealing with a multiplugin repository. Since the plugin-compat-tester assumes 
  * each plugin is in it's own repository, these plugins automatically fail since they are "not found".

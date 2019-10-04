@@ -25,7 +25,6 @@
  */
 package org.jenkins.tools.test.model;
 
-
 import java.util.Collections;
 import java.util.List;
 

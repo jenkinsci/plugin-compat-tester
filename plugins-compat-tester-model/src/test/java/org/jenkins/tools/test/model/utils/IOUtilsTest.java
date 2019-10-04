@@ -1,14 +1,13 @@
 package org.jenkins.tools.test.model.utils;
 
-import org.junit.Test;
-
-import java.io.IOException;
-import java.io.InputStream;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.io.InputStream;
+import org.junit.Test;
 
 /**
  * @author fcamblor

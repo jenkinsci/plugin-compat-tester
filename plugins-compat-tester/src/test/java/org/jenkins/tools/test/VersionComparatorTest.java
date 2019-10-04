@@ -25,13 +25,13 @@
  */
 package org.jenkins.tools.test;
 
-import com.google.common.collect.ImmutableMap;
-import org.jenkins.tools.test.model.comparators.VersionComparator;
-import org.junit.Test;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+
+import com.google.common.collect.ImmutableMap;
+import org.jenkins.tools.test.model.comparators.VersionComparator;
+import org.junit.Test;
 
 /**
  * Tests for plugin version comparisons

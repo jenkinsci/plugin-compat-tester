@@ -1,6 +1,8 @@
 package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
+import java.io.File;
+import java.util.Map;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
@@ -11,13 +13,9 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
-import java.io.File;
-import java.util.Map;
-
 /**
  * Utility class to ease create simple hooks for multimodule projects
  */
-
 public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBeforeCheckout {
 
     protected boolean firstRun = true;

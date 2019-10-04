@@ -1,8 +1,7 @@
 package org.jenkins.tools.test.model.hook;
 
-import org.apache.commons.lang.ClassUtils;
-
 import java.util.Map;
+import org.apache.commons.lang.ClassUtils;
 
 /**
  * An abstract class that marks a hook that runs before the checkout stage of the

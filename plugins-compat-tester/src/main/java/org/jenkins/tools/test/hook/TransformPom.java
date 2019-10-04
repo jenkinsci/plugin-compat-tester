@@ -1,14 +1,13 @@
 package org.jenkins.tools.test.hook;
 
-import org.jenkins.tools.test.model.MavenCoordinates;
-import org.jenkins.tools.test.model.MavenPom;
-import org.jenkins.tools.test.model.PomData;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
-
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jenkins.tools.test.model.MavenCoordinates;
+import org.jenkins.tools.test.model.MavenPom;
+import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
 public class TransformPom extends PluginCompatTesterHookBeforeExecution {
     private static final Logger LOGGER = Logger.getLogger(TransformPom.class.getName());

@@ -25,12 +25,11 @@
  */
 package org.jenkins.tools.test.model;
 
+import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
-
-import javax.annotation.Nonnull;
 
 /**
  * Class representing Maven GAV

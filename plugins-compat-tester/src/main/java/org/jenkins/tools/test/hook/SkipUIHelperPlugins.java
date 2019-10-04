@@ -1,12 +1,11 @@
 package org.jenkins.tools.test.hook;
 
-import org.jenkins.tools.test.model.TestExecutionResult;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.jenkins.tools.test.model.TestExecutionResult;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
 /**
  * Short circuit running any UI plugins that function as a helper methods.

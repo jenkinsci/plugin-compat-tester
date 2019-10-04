@@ -25,7 +25,13 @@
  */
 package org.jenkins.tools.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.google.common.collect.ImmutableList;
+import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.TestStatus;
 import org.junit.After;
@@ -35,13 +41,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.jvnet.hudson.test.Issue;
 import org.springframework.core.io.ClassPathResource;
-
-import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Main test class for plugin compatibility test frontend

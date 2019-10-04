@@ -1,11 +1,9 @@
 package org.jenkins.tools.test.hook;
 
-
-import org.jenkins.tools.test.model.PomData;
-
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jenkins.tools.test.model.PomData;
 
 /**
  * Workaround for the declarative pipeline plugins since they are

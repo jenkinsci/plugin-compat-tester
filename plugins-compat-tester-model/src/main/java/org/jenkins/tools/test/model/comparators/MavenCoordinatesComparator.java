@@ -25,9 +25,8 @@
  */
 package org.jenkins.tools.test.model.comparators;
 
-import org.jenkins.tools.test.model.MavenCoordinates;
-
 import java.util.Comparator;
+import org.jenkins.tools.test.model.MavenCoordinates;
 
 /**
  * Class used to compare MavenCoordinates

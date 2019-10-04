@@ -25,15 +25,15 @@
  */
 package org.jenkins.tools.test;
 
-import org.jenkins.tools.test.model.PluginRemoting;
-import org.jenkins.tools.test.model.PomData;
-import org.junit.Test;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import org.jenkins.tools.test.model.MavenCoordinates;
 import static org.junit.Assert.assertThat;
+
+import org.jenkins.tools.test.model.MavenCoordinates;
+import org.jenkins.tools.test.model.PluginRemoting;
+import org.jenkins.tools.test.model.PomData;
 import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * Tests about scm connection url transformations

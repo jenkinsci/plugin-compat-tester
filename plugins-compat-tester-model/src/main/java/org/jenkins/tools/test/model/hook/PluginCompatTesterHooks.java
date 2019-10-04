@@ -1,18 +1,17 @@
 package org.jenkins.tools.test.model.hook;
 
-import org.reflections.Reflections;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.reflections.Reflections;
 
 /**
  * Loads and executes hooks for modifying the state of the Plugin Compat Tester at different 

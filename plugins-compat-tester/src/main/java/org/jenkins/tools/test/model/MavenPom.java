@@ -26,9 +26,6 @@
 package org.jenkins.tools.test.model;
 
 import hudson.util.VersionNumber;
-import org.codehaus.plexus.util.FileUtils;
-import org.dom4j.io.XMLWriter;
-import org.jenkins.tools.test.exception.PomTransformationException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,14 +34,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import javax.annotation.Nonnull;
+import org.codehaus.plexus.util.FileUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
-
-import javax.annotation.Nonnull;
+import org.dom4j.io.XMLWriter;
+import org.jenkins.tools.test.exception.PomTransformationException;
 
 /**
  * Class encapsulating business around maven poms

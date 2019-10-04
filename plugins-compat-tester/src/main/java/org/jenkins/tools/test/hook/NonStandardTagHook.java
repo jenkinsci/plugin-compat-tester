@@ -1,6 +1,13 @@
 package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
@@ -11,14 +18,6 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * This hook allows plugin using a non standard tag format on github to be checked out.
