@@ -199,12 +199,6 @@ public class MavenPom {
                 mavenDependency.remove(version);
             }
             version = mavenDependency.addElement(VERSION_ELEMENT);
-            if (toConvert.contains(artifactId)) { // Remove the test scope
-                Element scope = mavenDependency.element("scope");
-                if (scope != null) {
-                    mavenDependency.remove(scope);
-                }
-            }
             version.addText(replacement.toString());
             Element scope = mavenDependency.element("scope");
             if (scope != null && scope.getTextTrim().equals("test")) {
