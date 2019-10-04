@@ -31,6 +31,8 @@ import hudson.util.XStream2;
 
 import javax.annotation.Nonnull;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 /**
@@ -78,9 +80,7 @@ public class PluginCompatReport {
         out.close();
 
         // When everything went well, let's overwrite old report XML file with the new one
-        //FileUtils.rename(tempReportPath, reportPath);
-        reportPath.delete();
-        tempReportPath.renameTo(reportPath);
+        Files.move(tempReportPath.toPath(), reportPath.toPath(), StandardCopyOption.ATOMIC_MOVE);
     }
 
     public static String getXslFilename(@Nonnull File reportPath){

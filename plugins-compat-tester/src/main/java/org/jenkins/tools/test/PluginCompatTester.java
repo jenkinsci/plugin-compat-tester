@@ -71,6 +71,7 @@ import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -418,12 +419,12 @@ public class PluginCompatTester {
                 if(beforeCheckout.get("checkoutDir") != null){
                     pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
                 }
-                if(pluginCheckoutDir.exists()){
+                if (Files.isDirectory(pluginCheckoutDir.toPath())) {
                     System.out.println("Deleting working directory "+pluginCheckoutDir.getAbsolutePath());
                     FileUtils.deleteDirectory(pluginCheckoutDir);
                 }
 
-                pluginCheckoutDir.mkdir();
+                Files.createDirectory(pluginCheckoutDir.toPath());
                 System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
 
                 if (localCheckoutProvided()) {
@@ -750,7 +751,7 @@ public class PluginCompatTester {
                 }
             }
         } finally {
-            tmp.delete();
+            Files.delete(tmp.toPath());
         }
         System.out.println("Analysis: coreDep=" + coreDep + " pluginDeps=" + pluginDeps + " pluginDepsTest=" + pluginDepsTest);
         if (coreDep != null) {

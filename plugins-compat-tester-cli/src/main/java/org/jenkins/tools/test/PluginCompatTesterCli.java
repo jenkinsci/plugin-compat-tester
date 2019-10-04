@@ -33,6 +33,7 @@ import org.jenkins.tools.test.model.TestStatus;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +62,7 @@ public class PluginCompatTesterCli {
             System.exit(1);
         }
 
-        options.getWorkDirectory().mkdirs();
+        Files.createDirectories(options.getWorkDirectory().toPath());
 
         File reportFile = null;
         if(!"NOREPORT".equals(options.getReportFile().getName())){
