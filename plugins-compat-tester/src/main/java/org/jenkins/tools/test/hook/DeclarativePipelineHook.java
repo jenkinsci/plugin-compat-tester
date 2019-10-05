@@ -6,8 +6,7 @@ import java.util.logging.Logger;
 import org.jenkins.tools.test.model.PomData;
 
 /**
- * Workaround for the declarative pipeline plugins since they are
- * stored in a central repository.
+ * Workaround for the Pipeline: Declarative plugins since they are stored in a central repository.
  */
 public class DeclarativePipelineHook extends AbstractMultiParentHook {
 

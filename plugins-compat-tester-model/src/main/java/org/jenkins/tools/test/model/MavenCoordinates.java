@@ -33,6 +33,7 @@ import org.jenkins.tools.test.model.comparators.VersionComparator;
 
 /**
  * Class representing Maven GAV
+ *
  * @author Frederic Camblor
  */
 public class MavenCoordinates implements Comparable<MavenCoordinates> {
@@ -43,6 +44,7 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
 
     /**
      * Constructor.
+     *
      * @throws IllegalArgumentException one of the parameters is invalid.
      */
     public MavenCoordinates(@Nonnull String groupId, @Nonnull String artifactId, @Nonnull String version){

@@ -35,6 +35,7 @@ import org.junit.Test;
 
 /**
  * Tests for plugin version comparisons
+ *
  * @author Frederic Camblor
  */
 public class VersionComparatorTest {

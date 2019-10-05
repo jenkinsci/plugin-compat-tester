@@ -39,6 +39,7 @@ import org.jenkins.tools.test.model.TestStatus;
 
 /**
  * Plugin compatibility tester frontend for the CLI
+ *
  * @author Frederic Camblor
  */
 public class PluginCompatTesterCli {

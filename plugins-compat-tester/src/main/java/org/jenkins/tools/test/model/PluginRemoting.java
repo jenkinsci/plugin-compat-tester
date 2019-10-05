@@ -52,6 +52,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Utility class providing business for retrieving plugin POM data
+ *
  * @author Frederic Camblor
  */
 public class PluginRemoting {
@@ -162,8 +163,8 @@ public class PluginRemoting {
 	}
 
     /**
-     * Retrieves a field value by XPath.
-     * The value must exist and be non-empty
+     * Retrieves a field value by XPath. The value must exist and be non-empty.
+     *
      * @throws IOException parsing error
      */
 	@Nonnull

@@ -44,6 +44,7 @@ import org.springframework.core.io.ClassPathResource;
 
 /**
  * Main test class for plugin compatibility test frontend
+ *
  * @author Frederic Camblor
  */
 public class PluginCompatTesterTest {

@@ -4,17 +4,15 @@ import java.util.Map;
 import org.apache.commons.lang.ClassUtils;
 
 /**
- * An abstract class that marks a hook that runs before the checkout stage of the
- * Plugins Compat Tester.
+ * An abstract class that marks a hook that runs before the checkout stage of the Plugin
+ * Compatibility Tester.
  *
- * This exists simply for the ability to check when a subclass should be implemented.
+ * <p>This exists simply for the ability to check when a subclass should be implemented.
  */
 public abstract class PluginCompatTesterHookBeforeCheckout implements PluginCompatTesterHook {
     /**
-     * Check the:
-     *  + executionResult - if set, the required result of this execution (CANNOT CHECK IN THIS CLASS)
-     *  + runCheckout - if the plugin should be checked out again
-     *  + pluginDir - if set, the location of the plugin directory
+     * Check the value of {@code runCheckout} (if the plugin should be checked out again) and {@code
+     * pluginDir} (if set, the location of the plugin directory).
      */
     @Override
     public void validate(Map<String, Object> toCheck) {

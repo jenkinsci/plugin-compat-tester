@@ -32,6 +32,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * POJO storing a plugin compatibility test result
+ *
  * @author Frederic Camblor
  */
 public class PluginCompatResult implements Comparable<PluginCompatResult> {

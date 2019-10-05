@@ -30,6 +30,7 @@ import java.util.List;
 
 /**
  * POJO containing plugin compatibility test result
+ *
  * @author Frederic Camblor
  */
 public class TestExecutionResult {

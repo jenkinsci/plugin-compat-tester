@@ -105,6 +105,7 @@ import org.springframework.core.io.ClassPathResource;
 
 /**
  * Frontend for plugin compatibility tests
+ *
  * @author Frederic Camblor, Olivier Lamy
  */
 public class PluginCompatTester {

@@ -20,10 +20,11 @@ import org.jenkins.tools.test.model.comparators.VersionComparator;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
 /**
- * This hook allows plugin using a non standard tag format on github to be checked out.
+ * This hook allows plugins using a non-standard tag format on GitHub to be checked out.
  *
- * The affected plugins are loaded from a properties file whose key is the artifactId and the value is a string to be formatted
- * for the tag value, this value will be calculated using String.format passing the current version as the only parameter
+ * <p>The affected plugins are loaded from a properties file whose key is the {@code artifactId} and
+ * whose value is a string to be formatted for the tag value. This value will be calculated using
+ * {@link String#format(String, Object...)} passing the current version as the only parameter.
  */
 public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
 

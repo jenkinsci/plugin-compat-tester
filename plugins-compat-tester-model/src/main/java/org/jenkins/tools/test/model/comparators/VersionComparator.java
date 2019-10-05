@@ -29,6 +29,7 @@ import java.util.Comparator;
 
 /**
  * Class used to compare 2 plugin versions
+ *
  * @author Frederic Camblor
  */
 public class VersionComparator implements Comparator<String> {

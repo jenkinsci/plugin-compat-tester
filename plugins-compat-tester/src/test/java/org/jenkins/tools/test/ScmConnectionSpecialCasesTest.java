@@ -36,7 +36,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Tests about scm connection url transformations
+ * Tests about SCM connection URL transformations
+ *
  * @author Frederic Camblor
  */
 public class ScmConnectionSpecialCasesTest {

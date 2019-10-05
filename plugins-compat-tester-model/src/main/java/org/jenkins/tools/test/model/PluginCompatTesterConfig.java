@@ -41,7 +41,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * POJO used to configure PluginCompatTester execution
+ * POJO used to configure Plugin Compatibility Tester execution
+ *
  * @author Frederic Camblor
  */
 public class PluginCompatTesterConfig {
@@ -235,8 +236,8 @@ public class PluginCompatTesterConfig {
     }
 
     /**
-     * Gets a list of Maven properties defined in the config.
-     * It is not a full list of properties, {@link #retrieveMavenProperties()} should be used to construct it
+     * Gets a list of Maven properties defined in the configuration. It is not a full list of
+     * properties; {@link #retrieveMavenProperties()} should be used to construct it.
      */
     @Nonnull
     public Map<String, String> getMavenProperties() {
@@ -253,6 +254,7 @@ public class PluginCompatTesterConfig {
 
     /**
      * Retrieves Maven Properties from available sources like {@link #mavenPropertiesFile}.
+     *
      * @return Map of properties
      * @throws IOException Property read failure
      * @since TODO
@@ -318,7 +320,9 @@ public class PluginCompatTesterConfig {
     }
 
     /**
-     * Gets the Java version used for testing, using the binary path to the <code>java</code> command.
+     * Gets the Java version used for testing, using the binary path to the <code>java</code>
+     * command.
+     *
      * @return a string identifying the jvm in use
      */
     public String getTestJavaVersion() throws IOException {
@@ -382,7 +386,8 @@ public class PluginCompatTesterConfig {
 
     /**
      * Sets JDK Home for tests
-     * @param testJDKHome JDK home to be used. {@code null} for using defaul system one.
+     *
+     * @param testJDKHome JDK home to be used. {@code null} for using default system one.
      */
     public void setTestJDKHome(@CheckForNull File testJDKHome) {
         this.testJDKHome = testJDKHome;

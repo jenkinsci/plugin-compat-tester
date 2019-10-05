@@ -48,7 +48,8 @@ import java.util.TreeSet;
 import javax.annotation.Nonnull;
 
 /**
- * POJO allowing to store the PluginCompatTester report
+ * POJO allowing to store the Plugin Compatibility Tester report
+ *
  * @author Frederic Camblor
  */
 public class PluginCompatReport {
@@ -152,6 +153,7 @@ public class PluginCompatReport {
 
     /**
      * Reads a compat report
+     *
      * @param reportPath Report file path
      * @return Report. If the file does not exist, an empty report will be returned
      * @throws IOException Unexpected read error.

@@ -14,21 +14,19 @@ import java.util.stream.Collectors;
 import org.reflections.Reflections;
 
 /**
- * Loads and executes hooks for modifying the state of the Plugin Compat Tester at different 
- * points along the setup.  Hooks extec a particular subclass defining their type and 
- * implement the PluginCompatTesterHook interface.
+ * Loads and executes hooks for modifying the state of Plugin Compatibility Tester at different
+ * points along the setup. Hooks extend a particular subclass defining their type and implement the
+ * {@link PluginCompatTesterHook} interface.
  *
- * Note: the classes will not have a parameterized constructor or at least that 
- * constructor will never be called
+ * <p>Note: the classes will not have a parameterized constructor or at least that constructor will
+ * never be called.
  */
-
 public class PluginCompatTesterHooks {
     private List<String> hookPrefixes = new ArrayList<>();
     private Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
 
     /**
-     * Create and prepopulate the various hooks for this run of the plugin-compat-tester.
-     * 
+     * Create and prepopulate the various hooks for this run of Plugin Compatibility Tester.
      */
     public PluginCompatTesterHooks() {
         this(new ArrayList<>());
@@ -55,10 +53,10 @@ public class PluginCompatTesterHooks {
     }
 
     /**
-     * Evaluate and execute hooks for a given stage.  There is 1 required object for evaluating any
-     * hook.  [String, "pluginName"] 
+     * Evaluate and execute hooks for a given stage. There is 1 required object for evaluating any
+     * hook: the {@link String} {@code pluginName}.
      *
-     * @param stage    stage which 
+     * @param stage stage in which to run the hooks
      * @param elements relevant information to hooks at various stages.
      */
     private Map<String, Object> runHooks(String stage, Map<String, Object> elements) throws RuntimeException {
@@ -158,8 +156,9 @@ public class PluginCompatTesterHooks {
     }
 
     /**
-     * Seems ridiculous, but is needed to actually convert between the two types of Sets.
-     * Gets around generics error: {@code incompatible types: inference variable T has incompatible bounds}
+     * This seems ridiculous, but it is needed to actually convert between the two types of {@link
+     * Set}s. Gets around a generics error: {@code incompatible types: inference variable T has
+     * incompatible bounds}.
      */
     private Class<? extends PluginCompatTesterHook> casting(Class<? extends PluginCompatTesterHook> c) {
         return c;

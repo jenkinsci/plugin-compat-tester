@@ -26,8 +26,9 @@
 package org.jenkins.tools.test.exception;
 
 /**
- * Exception used when plugin sources are unreachable (far various reasons : scm data is missing,
- * checkout failed, etc.)
+ * Exception used when plugin sources are unreachable for various reasons (e.g., SCM data is
+ * missing, the checkout failed, etc).
+ *
  * @author Frederic Camblor
  */
 public class PluginSourcesUnavailableException extends Exception {

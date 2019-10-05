@@ -31,7 +31,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 /**
- * POJO containing important data residing in plugin's pom
+ * POJO containing important data residing in plugin's POM
+ *
  * @author Frederic Camblor
  */
 public class PomData {

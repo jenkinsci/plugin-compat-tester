@@ -6,9 +6,8 @@ import java.util.logging.Logger;
 import org.jenkins.tools.test.model.PomData;
 
 /**
- * Workaround for the blueocean plugins since they are
+ * Workaround for the Blue Ocean plugins since they are
  * stored in a central repository.
- * 
  */
 public class BlueOceanHook extends AbstractMultiParentHook {
 

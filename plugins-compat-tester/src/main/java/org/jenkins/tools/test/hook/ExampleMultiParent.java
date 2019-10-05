@@ -14,11 +14,11 @@ import org.jenkins.tools.test.SCMManagerFactory;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
 /**
- * An example hook for dealing with a multiplugin repository. Since the plugin-compat-tester assumes 
- * each plugin is in it's own repository, these plugins automatically fail since they are "not found".
+ * An example hook for dealing with a multiplugin repository. Since Plugin Compatibility Tester assumes
+ * each plugin is in its own repository, these plugins automatically fail since they are "not
+ * found".
  *
- * This is an example of what needs to change to handle multimodule parents.
- * 
+ * <p>This is an example of what needs to change to handle multimodule parents.
  */
 public class ExampleMultiParent { //extends PluginCompatTesterHookBeforeCheckout {
     private String parentUrl = "scm:git:git@github.com:jenkinsci/parent_repo.git";

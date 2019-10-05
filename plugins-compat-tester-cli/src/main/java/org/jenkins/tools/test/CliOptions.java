@@ -38,6 +38,7 @@ import org.jenkins.tools.test.model.TestStatus;
 
 /**
  * POJO containing CLI arguments & help
+ *
  * @author Frederic Camblor
  */
 public class CliOptions {

@@ -22,7 +22,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
     }
 
     /**
-     * Check if the pom should be transformed for the given plugin.
+     * Check if the POM should be transformed for the given plugin.
      */
     @Override
     public boolean check(Map<String, Object> info) {

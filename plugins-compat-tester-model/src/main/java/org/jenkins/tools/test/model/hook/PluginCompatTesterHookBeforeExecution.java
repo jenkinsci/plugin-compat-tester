@@ -1,20 +1,18 @@
 package org.jenkins.tools.test.model.hook;
 
+import java.util.Map;
 import org.jenkins.tools.test.model.PomData;
 
-import java.util.Map;
-
 /**
- * An abstract class that marks a hook that runs before the execution stage of the
- * Plugins Compat Tester.
+ * An abstract class that marks a hook that runs before the execution stage of the Plugin
+ * Compatibility Tester.
  *
- * This exists simply for the ability to check when a subclass should be implemented.
+ * <p>This exists simply for the ability to check when a subclass should be implemented.
  */
 public abstract class PluginCompatTesterHookBeforeExecution implements PluginCompatTesterHook {
     /**
-     * Check the:
-     *  + args - the arguments with which to run `mvn test`
-     *  + pomData - if the plugin should be checked out again
+     * Check the value of {@code args} (the arguments with which to run {@code mvn test}) and {@code
+     * pomData} (if the plugin should be checked out again).
      */
     @Override
     public void validate(Map<String, Object> toCheck) {

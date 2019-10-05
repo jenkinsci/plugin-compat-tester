@@ -45,7 +45,8 @@ import org.dom4j.io.XMLWriter;
 import org.jenkins.tools.test.exception.PomTransformationException;
 
 /**
- * Class encapsulating business around maven poms
+ * Class encapsulating business around Maven POMs
+ *
  * @author Frederic Camblor
  */
 public class MavenPom {
