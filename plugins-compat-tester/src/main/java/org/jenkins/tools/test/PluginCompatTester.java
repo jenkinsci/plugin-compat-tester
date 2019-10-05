@@ -290,7 +290,7 @@ public class PluginCompatTester {
                         pomData = null;
                     }
 
-                    if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, actualCoreCoordinates, config.getTestCacheTimeout(), config.getCacheThresholStatus())){
+                    if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, actualCoreCoordinates, config.getTestCacheTimeout(), config.getCacheThresholdStatus())){
                         System.out.println("Cache activated for plugin "+pluginInfos.pluginName+" => test skipped !");
                         continue; // Don't do anything : we are in the cached interval ! :-)
                     }
@@ -359,7 +359,7 @@ public class PluginCompatTester {
         }
 
         if (failed && config.isFailOnError()) {
-		    throw new AbortException("Execution was aborted due to the failure in a plugin test (-failOnerror is set)");
+		    throw new AbortException("Execution was aborted due to the failure in a plugin test (-failOnError is set)");
         }
 
         return report;
@@ -607,7 +607,7 @@ public class PluginCompatTester {
      * Scans through a WAR file, accumulating plugin information
      * @param war WAR to scan
      * @param pluginGroupIds Map pluginName to groupId if set in the manifest, MUTATED IN THE EXECUTION
-     * @param pluginRegExp The plugin regexp to use, can be used to diferentiate between detached or "normal" plugins
+     * @param pluginRegExp The plugin regexp to use, can be used to differentiate between detached or "normal" plugins
      *                     in the war file
      * @return Update center data
      */
@@ -692,7 +692,7 @@ public class PluginCompatTester {
             dataConstructor.setAccessible(true);
             return dataConstructor.newInstance(us, jsonO);
         }catch(Exception e){
-            throw new RuntimeException("UpdateSite.Data instanciation problems", e);
+            throw new RuntimeException("UpdateSite.Data instantiation problems", e);
         }
     }
 

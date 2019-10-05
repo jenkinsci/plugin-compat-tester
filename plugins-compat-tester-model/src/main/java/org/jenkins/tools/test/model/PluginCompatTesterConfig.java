@@ -65,7 +65,7 @@ public class PluginCompatTesterConfig {
     public final File reportFile;
 
     // Path for maven settings file where repository will be provided allowing to
-    // download jenkins-core artefact (and dependencies)
+    // download jenkins-core artifact (and dependencies)
     private final File m2SettingsFile;
 
     // GroupId which will be used to replace tested plugin's parent groupId
@@ -91,11 +91,11 @@ public class PluginCompatTesterConfig {
 
     private File externalMaven = null;
 
-    // List of plugin artefact ids on which tests will be performed
+    // List of plugin artifact ids on which tests will be performed
     // If null, tests will be performed on every plugins retrieved from update center
     private List<String> includePlugins = null;
 
-    // List of plugin artefact ids on which tests will be not performed
+    // List of plugin artifact ids on which tests will be not performed
     // If null, tests will be performed on every includePlugins found
     private List<String> excludePlugins = null;
 
@@ -107,7 +107,7 @@ public class PluginCompatTesterConfig {
     // Allows to define a minimal cache threshold for TestStatus
     // That is to say, every results lower than this threshold won't be put
     // into the cache
-    private TestStatus cacheThresholStatus = TestStatus.COMPILATION_ERROR;
+    private TestStatus cacheThresholdStatus = TestStatus.COMPILATION_ERROR;
 
     // Allows to provide XSL report file near XML report file
     // Only if reportFile is not null
@@ -335,10 +335,10 @@ public class PluginCompatTesterConfig {
         final String javaVersionOutput = IOUtils.toString(process.getInputStream());
         final String[] lines = javaVersionOutput.split("[\\r\\n]+");
         for (String line: lines) {
-            String trimed = line.trim();
-            if (trimed.contains("java.specification.version")) {
+            String trimmed = line.trim();
+            if (trimmed.contains("java.specification.version")) {
                 //java.specification.version = version
-                return trimed.split("=")[1].trim();
+                return trimmed.split("=")[1].trim();
             }
         }
         // Default to fullversion output as before
@@ -351,12 +351,12 @@ public class PluginCompatTesterConfig {
                 replaceAll("\"", "");
     }
 
-    public TestStatus getCacheThresholStatus() {
-        return cacheThresholStatus;
+    public TestStatus getCacheThresholdStatus() {
+        return cacheThresholdStatus;
     }
 
-    public void setCacheThresholStatus(TestStatus cacheThresholStatus) {
-        this.cacheThresholStatus = cacheThresholStatus;
+    public void setCacheThresholdStatus(TestStatus cacheThresholdStatus) {
+        this.cacheThresholdStatus = cacheThresholdStatus;
     }
 
     public File getWar() {

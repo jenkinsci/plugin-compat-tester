@@ -106,7 +106,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     }
 
     private void compile(MavenRunner.Config mavenConfig, File path) throws PomExecutionException, IOException {
-        System.out.println("Cleaning up node modules if neccessary");
+        System.out.println("Cleaning up node modules if necessary");
         removeNodeFolders(path);
         System.out.println("Compile plugin log in " + path);
         File compilePomLogfile = new File(path + "/compilePluginLog.log");

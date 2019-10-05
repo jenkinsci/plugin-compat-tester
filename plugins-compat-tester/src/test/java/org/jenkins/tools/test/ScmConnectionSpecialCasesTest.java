@@ -76,7 +76,7 @@ public class ScmConnectionSpecialCasesTest {
     @Test
     public void shouldGithubUsernamedUrlBeFiltered() {
         runComputeScmConnectionAgainst(
-                "scm:git:https://sikakura@github.com/jenkinsci/mail-commander-plugin.git", // user specific authent
+                "scm:git:https://sikakura@github.com/jenkinsci/mail-commander-plugin.git", // user specific authentication
                 "",
                 "scm:git:git://github.com/jenkinsci/mail-commander-plugin.git"
         );
@@ -121,7 +121,7 @@ public class ScmConnectionSpecialCasesTest {
 
 
     @Test
-    public void shouldScmConnectionBeTrimed() {
+    public void shouldScmConnectionBeTrimmed() {
         runComputeScmConnectionAgainst(
                 "\n   scm:git:https://github.com/jenkinsci/cifs-plugin.git  \n   ", // ssh protocol requiring ssh host key
                 "",

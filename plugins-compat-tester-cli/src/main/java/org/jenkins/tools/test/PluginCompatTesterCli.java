@@ -113,7 +113,7 @@ public class PluginCompatTesterCli {
             config.setTestCacheTimeout(options.getTestCacheTimeout());
         }
         if(options.getCacheThresholdStatus() != null){
-            config.setCacheThresholStatus(TestStatus.valueOf(options.getCacheThresholdStatus()));
+            config.setCacheThresholdStatus(TestStatus.valueOf(options.getCacheThresholdStatus()));
         }
         if(options.getHookPrefixes() != null && !options.getHookPrefixes().isEmpty()){
             config.setHookPrefixes(Arrays.asList(options.getHookPrefixes().split(",")));

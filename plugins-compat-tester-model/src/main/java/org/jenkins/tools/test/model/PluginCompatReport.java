@@ -122,7 +122,7 @@ public class PluginCompatReport {
     }
 
     public boolean isCompatTestResultAlreadyInCache(PluginInfos pluginInfos, MavenCoordinates coreCoord, long cacheTimeout, TestStatus cacheThresholdStatus){
-        // Retrieving plugin compat results corresponding to pluginsInfos + coreCoord
+        // Retrieving plugin compatibility results corresponding to pluginsInfos + coreCoord
         if(!pluginCompatTests.containsKey(pluginInfos)){
             // No data for this plugin version ? => no cache !
             return false;
@@ -152,7 +152,7 @@ public class PluginCompatReport {
     }
 
     /**
-     * Reads a compat report
+     * Reads a compatibility report
      *
      * @param reportPath Report file path
      * @return Report. If the file does not exist, an empty report will be returned

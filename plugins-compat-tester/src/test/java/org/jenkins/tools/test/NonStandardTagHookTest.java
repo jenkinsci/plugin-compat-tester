@@ -132,7 +132,7 @@ public class NonStandardTagHookTest {
                     new ClassPathResource("m2-settings.xml").getFile());
             config.setIncludePlugins(Collections.singletonList("electricflow"));
             config.setSkipTestCache(true);
-            config.setCacheThresholStatus(TestStatus.TEST_FAILURES);
+            config.setCacheThresholdStatus(TestStatus.TEST_FAILURES);
             config.setTestCacheTimeout(345600000);
             config.setParentVersion("1.410");
             config.setGenerateHtmlReport(true);
@@ -154,7 +154,7 @@ public class NonStandardTagHookTest {
             Map<String, Object> returnedConfig = hook.action(info);
             assertEquals("RunCheckout should be false", Boolean.FALSE, returnedConfig.get("runCheckout"));
         } catch (Exception e) {
-            fail("No expection should be thrown when invoking the hook for valid data but got: " + e);
+            fail("No exception should be thrown when invoking the hook for valid data but got: " + e);
         }
     }
 }

@@ -71,13 +71,13 @@ public class MavenPom {
 
 	public void transformPom(MavenCoordinates coreCoordinates) throws PomTransformationException{
 		File pom = new File(rootDir.getAbsolutePath()+"/"+pomFileName);
-		File backupedPom = new File(rootDir.getAbsolutePath()+"/"+pomFileName+".backup");
+		File backupPom = new File(rootDir.getAbsolutePath()+"/"+pomFileName+".backup");
 		try {
-			FileUtils.rename(pom, backupedPom);
+			FileUtils.rename(pom, backupPom);
 
             Document doc;
             try {
-                doc = new SAXReader().read(backupedPom);
+                doc = new SAXReader().read(backupPom);
             } catch (DocumentException x) {
                 throw new IOException(x);
             }
@@ -109,7 +109,7 @@ public class MavenPom {
     /**
      * Removes the dependency if it exists.
      */
-	public void removeDependency(@Nonnull String groupdId, @Nonnull String artifactId) throws IOException {
+	public void removeDependency(@Nonnull String groupId, @Nonnull String artifactId) throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -129,9 +129,9 @@ public class MavenPom {
             }
 
             Element groupIdElem = mavenDependency.element(GROUP_ID_ELEMENT);
-            if (groupIdElem != null && groupdId.equalsIgnoreCase(groupIdElem.getText()) ) {
+            if (groupIdElem != null && groupId.equalsIgnoreCase(groupIdElem.getText()) ) {
                 LOGGER.log(Level.WARNING, "Removing dependency on {0}:{1}",
-                        new Object[] {groupdId, artifactId});
+                        new Object[] {groupId, artifactId});
                 dependencies.remove(mavenDependency);
             }
         }

@@ -75,7 +75,7 @@ public class PluginCompatTesterHooks {
         }
         
         // Loop through hooks in a series run in no particular order
-        // Modifications build on each other, pertenent checks should be handled in the hook
+        // Modifications build on each other, pertinent checks should be handled in the hook
         for(PluginCompatTesterHook hook : beforeHooks) {
             try {
                 System.out.println("Processing " + hook.getClass().getName());
