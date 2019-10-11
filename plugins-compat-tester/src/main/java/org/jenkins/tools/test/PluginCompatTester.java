@@ -36,11 +36,11 @@ import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -702,7 +702,8 @@ public class PluginCompatTester {
         Map<String,VersionNumber> pluginDepsTest = new HashMap<>();
         try {
             runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
-            try (BufferedReader br = new BufferedReader(new FileReader(tmp))) {
+            try (BufferedReader br =
+                    Files.newBufferedReader(tmp.toPath(), Charset.defaultCharset())) {
                 Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(provided|compile|runtime|system)");
                 Pattern p2 = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(test)");
                 String line;
