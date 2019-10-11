@@ -346,7 +346,7 @@ public class PluginCompatTesterConfig {
         final String javaVersionOutput2 = IOUtils.toString(process2.getInputStream());
         // Expected format is something like openjdk full version "1.8.0_181-8u181-b13-2~deb9u1-b13"
         // We shorten it by removing the "full version" in the middle
-        return javaVersionOutput.
+        return javaVersionOutput2.
                 replace(" full version ", " ").
                 replaceAll("\"", "");
     }
