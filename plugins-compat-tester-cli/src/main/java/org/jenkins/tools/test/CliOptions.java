@@ -30,15 +30,15 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import hudson.util.VersionNumber;
+import java.io.File;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.jenkins.tools.test.model.PCTPlugin;
 import org.jenkins.tools.test.model.TestStatus;
 
-import javax.annotation.CheckForNull;
-import java.io.File;
-import java.util.List;
-
 /**
  * POJO containing CLI arguments & help
+ *
  * @author Frederic Camblor
  */
 public class CliOptions {
@@ -93,7 +93,7 @@ public class CliOptions {
     private File externalMaven;
 
     @Parameter(names = "-skipTestCache",
-            description = "Allows to skip compat test cache (by default, to 100 days)\n" +
+            description = "Allows to skip compatibility test cache (by default, to 100 days)\n" +
                     "If set to true, every plugin will be tested, no matter the cache is.")
     private String skipTestCache = null;
 

@@ -28,13 +28,28 @@ package org.jenkins.tools.test.model;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.Xpp3DomDriver;
 import hudson.util.XStream2;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import javax.annotation.Nonnull;
-import java.io.*;
-import java.util.*;
 
 /**
- * POJO allowing to store the PluginCompatTester report
+ * POJO allowing to store the Plugin Compatibility Tester report
+ *
  * @author Frederic Camblor
  */
 public class PluginCompatReport {
@@ -69,18 +84,16 @@ public class PluginCompatReport {
 
         // Writing to a temporary report file ...
         File tempReportPath = new File(reportPath.getAbsolutePath()+".tmp");
-        Writer out = new FileWriter(tempReportPath);
-        out.write(String.format("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>%n"));
-        out.write(String.format("<?xml-stylesheet href=\""+getXslFilename(reportPath)+"\" type=\"text/xsl\"?>%n"));
-        XStream xstream = createXStream();
-        xstream.toXML(this, out);
-        out.flush();
-        out.close();
+        try (Writer out = new FileWriter(tempReportPath)) {
+            out.write(String.format("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>%n"));
+            out.write(String.format("<?xml-stylesheet href=\"" + getXslFilename(reportPath) + "\" type=\"text/xsl\"?>%n"));
+            XStream xstream = createXStream();
+            xstream.toXML(this, out);
+            out.flush();
+        }
 
         // When everything went well, let's overwrite old report XML file with the new one
-        //FileUtils.rename(tempReportPath, reportPath);
-        reportPath.delete();
-        tempReportPath.renameTo(reportPath);
+        Files.move(tempReportPath.toPath(), reportPath.toPath(), StandardCopyOption.ATOMIC_MOVE);
     }
 
     public static String getXslFilename(@Nonnull File reportPath){
@@ -109,7 +122,7 @@ public class PluginCompatReport {
     }
 
     public boolean isCompatTestResultAlreadyInCache(PluginInfos pluginInfos, MavenCoordinates coreCoord, long cacheTimeout, TestStatus cacheThresholdStatus){
-        // Retrieving plugin compat results corresponding to pluginsInfos + coreCoord
+        // Retrieving plugin compatibility results corresponding to pluginsInfos + coreCoord
         if(!pluginCompatTests.containsKey(pluginInfos)){
             // No data for this plugin version ? => no cache !
             return false;
@@ -139,14 +152,15 @@ public class PluginCompatReport {
     }
 
     /**
-     * Reads a compat report
+     * Reads a compatibility report
+     *
      * @param reportPath Report file path
      * @return Report. If the file does not exist, an empty report will be returned
      * @throws IOException Unexpected read error.
      */
     @Nonnull
     public static PluginCompatReport fromXml(File reportPath) throws IOException {
-        PluginCompatReport report = null;
+        PluginCompatReport report;
 
         // Reading report file from reportPath
         XStream xstream = createXStream();

@@ -25,13 +25,13 @@
  */
 package org.jenkins.tools.test.model.comparators;
 
-import org.jenkins.tools.test.model.MavenCoordinates;
-
 import java.util.Comparator;
+import org.jenkins.tools.test.model.MavenCoordinates;
 
 /**
  * Class used to compare MavenCoordinates
- * @deprecated For backward compatibility only.. Use MavenCoordinates.compareTo() instead of this.
+ *
+ * @deprecated For backward compatibility only. Use {@link MavenCoordinates#compareTo} instead.
  * @author Frederic Camblor
  */
 public class MavenCoordinatesComparator implements Comparator<MavenCoordinates> {

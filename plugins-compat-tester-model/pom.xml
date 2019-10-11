@@ -12,6 +12,16 @@
   <name>Plugins compatibility tester model layer</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) model layer</description>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+	<groupId>com.google.code.findbugs</groupId>
+	<artifactId>annotations</artifactId>
+	<version>3.0.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
       <dependency>
         <groupId>org.jvnet.hudson</groupId>

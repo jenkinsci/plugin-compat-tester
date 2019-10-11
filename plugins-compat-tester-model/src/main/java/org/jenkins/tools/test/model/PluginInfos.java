@@ -30,6 +30,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * POJO describing a versioned plugin
+ *
  * @author Frederic Camblor
  */
 public class PluginInfos implements Comparable<PluginInfos> {

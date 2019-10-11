@@ -1,12 +1,5 @@
 package org.jenkins.tools.test.hook;
 
-import org.apache.commons.io.FileUtils;
-import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.maven.ExternalMavenRunner;
-import org.jenkins.tools.test.maven.MavenRunner;
-import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +7,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.apache.commons.io.FileUtils;
+import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.maven.ExternalMavenRunner;
+import org.jenkins.tools.test.maven.MavenRunner;
+import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 
 public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
 
@@ -106,7 +105,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     }
 
     private void compile(MavenRunner.Config mavenConfig, File path) throws PomExecutionException, IOException {
-        System.out.println("Cleaning up node modules if neccessary");
+        System.out.println("Cleaning up node modules if necessary");
         removeNodeFolders(path);
         System.out.println("Compile plugin log in " + path);
         File compilePomLogfile = new File(path + "/compilePluginLog.log");

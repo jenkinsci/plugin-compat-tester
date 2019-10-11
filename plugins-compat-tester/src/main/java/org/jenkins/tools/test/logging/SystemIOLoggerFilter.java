@@ -33,6 +33,7 @@ import java.util.Locale;
 
 /**
  * Utility class to fork print streams for logging
+ *
  * @author Frederic Camblor
  */
 public class SystemIOLoggerFilter extends PrintStream {

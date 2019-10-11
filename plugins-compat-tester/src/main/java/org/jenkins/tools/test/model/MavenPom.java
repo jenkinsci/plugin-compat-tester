@@ -26,9 +26,6 @@
 package org.jenkins.tools.test.model;
 
 import hudson.util.VersionNumber;
-import org.codehaus.plexus.util.FileUtils;
-import org.dom4j.io.XMLWriter;
-import org.jenkins.tools.test.exception.PomTransformationException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,17 +34,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import javax.annotation.Nonnull;
+import org.codehaus.plexus.util.FileUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
-
-import javax.annotation.Nonnull;
+import org.dom4j.io.XMLWriter;
+import org.jenkins.tools.test.exception.PomTransformationException;
 
 /**
- * Class encapsulating business around maven poms
+ * Class encapsulating business around Maven POMs
+ *
  * @author Frederic Camblor
  */
 public class MavenPom {
@@ -72,13 +71,13 @@ public class MavenPom {
 
 	public void transformPom(MavenCoordinates coreCoordinates) throws PomTransformationException{
 		File pom = new File(rootDir.getAbsolutePath()+"/"+pomFileName);
-		File backupedPom = new File(rootDir.getAbsolutePath()+"/"+pomFileName+".backup");
+		File backupPom = new File(rootDir.getAbsolutePath()+"/"+pomFileName+".backup");
 		try {
-			FileUtils.rename(pom, backupedPom);
+			FileUtils.rename(pom, backupPom);
 
             Document doc;
             try {
-                doc = new SAXReader().read(backupedPom);
+                doc = new SAXReader().read(backupPom);
             } catch (DocumentException x) {
                 throw new IOException(x);
             }
@@ -110,7 +109,7 @@ public class MavenPom {
     /**
      * Removes the dependency if it exists.
      */
-	public void removeDependency(@Nonnull String groupdId, @Nonnull String artifactId) throws IOException {
+	public void removeDependency(@Nonnull String groupId, @Nonnull String artifactId) throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -130,9 +129,9 @@ public class MavenPom {
             }
 
             Element groupIdElem = mavenDependency.element(GROUP_ID_ELEMENT);
-            if (groupIdElem != null && groupdId.equalsIgnoreCase(groupIdElem.getText()) ) {
+            if (groupIdElem != null && groupId.equalsIgnoreCase(groupIdElem.getText()) ) {
                 LOGGER.log(Level.WARNING, "Removing dependency on {0}:{1}",
-                        new Object[] {groupdId, artifactId});
+                        new Object[] {groupId, artifactId});
                 dependencies.remove(mavenDependency);
             }
         }
@@ -186,7 +185,6 @@ public class MavenPom {
             }
 
             String trimmedArtifactId = artifactId.getTextTrim();
-            excludeSecurity144Compat(mavenDependency);
             VersionNumber replacement = toReplace.get(trimmedArtifactId);
             if (replacement == null) {
                 replacement = toReplaceTest.get(trimmedArtifactId);
@@ -200,12 +198,6 @@ public class MavenPom {
                 mavenDependency.remove(version);
             }
             version = mavenDependency.addElement(VERSION_ELEMENT);
-            if (toConvert.contains(artifactId)) { // Remove the test scope
-                Element scope = mavenDependency.element("scope");
-                if (scope != null) {
-                    mavenDependency.remove(scope);
-                }
-            }
             version.addText(replacement.toString());
             Element scope = mavenDependency.element("scope");
             if (scope != null && scope.getTextTrim().equals("test")) {
@@ -225,17 +217,6 @@ public class MavenPom {
         addPlugins(toAddTest, pluginGroupIds, dependencies, "test");
 
         writeDocument(pom, doc);
-    }
-
-    /** JENKINS-25625 workaround. */
-    private void excludeSecurity144Compat(Element dependency) {
-        Element exclusions = dependency.element("exclusions");
-        if (exclusions == null) {
-            exclusions = dependency.addElement("exclusions");
-        }
-        Element exclusion = exclusions.addElement("exclusion");
-        exclusion.addElement(GROUP_ID_ELEMENT).addText("org.jenkins-ci");
-        exclusion.addElement(ARTIFACT_ID_ELEMENT).addText("SECURITY-144-compat");
     }
 
     /**
@@ -259,7 +240,6 @@ public class MavenPom {
             if(scope != null) {
                 dependency.addElement("scope").addText(scope);
             }
-            excludeSecurity144Compat(dependency);
         }
     }
 

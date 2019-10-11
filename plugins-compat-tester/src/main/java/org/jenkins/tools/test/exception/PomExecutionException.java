@@ -34,7 +34,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Exception thrown during a plugin's maven execution
+ * Exception thrown during a plugin's Maven execution
+ *
  * @author Frederic Camblor
  */
 public class PomExecutionException extends Exception {

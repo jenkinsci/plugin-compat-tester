@@ -25,12 +25,12 @@
  */
 package org.jenkins.tools.test.model;
 
-
 import java.util.Collections;
 import java.util.List;
 
 /**
  * POJO containing plugin compatibility test result
+ *
  * @author Frederic Camblor
  */
 public class TestExecutionResult {
