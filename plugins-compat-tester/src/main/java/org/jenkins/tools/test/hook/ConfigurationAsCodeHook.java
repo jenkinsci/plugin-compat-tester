@@ -1,9 +1,8 @@
 package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
-import org.jenkins.tools.test.model.PomData;
-
 import java.util.Map;
+import org.jenkins.tools.test.model.PomData;
 
 public class ConfigurationAsCodeHook extends AbstractMultiParentHook {
 

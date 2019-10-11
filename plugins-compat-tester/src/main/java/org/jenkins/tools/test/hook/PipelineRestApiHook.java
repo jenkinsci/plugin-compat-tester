@@ -1,11 +1,8 @@
 package org.jenkins.tools.test.hook;
 
-
-import org.jenkins.tools.test.model.PomData;
 import hudson.model.UpdateSite;
-
 import java.util.Map;
-
+import org.jenkins.tools.test.model.PomData;
 
 public class PipelineRestApiHook extends AbstractMultiParentHook {
 

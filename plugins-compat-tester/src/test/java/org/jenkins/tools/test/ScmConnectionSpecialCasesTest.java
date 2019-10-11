@@ -25,18 +25,19 @@
  */
 package org.jenkins.tools.test;
 
-import org.jenkins.tools.test.model.PluginRemoting;
-import org.jenkins.tools.test.model.PomData;
-import org.junit.Test;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import org.jenkins.tools.test.model.MavenCoordinates;
 import static org.junit.Assert.assertThat;
+
+import org.jenkins.tools.test.model.MavenCoordinates;
+import org.jenkins.tools.test.model.PluginRemoting;
+import org.jenkins.tools.test.model.PomData;
 import org.junit.Ignore;
+import org.junit.Test;
 
 /**
- * Tests about scm connection url transformations
+ * Tests about SCM connection URL transformations
+ *
  * @author Frederic Camblor
  */
 public class ScmConnectionSpecialCasesTest {
@@ -75,7 +76,7 @@ public class ScmConnectionSpecialCasesTest {
     @Test
     public void shouldGithubUsernamedUrlBeFiltered() {
         runComputeScmConnectionAgainst(
-                "scm:git:https://sikakura@github.com/jenkinsci/mail-commander-plugin.git", // user specific authent
+                "scm:git:https://sikakura@github.com/jenkinsci/mail-commander-plugin.git", // user specific authentication
                 "",
                 "scm:git:git://github.com/jenkinsci/mail-commander-plugin.git"
         );
@@ -120,7 +121,7 @@ public class ScmConnectionSpecialCasesTest {
 
 
     @Test
-    public void shouldScmConnectionBeTrimed() {
+    public void shouldScmConnectionBeTrimmed() {
         runComputeScmConnectionAgainst(
                 "\n   scm:git:https://github.com/jenkinsci/cifs-plugin.git  \n   ", // ssh protocol requiring ssh host key
                 "",

@@ -29,6 +29,7 @@ import java.util.Comparator;
 
 /**
  * Class used to compare 2 plugin versions
+ *
  * @author Frederic Camblor
  */
 public class VersionComparator implements Comparator<String> {
@@ -43,14 +44,14 @@ public class VersionComparator implements Comparator<String> {
                 return 1;
             }
 
-            Comparable chunk1 = null;
+            Comparable chunk1;
             try {
                 chunk1 = Integer.valueOf(splitO1Version[i]);
             }catch(NumberFormatException e){
                 chunk1 = splitO1Version[i];
             }
 
-            Comparable chunk2 = null;
+            Comparable chunk2;
             try {
                 chunk2 = Integer.valueOf(splitO2Version[i]);
             }catch(NumberFormatException e){

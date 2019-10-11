@@ -32,36 +32,8 @@ import hudson.Functions;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import hudson.util.VersionNumber;
-import java.io.BufferedReader;
-
 import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.ScmTag;
-import org.apache.maven.scm.command.checkout.CheckOutScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.repository.ScmRepository;
-import org.codehaus.plexus.PlexusContainerException;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.util.FileUtils;
-import org.codehaus.plexus.util.io.RawInputStreamFacade;
-import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
-import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.model.*;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
-import org.springframework.core.io.ClassPathResource;
-
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -71,6 +43,7 @@ import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -90,12 +63,49 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.scm.ScmException;
+import org.apache.maven.scm.ScmFileSet;
+import org.apache.maven.scm.ScmTag;
+import org.apache.maven.scm.command.checkout.CheckOutScmResult;
+import org.apache.maven.scm.manager.ScmManager;
+import org.apache.maven.scm.repository.ScmRepository;
+import org.codehaus.plexus.PlexusContainerException;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.io.RawInputStreamFacade;
+import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
+import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
+import org.jenkins.tools.test.model.MavenCoordinates;
+import org.jenkins.tools.test.model.MavenPom;
+import org.jenkins.tools.test.model.PCTPlugin;
+import org.jenkins.tools.test.model.PluginCompatReport;
+import org.jenkins.tools.test.model.PluginCompatResult;
+import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.PluginInfos;
+import org.jenkins.tools.test.model.PluginRemoting;
+import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.TestExecutionResult;
+import org.jenkins.tools.test.model.TestStatus;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * Frontend for plugin compatibility tests
+ *
  * @author Frederic Camblor, Olivier Lamy
  */
 public class PluginCompatTester {
@@ -118,7 +128,7 @@ public class PluginCompatTester {
 	}
 
     private SortedSet<MavenCoordinates> generateCoreCoordinatesToTest(UpdateSite.Data data, PluginCompatReport previousReport){
-        SortedSet<MavenCoordinates> coreCoordinatesToTest = null;
+        SortedSet<MavenCoordinates> coreCoordinatesToTest;
         // If parent GroupId/Artifact are not null, this will be fast : we will only test
         // against 1 core coordinate
         if(config.getParentGroupId() != null && config.getParentArtifactId() != null){
@@ -280,7 +290,7 @@ public class PluginCompatTester {
                         pomData = null;
                     }
 
-                    if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, actualCoreCoordinates, config.getTestCacheTimeout(), config.getCacheThresholStatus())){
+                    if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, actualCoreCoordinates, config.getTestCacheTimeout(), config.getCacheThresholdStatus())){
                         System.out.println("Cache activated for plugin "+pluginInfos.pluginName+" => test skipped !");
                         continue; // Don't do anything : we are in the cached interval ! :-)
                     }
@@ -349,7 +359,7 @@ public class PluginCompatTester {
         }
 
         if (failed && config.isFailOnError()) {
-		    throw new AbortException("Execution was aborted due to the failure in a plugin test (-failOnerror is set)");
+		    throw new AbortException("Execution was aborted due to the failure in a plugin test (-failOnError is set)");
         }
 
         return report;
@@ -366,7 +376,7 @@ public class PluginCompatTester {
             Result result = new StreamResult(PluginCompatReport.getHtmlFilepath(config.reportFile));
 
             TransformerFactory factory = TransformerFactory.newInstance();
-            Transformer transformer = null;
+            Transformer transformer;
             try {
                 transformer = factory.newTransformer(xsltSource);
                 transformer.transform(xmlSource, result);
@@ -418,12 +428,12 @@ public class PluginCompatTester {
                 if(beforeCheckout.get("checkoutDir") != null){
                     pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
                 }
-                if(pluginCheckoutDir.exists()){
+                if (Files.isDirectory(pluginCheckoutDir.toPath())) {
                     System.out.println("Deleting working directory "+pluginCheckoutDir.getAbsolutePath());
                     FileUtils.deleteDirectory(pluginCheckoutDir);
                 }
 
-                pluginCheckoutDir.mkdir();
+                Files.createDirectory(pluginCheckoutDir.toPath());
                 System.out.println("Created plugin checkout dir : "+pluginCheckoutDir.getAbsolutePath());
 
                 if (localCheckoutProvided()) {
@@ -568,8 +578,8 @@ public class PluginCompatTester {
      * @return Update site Data
      */
     private UpdateSite.Data extractUpdateCenterData(Map<String, String> groupIDs){
-		URL url = null;
-		String jsonp = null;
+		URL url;
+		String jsonp;
 		try {
 	        url = new URL(config.updateCenterUrl);
 	        jsonp = IOUtils.toString(url.openStream());
@@ -597,7 +607,7 @@ public class PluginCompatTester {
      * Scans through a WAR file, accumulating plugin information
      * @param war WAR to scan
      * @param pluginGroupIds Map pluginName to groupId if set in the manifest, MUTATED IN THE EXECUTION
-     * @param pluginRegExp The plugin regexp to use, can be used to diferentiate between detached or "normal" plugins
+     * @param pluginRegExp The plugin regexp to use, can be used to differentiate between detached or "normal" plugins
      *                     in the war file
      * @return Update center data
      */
@@ -682,7 +692,7 @@ public class PluginCompatTester {
             dataConstructor.setAccessible(true);
             return dataConstructor.newInstance(us, jsonO);
         }catch(Exception e){
-            throw new RuntimeException("UpdateSite.Data instanciation problems", e);
+            throw new RuntimeException("UpdateSite.Data instantiation problems", e);
         }
     }
 
@@ -750,7 +760,7 @@ public class PluginCompatTester {
                 }
             }
         } finally {
-            tmp.delete();
+            Files.delete(tmp.toPath());
         }
         System.out.println("Analysis: coreDep=" + coreDep + " pluginDeps=" + pluginDeps + " pluginDepsTest=" + pluginDepsTest);
         if (coreDep != null) {
