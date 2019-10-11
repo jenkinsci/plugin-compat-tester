@@ -40,10 +40,9 @@ public class ExternalMavenRunner implements MavenRunner {
         try {
             Process p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
             List<String> succeededPluginArtifactIds = new ArrayList<>();
-            try (InputStream is = p.getInputStream(); FileOutputStream os = new FileOutputStream(buildLogFile, true); PrintWriter w = new PrintWriter(os)) {
+            try (InputStream is = p.getInputStream(); BufferedReader r = new BufferedReader(new InputStreamReader(is)); FileOutputStream os = new FileOutputStream(buildLogFile, true); PrintWriter w = new PrintWriter(os)) {
                 String completed = null;
                 Pattern pattern = Pattern.compile("\\[INFO\\] --- (.+):.+:.+ [(].+[)] @ .+ ---");
-                BufferedReader r = new BufferedReader(new InputStreamReader(is));
                 String line;
                 while ((line = r.readLine()) != null) {
                     System.out.println(line);

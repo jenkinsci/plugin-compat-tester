@@ -39,7 +39,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -703,8 +702,7 @@ public class PluginCompatTester {
         Map<String,VersionNumber> pluginDepsTest = new HashMap<>();
         try {
             runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
-            try (Reader r = new FileReader(tmp)) {
-                BufferedReader br = new BufferedReader(r);
+            try (BufferedReader br = new BufferedReader(new FileReader(tmp))) {
                 Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(provided|compile|runtime|system)");
                 Pattern p2 = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(test)");
                 String line;
