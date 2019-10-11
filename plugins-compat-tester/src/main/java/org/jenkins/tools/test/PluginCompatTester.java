@@ -615,9 +615,6 @@ public class PluginCompatTester {
         top.put("id", DEFAULT_SOURCE_ID);
         JSONObject plugins = new JSONObject();
         try (JarFile jf = new JarFile(war)) {
-            if (pluginGroupIds == null) {
-                pluginGroupIds = new HashMap<>();
-            }
             Enumeration<JarEntry> entries = jf.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
