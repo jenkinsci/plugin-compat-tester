@@ -27,6 +27,7 @@ package org.jenkins.tools.test;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,6 +45,10 @@ import org.jenkins.tools.test.model.TestStatus;
  */
 public class PluginCompatTesterCli {
 
+    @SuppressFBWarnings(
+            value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
+            justification =
+                    "We're already checking for null in each relevant instance, so why does SpotBugs complain?")
     public static void main(String[] args) throws IOException, PlexusContainerException {
         CliOptions options = new CliOptions();
         JCommander jcommander = null;
