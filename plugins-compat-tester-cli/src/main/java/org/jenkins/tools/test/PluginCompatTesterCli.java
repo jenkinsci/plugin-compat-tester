@@ -28,6 +28,8 @@ package org.jenkins.tools.test;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import org.codehaus.plexus.PlexusContainerException;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.TestStatus;
 
@@ -43,7 +45,7 @@ import java.util.Map;
  */
 public class PluginCompatTesterCli {
 
-    public static void main(String[] args) throws IOException, PlexusContainerException {
+    public static void main(String[] args) throws IOException, PlexusContainerException, PomExecutionException, XmlPullParserException {
         CliOptions options = new CliOptions();
         JCommander jcommander = null;
         try {
@@ -96,6 +98,7 @@ public class PluginCompatTesterCli {
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(updateCenterUrl, parentCoordinates,
                 options.getWorkDirectory(), reportFile, options.getM2SettingsFile());
         config.setWar(war);
+        config.setBom(options.getBOM());
 
         config.setExternalMaven(options.getExternalMaven());
 
