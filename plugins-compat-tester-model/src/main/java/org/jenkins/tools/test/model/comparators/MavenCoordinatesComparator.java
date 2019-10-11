@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test.model.comparators;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import org.jenkins.tools.test.model.MavenCoordinates;
 
@@ -34,7 +35,7 @@ import org.jenkins.tools.test.model.MavenCoordinates;
  * @deprecated For backward compatibility only. Use {@link MavenCoordinates#compareTo} instead.
  * @author Frederic Camblor
  */
-public class MavenCoordinatesComparator implements Comparator<MavenCoordinates> {
+public class MavenCoordinatesComparator implements Comparator<MavenCoordinates>, Serializable {
     @Override
     public int compare(MavenCoordinates o1, MavenCoordinates o2) {
         return o1.compareTo(o2);
