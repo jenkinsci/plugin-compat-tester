@@ -215,11 +215,12 @@ public class PluginCompatTesterTest {
 
 		File bomFile = new ClassPathResource("jenkins-bom.xml").getFile();
 		config.setBom(bomFile);
+		config.setExternalMaven(new File("/usr/bin/mvn"));
 		config.setIncludePlugins(includedPlugins);
 		config.setSkipTestCache(true);
 		config.setCacheThresholStatus(TestStatus.TEST_FAILURES);
 		config.setTestCacheTimeout(345600000);
-		config.setParentVersion(new MavenBom(bomFile).getModel().getParent().getVersion());
+		config.setParentVersion("2.176.4");
 		config.setGenerateHtmlReport(true);
 
 		PluginCompatTester tester = new PluginCompatTester(config);
