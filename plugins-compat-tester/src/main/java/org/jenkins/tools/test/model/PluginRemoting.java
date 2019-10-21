@@ -92,7 +92,7 @@ public class PluginRemoting {
     	    return retrievePomContentFromInputStream(url.openStream());
 	} catch (IOException e) {
 	    System.err.println("Error : " + e.getMessage());
-            throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
+          throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
 	}
     }
 
@@ -102,7 +102,7 @@ public class PluginRemoting {
     	    return retrievePomContentFromInputStream(FileUtils.openInputStream(new File(fileReference)));
 	} catch (IOException e) {
 	    System.err.println("Error : " + e.getMessage());
-            throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
+          throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
 	}
     }
 
