@@ -214,7 +214,6 @@ public class PluginCompatTesterTest {
 
 		File bomFile = new ClassPathResource("jenkins-bom.xml").getFile();
 		config.setBom(bomFile);
-		config.setExternalMaven(new File("/usr/bin/mvn"));
 		config.setIncludePlugins(includedPlugins);
 		config.setSkipTestCache(true);
 		config.setCacheThresholdStatus(TestStatus.TEST_FAILURES);
