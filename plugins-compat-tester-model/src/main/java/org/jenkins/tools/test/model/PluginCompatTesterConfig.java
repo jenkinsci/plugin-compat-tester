@@ -25,11 +25,6 @@
  */
 package org.jenkins.tools.test.model;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -40,9 +35,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
- * POJO used to configure PluginCompatTester execution
+ * POJO used to configure Plugin Compatibility Tester execution
+ *
  * @author Frederic Camblor
  */
 public class PluginCompatTesterConfig {
@@ -65,7 +65,7 @@ public class PluginCompatTesterConfig {
     public final File reportFile;
 
     // Path for maven settings file where repository will be provided allowing to
-    // download jenkins-core artefact (and dependencies)
+    // download jenkins-core artifact (and dependencies)
     private final File m2SettingsFile;
 
     // GroupId which will be used to replace tested plugin's parent groupId
@@ -91,11 +91,11 @@ public class PluginCompatTesterConfig {
 
     private File externalMaven = null;
 
-    // List of plugin artefact ids on which tests will be performed
+    // List of plugin artifact ids on which tests will be performed
     // If null, tests will be performed on every plugins retrieved from update center
     private List<String> includePlugins = null;
 
-    // List of plugin artefact ids on which tests will be not performed
+    // List of plugin artifact ids on which tests will be not performed
     // If null, tests will be performed on every includePlugins found
     private List<String> excludePlugins = null;
 
@@ -107,7 +107,7 @@ public class PluginCompatTesterConfig {
     // Allows to define a minimal cache threshold for TestStatus
     // That is to say, every results lower than this threshold won't be put
     // into the cache
-    private TestStatus cacheThresholStatus = TestStatus.COMPILATION_ERROR;
+    private TestStatus cacheThresholdStatus = TestStatus.COMPILATION_ERROR;
 
     // Allows to provide XSL report file near XML report file
     // Only if reportFile is not null
@@ -239,8 +239,8 @@ public class PluginCompatTesterConfig {
     }
 
     /**
-     * Gets a list of Maven properties defined in the config.
-     * It is not a full list of properties, {@link #retrieveMavenProperties()} should be used to construct it
+     * Gets a list of Maven properties defined in the configuration. It is not a full list of
+     * properties; {@link #retrieveMavenProperties()} should be used to construct it.
      */
     @Nonnull
     public Map<String, String> getMavenProperties() {
@@ -266,6 +266,7 @@ public class PluginCompatTesterConfig {
 
     /**
      * Retrieves Maven Properties from available sources like {@link #mavenPropertiesFile}.
+     *
      * @return Map of properties
      * @throws IOException Property read failure
      * @since TODO
@@ -331,7 +332,9 @@ public class PluginCompatTesterConfig {
     }
 
     /**
-     * Gets the Java version used for testing, using the binary path to the <code>java</code> command.
+     * Gets the Java version used for testing, using the binary path to the <code>java</code>
+     * command.
+     *
      * @return a string identifying the jvm in use
      */
     public String getTestJavaVersion() throws IOException {
@@ -344,10 +347,10 @@ public class PluginCompatTesterConfig {
         final String javaVersionOutput = IOUtils.toString(process.getInputStream());
         final String[] lines = javaVersionOutput.split("[\\r\\n]+");
         for (String line: lines) {
-            String trimed = line.trim();
-            if (trimed.contains("java.specification.version")) {
+            String trimmed = line.trim();
+            if (trimmed.contains("java.specification.version")) {
                 //java.specification.version = version
-                return trimed.split("=")[1].trim();
+                return trimmed.split("=")[1].trim();
             }
         }
         // Default to fullversion output as before
@@ -360,12 +363,12 @@ public class PluginCompatTesterConfig {
                 replaceAll("\"", "");
     }
 
-    public TestStatus getCacheThresholStatus() {
-        return cacheThresholStatus;
+    public TestStatus getCacheThresholdStatus() {
+        return cacheThresholdStatus;
     }
 
-    public void setCacheThresholStatus(TestStatus cacheThresholStatus) {
-        this.cacheThresholStatus = cacheThresholStatus;
+    public void setCacheThresholdStatus(TestStatus cacheThresholdStatus) {
+        this.cacheThresholdStatus = cacheThresholdStatus;
     }
 
     public File getWar() {
@@ -395,7 +398,8 @@ public class PluginCompatTesterConfig {
 
     /**
      * Sets JDK Home for tests
-     * @param testJDKHome JDK home to be used. {@code null} for using defaul system one.
+     *
+     * @param testJDKHome JDK home to be used. {@code null} for using default system one.
      */
     public void setTestJDKHome(@CheckForNull File testJDKHome) {
         this.testJDKHome = testJDKHome;

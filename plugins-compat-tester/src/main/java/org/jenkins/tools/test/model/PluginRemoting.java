@@ -25,22 +25,6 @@
  */
 package org.jenkins.tools.test.model;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.tools.ant.filters.StringInputStream;
-import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,10 +34,26 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.tools.ant.filters.StringInputStream;
+import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * Utility class providing business for retrieving plugin POM data
+ *
  * @author Frederic Camblor
  */
 public class PluginRemoting {
@@ -137,10 +137,10 @@ public class PluginRemoting {
     }
 	
 	public PomData retrievePomData() throws PluginSourcesUnavailableException {
-		String scmConnection = null;
-        String scmTag = null;
-        String artifactId = null;
-        String groupId = null;
+		String scmConnection;
+        String scmTag;
+        String artifactId;
+        String groupId;
         String packaging;
 		String pomContent = this.retrievePomContent();
         @CheckForNull MavenCoordinates parent = null;
@@ -192,8 +192,8 @@ public class PluginRemoting {
 	}
 
     /**
-     * Retrieves a field value by XPath.
-     * The value must exist and be non-empty
+     * Retrieves a field value by XPath. The value must exist and be non-empty.
+     *
      * @throws IOException parsing error
      */
 	@Nonnull

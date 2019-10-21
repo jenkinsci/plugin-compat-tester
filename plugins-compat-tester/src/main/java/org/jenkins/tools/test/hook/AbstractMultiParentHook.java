@@ -1,6 +1,8 @@
 package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
+import java.io.File;
+import java.util.Map;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
@@ -11,13 +13,9 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
-import java.io.File;
-import java.util.Map;
-
 /**
  * Utility class to ease create simple hooks for multimodule projects
  */
-
 public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBeforeCheckout {
 
     protected boolean firstRun = true;
@@ -81,18 +79,20 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     protected abstract String getParentFolder();
 
     /**
-     * Returns the git url to checkout the multi module project
+     * Returns the Git URL to check out the multimodule project
      */
     protected abstract String getParentUrl();
 
     /**
-     * Returns the parent project name, this will be used to form the checkout tag with the format parentProjectName-version
+     * Returns the parent project name. This will be used to form the checkout tag with the format
+     * {@code parentProjectName-version}.
      */
     protected abstract String getParentProjectName();
 
     /**
-     * Returns the plugin folder name, by default it will be the plugin name, but can be overridden to support plugins
-     * (like structs) that are not located in a folder with the same name than the plugin itself
+     * Returns the plugin folder name. By default it will be the plugin name, but it can be
+     * overridden to support plugins (like {@code structs}) that are not located in a folder with
+     * the same name as the plugin itself.
      */
     protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
         return currentPlugin.name;

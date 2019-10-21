@@ -1,7 +1,20 @@
 package org.jenkins.tools.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 import hudson.model.UpdateSite;
+import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
@@ -21,20 +34,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
 @RunWith(PowerMockRunner.class)
 public class NonStandardTagHookTest {
 
@@ -133,7 +132,7 @@ public class NonStandardTagHookTest {
                     new ClassPathResource("m2-settings.xml").getFile());
             config.setIncludePlugins(Collections.singletonList("electricflow"));
             config.setSkipTestCache(true);
-            config.setCacheThresholStatus(TestStatus.TEST_FAILURES);
+            config.setCacheThresholdStatus(TestStatus.TEST_FAILURES);
             config.setTestCacheTimeout(345600000);
             config.setParentVersion("1.410");
             config.setGenerateHtmlReport(true);
@@ -155,7 +154,7 @@ public class NonStandardTagHookTest {
             Map<String, Object> returnedConfig = hook.action(info);
             assertEquals("RunCheckout should be false", Boolean.FALSE, returnedConfig.get("runCheckout"));
         } catch (Exception e) {
-            fail("No expection should be thrown when invoking the hook for valid data but got: " + e);
+            fail("No exception should be thrown when invoking the hook for valid data but got: " + e);
         }
     }
 }

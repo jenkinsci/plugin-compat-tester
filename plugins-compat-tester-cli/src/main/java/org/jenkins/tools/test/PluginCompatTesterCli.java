@@ -27,20 +27,21 @@ package org.jenkins.tools.test;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import org.codehaus.plexus.PlexusContainerException;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.TestStatus;
-
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.codehaus.plexus.PlexusContainerException;
+import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.model.TestStatus;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
  * Plugin compatibility tester frontend for the CLI
+ *
  * @author Frederic Camblor
  */
 public class PluginCompatTesterCli {
@@ -63,7 +64,7 @@ public class PluginCompatTesterCli {
             System.exit(1);
         }
 
-        options.getWorkDirectory().mkdirs();
+        Files.createDirectories(options.getWorkDirectory().toPath());
 
         File reportFile = null;
         if(!"NOREPORT".equals(options.getReportFile().getName())){
@@ -115,7 +116,7 @@ public class PluginCompatTesterCli {
             config.setTestCacheTimeout(options.getTestCacheTimeout());
         }
         if(options.getCacheThresholdStatus() != null){
-            config.setCacheThresholStatus(TestStatus.valueOf(options.getCacheThresholdStatus()));
+            config.setCacheThresholdStatus(TestStatus.valueOf(options.getCacheThresholdStatus()));
         }
         if(options.getHookPrefixes() != null && !options.getHookPrefixes().isEmpty()){
             config.setHookPrefixes(Arrays.asList(options.getHookPrefixes().split(",")));

@@ -25,15 +25,15 @@
  */
 package org.jenkins.tools.test.model;
 
+import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
 
-import javax.annotation.Nonnull;
-
 /**
  * Class representing Maven GAV
+ *
  * @author Frederic Camblor
  */
 public class MavenCoordinates implements Comparable<MavenCoordinates> {
@@ -44,6 +44,7 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
 
     /**
      * Constructor.
+     *
      * @throws IllegalArgumentException one of the parameters is invalid.
      */
     public MavenCoordinates(@Nonnull String groupId, @Nonnull String artifactId, @Nonnull String version){

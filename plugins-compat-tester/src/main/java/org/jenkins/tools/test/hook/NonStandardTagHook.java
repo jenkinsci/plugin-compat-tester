@@ -1,6 +1,13 @@
 package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
@@ -12,19 +19,12 @@ import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 /**
- * This hook allows plugin using a non standard tag format on github to be checked out.
+ * This hook allows plugins using a non-standard tag format on GitHub to be checked out.
  *
- * The affected plugins are loaded from a properties file whose key is the artifactId and the value is a string to be formatted
- * for the tag value, this value will be calculated using String.format passing the current version as the only parameter
+ * <p>The affected plugins are loaded from a properties file whose key is the {@code artifactId} and
+ * whose value is a string to be formatted for the tag value. This value will be calculated using
+ * {@link String#format(String, Object...)} passing the current version as the only parameter.
  */
 public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
 

@@ -25,13 +25,14 @@
  */
 package org.jenkins.tools.test.model;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 /**
- * POJO containing important data residing in plugin's pom
+ * POJO containing important data residing in plugin's POM
+ *
  * @author Frederic Camblor
  */
 public class PomData {
