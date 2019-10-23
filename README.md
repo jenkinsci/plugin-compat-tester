@@ -78,7 +78,7 @@ Volumes:
 * `/pct/tmp` - Temporary directory. Can be exposed to analyze run failures
 * `/root/.m2` - Maven repository. It can be used to pass settings.xml or to cache artifacts
 
-:exclamation: Note that the entrypoint script of the PCT docker image tries to checkout the plugin sources *before* invoking the PCT if no war is provided. That means for plugins relying on `PreCheckoutHooks` (like multimodule ones) the standard docker run will fail to get sources as the `PreCheckoutHooks` are not run by the docker image entrypoint script. In that case possible workaorunds are:
+:exclamation: Note that the entrypoint script of the PCT docker image tries to checkout the plugin sources *before* invoking the PCT if no war is provided. That means for plugins relying on `PreCheckoutHooks` (like multimodule ones) the standard docker run will fail to get sources as the `PreCheckoutHooks` are not run by the docker image entrypoint script. In that case possible workarounds are:
 
 * Using a war file
 * Download the sources of the plugin and use the `/pct/plugin-src` volume to inform the PCT about them
@@ -109,6 +109,21 @@ java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli-${PCT_VERSI
 You can run the CLI with the `-help` argument to get a full list of supported options.
 
 :exclamation: For the moment testing more than one plugin at once requires plugins to be released, so for testing SNAPSHOTS you need to execute the last step for every plugin you want to test*
+
+### Running PCT with a BOM file
+
+Plugin Compat Tester supports running test suites using a BOM file as source of truth as follows:
+
+```shell
+java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli-${PCT_VERSION}.jar \
+  -reportFile $(pwd)/out/report.xml \
+  -workDirectory $(pwd)/tmp/work \
+  -includePlugins ${PLUGIN_ARTIFACT_ID} \
+  -bom ${BOM_FILE_LOCATION} \
+  -skipTestCache true \
+  -failOnError \
+  -mvn ${PATH_TO_MAVEN}
+```
 
 ### Running PCT with custom Java versions
 
