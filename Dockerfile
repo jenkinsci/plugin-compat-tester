@@ -45,13 +45,17 @@ ENV PCT_OUTPUT_DIR=/pct/out
 ENV PCT_TMP=/pct/tmp
 ENV INSTALL_BUNDLED_SNAPSHOTS=true
 
-RUN apt-get -y update && apt-get install -y groovy && rm -rf /var/lib/apt/lists/*
+RUN apt-get -y update && apt-get install -y groovy apt-transport-https ca-certificates gnupg2 software-properties-common && rm -rf /var/lib/apt/lists/*
 
 RUN curl -L --show-error https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz --output openjdk.tar.gz && \
     echo "7a6bb980b9c91c478421f865087ad2d69086a0583aeeb9e69204785e8e97dcfd  openjdk.tar.gz" | sha256sum -c && \
     tar xvzf openjdk.tar.gz && \
     mv jdk-11.0.1/ /usr/lib/jvm/java-11-openjdk-amd64 && \
     rm openjdk.tar.gz
+
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+RUN apt-get -y update && apt-get install -y docker-ce docker-ce-cli containerd.io
 
 COPY src/main/docker/*.groovy /pct/scripts/
 COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar /pct/pct-cli.jar
