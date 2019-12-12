@@ -167,11 +167,15 @@ itBranches['CasC tests success'] = {
                 "PATH+MVN=${tool 'mvn'}/bin",
                 'PATH+JDK=$JAVA_HOME/bin',
             ]) {
+                def settingsXML="mvn-settings.xml"
+                infra.retrieveMavenSettingsFile(settingsXML)
+              
                 sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
                              -reportFile $(pwd)/out/pct-report.xml \
                              -workDirectory $(pwd)/out/work \
                              -skipTestCache true \
                              -mvn "$MVN_PATH/mvn" \
+                             -m2SettingsFile $(pwd)/mvn-settings.xml \
                              -includePlugins configuration-as-code
                 '''
 
