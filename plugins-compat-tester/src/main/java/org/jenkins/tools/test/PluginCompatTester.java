@@ -62,6 +62,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -610,7 +611,7 @@ public class PluginCompatTester {
      *                     in the war file
      * @return Update center data
      */
-    private UpdateSite.Data scanWAR(File war, Map<String, String> pluginGroupIds, String pluginRegExp) throws IOException {
+    private UpdateSite.Data scanWAR(File war, @Nonnull Map<String, String> pluginGroupIds, String pluginRegExp) throws IOException {
         JSONObject top = new JSONObject();
         top.put("id", DEFAULT_SOURCE_ID);
         JSONObject plugins = new JSONObject();
