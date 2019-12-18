@@ -20,21 +20,9 @@ for (int i = 0; i < platforms.size(); ++i) {
                 }
 
                 stage('Build') {
-                    withEnv([
-                        "JAVA_HOME=${tool 'jdk8'}",
-                        "PATH+MVN=${tool 'mvn'}/bin",
-                        'PATH+JDK=$JAVA_HOME/bin',
-                    ]) {
-                        timeout(30) {
-                            String command = 'mvn --batch-mode clean install -Dmaven.test.failure.ignore=true'
-                            if (isUnix()) {
-                                sh command
-                            }
-                            else {
-                                bat command
-                            }
-                        }
-                    }
+                  timeout(30) {
+                    infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"])
+                  }
                 }
 
                 stage('Archive') {
@@ -179,11 +167,15 @@ itBranches['CasC tests success'] = {
                 "PATH+MVN=${tool 'mvn'}/bin",
                 'PATH+JDK=$JAVA_HOME/bin',
             ]) {
+                def settingsXML="mvn-settings.xml"
+                infra.retrieveMavenSettingsFile(settingsXML)
+              
                 sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
                              -reportFile $(pwd)/out/pct-report.xml \
                              -workDirectory $(pwd)/out/work \
                              -skipTestCache true \
                              -mvn "$MVN_PATH/mvn" \
+                             -m2SettingsFile $(pwd)/mvn-settings.xml \
                              -includePlugins configuration-as-code
                 '''
 
