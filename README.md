@@ -1,9 +1,9 @@
 Plugin Compatibility Tester (PCT)
 ------
 
-Generates a compatibility matrix for plugins against Jenkins core.
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/jenkinsci/plugin-compat-tester?label=changelog)](https://github.com/jenkinsci/plugin-compat-tester/releases)
 
-See https://wiki.jenkins-ci.org/display/JENKINS/Plugin+Compatibility+Tester for background.
+Generates a compatibility matrix for plugins against Jenkins core.
 
 ## Running PCT 
 
@@ -199,4 +199,8 @@ and then to properly setup the environment.
    set JAVA_HOME=...
    make demo-jdk8 -e PLUGIN_NAME=artifact-manager-s3 -e WAR_PATH=test-wars/mywar.war -e MVN_EXECUTABLE="C:\ProgramData\chocolatey\bin\mvn.exe" -e EXTRA_OPTS="-overridenPlugins 'configuration-as-code=1.20'"
 ```
+
+## Useful links
+
+* Devoxx '11 BOF Presentation about Plugin Compat Tester is available [here](http://www.slideshare.net/fcamblor/devoxx-2011-jenkins-bof-on-plugin-compatibility-tester). This presentation is partially obsolete (GAE feature was removed in recent versions)
 

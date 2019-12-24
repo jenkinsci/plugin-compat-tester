@@ -31,9 +31,9 @@ import hudson.util.XStream2;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -83,8 +83,9 @@ public class PluginCompatReport {
         }
 
         // Writing to a temporary report file ...
-        File tempReportPath = new File(reportPath.getAbsolutePath()+".tmp");
-        try (Writer out = new FileWriter(tempReportPath)) {
+        File tempReportPath = new File(reportPath.getAbsolutePath() + ".tmp");
+        try (Writer out =
+                Files.newBufferedWriter(tempReportPath.toPath(), Charset.defaultCharset())) {
             out.write(String.format("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>%n"));
             out.write(String.format("<?xml-stylesheet href=\"" + getXslFilename(reportPath) + "\" type=\"text/xsl\"?>%n"));
             XStream xstream = createXStream();

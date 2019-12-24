@@ -49,7 +49,7 @@ public class PluginCompatTesterConfig {
 
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTesterConfig.class.getName());
 
-    public static final String DEFAULT_UPDATE_CENTER_URL = "http://updates.jenkins-ci.org/update-center.json";
+    public static final String DEFAULT_UPDATE_CENTER_URL = "https://updates.jenkins-ci.org/update-center.json";
     public static final String DEFAULT_PARENT_GROUP = "org.jenkins-ci.plugins";
     public static final String DEFAULT_PARENT_ARTIFACT = "plugin";
     public static final String DEFAULT_PARENT_GAV = DEFAULT_PARENT_GROUP + ":" + DEFAULT_PARENT_ARTIFACT;
@@ -347,7 +347,7 @@ public class PluginCompatTesterConfig {
         final String javaVersionOutput2 = IOUtils.toString(process2.getInputStream());
         // Expected format is something like openjdk full version "1.8.0_181-8u181-b13-2~deb9u1-b13"
         // We shorten it by removing the "full version" in the middle
-        return javaVersionOutput.
+        return javaVersionOutput2.
                 replace(" full version ", " ").
                 replaceAll("\"", "");
     }
