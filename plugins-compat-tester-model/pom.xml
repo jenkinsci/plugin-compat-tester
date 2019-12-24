@@ -4,11 +4,11 @@
   <parent>
       <groupId>org.jenkins-ci.tests</groupId>
       <artifactId>plugins-compat-tester-aggregator</artifactId>
-      <version>0.4.0-SNAPSHOT</version>
+      <version>0.4.0</version>
   </parent>
 
   <artifactId>plugins-compat-tester-model</artifactId>
-  <version>0.4.0-SNAPSHOT</version>
+  <version>0.4.0</version>
   <name>Plugins compatibility tester model layer</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) model layer</description>
 
