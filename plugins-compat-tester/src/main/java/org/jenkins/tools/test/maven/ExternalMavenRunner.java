@@ -17,18 +17,29 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jenkins.tools.test.exception.PomExecutionException;
 
+import javax.annotation.CheckForNull;
+
+/**
+ * Runs external Maven executable.
+ */
 public class ExternalMavenRunner implements MavenRunner {
-    
+
+    @CheckForNull
     private File mvn;
-    
-    public ExternalMavenRunner(File mvn) {
+
+    /**
+     * Constructor.
+     * @param mvn Path to Maven.
+     *            If {@code null}, a default Maven executable from {@code PATH} will be used
+     */
+    public ExternalMavenRunner(@CheckForNull File mvn) {
         this.mvn = mvn;
     }
 
     @Override
     public void run(Config config, File baseDirectory, File buildLogFile, String... goals) throws PomExecutionException {
         List<String> cmd = new ArrayList<>();
-        cmd.add(mvn.getAbsolutePath());
+        cmd.add(mvn != null ? mvn.getAbsolutePath() : "mvn");
         cmd.add("--show-version");
         cmd.add("--batch-mode");
         if (config.userSettingsFile != null) {

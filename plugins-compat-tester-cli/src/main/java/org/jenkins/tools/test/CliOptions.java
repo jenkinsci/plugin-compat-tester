@@ -89,7 +89,8 @@ public class CliOptions {
 
     @Parameter(names = "-mvn",
             description = "External Maven executable")
-    private File externalMaven = null;
+    @CheckForNull
+    private File externalMaven;
 
     @Parameter(names = "-skipTestCache",
             description = "Allows to skip compatibility test cache (by default, to 100 days)\n" +

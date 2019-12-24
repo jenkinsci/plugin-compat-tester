@@ -86,7 +86,6 @@ import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
-import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.MavenPom;
@@ -124,7 +123,7 @@ public class PluginCompatTester {
 
 	public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
-        runner = config.getExternalMaven() == null ? new InternalMavenRunner() : new ExternalMavenRunner(config.getExternalMaven());
+        runner = new ExternalMavenRunner(config.getExternalMaven());
 	}
 
     private SortedSet<MavenCoordinates> generateCoreCoordinatesToTest(UpdateSite.Data data, PluginCompatReport previousReport){

@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
-import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
@@ -35,7 +34,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             System.out.println("Executing multi-parent compile hook");
             PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
 
-            runner = config.getExternalMaven() == null ? new InternalMavenRunner() : new ExternalMavenRunner(config.getExternalMaven());
+            runner = new ExternalMavenRunner(config.getExternalMaven());
             mavenConfig = getMavenConfig(config);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
