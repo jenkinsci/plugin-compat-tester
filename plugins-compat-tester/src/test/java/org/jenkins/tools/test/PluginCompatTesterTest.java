@@ -201,13 +201,14 @@ public class PluginCompatTesterTest {
 	private static File getSettingsFile() throws IOException {
 		// Check whether we run in ci.jenkins.io with Azure settings
 		File ciJenkinsIOSettings = new File("settings-azure.xml");
-		System.out.println("Will check for " + ciJenkinsIOSettings.getAbsolutePath());
-		if (ciJenkinsIOSettings.exists()) {
-			System.out.println("Will use the ci.jenkins.io Azure settings file for testing: " + ciJenkinsIOSettings.getAbsolutePath());	
-			return ciJenkinsIOSettings;
-		}
+		throw new IOException(ciJenkinsIOSettings.getAbsolutePath());
+	//	System.out.println("Will check for " + ciJenkinsIOSettings.getAbsolutePath());
+	//	if (ciJenkinsIOSettings.exists()) {
+	//		System.out.println("Will use the ci.jenkins.io Azure settings file for testing: " + ciJenkinsIOSettings.getAbsolutePath());	
+	//		return ciJenkinsIOSettings;
+	//	}
 		// Default fallback for local runs
-		return new ClassPathResource("m2-settings.xml").getFile();
+	//	return new ClassPathResource("m2-settings.xml").getFile();
 	}
 
 }
