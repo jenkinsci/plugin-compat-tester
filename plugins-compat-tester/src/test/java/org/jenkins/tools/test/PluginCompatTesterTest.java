@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
@@ -73,7 +74,7 @@ public class PluginCompatTesterTest {
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                 new File("../reports/PluginCompatReport.xml"),
-                new ClassPathResource("m2-settings.xml").getFile());
+                getSettingsFile());
 
 		config.setIncludePlugins(includedPlugins);
         config.setSkipTestCache(true);
@@ -195,6 +196,18 @@ public class PluginCompatTesterTest {
 		fileName = "WEB-INF/lib/jenkins-core-256.0-2090468d82e49345519a2457f1d1e7426f01540b-2090468d82e49345519a2457f1d1e7426f01540b-SNAPSHOT.jar";
 		m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
 		assertTrue("No matches",m.matches());
+	}
+
+	private static File getSettingsFile() throws IOException {
+		// Check whether we run in ci.jenkins.io with Azure settings
+		File ciJenkinsIOSettings = new File("settings-azure.xml");
+		System.out.println("Will check for " + ciJenkinsIOSettings.getAbsolutePath());
+		if (ciJenkinsIOSettings.exists()) {
+			System.out.println("Will use the ci.jenkins.io Azure settings file for testing: " + ciJenkinsIOSettings.getAbsolutePath());	
+			return ciJenkinsIOSettings;
+		}
+		// Default fallback for local runs
+		return new ClassPathResource("m2-settings.xml").getFile();
 	}
 
 }
