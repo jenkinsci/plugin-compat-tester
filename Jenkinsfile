@@ -147,7 +147,7 @@ itBranches['WAR with non-default groupId plugins - smoke test'] = {
 }
 
 //TODO (oleg-nenashev): This step is unstable at the moment, see JENKINS-60583
-disabled_itBranches['CasC tests success'] = {
+def disabled_itBranches['CasC tests success'] = {
     node('linux') {
         checkout scm
 
