@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.hook;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,6 +29,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
 
     @Override
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "silly rule")
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         try {
             System.out.println("Executing multi-parent compile hook");

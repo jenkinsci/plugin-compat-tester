@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -89,7 +90,7 @@ public class PluginRemoting {
             byte[] buf = new byte[1024];
             int n;
             while ((n = zin.read(buf, 0, 1024)) > -1)
-                sb.append(new String(buf, 0, n));
+                sb.append(new String(buf, 0, n, Charset.defaultCharset()));
 
             return sb.toString();
         } catch (Exception e) {

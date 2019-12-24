@@ -30,8 +30,7 @@
 
     <!-- Test libs -->
     <powermock.version>1.6.1</powermock.version>
-    <findbugs.effort>Max</findbugs.effort>
-    <findbugs.failOnError>false</findbugs.failOnError>
+    <spotbugs.effort>Max</spotbugs.effort>
   </properties>
 
   <modules>

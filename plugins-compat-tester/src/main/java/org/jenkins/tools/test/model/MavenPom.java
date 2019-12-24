@@ -27,8 +27,10 @@ package org.jenkins.tools.test.model;
 
 import hudson.util.VersionNumber;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -244,7 +246,7 @@ public class MavenPom {
     }
 
     private void writeDocument(final File target, final Document doc) throws IOException {
-        FileWriter w = new FileWriter(target);
+        Writer w = Files.newBufferedWriter(target.toPath(), Charset.defaultCharset());
         OutputFormat format = OutputFormat.createPrettyPrint();
         XMLWriter writer = new XMLWriter(w, format);
         try {

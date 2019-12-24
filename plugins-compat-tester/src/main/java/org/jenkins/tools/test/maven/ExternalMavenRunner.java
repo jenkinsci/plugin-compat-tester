@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,10 +42,15 @@ public class ExternalMavenRunner implements MavenRunner {
         try {
             Process p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
             List<String> succeededPluginArtifactIds = new ArrayList<>();
-            try (InputStream is = p.getInputStream(); FileOutputStream os = new FileOutputStream(buildLogFile, true); PrintWriter w = new PrintWriter(os)) {
+            try (InputStream is = p.getInputStream();
+                    BufferedReader r =
+                            new BufferedReader(
+                                    new InputStreamReader(is, Charset.defaultCharset()));
+                    FileOutputStream os = new FileOutputStream(buildLogFile, true);
+                    PrintWriter w =
+                            new PrintWriter(new OutputStreamWriter(os, Charset.defaultCharset()))) {
                 String completed = null;
                 Pattern pattern = Pattern.compile("\\[INFO\\] --- (.+):.+:.+ [(].+[)] @ .+ ---");
-                BufferedReader r = new BufferedReader(new InputStreamReader(is));
                 String line;
                 while ((line = r.readLine()) != null) {
                     System.out.println(line);
