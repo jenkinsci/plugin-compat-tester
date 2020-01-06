@@ -6,3 +6,6 @@ update_configs:
   ignored_updates:
     - match:
         dependency_name: "org.jenkins-ci.main:jenkins-core"
+- package_manager: "docker"
+  directory: "/"
+  update_schedule: "weekly"
