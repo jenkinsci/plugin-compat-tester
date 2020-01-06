@@ -24,6 +24,8 @@ import javax.annotation.CheckForNull;
  */
 public class ExternalMavenRunner implements MavenRunner {
 
+    private static final String DISABLE_DOWNLOAD_LOGS = "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn";
+
     @CheckForNull
     private File mvn;
 
@@ -42,6 +44,7 @@ public class ExternalMavenRunner implements MavenRunner {
         cmd.add(mvn != null ? mvn.getAbsolutePath() : "mvn");
         cmd.add("--show-version");
         cmd.add("--batch-mode");
+        cmd.add(DISABLE_DOWNLOAD_LOGS);
         if (config.userSettingsFile != null) {
             cmd.add("--settings=" + config.userSettingsFile);
         }
