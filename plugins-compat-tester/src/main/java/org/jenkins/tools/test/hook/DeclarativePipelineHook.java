@@ -43,7 +43,7 @@ public class DeclarativePipelineHook extends AbstractMultiParentHook {
         } else {
             LOGGER.log(Level.WARNING, "Artifact {0} has no parent POM, likely it was incrementalified (JEP-305). " +
                     "Will guess the plugin by artifact ID. FTR JENKINS-55169", data.artifactId);
-            return data.artifactId.contains("pipeline-model");
+            return data.artifactId.contains("pipeline-model") || data.artifactId.equalsIgnoreCase("pipeline-stage-tags-metadata");
         }
     }
 }
