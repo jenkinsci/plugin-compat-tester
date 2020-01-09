@@ -12,7 +12,7 @@
   <version>0.4.1-SNAPSHOT</version>
   <name>Plugins compatibility tester Aggregator</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
-  <url>https://wiki.jenkins.io/display/JENKINS/Plugin+Compatibility+Tester</url>
+  <url>https://github.com/jenkinsci/plugin-compat-tester</url>
   <packaging>pom</packaging>
 
   <scm>
