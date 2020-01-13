@@ -9,7 +9,7 @@
 
   <groupId>org.jenkins-ci.tests</groupId>
   <artifactId>plugins-compat-tester-aggregator</artifactId>
-  <version>0.5.0</version>
+  <version>0.5.1-SNAPSHOT</version>
   <name>Plugins compatibility tester Aggregator</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
   <url>https://github.com/jenkinsci/plugin-compat-tester</url>
@@ -18,7 +18,7 @@
   <scm>
     <connection>scm:git:ssh://git@github.com/jenkinsci/plugin-compat-tester.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/jenkinsci/plugin-compat-tester.git</developerConnection>
-    <tag>plugins-compat-tester-aggregator-0.5.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
