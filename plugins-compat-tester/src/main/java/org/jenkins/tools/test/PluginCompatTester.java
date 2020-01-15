@@ -544,7 +544,7 @@ public class PluginCompatTester {
         }
 	}
 
-    private void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException {
+    private void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException, IOException {
         String scmTag;
         if (pomData.getScmTag() != null) {
             scmTag = pomData.getScmTag();
@@ -558,7 +558,26 @@ public class PluginCompatTester {
         ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
         CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
 
-        if (!result.isSuccess()) {
+        if (!result.isSuccess() && config.getAlternativePluginOrganization() != null) {
+            System.out.println("Using alternative organization in github");
+            if (checkoutDirectory.isDirectory()) {
+                FileUtils.deleteDirectory(checkoutDirectory);
+            }
+
+            //Change connection URL
+            String url = "git://github.com/jenkinsci/tetsing/ec2-plugin.git";
+            Pattern pattern = Pattern.compile("(.*/github.com/)([^/]*)(.*)");
+            Matcher matcher = pattern.matcher(pomData.getConnectionUrl());
+            matcher.find();
+            String connectionURL = matcher.replaceFirst("$1" + config.getAlternativePluginOrganization() + "$3");
+            repository = scmManager.makeScmRepository(connectionURL);
+            result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
+            if (!result.isSuccess()) {
+                throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
+            }
+
+        }
+        else if (!result.isSuccess()) {
             throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
         }
     }

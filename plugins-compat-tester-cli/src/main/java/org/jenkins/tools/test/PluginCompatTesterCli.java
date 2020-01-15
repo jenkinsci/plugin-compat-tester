@@ -132,6 +132,9 @@ public class PluginCompatTesterCli {
         if (options.getTestJavaArgs() != null && !options.getTestJavaArgs().isEmpty()) {
             config.setTestJavaArgs(options.getTestJavaArgs());
         }
+        if (options.getAlternativePluginOrganization() != null){
+            config.setAlternativePluginOrganization(options.getAlternativePluginOrganization());
+        }
         if (options.isFailOnError()) {
             //TODO: also interpolate it for the case when a single plugin passed?
             config.setFailOnError(true);

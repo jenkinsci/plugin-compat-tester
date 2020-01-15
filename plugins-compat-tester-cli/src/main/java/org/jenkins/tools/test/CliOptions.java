@@ -83,6 +83,13 @@ public class CliOptions {
                     "If not set, see includePlugins behaviour.")
     private String excludePlugins = null;
 
+    @Parameter(names = "-alternativePluginOrganization",
+            description = "Include an alternative organization to use to download the plugin.\n" +
+                    "It is usefull to use your own fork releases for an specific plugin if the " +
+                    "version is not found into the official repository.\n" +
+                    "If not set, regular URL will be use for each plugin.")
+    private String alternativePluginOrganization = null;
+
     @Parameter(names = "-m2SettingsFile",
             description = "Maven settings file used while executing maven")
     private File m2SettingsFile;
@@ -177,6 +184,10 @@ public class CliOptions {
 
     public String getExcludePlugins() {
         return excludePlugins;
+    }
+
+    public String getAlternativePluginOrganization() {
+        return alternativePluginOrganization;
     }
 
     @CheckForNull
