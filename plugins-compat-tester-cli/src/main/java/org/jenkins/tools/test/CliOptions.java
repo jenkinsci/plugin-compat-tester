@@ -84,10 +84,10 @@ public class CliOptions {
     private String excludePlugins = null;
 
     @Parameter(names = "-alternativePluginOrganization",
-            description = "Include an alternative organization to use to download the plugin.\n" +
+            description = "Include an alternative organization to use as fallback to download the plugin.\n" +
                     "It is usefull to use your own fork releases for an specific plugin if the " +
                     "version is not found into the official repository.\n" +
-                    "If not set, regular URL will be use for each plugin.")
+                    "If set, The PCT will try to use the alternative if a plugin tag is not found in the regular URL.")
     private String alternativePluginOrganization = null;
 
     @Parameter(names = "-m2SettingsFile",
