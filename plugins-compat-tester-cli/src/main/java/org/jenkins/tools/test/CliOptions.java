@@ -84,9 +84,9 @@ public class CliOptions {
     private String excludePlugins = null;
 
     @Parameter(names = "-alternativePluginOrganization",
-            description = "Include an alternative organization to use as fallback to download the plugin.\n" +
-                    "It is usefull to use your own fork releases for an specific plugin if the " +
-                    "version is not found into the official repository.\n" +
+            description = "Include an alternative organization to use as a fallback to download the plugin.\n" +
+                    "It is useful to use your own fork releases for an specific plugin if the " +
+                    "version is not found in the official repository.\n" +
                     "If set, The PCT will try to use the alternative if a plugin tag is not found in the regular URL.")
     private String alternativePluginOrganization = null;
 
