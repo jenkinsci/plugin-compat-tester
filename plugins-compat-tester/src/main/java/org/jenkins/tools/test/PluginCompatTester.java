@@ -544,7 +544,7 @@ public class PluginCompatTester {
         }
 	}
 
-    private void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException, IOException {
+    protected void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException, IOException {
         String scmTag;
         if (pomData.getScmTag() != null) {
             scmTag = pomData.getScmTag();
