@@ -559,7 +559,7 @@ public class PluginCompatTester {
         CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
 
         if (!result.isSuccess() && config.getAlternativePluginOrganization() != null) {
-            System.out.println("Using alternative organization in github");
+            System.out.println("Using alternative organization in github: " + config.getAlternativePluginOrganization());
             if (checkoutDirectory.isDirectory()) {
                 FileUtils.deleteDirectory(checkoutDirectory);
             }
@@ -568,6 +568,7 @@ public class PluginCompatTester {
             Matcher matcher = pattern.matcher(pomData.getConnectionUrl());
             matcher.find();
             String connectionURL = matcher.replaceFirst("$1" + config.getAlternativePluginOrganization() + "$3");
+            System.out.println("Using alternative url in github: " + connectionURL);
             repository = scmManager.makeScmRepository(connectionURL);
             result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
             if (!result.isSuccess()) {

@@ -100,7 +100,7 @@ public class PluginCompatTesterConfig {
     // If null, tests will be performed on every includePlugins found
     private List<String> excludePlugins = null;
 
-    // URL to be use as alternative to download plugin source from alternative
+    // URL to be used as an alternative to download plugin source from alternative
     // organtizations, like your own fork
     private String alternativePluginOrganization = null;
 
