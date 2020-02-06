@@ -83,12 +83,12 @@ public class CliOptions {
                     "If not set, see includePlugins behaviour.")
     private String excludePlugins = null;
 
-    @Parameter(names = "-alternativePluginOrganization",
+    @Parameter(names = "-fallbackGitHubOrganization",
             description = "Include an alternative organization to use as a fallback to download the plugin.\n" +
                     "It is useful to use your own fork releases for an specific plugin if the " +
                     "version is not found in the official repository.\n" +
-                    "If set, The PCT will try to use the alternative if a plugin tag is not found in the regular URL.")
-    private String alternativePluginOrganization = null;
+                    "If set, The PCT will try to use the fallback if a plugin tag is not found in the regular URL.")
+    private String fallbackGitHubOrganization = null;
 
     @Parameter(names = "-m2SettingsFile",
             description = "Maven settings file used while executing maven")
@@ -186,8 +186,8 @@ public class CliOptions {
         return excludePlugins;
     }
 
-    public String getAlternativePluginOrganization() {
-        return alternativePluginOrganization;
+    public String getFallbackGitHubOrganization() {
+        return fallbackGitHubOrganization;
     }
 
     @CheckForNull

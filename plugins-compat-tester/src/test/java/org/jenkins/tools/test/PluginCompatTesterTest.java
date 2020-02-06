@@ -118,7 +118,7 @@ public class PluginCompatTesterTest {
 				new File("../reports/PluginCompatReport.xml"),
 				getSettingsFile());
 		config.setIncludePlugins(ImmutableList.of(pluginName));
-		config.setAlternativePluginOrganization("jenkinsci");
+		config.setFallbackGitHubOrganization("jenkinsci");
 
         PluginCompatTester pct = new PluginCompatTester(config);
         PomData pomData = new PomData(pluginName, "hpi",  nonWorkingConnectionURL, pluginName + "-" + version, mavenCoordinates, "org.jenkins-ci.plugins.workflow") ;
@@ -241,7 +241,7 @@ public class PluginCompatTesterTest {
 		File ciJenkinsIOSettings = new File(new File("settings-azure.xml").getAbsolutePath().replace("/plugins-compat-tester/settings-azure.xml", "@tmp/settings-azure.xml"));
 		System.out.println("Will check Maven settings from " + ciJenkinsIOSettings.getAbsolutePath());
 		if (ciJenkinsIOSettings.exists()) {
-			System.out.println("Will use the ci.jenkins.io Azure settings file for testing: " + ciJenkinsIOSettings.getAbsolutePath());	
+			System.out.println("Will use the ci.jenkins.io Azure settings file for testing: " + ciJenkinsIOSettings.getAbsolutePath());
 			return ciJenkinsIOSettings;
 		}
 		// Default fallback for local runs

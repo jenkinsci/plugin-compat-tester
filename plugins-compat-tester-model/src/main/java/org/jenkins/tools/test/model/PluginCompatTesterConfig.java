@@ -100,9 +100,9 @@ public class PluginCompatTesterConfig {
     // If null, tests will be performed on every includePlugins found
     private List<String> excludePlugins = null;
 
-    // URL to be used as an alternative to download plugin source from alternative
+    // URL to be used as an alternative to download plugin source from fallback
     // organtizations, like your own fork
-    private String alternativePluginOrganization = null;
+    private String fallbackGitHubOrganization = null;
 
     // Allows to skip a plugin test if this plugin test has already been performed
     // within testCacheTimeout ms
@@ -236,12 +236,12 @@ public class PluginCompatTesterConfig {
         this.excludePlugins = excludePlugins;
     }
 
-    public String getAlternativePluginOrganization() {
-        return alternativePluginOrganization;
+    public String getFallbackGitHubOrganization() {
+        return fallbackGitHubOrganization;
     }
 
-    public void setAlternativePluginOrganization(String alternativePluginOrganization) {
-        this.alternativePluginOrganization = alternativePluginOrganization;
+    public void setFallbackGitHubOrganization(String fallbackGitHubOrganization) {
+        this.fallbackGitHubOrganization = fallbackGitHubOrganization;
     }
 
     public void setMavenProperties(@Nonnull Map<String, String> mavenProperties) {

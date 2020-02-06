@@ -558,8 +558,8 @@ public class PluginCompatTester {
         ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
         CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
 
-        if (!result.isSuccess() && config.getAlternativePluginOrganization() != null) {
-            System.out.println("Using alternative organization in github: " + config.getAlternativePluginOrganization());
+        if (!result.isSuccess() && config.getFallbackGitHubOrganization() != null) {
+            System.out.println("Using fallback organization in github: " + config.getFallbackGitHubOrganization());
             if (checkoutDirectory.isDirectory()) {
                 FileUtils.deleteDirectory(checkoutDirectory);
             }
@@ -567,8 +567,8 @@ public class PluginCompatTester {
             Pattern pattern = Pattern.compile("(.*/github.com/)([^/]*)(.*)");
             Matcher matcher = pattern.matcher(pomData.getConnectionUrl());
             matcher.find();
-            String connectionURL = matcher.replaceFirst("$1" + config.getAlternativePluginOrganization() + "$3");
-            System.out.println("Using alternative url in github: " + connectionURL);
+            String connectionURL = matcher.replaceFirst("$1" + config.getFallbackGitHubOrganization() + "$3");
+            System.out.println("Using fallback url in github: " + connectionURL);
             repository = scmManager.makeScmRepository(connectionURL);
             result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
             if (!result.isSuccess()) {
