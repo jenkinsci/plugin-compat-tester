@@ -173,10 +173,10 @@ public class PluginCompatTester {
 
         // Determine the plugin data
         HashMap<String,String> pluginGroupIds = new HashMap<>();  // Used to track real plugin groupIds from WARs
-        
+
         // Scan bundled plugins
         // If there is any bundled plugin, only these plugins will be taken under the consideration for the PCT run
-        UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");        
+        UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
         if (!data.plugins.isEmpty()) {
             // Scan detached plugins to recover proper Group IDs for them
             // We always poll the update center so that we extract groupIDs for dependencies
@@ -501,7 +501,7 @@ public class PluginCompatTester {
             // -Dmaven-surefire-plugin.version=2.15 -Dmaven.test.dependency.excludes=org.jenkins-ci.main:jenkins-war -Dmaven.test.additionalClasspath=/…/org/jenkins-ci/main/jenkins-war/1.580.1/jenkins-war-1.580.1.war clean test
             // (2.15+ required for ${maven.test.dependency.excludes} and ${maven.test.additionalClasspath} to be honored from CLI)
             // but it does not work; there are lots of linkage errors as some things are expected to be in the test classpath which are not.
-            // Much simpler to do use the parent POM to set up the test classpath. 
+            // Much simpler to do use the parent POM to set up the test classpath.
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
                 addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version, overridenPlugins);
@@ -544,7 +544,7 @@ public class PluginCompatTester {
         }
 	}
 
-    private void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException {
+    protected void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException, IOException {
         String scmTag;
         if (pomData.getScmTag() != null) {
             scmTag = pomData.getScmTag();
@@ -558,7 +558,25 @@ public class PluginCompatTester {
         ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
         CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
 
-        if (!result.isSuccess()) {
+        if (!result.isSuccess() && config.getFallbackGitHubOrganization() != null) {
+            System.out.println("Using fallback organization in github: " + config.getFallbackGitHubOrganization());
+            if (checkoutDirectory.isDirectory()) {
+                FileUtils.deleteDirectory(checkoutDirectory);
+            }
+
+            Pattern pattern = Pattern.compile("(.*/github.com/)([^/]*)(.*)");
+            Matcher matcher = pattern.matcher(pomData.getConnectionUrl());
+            matcher.find();
+            String connectionURL = matcher.replaceFirst("$1" + config.getFallbackGitHubOrganization() + "$3");
+            System.out.println("Using fallback url in github: " + connectionURL);
+            repository = scmManager.makeScmRepository(connectionURL);
+            result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
+            if (!result.isSuccess()) {
+                throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
+            }
+
+        }
+        else if (!result.isSuccess()) {
             throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
         }
     }
