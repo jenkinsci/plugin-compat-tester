@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 public class DeclarativePipelineMigrationHook
     extends AbstractMultiParentHook {
 
+    private static final Logger LOGGER = Logger.getLogger(DeclarativePipelineMigrationHook.class.getName());
+
     @Override
     protected String getParentFolder() {
         return "declarative-pipeline-migration-assistant";
@@ -42,6 +44,8 @@ public class DeclarativePipelineMigrationHook
         if (data.parent != null) {
             return data.parent.artifactId.equalsIgnoreCase("declarative-pipeline-migration-assistant-parent");
         } else {
+            LOGGER.log(Level.WARNING, "Artifact {0} has no parent POM, likely it was incrementalified (JEP-305). " +
+                "Will guess the plugin by artifact ID. FTR JENKINS-55169", data.artifactId);
             return data.artifactId.contains("declarative-pipeline-migration-assistant") ||
                 data.artifactId.contains("declarative-pipeline-migration-assistant-api");
         }
