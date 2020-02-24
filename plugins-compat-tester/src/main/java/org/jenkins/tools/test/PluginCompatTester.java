@@ -179,13 +179,7 @@ public class PluginCompatTester {
         UpdateSite.Data data = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
         if (!data.plugins.isEmpty()) {
             // Scan detached plugins to recover proper Group IDs for them
-            // We always poll the update center so that we extract groupIDs for dependencies
-            // In the case of Group ID renaming across version, groupID from the WAR file will have a priority
-            UpdateSite.Data detachedData = extractUpdateCenterData(pluginGroupIds);
-            if (config.getWar() != null) {
-                detachedData = scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
-            }
-
+            UpdateSite.Data detachedData = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
 
             // Add detached if and only if no added as normal one
             detachedData.plugins.forEach((key, value) -> {
@@ -595,6 +589,9 @@ public class PluginCompatTester {
      * @return Update site Data
      */
     private UpdateSite.Data extractUpdateCenterData(Map<String, String> groupIDs){
+        if (config.getWar() != null) {
+            throw new IllegalStateException("Not to be used when -war is specified");
+        }
 		URL url;
 		String jsonp;
 		try {
