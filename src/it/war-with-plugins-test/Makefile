@@ -29,7 +29,7 @@ test: out $(CUSTOM_JENKINS_WAR)
 	    -e ARTIFACT_ID=artifact-manager-s3 \
 	    -e VERSION=artifact-manager-s3-1.6 \
 	    jenkins/pct \
-	    -overridenPlugins 'configuration-as-code=1.20'
+	    -overridenPlugins 'io.jenkins:configuration-as-code=1.20'
 
 clean:
 	rm -rf out

@@ -782,6 +782,15 @@ public class PluginCompatTester {
             overridenPlugins.forEach(plugin -> {
                 toReplace.put(plugin.getName(), plugin.getVersion());
                 toReplaceTest.put(plugin.getName(), plugin.getVersion());
+                if (plugin.getGroupId() != null) {
+                    if (pluginGroupIds.containsKey(plugin.getName())) {
+                        if (!plugin.getGroupId().equals(pluginGroupIds.get(plugin.getName()))) {
+                            System.err.println("WARNING: mismatch between detected and explicit group ID for " + plugin.getName());
+                        }
+                    } else {
+                        pluginGroupIds.put(plugin.getName(), plugin.getGroupId());
+                    }
+                }
             });
 
             for (String split : splits) {
