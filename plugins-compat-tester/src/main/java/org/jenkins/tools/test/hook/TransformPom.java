@@ -37,7 +37,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         boolean isBO = BlueOceanHook.isBOPlugin(pomData);
         boolean isDeclarativePipeline = DeclarativePipelineHook.isDPPlugin(pomData);
         boolean isCasC = ConfigurationAsCodeHook.isCascPlugin(pomData);
-        boolean isPipelineStageViewPlugin = PipelineRestApiHook.isPipelineStageViewPlugin(pomData);
+        boolean isPipelineStageViewPlugin = PipelineStageViewHook.isPipelineStageViewPlugin(pomData);
         boolean isSwarm = SwarmHook.isSwarmPlugin(pomData);
         boolean pluginPOM = pomData.isPluginPOM();
         if (parent != null) {
