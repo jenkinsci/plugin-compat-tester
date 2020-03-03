@@ -23,7 +23,7 @@ public class PipelineRestApiHook extends AbstractMultiParentHook {
 
     @Override
     protected String getPluginFolderName(UpdateSite.Plugin currentPlugin){
-        return (currentPlugin.getDisplayName() == "pipeline-rest-api") ? "rest-api" : "ui";
+        return (currentPlugin.getDisplayName().equals("pipeline-rest-api")) ? "rest-api" : "ui";
     }
 
     @Override
