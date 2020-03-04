@@ -4,7 +4,7 @@ import hudson.model.UpdateSite;
 import java.util.Map;
 import org.jenkins.tools.test.model.PomData;
 
-public class PipelineRestApiHook extends AbstractMultiParentHook {
+public class PipelineStageViewHook extends AbstractMultiParentHook {
 
     @Override
     protected String getParentFolder() {
