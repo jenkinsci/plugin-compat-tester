@@ -81,7 +81,8 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     @Override
     public boolean check(Map<String, Object> info) {
         return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info) || StructsHook.isStructsPlugin(info) ||
-        SwarmHook.isSwarmPlugin(info) || ConfigurationAsCodeHook.isCascPlugin(info) || PipelineStageViewHook.isPipelineStageViewPlugin(info);
+        SwarmHook.isSwarmPlugin(info) || ConfigurationAsCodeHook.isCascPlugin(info) || PipelineStageViewHook.isPipelineStageViewPlugin(info) ||
+        DeclarativePipelineMigrationHook.isPlugin(info) ;
     }
 
     private boolean isEslintFile(Path file) {
