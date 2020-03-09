@@ -1,19 +1,15 @@
 package org.jenkins.tools.test.hook;
 
 import org.jenkins.tools.test.model.PomData;
+import hudson.model.UpdateSite;
 
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Workaround for the Declarative Pipeline Migration Assistant plugins since they are
  * stored in a central repository.
  */
-public class DeclarativePipelineMigrationHook
-    extends AbstractMultiParentHook {
-
-    private static final Logger LOGGER = Logger.getLogger(DeclarativePipelineMigrationHook.class.getName());
+public class DeclarativePipelineMigrationHook extends AbstractMultiParentHook {
 
     @Override
     protected String getParentFolder() {
@@ -27,7 +23,12 @@ public class DeclarativePipelineMigrationHook
 
     @Override
     protected String getParentProjectName() {
-        return "declarative-pipeline-migration-assistant-parent";
+        return "declarative-pipeline-migration-assistant";
+    }
+
+    @Override
+    protected String getPluginFolderName(UpdateSite.Plugin currentPlugin){
+        return currentPlugin.getDisplayName();
     }
 
     @Override
@@ -43,12 +44,9 @@ public class DeclarativePipelineMigrationHook
     public static boolean isPlugin(PomData data) {
         if (data.parent != null) {
             return data.parent.artifactId.equalsIgnoreCase("declarative-pipeline-migration-assistant-parent");
-        } else {
-            LOGGER.log(Level.WARNING, "Artifact {0} has no parent POM, likely it was incrementalified (JEP-305). " +
-                "Will guess the plugin by artifact ID. FTR JENKINS-55169", data.artifactId);
-            return data.artifactId.contains("declarative-pipeline-migration-assistant") ||
-                data.artifactId.contains("declarative-pipeline-migration-assistant-api");
         }
+        return data.artifactId.contains("declarative-pipeline-migration-assistant") ||
+            data.artifactId.contains("declarative-pipeline-migration-assistant-api");
     }
 
 }
