@@ -26,7 +26,10 @@
 package org.jenkins.tools.test.model;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -44,16 +47,18 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
     public final String errorMessage;
     public final List<String> warningMessages;
 
+    private final Set<String> executedTests;
+
     private String buildLogPath = "";
 
     public PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
-                              String errorMessage, List<String> warningMessages,
+                              String errorMessage, List<String> warningMessages, Set<String> executedTests,
                               String buildLogPath){
         // Create new result with current date
-        this(coreCoordinates, status, errorMessage, warningMessages, buildLogPath, new Date());
+        this(coreCoordinates, status, errorMessage, warningMessages, executedTests, buildLogPath, new Date());
     }
-    public PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
-                              String errorMessage, List<String> warningMessages,
+    private PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
+                              String errorMessage, List<String> warningMessages, Set<String> executedTests,
                               String buildLogPath, Date compatTestExecutedOn){
         this.coreCoordinates = coreCoordinates;
 
@@ -62,6 +67,7 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
         this.errorMessage = errorMessage;
         this.warningMessages = warningMessages;
 
+        this.executedTests = executedTests;
         this.buildLogPath = buildLogPath;
 
         this.compatTestExecutedOn = compatTestExecutedOn;
@@ -92,5 +98,9 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
 
     public void setBuildLogPath(String buildLogPath) {
         this.buildLogPath = buildLogPath;
+    }
+
+    public Set<String> getExecutedTests() {
+        return executedTests;
     }
 }

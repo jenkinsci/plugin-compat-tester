@@ -11,13 +11,16 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jenkins.tools.test.exception.PomExecutionException;
 
 import javax.annotation.CheckForNull;
+
+import org.jenkins.tools.test.exception.PomExecutionException;
 
 /**
  * Runs external Maven executable.
@@ -29,6 +32,8 @@ public class ExternalMavenRunner implements MavenRunner {
     @CheckForNull
     private File mvn;
 
+    private Set<String> executedTests;
+
     /**
      * Constructor.
      * @param mvn Path to Maven.
@@ -36,6 +41,11 @@ public class ExternalMavenRunner implements MavenRunner {
      */
     public ExternalMavenRunner(@CheckForNull File mvn) {
         this.mvn = mvn;
+        this.executedTests = new HashSet<>();
+    }
+
+    public Set<String> getExecutedTests() {
+        return Collections.unmodifiableSet(executedTests);
     }
 
     @Override
@@ -77,10 +87,13 @@ public class ExternalMavenRunner implements MavenRunner {
                         completed = m.group(1);
                     } else if (line.equals("[INFO] BUILD SUCCESS") && completed != null) {
                         succeededPluginArtifactIds.add(completed);
+                    } else if (line.startsWith("[INFO] Running") && !line.contains("InjectedTest")) {
+                        this.executedTests.add(line.split("Running")[1].trim());
                     }
                 }
                 w.flush();
                 System.out.println("succeeded artifactIds: " + succeededPluginArtifactIds);
+                System.out.println("executed classname tests: " + getExecutedTests());
             }
             if (p.waitFor() != 0) {
                 throw new PomExecutionException(cmd + " failed in " + baseDirectory, succeededPluginArtifactIds, /* TODO */Collections.emptyList(), Collections.emptyList());
