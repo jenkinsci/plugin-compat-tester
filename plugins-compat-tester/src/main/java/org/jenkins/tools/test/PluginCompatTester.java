@@ -235,7 +235,6 @@ public class PluginCompatTester {
 
         boolean failed = false;
         SCMManagerFactory.getInstance().start();
-    ExecutedTestNamesSolver testNamesSolver = new ExecutedTestNamesSolver();
         ROOT_CYCLE: for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
             for (Plugin plugin : pluginsToCheck.values()) {

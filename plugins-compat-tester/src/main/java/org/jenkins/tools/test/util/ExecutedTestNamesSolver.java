@@ -1,6 +1,7 @@
 package org.jenkins.tools.test.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Set;
@@ -8,10 +9,12 @@ import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.jenkins.tools.test.exception.ExecutedTestNamesSolverException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 public class ExecutedTestNamesSolver {
 
@@ -68,7 +71,7 @@ public class ExecutedTestNamesSolver {
                 }
             }
 
-        } catch (Exception e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new ExecutedTestNamesSolverException(e);
         }
         
