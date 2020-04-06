@@ -298,7 +298,7 @@ public class PluginCompatTester {
                     }
 
                     List<String> warningMessages = new ArrayList<>();
-                    Set<String> executedTests = new HashSet<>();
+                    Set<String> executedTests = new TreeSet<>();
                     if (errorMessage == null) {
                     try {
                         TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridenPlugins());

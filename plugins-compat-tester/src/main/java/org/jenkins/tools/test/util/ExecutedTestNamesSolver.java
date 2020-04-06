@@ -47,6 +47,7 @@ public class ExecutedTestNamesSolver {
                 File testReport = Paths.get(testReportPath).toFile();
                 if (!testReport.exists()) {
                     System.out.println(String.format(WARNING_MSG, testReportPath));
+                    continue;
                 }
                 
                 Document document = builder.parse(testReport);
