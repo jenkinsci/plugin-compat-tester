@@ -131,12 +131,14 @@ public class PluginCompatTesterTest {
         Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
         assertNotNull(pluginCompatTests);
         for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
-            assertEquals("accurev", entry.getKey().pluginName);
+            assertEquals("ant", entry.getKey().pluginName);
             List<PluginCompatResult> results = entry.getValue();
             assertEquals(1, results.size());
             PluginCompatResult result = results.get(0);
             assertNotNull(result);
             assertNotNull(result.getExecutedTests());
+            assertEquals(1, result.getExecutedTests().size());
+            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.emptyParameterTest"));
         }
     }    
 
