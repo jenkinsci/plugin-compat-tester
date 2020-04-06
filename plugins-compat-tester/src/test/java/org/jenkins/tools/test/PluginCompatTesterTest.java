@@ -110,7 +110,7 @@ public class PluginCompatTesterTest {
     
     @Test
     public void testWithIsolatedTest() throws Throwable {
-        ImmutableList<String> includedPlugins = ImmutableList.of("ant");
+        ImmutableList<String> includedPlugins = ImmutableList.of("accurev");
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                 new File("../reports/PluginCompatReport.xml"), getSettingsFile());
@@ -122,7 +122,7 @@ public class PluginCompatTesterTest {
         config.setParentVersion("1.410");
         config.setGenerateHtmlReport(true);
         Map<String, String> mavenProperties = new HashMap<>();
-        mavenProperties.put("test","AntTest#emptyParameterTest");
+        mavenProperties.put("test","AccurevSCMTest#testConfigRoundtrip");
         config.setMavenProperties(mavenProperties);
 
         PluginCompatTester tester = new PluginCompatTester(config);
@@ -138,7 +138,7 @@ public class PluginCompatTesterTest {
             assertNotNull(result);
             assertNotNull(result.getExecutedTests());
             assertEquals(1, result.getExecutedTests().size());
-            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.emptyParameterTest"));
+            assertTrue(result.getExecutedTests().contains("hudson.plugins.accurev.AccurevSCMTest.testConfigRoundtrip"));
         }
     }    
 
