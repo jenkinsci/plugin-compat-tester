@@ -85,7 +85,7 @@ public class PluginCompatTesterTest {
 
     @Test
     public void testWithUrl() throws Throwable {
-        ImmutableList<String> includedPlugins = ImmutableList.of("accurev"
+        ImmutableList<String> includedPlugins = ImmutableList.of("ant"
         /*
          * "accurev", "active-directory", "analysis-collector", "scm-sync-configuration"
          */
