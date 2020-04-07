@@ -147,7 +147,7 @@ public class PluginCompatTesterTest {
             assertNotNull(result.getTestsDetails());
             assertFalse(result.getTestsDetails().isEmpty());
             assertEquals(1, result.getTestsDetails().size());
-            assertTrue(result.getTestsDetails().contains("ActiveDirectoryAuthenticationProviderTest.testEscape"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectoryAuthenticationProviderTest.testEscape"));
         }
     }  
     
@@ -185,6 +185,7 @@ public class PluginCompatTesterTest {
         config.setParentVersion("1.410");
         config.setGenerateHtmlReport(true);
         config.setHookPrefixes(Collections.emptyList());
+        config.setExternalMaven(getSettingsFile());
         return config;
     }
 
