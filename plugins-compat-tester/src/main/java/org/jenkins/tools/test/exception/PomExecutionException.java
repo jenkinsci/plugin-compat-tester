@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Exception thrown during a plugin's Maven execution
@@ -42,20 +44,22 @@ public class PomExecutionException extends Exception {
     private final List<Throwable> exceptionsThrown;
     public final List<String> succeededPluginArtifactIds;
     private final List<String> pomWarningMessages;
+    private final Set<String> executedTests;
 
     public PomExecutionException(Throwable cause) {
-        this(cause.toString(), Collections.emptyList(), Collections.singletonList(cause), Collections.emptyList());
+        this(cause.toString(), Collections.emptyList(), Collections.singletonList(cause), Collections.emptyList(), Collections.emptySet());
     }
 
     public PomExecutionException(PomExecutionException exceptionToCopy){
-        this(exceptionToCopy.getMessage(), exceptionToCopy.succeededPluginArtifactIds, exceptionToCopy.exceptionsThrown, exceptionToCopy.pomWarningMessages);
+        this(exceptionToCopy.getMessage(), exceptionToCopy.succeededPluginArtifactIds, exceptionToCopy.exceptionsThrown, exceptionToCopy.pomWarningMessages, exceptionToCopy.executedTests);
     }
 
-    public PomExecutionException(String message, List<String> succeededPluginArtifactIds, List<Throwable> exceptionsThrown, List<String> pomWarningMessages){
+    public PomExecutionException(String message, List<String> succeededPluginArtifactIds, List<Throwable> exceptionsThrown, List<String> pomWarningMessages, Set<String> executedTests){
         super(message, exceptionsThrown.isEmpty() ? null : exceptionsThrown.iterator().next());
         this.exceptionsThrown = new ArrayList<>(exceptionsThrown);
         this.succeededPluginArtifactIds = new ArrayList<>(succeededPluginArtifactIds);
         this.pomWarningMessages = new ArrayList<>(pomWarningMessages);
+        this.executedTests = new TreeSet<>(executedTests);
     }
 
     public String getErrorMessage(){
@@ -73,5 +77,9 @@ public class PomExecutionException extends Exception {
 
     public List<String> getPomWarningMessages() {
         return pomWarningMessages;
+    }
+    
+    public Set<String> getExecutedTests() {
+        return executedTests;
     }
 }

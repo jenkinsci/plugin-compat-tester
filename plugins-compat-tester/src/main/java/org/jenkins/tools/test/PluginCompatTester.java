@@ -316,6 +316,7 @@ public class PluginCompatTester {
                         }
                         errorMessage = e.getErrorMessage();
                         warningMessages.addAll(e.getPomWarningMessages());
+                        executedTests.addAll(e.getExecutedTests());
                     } catch (Error e){
                         // Rethrow the error ... something is wrong !
                         throw e;
@@ -538,14 +539,15 @@ public class PluginCompatTester {
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
 
             return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(runner.getExecutedTests(), pluginCheckoutDir));
-        }catch(ExecutedTestNamesSolverException | PomExecutionException e){
-            PomExecutionException e2 = new PomExecutionException(e);
-            e2.getPomWarningMessages().addAll(pomData.getWarningMessages());
+        } catch (ExecutedTestNamesSolverException e) {
+            throw new PomExecutionException(e);
+        } catch (PomExecutionException e){
+            e.getPomWarningMessages().addAll(pomData.getWarningMessages());
             if (ranCompile) {
                 // So the status is considered to be TEST_FAILURES not COMPILATION_ERROR:
-                e2.succeededPluginArtifactIds.add("maven-compiler-plugin");
+                e.succeededPluginArtifactIds.add("maven-compiler-plugin");
             }
-            throw e2;
+            throw e;
         }
     }
 

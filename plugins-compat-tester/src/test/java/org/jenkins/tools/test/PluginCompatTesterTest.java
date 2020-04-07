@@ -28,15 +28,18 @@ package org.jenkins.tools.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PluginCompatReport;
 import org.jenkins.tools.test.model.PluginCompatResult;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,12 +65,17 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class PluginCompatTesterTest {
 
+    private static final String REPORT_FILE = "../reports/PluginCompatReport.xml";
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
         SCMManagerFactory.getInstance().start();
+        File file = Paths.get(REPORT_FILE).toFile();
+        if (file.exists()) {
+            FileUtils.deleteQuietly(file);
+        }
     }
 
     @After
@@ -77,14 +85,14 @@ public class PluginCompatTesterTest {
 
     @Test
     public void testWithUrl() throws Throwable {
-        ImmutableList<String> includedPlugins = ImmutableList.of("accurev"
+        ImmutableList<String> includedPlugins = ImmutableList.of("ant"
         /*
-         * "active-directory", "analysis-collector", "scm-sync-configuration"
+         * "accurev", "active-directory", "analysis-collector", "scm-sync-configuration"
          */
         );
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File("../reports/PluginCompatReport.xml"), getSettingsFile());
+                new File(REPORT_FILE), getSettingsFile());
 
         config.setIncludePlugins(includedPlugins);
         config.setSkipTestCache(true);
@@ -99,21 +107,30 @@ public class PluginCompatTesterTest {
         Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
         assertNotNull(pluginCompatTests);
         for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
-            assertEquals("accurev", entry.getKey().pluginName);
+            assertEquals("ant", entry.getKey().pluginName);
             List<PluginCompatResult> results = entry.getValue();
             assertEquals(1, results.size());
             PluginCompatResult result = results.get(0);
             assertNotNull(result);
             assertNotNull(result.getExecutedTests());
+            assertFalse(result.getExecutedTests().isEmpty());
+            // Let's evaluate some executed tests
+            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntJCasCCompatibilityTest.roundTripTest"));
+            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.customBuildFileTest"));
+            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.emptyParameterTest"));
+            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.invokeCustomTargetTest"));
+            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.invokeDefaultTargetTest"));
+            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntWrapperTest.smokes"));
+            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTargetAnnotationTest.test1"));
         }
     }
     
     @Test
     public void testWithIsolatedTest() throws Throwable {
-        ImmutableList<String> includedPlugins = ImmutableList.of("accurev");
+        ImmutableList<String> includedPlugins = ImmutableList.of("ant");
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File("../reports/PluginCompatReport.xml"), getSettingsFile());
+                new File(REPORT_FILE), getSettingsFile());
 
         config.setIncludePlugins(includedPlugins);
         config.setSkipTestCache(true);
@@ -122,7 +139,7 @@ public class PluginCompatTesterTest {
         config.setParentVersion("1.410");
         config.setGenerateHtmlReport(true);
         Map<String, String> mavenProperties = new HashMap<>();
-        mavenProperties.put("test","AccurevSCMTest#testConfigRoundtrip");
+        mavenProperties.put("test","AntTest#customBuildFileTest");
         config.setMavenProperties(mavenProperties);
 
         PluginCompatTester tester = new PluginCompatTester(config);
@@ -138,7 +155,7 @@ public class PluginCompatTesterTest {
             assertNotNull(result);
             assertNotNull(result.getExecutedTests());
             assertEquals(1, result.getExecutedTests().size());
-            assertTrue(result.getExecutedTests().contains("hudson.plugins.accurev.AccurevSCMTest.testConfigRoundtrip"));
+            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.customBuildFileTest"));
         }
     }    
 
@@ -150,7 +167,7 @@ public class PluginCompatTesterTest {
         MavenCoordinates mavenCoordinates = new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.54");
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File("../reports/PluginCompatReport.xml"), getSettingsFile());
+                new File(REPORT_FILE), getSettingsFile());
         config.setIncludePlugins(ImmutableList.of(pluginName));
 
         PluginCompatTester pct = new PluginCompatTester(config);
@@ -168,7 +185,7 @@ public class PluginCompatTesterTest {
         MavenCoordinates mavenCoordinates = new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.54");
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File("../reports/PluginCompatReport.xml"), getSettingsFile());
+                new File(REPORT_FILE), getSettingsFile());
         config.setIncludePlugins(ImmutableList.of(pluginName));
         config.setFallbackGitHubOrganization("jenkinsci");
 

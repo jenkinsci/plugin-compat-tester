@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 
 import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
 
 /**
  * Runs external Maven executable.
@@ -36,8 +37,9 @@ public class ExternalMavenRunner implements MavenRunner {
 
     /**
      * Constructor.
-     * @param mvn Path to Maven.
-     *            If {@code null}, a default Maven executable from {@code PATH} will be used
+     * 
+     * @param mvn Path to Maven. If {@code null}, a default Maven executable from
+     *            {@code PATH} will be used
      */
     public ExternalMavenRunner(@CheckForNull File mvn) {
         this.mvn = mvn;
@@ -49,7 +51,8 @@ public class ExternalMavenRunner implements MavenRunner {
     }
 
     @Override
-    public void run(Config config, File baseDirectory, File buildLogFile, String... goals) throws PomExecutionException {
+    public void run(Config config, File baseDirectory, File buildLogFile, String... goals)
+            throws PomExecutionException {
         List<String> cmd = new ArrayList<>();
         cmd.add(mvn != null ? mvn.getAbsolutePath() : "mvn");
         cmd.add("--show-version");
@@ -58,7 +61,7 @@ public class ExternalMavenRunner implements MavenRunner {
         if (config.userSettingsFile != null) {
             cmd.add("--settings=" + config.userSettingsFile);
         }
-        for (Map.Entry<String,String> entry : config.userProperties.entrySet()) {
+        for (Map.Entry<String, String> entry : config.userProperties.entrySet()) {
             cmd.add("--define=" + entry);
         }
         cmd.addAll(Arrays.asList(goals));
@@ -67,18 +70,19 @@ public class ExternalMavenRunner implements MavenRunner {
             Process p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
             List<String> succeededPluginArtifactIds = new ArrayList<>();
             try (InputStream is = p.getInputStream();
-                    BufferedReader r =
-                            new BufferedReader(
-                                    new InputStreamReader(is, Charset.defaultCharset()));
+                    BufferedReader r = new BufferedReader(new InputStreamReader(is, Charset.defaultCharset()));
                     FileOutputStream os = new FileOutputStream(buildLogFile, true);
-                    PrintWriter w =
-                            new PrintWriter(new OutputStreamWriter(os, Charset.defaultCharset()))) {
+                    PrintWriter w = new PrintWriter(new OutputStreamWriter(os, Charset.defaultCharset()))) {
                 String completed = null;
                 Pattern pattern = Pattern.compile("\\[INFO\\] --- (.+):.+:.+ [(].+[)] @ .+ ---");
                 String line;
+                boolean testPhase = false;
                 while ((line = r.readLine()) != null) {
                     System.out.println(line);
                     w.println(line);
+                    if(line.contains("T E S T S")) {
+                        testPhase = true;
+                    }
                     Matcher m = pattern.matcher(line);
                     if (m.matches()) {
                         if (completed != null) {
@@ -87,7 +91,7 @@ public class ExternalMavenRunner implements MavenRunner {
                         completed = m.group(1);
                     } else if (line.equals("[INFO] BUILD SUCCESS") && completed != null) {
                         succeededPluginArtifactIds.add(completed);
-                    } else if (line.startsWith("[INFO] Running") && !line.contains("InjectedTest")) {
+                    } else if (testPhase && line.startsWith("[INFO] Running") && !line.contains("InjectedTest")) {
                         this.executedTests.add(line.split("Running")[1].trim());
                     }
                 }
@@ -96,7 +100,9 @@ public class ExternalMavenRunner implements MavenRunner {
                 System.out.println("executed classname tests: " + getExecutedTests());
             }
             if (p.waitFor() != 0) {
-                throw new PomExecutionException(cmd + " failed in " + baseDirectory, succeededPluginArtifactIds, /* TODO */Collections.emptyList(), Collections.emptyList());
+                throw new PomExecutionException(cmd + " failed in " + baseDirectory, succeededPluginArtifactIds,
+                        /* TODO */Collections.emptyList(), Collections.emptyList(),
+                        new ExecutedTestNamesSolver().solve(getExecutedTests(), baseDirectory));
             }
         } catch (PomExecutionException x) {
             throw x;
