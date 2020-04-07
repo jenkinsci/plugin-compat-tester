@@ -85,7 +85,7 @@ public class PluginCompatTesterTest {
 
     @Test
     public void testWithUrl() throws Throwable {
-        PluginCompatTesterConfig config = getConfig(ImmutableList.of("workflow-api"));
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("ant"));
         config.setStoreAll(true);
 
         PluginCompatTester tester = new PluginCompatTester(config);
