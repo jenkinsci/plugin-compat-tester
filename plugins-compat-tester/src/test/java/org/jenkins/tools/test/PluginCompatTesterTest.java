@@ -87,7 +87,7 @@ public class PluginCompatTesterTest {
 
     @Test
     public void testWithUrl() throws Throwable {
-        PluginCompatTesterConfig config = getConfig(ImmutableList.of("buildtriggerbadge"));
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("active-directory"));
         config.setStoreAll(true);
 
         PluginCompatTester tester = new PluginCompatTester(config);
@@ -96,7 +96,7 @@ public class PluginCompatTesterTest {
         Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
         assertNotNull(pluginCompatTests);
         for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
-            assertEquals("buildtriggerbadge", entry.getKey().pluginName);
+            assertEquals("active-directory", entry.getKey().pluginName);
             List<PluginCompatResult> results = entry.getValue();
             assertEquals(1, results.size());
             PluginCompatResult result = results.get(0);
@@ -104,20 +104,33 @@ public class PluginCompatTesterTest {
             assertNotNull(result.getTestsDetails());
             assertFalse(result.getTestsDetails().isEmpty());
             // Let's evaluate some executed tests
-            assertTrue(result.getTestsDetails().contains("org.jenkinsci.plugins.buildtriggerbadge.BuildTriggerBadgeActionTest.externallyAddedCause"));
-            assertTrue(result.getTestsDetails().contains("org.jenkinsci.plugins.buildtriggerbadge.BuildTriggerBadgeActionTest.externallyDisabledCause"));
-            assertTrue(result.getTestsDetails().contains("org.jenkinsci.plugins.buildtriggerbadge.BuildTriggerBadgeActionTest.stupidlyMockedUpstreamCause"));
-            assertTrue(result.getTestsDetails().contains("org.jenkinsci.plugins.buildtriggerbadge.RunListenerImplTest.checkBadges"));
-            assertTrue(result.getTestsDetails().contains("org.jenkinsci.plugins.buildtriggerbadge.RunListenerImplTest.sameIconMultipleTimesCorrection"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectoryAuthenticationProviderTest.testEscape"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testAdvancedOptionsVisibleWithNonNativeAuthentication"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testCacheOptionAlwaysVisible"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveMultiDomainSingleDomainOneDisplayName"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveMultiDomainTwoDomainsOneDisplayName"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveMultipleDomainsOneDomainEndToEnd"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveSingleDomain"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveSingleDomainSingleServer"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveSingleDomainWithTwoServers"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithSpaceAfterComma"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithSpaceAfterCommaAndSingleServer"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithSpaceAfterCommaAndTwoServers"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithoutSpaceAfterComma"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithoutSpaceAfterCommaAndSingleServer"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithoutSpaceAfterCommaAndTwoServers"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.RemoveIrrelevantGroupsTest.testNoGroupsAreRegistered"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.RemoveIrrelevantGroupsTest.testNoGroupsAreRelevant"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.RemoveIrrelevantGroupsTest.testSomeGroupsAreRelevant"));
         }
     }
     
     @Test
     public void testWithIsolatedTest() throws Throwable {
-        PluginCompatTesterConfig config = getConfig(ImmutableList.of("buildtriggerbadge"));
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("active-directory"));
         config.setStoreAll(true);
         Map<String, String> mavenProperties = new HashMap<>();
-        mavenProperties.put("test","BuildTriggerBadgeActionTest#externallyAddedCause");
+        mavenProperties.put("test","ActiveDirectoryAuthenticationProviderTest#testEscape");
         config.setMavenProperties(mavenProperties);
 
         PluginCompatTester tester = new PluginCompatTester(config);
@@ -126,7 +139,7 @@ public class PluginCompatTesterTest {
         Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
         assertNotNull(pluginCompatTests);
         for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
-            assertEquals("buildtriggerbadgevvvvvv", entry.getKey().pluginName);
+            assertEquals("active-directory", entry.getKey().pluginName);
             List<PluginCompatResult> results = entry.getValue();
             assertEquals(1, results.size());
             PluginCompatResult result = results.get(0);
@@ -134,13 +147,13 @@ public class PluginCompatTesterTest {
             assertNotNull(result.getTestsDetails());
             assertFalse(result.getTestsDetails().isEmpty());
             assertEquals(1, result.getTestsDetails().size());
-            assertTrue(result.getTestsDetails().contains("org.jenkinsci.plugins.buildtriggerbadge.BuildTriggerBadgeActionTest.externallyAddedCause"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectoryAuthenticationProviderTest.testEscape"));
         }
     }  
     
     @Test
     public void testStoreOnlyFailedTests() throws Throwable {
-        PluginCompatTesterConfig config = getConfig(ImmutableList.of("buildtriggerbadge"));
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("analysis-collector"));
         config.setStoreAll(false);
 
         PluginCompatTester tester = new PluginCompatTester(config);
@@ -149,13 +162,13 @@ public class PluginCompatTesterTest {
         Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
         assertNotNull(pluginCompatTests);
         for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
-            assertEquals("buildtriggerbadge", entry.getKey().pluginName);
+            assertEquals("analysis-collector", entry.getKey().pluginName);
             List<PluginCompatResult> results = entry.getValue();
             assertEquals(1, results.size());
             PluginCompatResult result = results.get(0);
             assertNotNull(result);
             assertNotNull(result.getTestsDetails());
-            // No failed tests on buildtriggerbadge plugin (it will store ONLY failed tests due to -storeAll=false
+            // No failed tests on accurev plugin (it will store ONLY failed tests due to -storeAll=false
             assertTrue(result.getTestsDetails().isEmpty());
         }
     } 
