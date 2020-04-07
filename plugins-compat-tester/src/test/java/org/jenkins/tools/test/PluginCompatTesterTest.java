@@ -85,7 +85,7 @@ public class PluginCompatTesterTest {
 
     @Test
     public void testWithUrl() throws Throwable {
-        ImmutableList<String> includedPlugins = ImmutableList.of("ant"
+        ImmutableList<String> includedPlugins = ImmutableList.of("workflow-api"
         /*
          * "accurev", "active-directory", "analysis-collector", "scm-sync-configuration"
          */
@@ -107,7 +107,7 @@ public class PluginCompatTesterTest {
         Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
         assertNotNull(pluginCompatTests);
         for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
-            assertEquals("ant", entry.getKey().pluginName);
+            assertEquals("workflow-api", entry.getKey().pluginName);
             List<PluginCompatResult> results = entry.getValue();
             assertEquals(1, results.size());
             PluginCompatResult result = results.get(0);
