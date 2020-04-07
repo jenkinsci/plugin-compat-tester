@@ -40,6 +40,7 @@ import org.jenkins.tools.test.model.PluginCompatResult;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -163,6 +164,7 @@ public class PluginCompatTesterTest {
                 new File(REPORT_FILE), getSettingsFile());
 
         config.setIncludePlugins(includedPlugins);
+        config.setExcludePlugins(Collections.emptyList());
         config.setSkipTestCache(true);
         config.setCacheThresholdStatus(TestStatus.TEST_FAILURES);
         config.setTestCacheTimeout(345600000);
