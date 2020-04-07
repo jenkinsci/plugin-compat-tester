@@ -238,8 +238,6 @@ public class PluginCompatTester {
         ROOT_CYCLE: for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
             for (Plugin plugin : pluginsToCheck.values()) {
-                System.out.println(">>>> " + plugin.name.toLowerCase());
-                System.out.println(">>>> " + config.getIncludePlugins());
                 if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
                     PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
 
