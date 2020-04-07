@@ -85,21 +85,8 @@ public class PluginCompatTesterTest {
 
     @Test
     public void testWithUrl() throws Throwable {
-        ImmutableList<String> includedPlugins = ImmutableList.of("workflow-api"
-        /*
-         * "accurev", "active-directory", "analysis-collector", "scm-sync-configuration"
-         */
-        );
-
-        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File(REPORT_FILE), getSettingsFile());
-
-        config.setIncludePlugins(includedPlugins);
-        config.setSkipTestCache(true);
-        config.setCacheThresholdStatus(TestStatus.TEST_FAILURES);
-        config.setTestCacheTimeout(345600000);
-        config.setParentVersion("1.410");
-        config.setGenerateHtmlReport(true);
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("workflow-api"));
+        config.setStoreAll(true);
 
         PluginCompatTester tester = new PluginCompatTester(config);
         PluginCompatReport report = tester.testPlugins();
@@ -127,17 +114,8 @@ public class PluginCompatTesterTest {
     
     @Test
     public void testWithIsolatedTest() throws Throwable {
-        ImmutableList<String> includedPlugins = ImmutableList.of("ant");
-
-        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File(REPORT_FILE), getSettingsFile());
-
-        config.setIncludePlugins(includedPlugins);
-        config.setSkipTestCache(true);
-        config.setCacheThresholdStatus(TestStatus.TEST_FAILURES);
-        config.setTestCacheTimeout(345600000);
-        config.setParentVersion("1.410");
-        config.setGenerateHtmlReport(true);
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("ant"));
+        config.setStoreAll(true);
         Map<String, String> mavenProperties = new HashMap<>();
         mavenProperties.put("test","AntTest#customBuildFileTest");
         config.setMavenProperties(mavenProperties);
@@ -157,7 +135,41 @@ public class PluginCompatTesterTest {
             assertEquals(1, result.getTestsDetails().size());
             assertTrue(result.getTestsDetails().contains("hudson.tasks.AntTest.customBuildFileTest"));
         }
-    }    
+    }  
+    
+    @Test
+    public void testStoreOnlyFailedTests() throws Throwable {
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("ant"));
+        config.setStoreAll(false);
+
+        PluginCompatTester tester = new PluginCompatTester(config);
+        PluginCompatReport report = tester.testPlugins();
+        assertNotNull(report);
+        Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
+        assertNotNull(pluginCompatTests);
+        for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
+            assertEquals("ant", entry.getKey().pluginName);
+            List<PluginCompatResult> results = entry.getValue();
+            assertEquals(1, results.size());
+            PluginCompatResult result = results.get(0);
+            assertNotNull(result);
+            assertNotNull(result.getTestsDetails());
+            assertEquals(0, result.getTestsDetails().size());
+        }
+    } 
+
+    private PluginCompatTesterConfig getConfig(List<String> includedPlugins) throws IOException {
+        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
+                new File(REPORT_FILE), getSettingsFile());
+
+        config.setIncludePlugins(includedPlugins);
+        config.setSkipTestCache(true);
+        config.setCacheThresholdStatus(TestStatus.TEST_FAILURES);
+        config.setTestCacheTimeout(345600000);
+        config.setParentVersion("1.410");
+        config.setGenerateHtmlReport(true);
+        return config;
+    }
 
     @Test(expected = RuntimeException.class)
     public void testWithoutAlternativeUrl() throws Throwable {
