@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.jenkins.tools.test.util.ExecutedTestNamesDetails;
+
 /**
  * Exception thrown during a plugin's Maven execution
  *
@@ -44,22 +46,22 @@ public class PomExecutionException extends Exception {
     private final List<Throwable> exceptionsThrown;
     public final List<String> succeededPluginArtifactIds;
     private final List<String> pomWarningMessages;
-    private final Set<String> executedTests;
+    private final ExecutedTestNamesDetails testDetails;
 
     public PomExecutionException(Throwable cause) {
-        this(cause.toString(), Collections.emptyList(), Collections.singletonList(cause), Collections.emptyList(), Collections.emptySet());
+        this(cause.toString(), Collections.emptyList(), Collections.singletonList(cause), Collections.emptyList(), new ExecutedTestNamesDetails());
     }
 
     public PomExecutionException(PomExecutionException exceptionToCopy){
-        this(exceptionToCopy.getMessage(), exceptionToCopy.succeededPluginArtifactIds, exceptionToCopy.exceptionsThrown, exceptionToCopy.pomWarningMessages, exceptionToCopy.executedTests);
+        this(exceptionToCopy.getMessage(), exceptionToCopy.succeededPluginArtifactIds, exceptionToCopy.exceptionsThrown, exceptionToCopy.pomWarningMessages, exceptionToCopy.testDetails);
     }
 
-    public PomExecutionException(String message, List<String> succeededPluginArtifactIds, List<Throwable> exceptionsThrown, List<String> pomWarningMessages, Set<String> executedTests){
+    public PomExecutionException(String message, List<String> succeededPluginArtifactIds, List<Throwable> exceptionsThrown, List<String> pomWarningMessages, ExecutedTestNamesDetails testDetails){
         super(message, exceptionsThrown.isEmpty() ? null : exceptionsThrown.iterator().next());
         this.exceptionsThrown = new ArrayList<>(exceptionsThrown);
         this.succeededPluginArtifactIds = new ArrayList<>(succeededPluginArtifactIds);
         this.pomWarningMessages = new ArrayList<>(pomWarningMessages);
-        this.executedTests = new TreeSet<>(executedTests);
+        this.testDetails = testDetails;
     }
 
     public String getErrorMessage(){
@@ -79,7 +81,7 @@ public class PomExecutionException extends Exception {
         return pomWarningMessages;
     }
     
-    public Set<String> getExecutedTests() {
-        return executedTests;
+    public ExecutedTestNamesDetails getTestDetails() {
+        return testDetails;
     }
 }

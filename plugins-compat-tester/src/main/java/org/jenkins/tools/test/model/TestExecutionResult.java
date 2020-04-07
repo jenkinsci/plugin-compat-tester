@@ -29,6 +29,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.jenkins.tools.test.util.ExecutedTestNamesDetails;
+
 /**
  * POJO containing plugin compatibility test result
  *
@@ -36,20 +38,20 @@ import java.util.Set;
  */
 public class TestExecutionResult {
 
-    private final Set<String> executedTests;
+    private final ExecutedTestNamesDetails testDetails;
 
     public final List<String> pomWarningMessages;
 
     public TestExecutionResult(List<String> pomWarningMessages){
-        this(pomWarningMessages, Collections.emptySet());
+        this(pomWarningMessages, new ExecutedTestNamesDetails());
     }
 
-    public TestExecutionResult(List<String> pomWarningMessages, Set<String> executedTests){
+    public TestExecutionResult(List<String> pomWarningMessages, ExecutedTestNamesDetails testDetails){
         this.pomWarningMessages = Collections.unmodifiableList(pomWarningMessages);
-        this.executedTests = executedTests;
+        this.testDetails = testDetails;
     }
 
-    public Set<String> getExecutedTests() {
-        return Collections.unmodifiableSet(executedTests);
+    public ExecutedTestNamesDetails getTestDetails() {
+        return testDetails;
     }
 }

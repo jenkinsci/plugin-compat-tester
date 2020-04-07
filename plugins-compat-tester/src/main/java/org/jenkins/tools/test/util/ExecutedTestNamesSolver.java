@@ -3,9 +3,7 @@ package org.jenkins.tools.test.util;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -22,20 +20,20 @@ public class ExecutedTestNamesSolver {
     
     private static final String TEST_PLACEHOLDER = "TEST-%s.xml";
 
-    public Set<String> solve(Set<String> executedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
+    public ExecutedTestNamesDetails solve(Set<String> executedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
 
         System.out.println("[INFO] -------------------------------------------------------");
         System.out.println("[INFO] Solving test names");
         System.out.println("[INFO] -------------------------------------------------------");
         
-        Set<String> testNames = new TreeSet<>();
+        ExecutedTestNamesDetails testNames = new ExecutedTestNamesDetails();
         try {
             
             String surefireReportsDirectoryPath = baseDirectory.getAbsolutePath() + File.separator + "target" + File.separator + "surefire-reports";
             File surefireReportsDirectory = Paths.get(surefireReportsDirectoryPath).toFile();
             if (!surefireReportsDirectory.exists()) {
                 System.out.println(String.format(WARNING_MSG, surefireReportsDirectoryPath));
-                return Collections.emptySet();
+                return testNames;
             }
             
             System.out.println(String.format("[INFO] Reading %s", surefireReportsDirectoryPath));
@@ -61,7 +59,12 @@ public class ExecutedTestNamesSolver {
                         String clazzName = testcase.getAttributes().getNamedItem("classname").getNodeValue();
                         String test = testcase.getAttributes().getNamedItem("name").getNodeValue();
                         found++;
-                        testNames.add(String.format("%s.%s", clazzName, test));
+                        String testCaseName = String.format("%s.%s", clazzName, test);
+                        if (testcase.getChildNodes().getLength() != 0) {
+                            testNames.addFailedTest(testCaseName);
+                        } else {
+                            testNames.addExecutedTest(testCaseName);
+                        }
                     }
                 }
                 
@@ -79,7 +82,13 @@ public class ExecutedTestNamesSolver {
         System.out.println("[INFO] ");
         System.out.println("[INFO] Results:");
         System.out.println("[INFO] ");
-        for (String testName : testNames) {
+        System.out.println(String.format("[INFO] Executed: %s", testNames.getExecuted().size()));
+        for (String testName : testNames.getExecuted()) {
+            System.out.println(String.format("[INFO] - %s", testName));
+        }
+        System.out.println("[INFO] ");
+        System.out.println(String.format("[INFO] Failed: %s", testNames.getFailed().size()));
+        for (String testName : testNames.getFailed()) {
             System.out.println(String.format("[INFO] - %s", testName));
         }
         

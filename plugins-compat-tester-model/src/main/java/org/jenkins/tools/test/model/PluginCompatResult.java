@@ -47,18 +47,18 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
     public final String errorMessage;
     public final List<String> warningMessages;
 
-    private final Set<String> executedTests;
+    private final Set<String> testDetails;
 
     private String buildLogPath = "";
 
     public PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
-                              String errorMessage, List<String> warningMessages, Set<String> executedTests,
+                              String errorMessage, List<String> warningMessages, Set<String> testDetails,
                               String buildLogPath){
         // Create new result with current date
-        this(coreCoordinates, status, errorMessage, warningMessages, executedTests, buildLogPath, new Date());
+        this(coreCoordinates, status, errorMessage, warningMessages, testDetails, buildLogPath, new Date());
     }
     private PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
-                              String errorMessage, List<String> warningMessages, Set<String> executedTests,
+                              String errorMessage, List<String> warningMessages, Set<String> testDetails,
                               String buildLogPath, Date compatTestExecutedOn){
         this.coreCoordinates = coreCoordinates;
 
@@ -67,7 +67,7 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
         this.errorMessage = errorMessage;
         this.warningMessages = warningMessages;
 
-        this.executedTests = executedTests;
+        this.testDetails = testDetails;
         this.buildLogPath = buildLogPath;
 
         this.compatTestExecutedOn = compatTestExecutedOn;
@@ -100,7 +100,7 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
         this.buildLogPath = buildLogPath;
     }
 
-    public Set<String> getExecutedTests() {
-        return executedTests;
+    public Set<String> getTestsDetails() {
+        return testDetails;
     }
 }

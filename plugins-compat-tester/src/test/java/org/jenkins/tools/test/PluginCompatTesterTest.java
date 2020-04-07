@@ -112,16 +112,16 @@ public class PluginCompatTesterTest {
             assertEquals(1, results.size());
             PluginCompatResult result = results.get(0);
             assertNotNull(result);
-            assertNotNull(result.getExecutedTests());
-            assertFalse(result.getExecutedTests().isEmpty());
+            assertNotNull(result.getTestsDetails());
+            assertFalse(result.getTestsDetails().isEmpty());
             // Let's evaluate some executed tests
-            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntJCasCCompatibilityTest.roundTripTest"));
-            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.customBuildFileTest"));
-            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.emptyParameterTest"));
-            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.invokeCustomTargetTest"));
-            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.invokeDefaultTargetTest"));
-            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntWrapperTest.smokes"));
-            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTargetAnnotationTest.test1"));
+            assertTrue(result.getTestsDetails().contains("hudson.tasks.AntJCasCCompatibilityTest.roundTripTest"));
+            assertTrue(result.getTestsDetails().contains("hudson.tasks.AntTest.customBuildFileTest"));
+            assertTrue(result.getTestsDetails().contains("hudson.tasks.AntTest.emptyParameterTest"));
+            assertTrue(result.getTestsDetails().contains("hudson.tasks.AntTest.invokeCustomTargetTest"));
+            assertTrue(result.getTestsDetails().contains("hudson.tasks.AntTest.invokeDefaultTargetTest"));
+            assertTrue(result.getTestsDetails().contains("hudson.tasks.AntWrapperTest.smokes"));
+            assertTrue(result.getTestsDetails().contains("hudson.tasks.AntTargetAnnotationTest.test1"));
         }
     }
     
@@ -153,9 +153,9 @@ public class PluginCompatTesterTest {
             assertEquals(1, results.size());
             PluginCompatResult result = results.get(0);
             assertNotNull(result);
-            assertNotNull(result.getExecutedTests());
-            assertEquals(1, result.getExecutedTests().size());
-            assertTrue(result.getExecutedTests().contains("hudson.tasks.AntTest.customBuildFileTest"));
+            assertNotNull(result.getTestsDetails());
+            assertEquals(1, result.getTestsDetails().size());
+            assertTrue(result.getTestsDetails().contains("hudson.tasks.AntTest.customBuildFileTest"));
         }
     }    
 
