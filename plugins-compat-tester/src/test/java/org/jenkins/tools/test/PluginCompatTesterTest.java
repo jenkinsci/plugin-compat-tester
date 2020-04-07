@@ -94,7 +94,7 @@ public class PluginCompatTesterTest {
         Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
         assertNotNull(pluginCompatTests);
         for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
-            assertEquals("workflow-api", entry.getKey().pluginName);
+            assertEquals("ant", entry.getKey().pluginName);
             List<PluginCompatResult> results = entry.getValue();
             assertEquals(1, results.size());
             PluginCompatResult result = results.get(0);
