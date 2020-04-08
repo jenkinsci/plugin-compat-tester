@@ -67,7 +67,8 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class PluginCompatTesterTest {
 
-    private static final String REPORT_FILE = "../reports/PluginCompatReport.xml";
+    private static final String REPORT_FILE = String.format("%s%sreports%sPluginCompatReport.xml", System.getProperty("java.io.tmpdir"), File.separator, File.separator);
+    
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
@@ -168,7 +169,7 @@ public class PluginCompatTesterTest {
             PluginCompatResult result = results.get(0);
             assertNotNull(result);
             assertNotNull(result.getTestsDetails());
-            // No failed tests on accurev plugin (it will store ONLY failed tests due to -storeAll=false
+            // No failed tests on this plugin (it will store ONLY failed tests due to -storeAll=false
             assertTrue(result.getTestsDetails().isEmpty());
         }
     } 
