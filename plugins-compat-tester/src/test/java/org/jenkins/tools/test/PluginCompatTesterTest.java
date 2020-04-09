@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
+import org.jenkins.tools.test.model.MavenCoordinates;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,6 +38,7 @@ import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.TestStatus;
 import org.junit.After;
 import org.junit.Before;
@@ -77,9 +79,9 @@ public class PluginCompatTesterTest {
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                 new File("../reports/PluginCompatReport.xml"),
-                new ClassPathResource("m2-settings.xml").getFile());
+                getSettingsFile());
 
-		config.setIncludePlugins(includedPlugins);
+		    config.setIncludePlugins(includedPlugins);
         config.setSkipTestCache(true);
         config.setCacheThresholdStatus(TestStatus.TEST_FAILURES);
         config.setTestCacheTimeout(345600000);
@@ -87,7 +89,42 @@ public class PluginCompatTesterTest {
         config.setGenerateHtmlReport(true);
 
         PluginCompatTester tester = new PluginCompatTester(config);
-		tester.testPlugins();
+		    tester.testPlugins();
+	}
+
+    @Test(expected = RuntimeException.class)
+    public void testWithoutAlternativeUrl() throws Throwable {
+        String pluginName = "workflow-api";
+        String version = "2.39";
+        String nonWorkingConnectionURL = "scm:git:git://github.com/test/workflow-api-plugin.git";
+        MavenCoordinates mavenCoordinates = new MavenCoordinates("org.jenkins-ci.plugins","plugin","3.54");
+
+        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
+                new File("../reports/PluginCompatReport.xml"),
+                getSettingsFile());
+        config.setIncludePlugins(ImmutableList.of(pluginName));
+
+        PluginCompatTester pct = new PluginCompatTester(config);
+        PomData pomData = new PomData(pluginName, "hpi",  nonWorkingConnectionURL, pluginName + "-" + version, mavenCoordinates, "org.jenkins-ci.plugins.workflow") ;
+        pct.cloneFromSCM(pomData, pluginName, version, new File(config.workDirectory.getAbsolutePath() + File.separator + pluginName + File.separator));
+    }
+
+	@Test(expected = Test.None.class)
+	public void testWithAlternativeUrl() throws Throwable {
+        String pluginName = "workflow-api";
+        String version = "2.39";
+        String nonWorkingConnectionURL = "scm:git:git://github.com/test/workflow-api-plugin.git";
+        MavenCoordinates mavenCoordinates = new MavenCoordinates("org.jenkins-ci.plugins","plugin","3.54");
+
+        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
+				new File("../reports/PluginCompatReport.xml"),
+				getSettingsFile());
+		config.setIncludePlugins(ImmutableList.of(pluginName));
+		config.setFallbackGitHubOrganization("jenkinsci");
+
+        PluginCompatTester pct = new PluginCompatTester(config);
+        PomData pomData = new PomData(pluginName, "hpi",  nonWorkingConnectionURL, pluginName + "-" + version, mavenCoordinates, "org.jenkins-ci.plugins.workflow") ;
+        pct.cloneFromSCM(pomData, pluginName, version, new File(config.workDirectory.getAbsolutePath() + File.separator + pluginName + File.separator));
 	}
 
 	@Test
@@ -210,7 +247,7 @@ public class PluginCompatTesterTest {
 
 		PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
 				new File("../reports/PluginCompatReport.xml"), 
-				new ClassPathResource("m2-settings.xml").getFile());
+				getSettingsFile());
 
 		File bomFile = new ClassPathResource("jenkins-bom.xml").getFile();
 		config.setBom(bomFile);
@@ -234,6 +271,18 @@ public class PluginCompatTesterTest {
 
 		PluginCompatTester tester = new PluginCompatTester(config);
 		tester.generateHtmlReportFile();
+  }
+
+	private static File getSettingsFile() throws IOException {
+		// Check whether we run in ci.jenkins.io with Azure settings
+		File ciJenkinsIOSettings = new File(new File("settings-azure.xml").getAbsolutePath().replace("/plugins-compat-tester/settings-azure.xml", "@tmp/settings-azure.xml"));
+		System.out.println("Will check Maven settings from " + ciJenkinsIOSettings.getAbsolutePath());
+		if (ciJenkinsIOSettings.exists()) {
+			System.out.println("Will use the ci.jenkins.io Azure settings file for testing: " + ciJenkinsIOSettings.getAbsolutePath());
+			return ciJenkinsIOSettings;
+		}
+		// Default fallback for local runs
+		return new ClassPathResource("m2-settings.xml").getFile();
 	}
 
 }

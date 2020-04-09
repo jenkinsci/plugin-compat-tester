@@ -73,14 +73,14 @@ if [ -f "${JENKINS_WAR_PATH}" ]; then
     # Implementation-Version and Jenkins-Version may differ.
     # We specify version explicitly to use Jenkins-Version like PCT does
     if [ -z "${SKIP_LOCAL_SNAPSHOT_INSTALLATION}" ] ; then
-        mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
+        mvn -B org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
             -Dpackaging=war -Dversion="${JENKINS_VERSION}" -Dfile="jenkins.war" \
             -DpomFile="exploded/war/META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml"
-        mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
+        mvn -B org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
             -Dpackaging=jar -Dfile="exploded/war/WEB-INF/lib/jenkins-core-${JENKINS_VERSION}.jar"
-        mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
+        mvn -B org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}" \
             -Dpackaging=jar -Dfile="exploded/war/WEB-INF/lib/cli-${JENKINS_VERSION}.jar"
-        mvn org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode -Dpackaging=pom ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}"  \
+        mvn -B org.apache.maven.plugins:maven-install-plugin:2.5:install-file --batch-mode -Dpackaging=pom ${JAVA_OPTS} -s "${MVN_SETTINGS_FILE}"  \
             -Dfile="exploded/war/META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml" \
             -DpomFile="exploded/war/META-INF/maven/org.jenkins-ci.main/jenkins-war/pom.xml" \
             -Dversion="${JENKINS_VERSION}" -DartifactId="jenkins-war" -DgroupId="org.jenkins-ci.main"
@@ -129,7 +129,7 @@ if [ "${SHOULD_CHECKOUT}" -eq 1 ] && [ -z "${DO_NOT_OVERRIDE_PCT_CHECKOUT}" ] ; 
     mkdir "${TMP_CHECKOUT_DIR}"
     cp -r /pct/plugin-src/. "${TMP_CHECKOUT_DIR}"
     # Due to whatever reason PCT blows up if you have work in the repo
-    cd "${TMP_CHECKOUT_DIR}" && mvn clean && rm -rf work
+    cd "${TMP_CHECKOUT_DIR}" && mvn -B clean -s "${MVN_SETTINGS_FILE}" && rm -rf work
   else
     echo "Checking out from ${CHECKOUT_SRC}:${VERSION}"
     git clone "${CHECKOUT_SRC}"
@@ -142,9 +142,9 @@ if [ "${SHOULD_CHECKOUT}" -eq 1 ] && [ -z "${DO_NOT_OVERRIDE_PCT_CHECKOUT}" ] ; 
   ###
   cd "${TMP_CHECKOUT_DIR}"
   if [ -z "${ARTIFACT_ID}" ] ; then
-    ARTIFACT_ID=$(mvn org.apache.maven.plugins:maven-help-plugin:2.2:evaluate ${JAVA_OPTS} --batch-mode -s "${MVN_SETTINGS_FILE}" -Dexpression=project.artifactId | grep -Ev '(^\[|Download.*)')
+    ARTIFACT_ID=$(mvn -B org.apache.maven.plugins:maven-help-plugin:2.2:evaluate ${JAVA_OPTS} --batch-mode -s "${MVN_SETTINGS_FILE}" -Dexpression=project.artifactId | grep -Ev '(^\[|Download.*)')
     echo "ARTIFACT_ID is not specified, using ${ARTIFACT_ID} defined in the POM file"
-    mvn clean -s "${MVN_SETTINGS_FILE}"
+    mvn -B clean -s "${MVN_SETTINGS_FILE}"
   fi
   mv "${TMP_CHECKOUT_DIR}" "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
   LOCAL_CHECKOUT_ARG="-localCheckoutDir ${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"

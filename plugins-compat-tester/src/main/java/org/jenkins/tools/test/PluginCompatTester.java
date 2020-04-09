@@ -39,12 +39,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -66,6 +65,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -94,7 +94,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
-import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.model.MavenBom;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.MavenCoordinates;
@@ -133,7 +132,7 @@ public class PluginCompatTester {
 
 	public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
-        runner = config.getExternalMaven() == null ? new InternalMavenRunner() : new ExternalMavenRunner(config.getExternalMaven());
+        runner = new ExternalMavenRunner(config.getExternalMaven());
 	}
 
     private SortedSet<MavenCoordinates> generateCoreCoordinatesToTest(UpdateSite.Data data, PluginCompatReport previousReport){
@@ -183,7 +182,7 @@ public class PluginCompatTester {
 
         // Determine the plugin data
         HashMap<String,String> pluginGroupIds = new HashMap<>();  // Used to track real plugin groupIds from WARs
-        
+
         // Scan bundled plugins
         // If there is any bundled plugin, only these plugins will be taken under the consideration for the PCT run
         UpdateSite.Data data = null;
@@ -192,7 +191,6 @@ public class PluginCompatTester {
         } else {
             data = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
         }
-
         if (!data.plugins.isEmpty()) {
             // Scan detached plugins to recover proper Group IDs for them
             // We always poll the update center so that we extract groupIDs for dependencies
@@ -523,7 +521,7 @@ public class PluginCompatTester {
             // -Dmaven-surefire-plugin.version=2.15 -Dmaven.test.dependency.excludes=org.jenkins-ci.main:jenkins-war -Dmaven.test.additionalClasspath=/…/org/jenkins-ci/main/jenkins-war/1.580.1/jenkins-war-1.580.1.war clean test
             // (2.15+ required for ${maven.test.dependency.excludes} and ${maven.test.additionalClasspath} to be honored from CLI)
             // but it does not work; there are lots of linkage errors as some things are expected to be in the test classpath which are not.
-            // Much simpler to do use the parent POM to set up the test classpath. 
+            // Much simpler to do use the parent POM to set up the test classpath.
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
                 addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version, overridenPlugins);
@@ -566,7 +564,7 @@ public class PluginCompatTester {
         }
 	}
 
-    private void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException {
+    protected void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException, IOException {
         String scmTag;
         if (pomData.getScmTag() != null) {
             scmTag = pomData.getScmTag();
@@ -580,7 +578,25 @@ public class PluginCompatTester {
         ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
         CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
 
-        if (!result.isSuccess()) {
+        if (!result.isSuccess() && config.getFallbackGitHubOrganization() != null) {
+            System.out.println("Using fallback organization in github: " + config.getFallbackGitHubOrganization());
+            if (checkoutDirectory.isDirectory()) {
+                FileUtils.deleteDirectory(checkoutDirectory);
+            }
+
+            Pattern pattern = Pattern.compile("(.*/github.com/)([^/]*)(.*)");
+            Matcher matcher = pattern.matcher(pomData.getConnectionUrl());
+            matcher.find();
+            String connectionURL = matcher.replaceFirst("$1" + config.getFallbackGitHubOrganization() + "$3");
+            System.out.println("Using fallback url in github: " + connectionURL);
+            repository = scmManager.makeScmRepository(connectionURL);
+            result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
+            if (!result.isSuccess()) {
+                throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
+            }
+
+        }
+        else if (!result.isSuccess()) {
             throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
         }
     }
@@ -771,14 +787,11 @@ public class PluginCompatTester {
      *                     in the war file
      * @return Update center data
      */
-    private UpdateSite.Data scanWAR(File war, Map<String, String> pluginGroupIds, String pluginRegExp) throws IOException {
+    private UpdateSite.Data scanWAR(File war, @Nonnull Map<String, String> pluginGroupIds, String pluginRegExp) throws IOException {
         JSONObject top = new JSONObject();
         top.put("id", DEFAULT_SOURCE_ID);
         JSONObject plugins = new JSONObject();
         try (JarFile jf = new JarFile(war)) {
-            if (pluginGroupIds == null) {
-                pluginGroupIds = new HashMap<>();
-            }
             Enumeration<JarEntry> entries = jf.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
@@ -863,8 +876,8 @@ public class PluginCompatTester {
         Map<String,VersionNumber> pluginDepsTest = new HashMap<>();
         try {
             runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
-            try (Reader r = new FileReader(tmp)) {
-                BufferedReader br = new BufferedReader(r);
+            try (BufferedReader br =
+                    Files.newBufferedReader(tmp.toPath(), Charset.defaultCharset())) {
                 Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(provided|compile|runtime|system)");
                 Pattern p2 = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(test)");
                 String line;

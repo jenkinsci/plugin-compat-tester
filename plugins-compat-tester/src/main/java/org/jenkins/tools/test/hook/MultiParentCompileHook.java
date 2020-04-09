@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.hook;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,7 +11,6 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
-import org.jenkins.tools.test.maven.InternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
@@ -28,12 +28,13 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
 
     @Override
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "silly rule")
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         try {
             System.out.println("Executing multi-parent compile hook");
             PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
 
-            runner = config.getExternalMaven() == null ? new InternalMavenRunner() : new ExternalMavenRunner(config.getExternalMaven());
+            runner = new ExternalMavenRunner(config.getExternalMaven());
             mavenConfig = getMavenConfig(config);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
@@ -80,7 +81,8 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     @Override
     public boolean check(Map<String, Object> info) {
         return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info) || StructsHook.isStructsPlugin(info) ||
-        SwarmHook.isSwarmPlugin(info) || ConfigurationAsCodeHook.isCascPlugin(info) || PipelineRestApiHook.isPipelineStageViewPlugin(info);
+        SwarmHook.isSwarmPlugin(info) || ConfigurationAsCodeHook.isCascPlugin(info) || PipelineStageViewHook.isPipelineStageViewPlugin(info) ||
+        DeclarativePipelineMigrationHook.isPlugin(info) ;
     }
 
     private boolean isEslintFile(Path file) {

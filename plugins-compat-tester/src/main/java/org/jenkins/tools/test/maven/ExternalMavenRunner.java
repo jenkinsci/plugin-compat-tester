@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,20 +17,34 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jenkins.tools.test.exception.PomExecutionException;
 
+import javax.annotation.CheckForNull;
+
+/**
+ * Runs external Maven executable.
+ */
 public class ExternalMavenRunner implements MavenRunner {
-    
+
+    private static final String DISABLE_DOWNLOAD_LOGS = "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn";
+
+    @CheckForNull
     private File mvn;
-    
-    public ExternalMavenRunner(File mvn) {
+
+    /**
+     * Constructor.
+     * @param mvn Path to Maven.
+     *            If {@code null}, a default Maven executable from {@code PATH} will be used
+     */
+    public ExternalMavenRunner(@CheckForNull File mvn) {
         this.mvn = mvn;
     }
 
     @Override
     public void run(Config config, File baseDirectory, File buildLogFile, String... goals) throws PomExecutionException {
         List<String> cmd = new ArrayList<>();
-        cmd.add(mvn.getAbsolutePath());
+        cmd.add(mvn != null ? mvn.getAbsolutePath() : "mvn");
         cmd.add("--show-version");
         cmd.add("--batch-mode");
+        cmd.add(DISABLE_DOWNLOAD_LOGS);
         if (config.userSettingsFile != null) {
             cmd.add("--settings=" + config.userSettingsFile);
         }
@@ -40,10 +56,15 @@ public class ExternalMavenRunner implements MavenRunner {
         try {
             Process p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
             List<String> succeededPluginArtifactIds = new ArrayList<>();
-            try (InputStream is = p.getInputStream(); FileOutputStream os = new FileOutputStream(buildLogFile, true); PrintWriter w = new PrintWriter(os)) {
+            try (InputStream is = p.getInputStream();
+                    BufferedReader r =
+                            new BufferedReader(
+                                    new InputStreamReader(is, Charset.defaultCharset()));
+                    FileOutputStream os = new FileOutputStream(buildLogFile, true);
+                    PrintWriter w =
+                            new PrintWriter(new OutputStreamWriter(os, Charset.defaultCharset()))) {
                 String completed = null;
                 Pattern pattern = Pattern.compile("\\[INFO\\] --- (.+):.+:.+ [(].+[)] @ .+ ---");
-                BufferedReader r = new BufferedReader(new InputStreamReader(is));
                 String line;
                 while ((line = r.readLine()) != null) {
                     System.out.println(line);

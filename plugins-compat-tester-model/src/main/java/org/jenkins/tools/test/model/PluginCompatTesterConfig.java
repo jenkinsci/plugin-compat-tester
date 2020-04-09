@@ -49,7 +49,7 @@ public class PluginCompatTesterConfig {
 
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTesterConfig.class.getName());
 
-    public static final String DEFAULT_UPDATE_CENTER_URL = "http://updates.jenkins-ci.org/update-center.json";
+    public static final String DEFAULT_UPDATE_CENTER_URL = "https://updates.jenkins.io/current/update-center.json";
     public static final String DEFAULT_PARENT_GROUP = "org.jenkins-ci.plugins";
     public static final String DEFAULT_PARENT_ARTIFACT = "plugin";
     public static final String DEFAULT_PARENT_GAV = DEFAULT_PARENT_GROUP + ":" + DEFAULT_PARENT_ARTIFACT;
@@ -89,6 +89,7 @@ public class PluginCompatTesterConfig {
     @CheckForNull
     private String testJavaArgs = null;
 
+    @CheckForNull
     private File externalMaven = null;
 
     // List of plugin artifact ids on which tests will be performed
@@ -98,6 +99,10 @@ public class PluginCompatTesterConfig {
     // List of plugin artifact ids on which tests will be not performed
     // If null, tests will be performed on every includePlugins found
     private List<String> excludePlugins = null;
+
+    // URL to be used as an alternative to download plugin source from fallback
+    // organtizations, like your own fork
+    private String fallbackGitHubOrganization = null;
 
     // Allows to skip a plugin test if this plugin test has already been performed
     // within testCacheTimeout ms
@@ -234,6 +239,14 @@ public class PluginCompatTesterConfig {
         this.excludePlugins = excludePlugins;
     }
 
+    public String getFallbackGitHubOrganization() {
+        return fallbackGitHubOrganization;
+    }
+
+    public void setFallbackGitHubOrganization(String fallbackGitHubOrganization) {
+        this.fallbackGitHubOrganization = fallbackGitHubOrganization;
+    }
+
     public void setMavenProperties(@Nonnull Map<String, String> mavenProperties) {
         this.mavenProperties = new HashMap<>(mavenProperties);
     }
@@ -358,7 +371,7 @@ public class PluginCompatTesterConfig {
         final String javaVersionOutput2 = IOUtils.toString(process2.getInputStream());
         // Expected format is something like openjdk full version "1.8.0_181-8u181-b13-2~deb9u1-b13"
         // We shorten it by removing the "full version" in the middle
-        return javaVersionOutput.
+        return javaVersionOutput2.
                 replace(" full version ", " ").
                 replaceAll("\"", "");
     }
@@ -379,6 +392,7 @@ public class PluginCompatTesterConfig {
         this.war = war;
     }
 
+    @CheckForNull
     public File getExternalMaven() {
         return externalMaven;
     }

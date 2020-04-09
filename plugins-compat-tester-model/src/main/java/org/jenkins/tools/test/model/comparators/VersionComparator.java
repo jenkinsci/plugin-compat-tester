@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test.model.comparators;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -32,7 +33,7 @@ import java.util.Comparator;
  *
  * @author Frederic Camblor
  */
-public class VersionComparator implements Comparator<String> {
+public class VersionComparator implements Comparator<String>, Serializable {
     @Override
     public int compare(String o1, String o2) {
 
