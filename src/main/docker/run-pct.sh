@@ -129,7 +129,7 @@ if [ "${SHOULD_CHECKOUT}" -eq 1 ] && [ -z "${DO_NOT_OVERRIDE_PCT_CHECKOUT}" ] ; 
     mkdir "${TMP_CHECKOUT_DIR}"
     cp -r /pct/plugin-src/. "${TMP_CHECKOUT_DIR}"
     # Due to whatever reason PCT blows up if you have work in the repo
-    cd "${TMP_CHECKOUT_DIR}" && mvn -B clean && rm -rf work
+    cd "${TMP_CHECKOUT_DIR}" && mvn -B clean -s "${MVN_SETTINGS_FILE}" && rm -rf work
   else
     echo "Checking out from ${CHECKOUT_SRC}:${VERSION}"
     git clone "${CHECKOUT_SRC}"

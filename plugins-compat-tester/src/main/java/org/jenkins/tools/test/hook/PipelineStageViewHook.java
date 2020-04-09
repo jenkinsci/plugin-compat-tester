@@ -4,7 +4,7 @@ import hudson.model.UpdateSite;
 import java.util.Map;
 import org.jenkins.tools.test.model.PomData;
 
-public class PipelineRestApiHook extends AbstractMultiParentHook {
+public class PipelineStageViewHook extends AbstractMultiParentHook {
 
     @Override
     protected String getParentFolder() {
@@ -23,7 +23,7 @@ public class PipelineRestApiHook extends AbstractMultiParentHook {
 
     @Override
     protected String getPluginFolderName(UpdateSite.Plugin currentPlugin){
-        return "rest-api";
+        return (currentPlugin.getDisplayName().equals("pipeline-rest-api")) ? "rest-api" : "ui";
     }
 
     @Override
@@ -37,6 +37,6 @@ public class PipelineRestApiHook extends AbstractMultiParentHook {
     }
 
     public static boolean isPipelineStageViewPlugin(PomData data) {
-        return data.artifactId.contains("pipeline-rest-api");
+        return data.groupId.equals("org.jenkins-ci.plugins.pipeline-stage-view") || data.artifactId.contains("pipeline-rest-api");
     }
 }
