@@ -193,8 +193,6 @@ public class PluginCompatTester {
         final List<String> pluginsToInclude = config.getIncludePlugins();
         if (data.plugins.isEmpty() && pluginsToInclude != null && !pluginsToInclude.isEmpty()) {
             // Update Center returns empty info OR the "-war" option is specified for WAR without bundled plugins
-            // TODO: Ideally we should do this tweak in any case, so that we can test custom plugins with Jenkins cores before unbundling
-            // But it will require us to always poll the update center...
             System.out.println("WAR file does not contain plugin info, will try to extract it from UC for included plugins");
             pluginsToCheck = new HashMap<>(pluginsToInclude.size());
             UpdateSite.Data ucData = extractUpdateCenterData(pluginGroupIds);
@@ -589,9 +587,6 @@ public class PluginCompatTester {
      * @return Update site Data
      */
     private UpdateSite.Data extractUpdateCenterData(Map<String, String> groupIDs){
-        if (config.getWar() != null) {
-            throw new IllegalStateException("Not to be used when -war is specified");
-        }
 		URL url;
 		String jsonp;
 		try {
