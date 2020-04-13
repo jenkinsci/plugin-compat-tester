@@ -9,6 +9,7 @@ properties([[$class: 'BuildDiscarderProperty',
  */
 List platforms = ['linux', 'windows']
 Map branches = [:]
+def settingsXml
 
 for (int i = 0; i < platforms.size(); ++i) {
     String label = platforms[i]
@@ -17,11 +18,22 @@ for (int i = 0; i < platforms.size(); ++i) {
             timestamps {
                 stage('Checkout') {
                     checkout scm
+                    dir('plugins-compat-tester/src/test/resources') {
+                        def exists = fileExists "m2-settings.xml"
+                        if (exists) {
+                            def location = pwd()
+                            settingsXml = "${location}/m2-settings.xml"
+                        }
+                    }
                 }
 
                 stage('Build') {
                   timeout(30) {
-                    infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"])
+                    if (settingsXml) {
+                        infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"], 8, null, settingsXml, true)
+                    } else {
+                        infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"])
+                    }
                   }
                 }
 
@@ -116,19 +128,19 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
 itBranches['WAR with non-default groupId plugins - smoke test'] = {
     node('docker') {
         checkout scm
-        
+
         stage('Build Docker Image') {
           sh 'make docker'
         }
-      
+
         dir("src/it/war-with-plugins-test") {
             def settingsXML="mvn-settings.xml"
             infra.retrieveMavenSettingsFile(settingsXML)
-            
+
             stage('Build the custom WAR file') {
               infra.runMaven(["clean", "package"])
             }
-            
+
             stage('Run the integration test') {
               sh '''docker run --rm \
                             -v $(pwd)/tmp/output/target/war-with-plugins-test-1.0.war:/pct/jenkins.war:ro \
@@ -171,7 +183,7 @@ disabled_itBranches['CasC tests success'] = {
             ]) {
                 def settingsXML="mvn-settings.xml"
                 infra.retrieveMavenSettingsFile(settingsXML)
-              
+
                 sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
                              -reportFile $(pwd)/out/pct-report.xml \
                              -workDirectory $(pwd)/out/work \
