@@ -136,7 +136,7 @@ itBranches['WAR with non-default groupId plugins - smoke test'] = {
                             -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
                             -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.6 \
                             jenkins/pct \
-                            -overridenPlugins 'configuration-as-code=1.20'
+                            -overridenPlugins 'io.jenkins:configuration-as-code=1.20'
               '''
               archiveArtifacts artifacts: "out/**"
 
