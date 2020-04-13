@@ -9,7 +9,6 @@ properties([[$class: 'BuildDiscarderProperty',
  */
 List platforms = ['linux', 'windows']
 Map branches = [:]
-def settingsXml
 
 for (int i = 0; i < platforms.size(); ++i) {
     String label = platforms[i]
@@ -18,22 +17,11 @@ for (int i = 0; i < platforms.size(); ++i) {
             timestamps {
                 stage('Checkout') {
                     checkout scm
-                    dir('plugins-compat-tester/src/test/resources') {
-                        def exists = fileExists "m2-settings.xml"
-                        if (exists) {
-                            def location = pwd()
-                            settingsXml = "${location}/m2-settings.xml"
-                        }
-                    }
                 }
 
                 stage('Build') {
                   timeout(30) {
-                    if (settingsXml) {
-                        infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"], 8, null, settingsXml, true)
-                    } else {
-                        infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"])
-                    }
+                    infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"])
                   }
                 }
 
