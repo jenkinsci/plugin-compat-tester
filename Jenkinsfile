@@ -16,8 +16,9 @@ for (int i = 0; i < platforms.size(); ++i) {
     branches[label] = {
         node(label) {
             timestamps {
-                stage('Checkout') {
+                stage('Checkout Test') {
                     checkout scm
+                    sh "ls -liart"
                     dir('plugins-compat-tester/src/test/resources') {
                         def exists = fileExists "m2-settings.xml"
                         if (exists) {
