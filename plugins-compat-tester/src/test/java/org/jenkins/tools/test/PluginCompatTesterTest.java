@@ -89,7 +89,7 @@ public class PluginCompatTesterTest {
     @Test
     public void testWithUrl() throws Throwable {
         PluginCompatTesterConfig config = getConfig(ImmutableList.of("active-directory"));
-        config.setStoreAll(true);
+        config.setStoreAll(true); 
 
         PluginCompatTester tester = new PluginCompatTester(config);
         PluginCompatReport report = tester.testPlugins();
