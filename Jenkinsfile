@@ -23,6 +23,7 @@ for (int i = 0; i < platforms.size(); ++i) {
                         if (exists) {
                             def location = pwd()
                             settingsXml = "${location}/m2-settings.xml"
+                            println settingsXml
                         }
                     }
                 }
@@ -30,8 +31,10 @@ for (int i = 0; i < platforms.size(); ++i) {
                 stage('Build') {
                   timeout(30) {
                     if (settingsXml) {
+                        println "yes"
                         infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"], 8, null, settingsXml, true)
                     } else {
+                        println "no"
                         infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"])
                     }
                   }
