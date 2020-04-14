@@ -105,7 +105,7 @@ public class PluginCompatTesterTest {
             assertNotNull(result);
             assertNotNull(result.getTestsDetails());
             assertFalse(result.getTestsDetails().isEmpty());
-            // Let's evaluate some executed tests
+            // Let's evaluate some executed tests 
             assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectoryAuthenticationProviderTest.testEscape"));
             assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testAdvancedOptionsVisibleWithNonNativeAuthentication"));
             assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testCacheOptionAlwaysVisible"));
