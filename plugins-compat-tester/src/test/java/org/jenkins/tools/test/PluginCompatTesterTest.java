@@ -67,7 +67,7 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class PluginCompatTesterTest {
 
-    private static final String MAVEN_INSTALLATION_LINUX = "/home/jenkins/tools/hudson.tasks.Maven_MavenInstallation/mvn";
+    private static final String MAVEN_INSTALLATION_LINUX = "/usr/bin/mvn";
     
     private static final String MAVEN_INSTALLATION_WINDOWS = "C:\\Jenkins\\tools\\hudson.tasks.Maven_MavenInstallation\\mvn\\bin\\";
 
