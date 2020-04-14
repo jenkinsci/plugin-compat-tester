@@ -105,8 +105,10 @@ public class ExternalMavenRunner implements MavenRunner {
                         new ExecutedTestNamesSolver().solve(getExecutedTests(), baseDirectory));
             }
         } catch (PomExecutionException x) {
+            x.printStackTrace();
             throw x;
         } catch (Exception x) {
+            x.printStackTrace();
             throw new PomExecutionException(x);
         }
     }

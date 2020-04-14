@@ -518,8 +518,6 @@ public class PluginCompatTester {
             }
 
             List<String> args = new ArrayList<>();
-            args.add("-X");
-            args.add("-U");
             args.add("--define=forkCount=1");
             args.add("hpi:resolve-test-dependencies");
             args.add("hpi:test-hpl");
