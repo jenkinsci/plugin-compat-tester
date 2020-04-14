@@ -193,13 +193,7 @@ public class PluginCompatTester {
         }
         if (!data.plugins.isEmpty()) {
             // Scan detached plugins to recover proper Group IDs for them
-            // We always poll the update center so that we extract groupIDs for dependencies
-            // In the case of Group ID renaming across version, groupID from the WAR file will have a priority
-            UpdateSite.Data detachedData = extractUpdateCenterData(pluginGroupIds);
-            if (config.getWar() != null) {
-                detachedData = scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
-            }
-
+            UpdateSite.Data detachedData = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
 
             // Add detached if and only if no added as normal one
             UpdateSite.Data finalData = data;
@@ -214,8 +208,6 @@ public class PluginCompatTester {
         final List<String> pluginsToInclude = config.getIncludePlugins();
         if (data.plugins.isEmpty() && pluginsToInclude != null && !pluginsToInclude.isEmpty()) {
             // Update Center returns empty info OR the "-war" option is specified for WAR without bundled plugins
-            // TODO: Ideally we should do this tweak in any case, so that we can test custom plugins with Jenkins cores before unbundling
-            // But it will require us to always poll the update center...
             System.out.println("WAR file does not contain plugin info, will try to extract it from UC for included plugins");
             pluginsToCheck = new HashMap<>(pluginsToInclude.size());
             UpdateSite.Data ucData = extractUpdateCenterData(pluginGroupIds);
@@ -944,6 +936,15 @@ public class PluginCompatTester {
             overridenPlugins.forEach(plugin -> {
                 toReplace.put(plugin.getName(), plugin.getVersion());
                 toReplaceTest.put(plugin.getName(), plugin.getVersion());
+                if (plugin.getGroupId() != null) {
+                    if (pluginGroupIds.containsKey(plugin.getName())) {
+                        if (!plugin.getGroupId().equals(pluginGroupIds.get(plugin.getName()))) {
+                            System.err.println("WARNING: mismatch between detected and explicit group ID for " + plugin.getName());
+                        }
+                    } else {
+                        pluginGroupIds.put(plugin.getName(), plugin.getGroupId());
+                    }
+                }
             });
 
             for (String split : splits) {

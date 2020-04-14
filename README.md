@@ -158,18 +158,23 @@ Plugin Compat Tester supports overriding the plugin dependency version.
 For example, we might want to validate that a newer version of a plugin is not breaking the latest version of the plugin we want to test.
 
 To do that, the option `overridenPlugins` can be passed to PCT CLI.
-The format of the value **must** be `PLUGIN_NAME=PLUGIN_VERSION`.
+The format of the value **must** be `PLUGIN_GROUP:PLUGIN_NAME=PLUGIN_VERSION`.
 
 So, running
 
 ```
 java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
   [...]
-  -overridenPlugins display-url-api=2.3.0
+  -overridenPlugins org.jenkins-ci.plugins:display-url-api=2.3.0
   -includePlugins mailer
 ```
 
 will run the PCT on the `mailer` plugin, but replacing the `display-url-api` dependency of Mailer (which is `1.0`) with the version `2.3.0`.
+
+For compatibility reasons, the `PLUGIN_GROUP:` part may be omitted,
+but only if the group ID could be inferred by other means:
+either that plugin being included in the `-war`,
+or no `-war` being passed but the plugin being present on the update center.
 
 ### Running the PCT for plugins not following standard tag
 
@@ -212,7 +217,7 @@ and then to properly setup the environment.
 
 ```batch
    set JAVA_HOME=...
-   make demo-jdk8 -e PLUGIN_NAME=artifact-manager-s3 -e WAR_PATH=test-wars/mywar.war -e MVN_EXECUTABLE="C:\ProgramData\chocolatey\bin\mvn.exe" -e EXTRA_OPTS="-overridenPlugins 'configuration-as-code=1.20'"
+   make demo-jdk8 -e PLUGIN_NAME=artifact-manager-s3 -e WAR_PATH=test-wars/mywar.war -e MVN_EXECUTABLE="C:\ProgramData\chocolatey\bin\mvn.exe" -e EXTRA_OPTS="-overridenPlugins 'io.jenkins:configuration-as-code=1.20'"
 ```
 
 ## Useful links
