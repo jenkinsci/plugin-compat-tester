@@ -69,7 +69,7 @@ public class PluginCompatTesterTest {
 
     private static final String MAVEN_INSTALLATION_LINUX = "/usr/bin/mvn";
     
-    private static final String MAVEN_INSTALLATION_WINDOWS = "C:\\Jenkins\\tools\\hudson.tasks.Maven_MavenInstallation\\mvn\\bin\\";
+    private static final String MAVEN_INSTALLATION_WINDOWS = "C:\\Jenkins\\tools\\hudson.tasks.Maven_MavenInstallation\\mvn\\bin\\mvn.bat";
 
     private static final String REPORT_FILE = String.format("%s%sreports%sPluginCompatReport.xml", System.getProperty("java.io.tmpdir"), File.separator, File.separator);
     
