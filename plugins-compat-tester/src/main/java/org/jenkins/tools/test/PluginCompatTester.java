@@ -649,9 +649,6 @@ public class PluginCompatTester {
     	JSONObject top = new JSONObject();
     	top.put("id", DEFAULT_SOURCE_ID);
     	JSONObject plugins = new JSONObject();
-    	if (pluginGroupIds == null) {
-    		pluginGroupIds = new HashMap<>();
-    	}
     	List<File> entries = FileUtils.getFiles(new File(config.workDirectory, "bom" + File.separator + "target" + File.separator + "dependency"),null, null);
     	for (File entry : entries) {
     		String name = entry.getName();
