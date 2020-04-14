@@ -67,7 +67,7 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class PluginCompatTesterTest {
 
-    private static final String MAVEN_INSTALLATION_WINDOWS = "C:\\Jenkins\\tools\\hudson.tasks.Maven_MavenInstallation\\mvn\\bin\\mvn";
+    private static final String MAVEN_INSTALLATION_WINDOWS = "C:\\Jenkins\\tools\\hudson.tasks.Maven_MavenInstallation\\mvn\\bin\\mvn.cmd";
 
     private static final String REPORT_FILE = String.format("%s%sreports%sPluginCompatReport.xml", System.getProperty("java.io.tmpdir"), File.separator, File.separator);
     
