@@ -136,7 +136,7 @@ public class CliOptions {
     private boolean printHelp;
 
     @Parameter(names = "-overridenPlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies." +
-          "Format: 'PLUGIN_NAME=PLUGIN_VERSION", converter = PluginConverter.class, validateWith = PluginValidator.class)
+          "Format: '[GROUP_ID:]PLUGIN_NAME=PLUGIN_VERSION", converter = PluginConverter.class, validateWith = PluginValidator.class)
     private List<PCTPlugin> overridenPlugins;
 
     @Parameter(names = "-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
@@ -250,7 +250,9 @@ public class CliOptions {
         @Override
         public PCTPlugin convert(String s) {
             String[] details = s.split("=");
-            return new PCTPlugin(details[0], new VersionNumber(details[1]));
+            String name = details[0];
+            int colon = name.indexOf(':');
+            return new PCTPlugin(colon == -1 ? name : name.substring(colon + 1), colon == -1 ? null : name.substring(0, colon), new VersionNumber(details[1]));
         }
     }
 
