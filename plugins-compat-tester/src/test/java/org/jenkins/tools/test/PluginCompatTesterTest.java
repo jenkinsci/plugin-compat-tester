@@ -67,8 +67,6 @@ import org.springframework.core.io.ClassPathResource;
  */
 public class PluginCompatTesterTest {
 
-    private static final String MAVEN_INSTALLATION_LINUX = "/usr/bin/mvn";
-    
     private static final String MAVEN_INSTALLATION_WINDOWS = "C:\\Jenkins\\tools\\hudson.tasks.Maven_MavenInstallation\\mvn\\bin\\mvn.bat";
 
     private static final String REPORT_FILE = String.format("%s%sreports%sPluginCompatReport.xml", System.getProperty("java.io.tmpdir"), File.separator, File.separator);
@@ -191,16 +189,10 @@ public class PluginCompatTesterTest {
         config.setGenerateHtmlReport(true);
         config.setHookPrefixes(Collections.emptyList());
         
-        File ciJenkinsIoLinuxMvn = Paths.get(MAVEN_INSTALLATION_LINUX).toFile();
-        if (ciJenkinsIoLinuxMvn.exists()) {
-            System.out.println(String.format("Using mvn: %s", MAVEN_INSTALLATION_LINUX));
-            config.setExternalMaven(ciJenkinsIoLinuxMvn);
-        } else {
-            File ciJenkinsIoWinMvn = Paths.get(MAVEN_INSTALLATION_WINDOWS).toFile();
-            if (ciJenkinsIoWinMvn.exists()) {
-                System.out.println(String.format("Using mvn: %s", MAVEN_INSTALLATION_WINDOWS));
-                config.setExternalMaven(ciJenkinsIoWinMvn);
-            }
+        File ciJenkinsIoWinMvn = Paths.get(MAVEN_INSTALLATION_WINDOWS).toFile();
+        if (ciJenkinsIoWinMvn.exists()) {
+            System.out.println(String.format("Using mvn: %s", MAVEN_INSTALLATION_WINDOWS));
+            config.setExternalMaven(ciJenkinsIoWinMvn);
         }
         
         return config;
