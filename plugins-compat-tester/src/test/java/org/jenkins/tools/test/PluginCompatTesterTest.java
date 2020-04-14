@@ -130,7 +130,7 @@ public class PluginCompatTesterTest {
     @Test
     public void testWithIsolatedTest() throws Throwable {
         PluginCompatTesterConfig config = getConfig(ImmutableList.of("active-directory"));
-        config.setStoreAll(true);
+        config.setStoreAll(true); 
         Map<String, String> mavenProperties = new HashMap<>();
         mavenProperties.put("test","ActiveDirectoryAuthenticationProviderTest#testEscape");
         config.setMavenProperties(mavenProperties);
