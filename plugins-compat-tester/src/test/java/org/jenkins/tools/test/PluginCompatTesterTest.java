@@ -186,6 +186,17 @@ public class PluginCompatTesterTest {
         config.setParentVersion("1.410");
         config.setGenerateHtmlReport(true);
         config.setHookPrefixes(Collections.emptyList());
+        
+        File ciJenkinsIoLinuxMvn = Paths.get("/home/jenkins/tools/hudson.tasks.Maven_MavenInstallation/mvn").toFile();
+        if (ciJenkinsIoLinuxMvn.exists()) {
+            config.setExternalMaven(ciJenkinsIoLinuxMvn);
+        } else {
+            File ciJenkinsIoWinMvn = Paths.get("C:\\Jenkins\\tools\\hudson.tasks.Maven_MavenInstallation\\mvn\\bin\\").toFile();
+            if (ciJenkinsIoWinMvn.exists()) {
+                config.setExternalMaven(ciJenkinsIoWinMvn);
+            }
+        }
+        
         return config;
     }
 
