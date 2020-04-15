@@ -193,15 +193,18 @@ public class PluginCompatTester {
         }
         if (!data.plugins.isEmpty()) {
             // Scan detached plugins to recover proper Group IDs for them
-            UpdateSite.Data detachedData = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
+            // At the moment, we are considering that bomfile contains the info about the detached ones
+            UpdateSite.Data detachedData = config.getBom() != null ? null : config.getWar() != null ? scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi") : extractUpdateCenterData(pluginGroupIds);  
 
             // Add detached if and only if no added as normal one
             UpdateSite.Data finalData = data;
-            detachedData.plugins.forEach((key, value) -> {
-                if (!finalData.plugins.containsKey(key)) {
-                    finalData.plugins.put(key, value);
-                }
-            });
+            if (detachedData != null) {
+                detachedData.plugins.forEach((key, value) -> {
+                    if (!finalData.plugins.containsKey(key)) {
+                        finalData.plugins.put(key, value);
+                    }
+                });
+            }
         }
 
         final Map<String, Plugin> pluginsToCheck;
@@ -633,85 +636,63 @@ public class PluginCompatTester {
 	}
 
     private UpdateSite.Data scanBom(HashMap<String, String> pluginGroupIds, String pluginRegExp) throws IOException, PomExecutionException, XmlPullParserException {
-    	File fullDepPom = new MavenBom(config.getBom()).writeFullDepPom(config.workDirectory);
-
-    	MavenRunner.Config mconfig = new MavenRunner.Config();
-    	mconfig.userSettingsFile = config.getM2SettingsFile();
-    	System.out.println(mconfig.userSettingsFile);
-    	// TODO REMOVE
-    	mconfig.userProperties.putAll(this.config.retrieveMavenProperties());
-
-    	File buildLogFile = new File(config.workDirectory
-    			+ File.separator + "bom-download.log");
-    	FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
-
-    	runner.run(mconfig, fullDepPom.getParentFile(), buildLogFile, "dependency:copy-dependencies", "-P consume-incrementals", "-N");
+    	
     	JSONObject top = new JSONObject();
     	top.put("id", DEFAULT_SOURCE_ID);
     	JSONObject plugins = new JSONObject();
-    	List<File> entries = FileUtils.getFiles(new File(config.workDirectory, "bom" + File.separator + "target" + File.separator + "dependency"),null, null);
-    	for (File entry : entries) {
+    	
+    	for (File entry : getBomEntries()) {
     		String name = entry.getName();
-    		Matcher m = Pattern.compile(JENKINS_CORE_FILE_REGEX).matcher(name);
-    		if (m.matches()) {
-    			if (top.has("core")) {
-    				throw new IOException(">1 jenkins-core.jar found as dependency for bom file  " + config.getBom());
-    			}
-    			// http://foobar is used to workaround the check in https://github.com/jenkinsci/jenkins/commit/f8daafd0327081186c06555f225e84c420261b4c
-    			// We do not really care about the value
-    			top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", "https://foobar"));
-    		} else {
-    			m = Pattern.compile(pluginRegExp).matcher(name);
-    			try (InputStream is = new FileInputStream(entry); JarInputStream jis = new JarInputStream(is)) {
-    				Manifest manifest = jis.getManifest();
-    				if (manifest == null || manifest.getMainAttributes() == null) {
-    					// Skip this entry, is not a plugin and/or contains a malformed manifest so is not parseable
-    					System.out.println("Entry " + name + "defined in the BOM looks non parseable, ignoring");
-    					continue;
-    				}
-    				String jenkinsVersion = manifest.getMainAttributes().getValue("Jenkins-Version");
-    				String shortName = manifest.getMainAttributes().getValue("Short-Name");
-    				String groupId = manifest.getMainAttributes().getValue("Group-Id");
-    				String version = manifest.getMainAttributes().getValue("Plugin-Version");
-    				String dependencies = manifest.getMainAttributes().getValue("Plugin-Dependencies");
-    				// I expect BOMs to not specify hpi as type, which results in getting the jar artifact
-    				if (m.matches() || (jenkinsVersion != null && version != null)) { // I need a plugin version
-    					JSONObject plugin = new JSONObject().accumulate("url", "");
-    					if (shortName == null) {
-    						shortName = manifest.getMainAttributes().getValue("Extension-Name");
-    						if (shortName == null) {
-    							shortName = m.group(1);
-    						}
-    					}
-    					
-    					// If hpi is registered, avoid to override it by its jar entry
-    					if(plugins.containsKey(shortName) && entry.getPath().endsWith(".jar")) {
-    						continue;
-    					}
-    					
-    					plugin.put("name", shortName);
-    					pluginGroupIds.put(shortName, groupId);
-    					// Remove extra build information from the version number
-    					final Matcher matcher = Pattern.compile("^(.+-SNAPSHOT)(.+)$").matcher(version);
-    					if (matcher.matches()) {
-    						version = matcher.group(1);
-    					}
-    					plugin.put("version", version);
-    					plugin.put("url", "jar:" + entry.toURI().getPath() + "!/name.hpi");
-    					JSONArray dependenciesA = new JSONArray();
-    					if (dependencies != null) {
-    						// e.g. matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
-    						for (String pair : dependencies.split(",")) {
-    							boolean optional = pair.endsWith("resolution:=optional");
-    							String[] nameVer = pair.replace(";resolution:=optional", "").split(":");
-    							assert nameVer.length == 2;
-    							dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1]).accumulate("optional", String.valueOf(optional)));
-    						}
-    					}
-    					plugin.accumulate("dependencies", dependenciesA);
-    					plugins.put(shortName, plugin);
-    				}
-    			}
+    		Matcher m = Pattern.compile(pluginRegExp).matcher(name);
+    		try (InputStream is = new FileInputStream(entry); JarInputStream jis = new JarInputStream(is)) {
+    		    Manifest manifest = jis.getManifest();
+    		    if (manifest == null || manifest.getMainAttributes() == null) {
+    		        // Skip this entry, is not a plugin and/or contains a malformed manifest so is not parseable
+    		        System.out.println("Entry " + name + "defined in the BOM looks non parseable, ignoring");
+    		        continue;
+    		    }
+    		    String jenkinsVersion = manifest.getMainAttributes().getValue("Jenkins-Version");
+    		    String shortName = manifest.getMainAttributes().getValue("Short-Name");
+    		    String groupId = manifest.getMainAttributes().getValue("Group-Id");
+    		    String version = manifest.getMainAttributes().getValue("Plugin-Version");
+    		    String dependencies = manifest.getMainAttributes().getValue("Plugin-Dependencies");
+    		    // I expect BOMs to not specify hpi as type, which results in getting the jar artifact
+    		    if (m.matches() || (jenkinsVersion != null && version != null)) { // I need a plugin version
+    		        JSONObject plugin = new JSONObject().accumulate("url", "");
+    		        if (shortName == null) {
+    		            shortName = manifest.getMainAttributes().getValue("Extension-Name");
+    		            if (shortName == null) {
+    		                shortName = m.group(1);
+    		            }
+    		        }
+
+    		        // If hpi is registered, avoid to override it by its jar entry
+    		        if(plugins.containsKey(shortName) && entry.getPath().endsWith(".jar")) {
+    		            continue;
+    		        }
+
+    		        plugin.put("name", shortName);
+    		        pluginGroupIds.put(shortName, groupId);
+    		        // Remove extra build information from the version number
+    		        final Matcher matcher = Pattern.compile("^(.+-SNAPSHOT)(.+)$").matcher(version);
+    		        if (matcher.matches()) {
+    		            version = matcher.group(1);
+    		        }
+    		        plugin.put("version", version);
+    		        plugin.put("url", "jar:" + entry.toURI().getPath() + "!/name.hpi");
+    		        JSONArray dependenciesA = new JSONArray();
+    		        if (dependencies != null) {
+    		            // e.g. matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
+    		            for (String pair : dependencies.split(",")) {
+    		                boolean optional = pair.endsWith("resolution:=optional");
+    		                String[] nameVer = pair.replace(";resolution:=optional", "").split(":");
+    		                assert nameVer.length == 2;
+    		                dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1]).accumulate("optional", String.valueOf(optional)));
+    		            }
+    		        }
+    		        plugin.accumulate("dependencies", dependenciesA);
+    		        plugins.put(shortName, plugin);
+    		    }
     		}
     	}
 
@@ -726,6 +707,23 @@ public class PluginCompatTester {
     	}
     	System.out.println("Readed contents of " + config.getBom() + ": " + top);
     	return newUpdateSiteData(new UpdateSite(DEFAULT_SOURCE_ID, null), top);
+    }
+
+    private List<File> getBomEntries() throws IOException, XmlPullParserException, PomExecutionException {
+        File fullDepPom = new MavenBom(config.getBom()).writeFullDepPom(config.workDirectory);
+
+    	MavenRunner.Config mconfig = new MavenRunner.Config();
+    	mconfig.userSettingsFile = config.getM2SettingsFile();
+    	System.out.println(mconfig.userSettingsFile);
+    	// TODO REMOVE
+    	mconfig.userProperties.putAll(this.config.retrieveMavenProperties());
+
+    	File buildLogFile = new File(config.workDirectory
+    			+ File.separator + "bom-download.log");
+    	FileUtils.fileWrite(buildLogFile.getAbsolutePath(), ""); // Creating log file
+
+    	runner.run(mconfig, fullDepPom.getParentFile(), buildLogFile, "dependency:copy-dependencies", "-P consume-incrementals", "-N");
+    	return FileUtils.getFiles(new File(config.workDirectory, "bom" + File.separator + "target" + File.separator + "dependency"),null, null);
     }
 
     /**
