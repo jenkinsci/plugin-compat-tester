@@ -142,6 +142,12 @@ public class PluginCompatTesterCli {
             //TODO: also interpolate it for the case when a single plugin passed?
             config.setFailOnError(true);
         }
+        
+        if (options.isStoreAll() != null) {
+            config.setStoreAll(options.isStoreAll().booleanValue());
+        } else {
+            config.setStoreAll(false);
+        }
 
         if(options.getOverridenPlugins() != null && !options.getOverridenPlugins().isEmpty()) {
             config.setOverridenPlugins(options.getOverridenPlugins());

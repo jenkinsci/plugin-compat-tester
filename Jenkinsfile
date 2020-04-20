@@ -116,19 +116,19 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
 itBranches['WAR with non-default groupId plugins - smoke test'] = {
     node('docker') {
         checkout scm
-        
+
         stage('Build Docker Image') {
           sh 'make docker'
         }
-      
+
         dir("src/it/war-with-plugins-test") {
             def settingsXML="mvn-settings.xml"
             infra.retrieveMavenSettingsFile(settingsXML)
-            
+
             stage('Build the custom WAR file') {
               infra.runMaven(["clean", "package"])
             }
-            
+
             stage('Run the integration test') {
               sh '''docker run --rm \
                             -v $(pwd)/tmp/output/target/war-with-plugins-test-1.0.war:/pct/jenkins.war:ro \
@@ -171,7 +171,7 @@ disabled_itBranches['CasC tests success'] = {
             ]) {
                 def settingsXML="mvn-settings.xml"
                 infra.retrieveMavenSettingsFile(settingsXML)
-              
+
                 sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
                              -reportFile $(pwd)/out/pct-report.xml \
                              -workDirectory $(pwd)/out/work \

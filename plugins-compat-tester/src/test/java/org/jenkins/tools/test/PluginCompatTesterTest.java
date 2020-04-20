@@ -28,13 +28,22 @@ package org.jenkins.tools.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.io.File;
+
+import org.apache.commons.io.FileUtils;
+import org.jenkins.tools.test.model.MavenCoordinates;
+import org.jenkins.tools.test.model.PluginCompatReport;
+import org.jenkins.tools.test.model.PluginCompatResult;
+
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,13 +101,90 @@ public class PluginCompatTesterTest {
     @Test
     public void testWithUrl() throws Throwable {
         PluginCompatTesterConfig config = getConfig(ImmutableList.of("active-directory"));
+        config.setStoreAll(true); 
 
         PluginCompatTester tester = new PluginCompatTester(config);
         PluginCompatReport report = tester.testPlugins();
         assertNotNull(report);
         Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
         assertNotNull(pluginCompatTests);
+        for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
+            assertEquals("active-directory", entry.getKey().pluginName);
+            List<PluginCompatResult> results = entry.getValue();
+            assertEquals(1, results.size());
+            PluginCompatResult result = results.get(0);
+            assertNotNull(result);
+            assertNotNull(result.getTestsDetails());
+            assertFalse(result.getTestsDetails().isEmpty());
+            // Let's evaluate some executed tests 
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectoryAuthenticationProviderTest.testEscape"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testAdvancedOptionsVisibleWithNonNativeAuthentication"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testCacheOptionAlwaysVisible"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveMultiDomainSingleDomainOneDisplayName"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveMultiDomainTwoDomainsOneDisplayName"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveMultipleDomainsOneDomainEndToEnd"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveSingleDomain"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveSingleDomainSingleServer"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveSingleDomainWithTwoServers"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithSpaceAfterComma"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithSpaceAfterCommaAndSingleServer"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithSpaceAfterCommaAndTwoServers"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithoutSpaceAfterComma"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithoutSpaceAfterCommaAndSingleServer"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectorySecurityRealmTest.testReadResolveTwoDomainsWithoutSpaceAfterCommaAndTwoServers"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.RemoveIrrelevantGroupsTest.testNoGroupsAreRegistered"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.RemoveIrrelevantGroupsTest.testNoGroupsAreRelevant"));
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.RemoveIrrelevantGroupsTest.testSomeGroupsAreRelevant"));
+        }
     }
+    
+    @Test
+    public void testWithIsolatedTest() throws Throwable {
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("active-directory"));
+        config.setStoreAll(true); 
+        Map<String, String> mavenProperties = new HashMap<>();
+        mavenProperties.put("test","ActiveDirectoryAuthenticationProviderTest#testEscape");
+        config.setMavenProperties(mavenProperties);
+
+        PluginCompatTester tester = new PluginCompatTester(config);
+        PluginCompatReport report = tester.testPlugins();
+        assertNotNull(report);
+        Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
+        assertNotNull(pluginCompatTests);
+        for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
+            assertEquals("active-directory", entry.getKey().pluginName);
+            List<PluginCompatResult> results = entry.getValue();
+            assertEquals(1, results.size());
+            PluginCompatResult result = results.get(0);
+            assertNotNull(result);
+            assertNotNull(result.getTestsDetails());
+            assertFalse(result.getTestsDetails().isEmpty());
+            assertEquals(1, result.getTestsDetails().size());
+            assertTrue(result.getTestsDetails().contains("hudson.plugins.active_directory.ActiveDirectoryAuthenticationProviderTest.testEscape"));
+        }
+    }  
+    
+    @Test
+    public void testStoreOnlyFailedTests() throws Throwable {
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("analysis-collector"));
+        config.setStoreAll(false);
+
+        PluginCompatTester tester = new PluginCompatTester(config);
+        PluginCompatReport report = tester.testPlugins();
+        assertNotNull(report);
+        Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
+        assertNotNull(pluginCompatTests);
+        for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
+            assertEquals("analysis-collector", entry.getKey().pluginName);
+            List<PluginCompatResult> results = entry.getValue();
+            assertEquals(1, results.size());
+            PluginCompatResult result = results.get(0);
+            assertNotNull(result);
+            assertNotNull(result.getTestsDetails());
+            // No failed tests on this plugin (it will store ONLY failed tests due to -storeAll=false
+            assertTrue(result.getTestsDetails().isEmpty());
+        }
+    } 
 
     @Test
     public void testBom() throws IOException, PlexusContainerException, PomExecutionException, XmlPullParserException {
@@ -111,11 +197,11 @@ public class PluginCompatTesterTest {
 
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
-    }
+    }  
 
     private PluginCompatTesterConfig getConfig(List<String> includedPlugins) throws IOException {
-        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(), new File(REPORT_FILE),
-                getSettingsFile());
+        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
+                new File(REPORT_FILE), getSettingsFile());      
 
         config.setIncludePlugins(includedPlugins);
         config.setExcludePlugins(Collections.emptyList());
@@ -141,7 +227,6 @@ public class PluginCompatTesterTest {
         String version = "2.39";
         String nonWorkingConnectionURL = "scm:git:git://github.com/test/workflow-api-plugin.git";
         MavenCoordinates mavenCoordinates = new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.54");
-
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(), new File(REPORT_FILE),
                 getSettingsFile());
         config.setIncludePlugins(ImmutableList.of(pluginName));
@@ -159,7 +244,6 @@ public class PluginCompatTesterTest {
         String version = "2.39";
         String nonWorkingConnectionURL = "scm:git:git://github.com/test/workflow-api-plugin.git";
         MavenCoordinates mavenCoordinates = new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.54");
-
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(), new File(REPORT_FILE),
                 getSettingsFile());
         config.setIncludePlugins(ImmutableList.of(pluginName));

@@ -141,6 +141,13 @@ public class CliOptions {
 
     @Parameter(names = "-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
     private boolean failOnError;
+    
+    @Parameter(names = "-storeAll", 
+            description = "By default only failed tests are stored in PCT report file. \n" + 
+                    "If set, the PCT will store ALL executed test names for each plugin in report file. \n" + 
+                    "Disabled by default because it may bloat reports for plugins which thousands of tests."
+    )
+    private Boolean storeAll = null;
 
     @Parameter(names = "-bom", description = "BOM file to be used for plugin versions rather than an Update Center or War file")
     private File bom;
@@ -241,6 +248,10 @@ public class CliOptions {
 
     public boolean isFailOnError() {
         return failOnError;
+    }
+    
+    public Boolean isStoreAll() {
+        return storeAll;
     }
 
     public static class PluginConverter implements IStringConverter<PCTPlugin> {

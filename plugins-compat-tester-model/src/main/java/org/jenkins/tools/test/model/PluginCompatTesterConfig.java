@@ -139,6 +139,9 @@ public class PluginCompatTesterConfig {
     // Path to a BOM file to get plugin data
     private File bom;
 
+    // Flag to indicate if we want to store all the tests names or only failed ones on PCT report files
+    private boolean storeAll;
+
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
                 workDirectory, reportFile, m2SettingsFile);
@@ -445,5 +448,13 @@ public class PluginCompatTesterConfig {
 
     public void setFailOnError(boolean failOnError) {
         this.failOnError = failOnError;
+    }
+
+    public void setStoreAll(boolean storeAll) {
+        this.storeAll = storeAll;
+    }
+    
+    public boolean isStoreAll() {
+        return storeAll;
     }
 }
