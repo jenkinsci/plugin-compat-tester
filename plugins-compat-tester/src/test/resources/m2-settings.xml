@@ -267,6 +267,28 @@ under the License.
         </pluginRepository>
       </pluginRepositories>
     </profile>
+    <profile>
+      <!-- JEP-305 -->
+      <id>consume-incrementals</id>
+      <repositories>
+        <repository>
+          <id>incrementals</id>
+          <url>https://repo.jenkins-ci.org/incrementals/</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>incrementals</id>
+          <url>https://repo.jenkins-ci.org/incrementals/</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
   </profiles>
 
   <!-- activeProfiles

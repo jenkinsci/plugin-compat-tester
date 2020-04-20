@@ -46,6 +46,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +86,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.exception.ExecutedTestNamesSolverException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.MavenCoordinates;
@@ -100,6 +102,7 @@ import org.jenkins.tools.test.model.TestExecutionResult;
 import org.jenkins.tools.test.model.TestStatus;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
+import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
 import org.springframework.core.io.ClassPathResource;
 
 /**
@@ -116,15 +119,15 @@ public class PluginCompatTester {
     public static final String JENKINS_CORE_FILE_REGEX = "WEB-INF/lib/jenkins-core-([0-9.]+(?:-[0-9a-f.]+)*(?:-(?i)([a-z]+)(-)?([0-9a-f.]+)?)?(?:-(?i)([a-z]+)(-)?([0-9a-f.]+)?)?(?:-SNAPSHOT)?)[.]jar";
 
     private PluginCompatTesterConfig config;
-    private final MavenRunner runner;
+    private final ExternalMavenRunner runner;
 
     private List<String> splits;
     private Set<String> splitCycles;
 
-	public PluginCompatTester(PluginCompatTesterConfig config){
+    public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
         runner = new ExternalMavenRunner(config.getExternalMaven());
-	}
+    }
 
     private SortedSet<MavenCoordinates> generateCoreCoordinatesToTest(UpdateSite.Data data, PluginCompatReport previousReport){
         SortedSet<MavenCoordinates> coreCoordinatesToTest;
@@ -151,7 +154,7 @@ public class PluginCompatTester {
         return coreCoordinatesToTest;
     }
 
-	public PluginCompatReport testPlugins()
+    public PluginCompatReport testPlugins()
         throws PlexusContainerException, IOException {
         File war = config.getWar();
         if (war != null) {
@@ -223,7 +226,7 @@ public class PluginCompatTester {
         report.setTestJavaVersion(config.getTestJavaVersion());
 
         boolean failed = false;
-		SCMManagerFactory.getInstance().start();
+        SCMManagerFactory.getInstance().start();
         ROOT_CYCLE: for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
             for (Plugin plugin : pluginsToCheck.values()) {
@@ -287,12 +290,14 @@ public class PluginCompatTester {
                     }
 
                     List<String> warningMessages = new ArrayList<>();
+                    Set<String> testDetails = new TreeSet<>();
                     if (errorMessage == null) {
                     try {
                         TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridenPlugins());
                         // If no PomExecutionException, everything went well...
                         status = TestStatus.SUCCESS;
                         warningMessages.addAll(result.pomWarningMessages);
+                        testDetails.addAll(config.isStoreAll() ? result.getTestDetails().getAll() : result.getTestDetails().getFailed());
                     } catch (PomExecutionException e) {
                         if(!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")){
                             status = TestStatus.COMPILATION_ERROR;
@@ -303,6 +308,7 @@ public class PluginCompatTester {
                         }
                         errorMessage = e.getErrorMessage();
                         warningMessages.addAll(e.getPomWarningMessages());
+                        testDetails.addAll(config.isStoreAll() ? e.getTestDetails().getAll() : e.getTestDetails().getFailed());
                     } catch (Error e){
                         // Rethrow the error ... something is wrong !
                         throw e;
@@ -320,7 +326,7 @@ public class PluginCompatTester {
                     if(buildLogFile.exists()){
                         buildLogFilePath = createBuildLogFilePathFor(pluginInfos.pluginName, pluginInfos.pluginVersion, actualCoreCoordinates);
                     }
-                    PluginCompatResult result = new PluginCompatResult(actualCoreCoordinates, status, errorMessage, warningMessages, buildLogFilePath);
+                    PluginCompatResult result = new PluginCompatResult(actualCoreCoordinates, status, errorMessage, warningMessages, testDetails, buildLogFilePath);
                     report.add(pluginInfos, result);
 
                     if(config.reportFile != null){
@@ -350,11 +356,11 @@ public class PluginCompatTester {
         }
 
         if (failed && config.isFailOnError()) {
-		    throw new AbortException("Execution was aborted due to the failure in a plugin test (-failOnError is set)");
+            throw new AbortException("Execution was aborted due to the failure in a plugin test (-failOnError is set)");
         }
 
         return report;
-	}
+    }
 
     private void generateHtmlReportFile() throws IOException {
         if (!config.reportFile.exists() || !config.reportFile.isFile()) {
@@ -403,7 +409,7 @@ public class PluginCompatTester {
 
         File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath() + File.separator + plugin.name + File.separator);
 
-		try {
+        try {
             // Run any precheckout hooks
             Map<String, Object> beforeCheckout = new HashMap<>();
             beforeCheckout.put("pluginName", plugin.name);
@@ -455,13 +461,13 @@ public class PluginCompatTester {
                 }
                 System.out.println("The plugin has already been checked out, likely due to a multimodule situation. Continue.");
             }
-		} catch (ComponentLookupException e) {
-			System.err.println("Error : " + e.getMessage());
-			throw new PluginSourcesUnavailableException("Problem while creating ScmManager !", e);
-		} catch (Exception e) {
-			System.err.println("Error : " + e.getMessage());
-			throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
-		}
+        } catch (ComponentLookupException e) {
+            System.err.println("Error : " + e.getMessage());
+            throw new PluginSourcesUnavailableException("Problem while creating ScmManager !", e);
+        } catch (Exception e) {
+            System.err.println("Error : " + e.getMessage());
+            throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
+        }
 
         File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
@@ -523,18 +529,19 @@ public class PluginCompatTester {
 
             // Execute with tests
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
-
-            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages());
-        }catch(PomExecutionException e){
-            PomExecutionException e2 = new PomExecutionException(e);
-            e2.getPomWarningMessages().addAll(pomData.getWarningMessages());
+            // TODO extract tests names by filter
+            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(runner.getExecutedTests(), pluginCheckoutDir));
+        } catch (ExecutedTestNamesSolverException e) {
+            throw new PomExecutionException(e);
+        } catch (PomExecutionException e){
+            e.getPomWarningMessages().addAll(pomData.getWarningMessages());
             if (ranCompile) {
                 // So the status is considered to be TEST_FAILURES not COMPILATION_ERROR:
-                e2.succeededPluginArtifactIds.add("maven-compiler-plugin");
+                e.succeededPluginArtifactIds.add("maven-compiler-plugin");
             }
-            throw e2;
+            throw e;
         }
-	}
+    }
 
     protected void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException, IOException {
         String scmTag;
@@ -587,14 +594,14 @@ public class PluginCompatTester {
      * @return Update site Data
      */
     private UpdateSite.Data extractUpdateCenterData(Map<String, String> groupIDs){
-		URL url;
-		String jsonp;
-		try {
-	        url = new URL(config.updateCenterUrl);
-	        jsonp = IOUtils.toString(url.openStream());
-		}catch(IOException e){
-			throw new RuntimeException("Invalid update center url : "+config.updateCenterUrl, e);
-		}
+        URL url;
+        String jsonp;
+        try {
+            url = new URL(config.updateCenterUrl);
+            jsonp = IOUtils.toString(url.openStream());
+        }catch(IOException e){
+            throw new RuntimeException("Invalid update center url : "+config.updateCenterUrl, e);
+        }
 
         String json = jsonp.substring(jsonp.indexOf('(')+1,jsonp.lastIndexOf(')'));
         UpdateSite us = new UpdateSite(DEFAULT_SOURCE_ID, url.toExternalForm());
@@ -610,7 +617,7 @@ public class PluginCompatTester {
         }
 
         return site;
-	}
+    }
 
     /**
      * Scans through a WAR file, accumulating plugin information
@@ -831,7 +838,7 @@ public class PluginCompatTester {
                 pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, convertFromTestDep);
             }
 
-	    // TODO(oleg_nenashev): This is a hack, logic above should be refactored somehow (JENKINS-55279)
+        // TODO(oleg_nenashev): This is a hack, logic above should be refactored somehow (JENKINS-55279)
             // Remove the self-dependency if any
             pom.removeDependency(pluginGroupIds.get(thisPlugin), thisPlugin);
         }
