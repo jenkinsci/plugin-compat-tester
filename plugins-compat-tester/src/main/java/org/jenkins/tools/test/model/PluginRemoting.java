@@ -28,6 +28,7 @@ package org.jenkins.tools.test.model;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
@@ -79,7 +80,35 @@ public class PluginRemoting {
     }
 
     private String retrievePomContentFromHpi() throws PluginSourcesUnavailableException {
-        try (InputStream pluginUrlStream = new URL(hpiRemoteUrl).openStream(); ZipInputStream zin = new ZipInputStream(pluginUrlStream)) {
+        try {
+	    return retrievePomContentFromHpiRemoteUrl(new URL(hpiRemoteUrl));
+	} catch (MalformedURLException e) {
+	    LOGGER.log(Level.INFO, String.format("hpi reference %s is not a remote URL", hpiRemoteUrl));
+	    return retrievePomContentFromHpiFileReference();
+	}
+    }
+
+    private String retrievePomContentFromHpiRemoteUrl(URL url) throws PluginSourcesUnavailableException {
+    	try {
+    	    return retrievePomContentFromInputStream(url.openStream());
+	} catch (IOException e) {
+	    System.err.println("Error : " + e.getMessage());
+          throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
+	}
+    }
+
+    private String retrievePomContentFromHpiFileReference() throws PluginSourcesUnavailableException {
+    	try {
+	    String fileReference = hpiRemoteUrl.replaceAll("jar:", "").replaceAll("!/name.hpi", "");
+    	    return retrievePomContentFromInputStream(FileUtils.openInputStream(new File(fileReference)));
+	} catch (IOException e) {
+	    System.err.println("Error : " + e.getMessage());
+          throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
+	}
+    }
+
+    private String retrievePomContentFromInputStream(InputStream pluginUrlStream) throws PluginSourcesUnavailableException {
+    	try (ZipInputStream zin = new ZipInputStream(pluginUrlStream)) {
             ZipEntry zipEntry = zin.getNextEntry();
             while(!zipEntry.getName().startsWith("META-INF/maven") || !zipEntry.getName().endsWith("pom.xml")){
                 zin.closeEntry();

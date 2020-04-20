@@ -30,7 +30,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
-import com.google.common.collect.ImmutableList;
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
@@ -47,6 +46,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.io.FileUtils;
+import org.codehaus.plexus.PlexusContainerException;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.model.MavenBom;
+import org.jenkins.tools.test.model.MavenCoordinates;
+import org.jenkins.tools.test.model.PluginCompatReport;
+import org.jenkins.tools.test.model.PluginCompatResult;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PluginInfos;
 import org.jenkins.tools.test.model.PomData;
@@ -59,6 +67,8 @@ import org.junit.rules.TemporaryFolder;
 import org.jvnet.hudson.test.Issue;
 import org.springframework.core.io.ClassPathResource;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Main test class for plugin compatibility test frontend
  *
@@ -68,8 +78,9 @@ public class PluginCompatTesterTest {
 
     private static final String MAVEN_INSTALLATION_WINDOWS = "C:\\Jenkins\\tools\\hudson.tasks.Maven_MavenInstallation\\mvn\\bin\\mvn.cmd";
 
-    private static final String REPORT_FILE = String.format("%s%sreports%sPluginCompatReport.xml", System.getProperty("java.io.tmpdir"), File.separator, File.separator);
-    
+    private static final String REPORT_FILE = String.format("%s%sreports%sPluginCompatReport.xml",
+            System.getProperty("java.io.tmpdir"), File.separator, File.separator);
+
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
@@ -175,9 +186,22 @@ public class PluginCompatTesterTest {
         }
     } 
 
+    @Test
+    public void testBom() throws IOException, PlexusContainerException, PomExecutionException, XmlPullParserException {
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("workflow-api", // From BOM
+                "accurev" // From Update Center
+        ));
+
+        File bomFile = new ClassPathResource("jenkins-bom.xml").getFile();
+        config.setBom(bomFile);
+
+        PluginCompatTester tester = new PluginCompatTester(config);
+        tester.testPlugins();
+    }  
+
     private PluginCompatTesterConfig getConfig(List<String> includedPlugins) throws IOException {
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File(REPORT_FILE), getSettingsFile());
+                new File(REPORT_FILE), getSettingsFile());      
 
         config.setIncludePlugins(includedPlugins);
         config.setExcludePlugins(Collections.emptyList());
@@ -187,13 +211,13 @@ public class PluginCompatTesterTest {
         config.setParentVersion("1.410");
         config.setGenerateHtmlReport(true);
         config.setHookPrefixes(Collections.emptyList());
-        
+
         File ciJenkinsIoWinMvn = Paths.get(MAVEN_INSTALLATION_WINDOWS).toFile();
         if (ciJenkinsIoWinMvn.exists()) {
             System.out.println(String.format("Using mvn: %s", MAVEN_INSTALLATION_WINDOWS));
             config.setExternalMaven(ciJenkinsIoWinMvn);
         }
-        
+
         return config;
     }
 
@@ -203,9 +227,8 @@ public class PluginCompatTesterTest {
         String version = "2.39";
         String nonWorkingConnectionURL = "scm:git:git://github.com/test/workflow-api-plugin.git";
         MavenCoordinates mavenCoordinates = new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.54");
-
-        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File(REPORT_FILE), getSettingsFile());
+        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(), new File(REPORT_FILE),
+                getSettingsFile());
         config.setIncludePlugins(ImmutableList.of(pluginName));
 
         PluginCompatTester pct = new PluginCompatTester(config);
@@ -221,9 +244,8 @@ public class PluginCompatTesterTest {
         String version = "2.39";
         String nonWorkingConnectionURL = "scm:git:git://github.com/test/workflow-api-plugin.git";
         MavenCoordinates mavenCoordinates = new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.54");
-
-        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
-                new File(REPORT_FILE), getSettingsFile());
+        PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(), new File(REPORT_FILE),
+                getSettingsFile());
         config.setIncludePlugins(ImmutableList.of(pluginName));
         config.setFallbackGitHubOrganization("jenkinsci");
 

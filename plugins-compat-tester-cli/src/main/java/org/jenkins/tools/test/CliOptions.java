@@ -149,6 +149,9 @@ public class CliOptions {
     )
     private Boolean storeAll = null;
 
+    @Parameter(names = "-bom", description = "BOM file to be used for plugin versions rather than an Update Center or War file")
+    private File bom;
+
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
     }
@@ -236,6 +239,11 @@ public class CliOptions {
     @CheckForNull
     public List<PCTPlugin> getOverridenPlugins() {
         return overridenPlugins;
+    }
+
+    @CheckForNull
+    public File getBOM() {
+        return this.bom;
     }
 
     public boolean isFailOnError() {

@@ -136,6 +136,9 @@ public class PluginCompatTesterConfig {
     // Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code
     private boolean failOnError;
 
+    // Path to a BOM file to get plugin data
+    private File bom;
+
     // Flag to indicate if we want to store all the tests names or only failed ones on PCT report files
     private boolean storeAll;
 
@@ -266,6 +269,15 @@ public class PluginCompatTesterConfig {
 
     public void setMavenPropertiesFiles( String mavenPropertiesFile ) {
         this.mavenPropertiesFile = mavenPropertiesFile;
+    }
+
+    @CheckForNull
+    public File getBom() {
+        return bom;
+    }
+
+    public void setBom(File bom) {
+        this.bom = bom;
     }
 
     /**
