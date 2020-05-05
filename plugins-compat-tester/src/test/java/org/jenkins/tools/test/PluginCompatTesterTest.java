@@ -34,11 +34,13 @@ import java.io.File;
 
 import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.model.MavenCoordinates;
+import org.jenkins.tools.test.model.PCTPlugin;
 import org.jenkins.tools.test.model.PluginCompatReport;
 import org.jenkins.tools.test.model.PluginCompatResult;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +70,8 @@ import org.jvnet.hudson.test.Issue;
 import org.springframework.core.io.ClassPathResource;
 
 import com.google.common.collect.ImmutableList;
+
+import hudson.util.VersionNumber;
 
 /**
  * Main test class for plugin compatibility test frontend
@@ -198,6 +202,19 @@ public class PluginCompatTesterTest {
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
     }  
+    
+    @Test
+    public void testWithCasCProperties() throws Throwable {
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("ec2"));
+        Map<String, String> mavenProperties = new HashMap<>();
+        mavenProperties.put("test","ConfigurationAsCodeTest#testConfigAsCodeExport");
+        config.setMavenProperties(mavenProperties);
+        List<PCTPlugin> overridenPlugins = Arrays.asList(new PCTPlugin("configuration-as-code", "io.jenkins", new VersionNumber("1.38")));
+        config.setOverridenPlugins(overridenPlugins);
+
+        PluginCompatTester tester = new PluginCompatTester(config);
+        tester.testPlugins();
+    }
 
     private PluginCompatTesterConfig getConfig(List<String> includedPlugins) throws IOException {
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),

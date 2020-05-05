@@ -986,7 +986,7 @@ public class PluginCompatTester {
             // Could contain transitive dependencies which were part of the plugin's dependencies or to be added
             toAddTest = difference(pluginDeps, toAddTest);
             toAddTest = difference(toAdd, toAddTest);
-
+            // TODO: IMONTERO
             if (!toAdd.isEmpty() || !toReplace.isEmpty() || !toAddTest.isEmpty() || !toReplaceTest.isEmpty()) {
                 System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
                 pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, convertFromTestDep);
