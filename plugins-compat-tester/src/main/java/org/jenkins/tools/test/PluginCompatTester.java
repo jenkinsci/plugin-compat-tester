@@ -872,10 +872,11 @@ public class PluginCompatTester {
             runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
             try (BufferedReader br =
                     Files.newBufferedReader(tmp.toPath(), Charset.defaultCharset())) {
-                Pattern p = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(provided|compile|runtime|system)");
-                Pattern p2 = Pattern.compile("\\[INFO\\]    ([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(test)");
+                Pattern p = Pattern.compile("\\[INFO\\]([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(provided|compile|runtime|system)(\\(optional\\))?");
+                Pattern p2 = Pattern.compile("\\[INFO\\]([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(test)");
                 String line;
                 while ((line = br.readLine()) != null) {
+                    line = line.replace(" ", "");
                     Matcher m = p.matcher(line);
                     Matcher m2 = p2.matcher(line);
                     String groupId;
