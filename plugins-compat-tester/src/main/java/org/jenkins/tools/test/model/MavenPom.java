@@ -37,6 +37,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.FileUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -172,6 +174,7 @@ public class MavenPom {
             }
         }
 
+        Element properties = doc.getRootElement().element("properties");
         Map<String,VersionNumber> toReplaceUsed = new LinkedHashMap<>();
         Map<String,VersionNumber> toReplaceTestUsed = new LinkedHashMap<>();
         for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
@@ -197,7 +200,25 @@ public class MavenPom {
             }
             Element version = mavenDependency.element(VERSION_ELEMENT);
             if (version != null) {
-                mavenDependency.remove(version);
+                if (version.getTextTrim().startsWith("${")) {
+                    // Search property and update its value
+                    String property = version.getTextTrim().replace("${", "").replace("}", "");
+                    Element propertyToUpdate = null;
+                    for (Element mavenProperty: (List<Element>) properties.elements()) {
+                        if(StringUtils.equals(property, mavenProperty.getQName().getName())){
+                            propertyToUpdate = mavenProperty;
+                            break;
+                        }
+                    }
+                    if (propertyToUpdate != null) {
+                        properties.remove(propertyToUpdate);
+                        propertyToUpdate.setText(replacement.toString());
+                        properties.add(propertyToUpdate);
+                        continue;
+                    }
+                } else {
+                    mavenDependency.remove(version);
+                }
             }
             version = mavenDependency.addElement(VERSION_ELEMENT);
             version.addText(replacement.toString());
