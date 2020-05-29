@@ -589,7 +589,7 @@ public class PluginCompatTester {
             Pattern pattern = Pattern.compile("(.*/github.com/)([^/]*)(.*)");
             Matcher matcher = pattern.matcher(pomData.getConnectionUrl());
             matcher.find();
-            String connectionURL = matcher.replaceFirst("$1" + config.getFallbackGitHubOrganization() + "$3");
+            String connectionURL = matcher.replaceFirst("scm:git:git@github.com:" + config.getFallbackGitHubOrganization() + "$3");
             System.out.println("Using fallback url in github: " + connectionURL);
             repository = scmManager.makeScmRepository(connectionURL);
             result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
