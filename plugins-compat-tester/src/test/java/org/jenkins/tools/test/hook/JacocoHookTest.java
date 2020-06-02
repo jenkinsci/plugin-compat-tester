@@ -26,11 +26,6 @@ public class JacocoHookTest {
         info.put("pomData", pomData);
         assertTrue(hook.check(info));
 
-        pomData = new PomData("jacoco", "hpi", "it-does-not-matter", "whatever", parent, "fake-groupId");
-        info = new HashMap<>();
-        info.put("pomData", pomData);
-        assertFalse(hook.check(info));
-
         pomData = new PomData("other-plugin", "hpi", "it-does-not-matter", "whatever", parent, "org.jenkins-ci.plugins");
         info = new HashMap<>();
         info.put("pomData", pomData);

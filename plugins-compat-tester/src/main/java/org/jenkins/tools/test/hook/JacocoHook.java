@@ -15,7 +15,7 @@ public class JacocoHook extends PluginCompatTesterHookBeforeExecution {
     @Override
     public boolean check(Map<String, Object> info) {
         PomData data = (PomData) info.get("pomData");
-        return "org.jenkins-ci.plugins".equals(data.groupId) && "jacoco".equals(data.artifactId);
+        return "jacoco".equals(data.artifactId);
     }
 
     @Override
