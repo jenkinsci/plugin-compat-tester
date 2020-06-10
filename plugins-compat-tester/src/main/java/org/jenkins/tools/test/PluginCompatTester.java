@@ -197,7 +197,7 @@ public class PluginCompatTester {
         if (!data.plugins.isEmpty()) {
             // Scan detached plugins to recover proper Group IDs for them
             // At the moment, we are considering that bomfile contains the info about the detached ones
-            UpdateSite.Data detachedData = config.getBom() != null ? null : config.getWar() != null ? scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi") : extractUpdateCenterData(pluginGroupIds);  
+            UpdateSite.Data detachedData = config.getBom() != null ? null : config.getWar() != null ? scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi") : extractUpdateCenterData(pluginGroupIds);
 
             // Add detached if and only if no added as normal one
             UpdateSite.Data finalData = data;
@@ -348,7 +348,7 @@ public class PluginCompatTester {
                     if(config.getBom() != null) {
                     	actualCoreCoordinates = new MavenCoordinates(actualCoreCoordinates.groupId, actualCoreCoordinates.artifactId, solveVersionFromModel(new MavenBom(config.getBom()).getModel()));
                     }
-                    
+
                     PluginCompatResult result = new PluginCompatResult(actualCoreCoordinates, status, errorMessage, warningMessages, testDetails, buildLogFilePath);
                     report.add(pluginInfos, result);
 
@@ -589,17 +589,26 @@ public class PluginCompatTester {
             Pattern pattern = Pattern.compile("(.*/github.com/)([^/]*)(.*)");
             Matcher matcher = pattern.matcher(pomData.getConnectionUrl());
             matcher.find();
-            String connectionURL = matcher.replaceFirst("$1" + config.getFallbackGitHubOrganization() + "$3");
+            checkoutFallbackOrganization(scmManager, matcher, checkoutDirectory, scmTag);
+        }
+        else if (!result.isSuccess()) {
+            throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
+        }
+    }
+
+    private void checkoutFallbackOrganization(ScmManager scmManager, Matcher matcher, File checkoutDirectory, String scmTag) throws ScmException{
+        String connectionURL = matcher.replaceFirst("$1" + config.getFallbackGitHubOrganization() + "$3");
+        System.out.println("Using fallback url in github: " + connectionURL);
+        ScmRepository repository = scmManager.makeScmRepository(connectionURL);
+        CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
+        if (!result.isSuccess()) {
+            connectionURL = matcher.replaceFirst("scm:git:git@github.com:" + config.getFallbackGitHubOrganization() + "$3");
             System.out.println("Using fallback url in github: " + connectionURL);
             repository = scmManager.makeScmRepository(connectionURL);
             result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
             if (!result.isSuccess()) {
                 throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
             }
-
-        }
-        else if (!result.isSuccess()) {
-            throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
         }
     }
 
