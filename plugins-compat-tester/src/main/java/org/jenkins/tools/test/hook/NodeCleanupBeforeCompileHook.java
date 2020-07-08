@@ -63,7 +63,7 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
         }
         File nodeModulesFolder = new File(path, "node_modules");
         if (nodeModulesFolder.exists() && nodeModulesFolder.isDirectory()) {
-            System.out.println("--> node folder exists, deleting");
+            System.out.println("--> node_modules folder exists, deleting");
             FileUtils.deleteDirectory(nodeModulesFolder);
         }
     }
