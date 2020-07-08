@@ -27,12 +27,6 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
             File pluginDir = (File) moreInfo.get("pluginDir");
             System.out.println("--> Plugin dir is " + pluginDir);
             System.out.println("--> This is sse-gateway");
-            // TODO probably do not need
-            // boolean ranCompile = moreInfo.containsKey(OVERRIDE_DEFAULT_COMPILE) && (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE);
-            // if (!ranCompile) {
-            //     compile(mavenConfig, pluginDir);
-            //     moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
-            // }
             try {
                 System.out.println("--> Executing node and node_modules cleanup hook");
                 System.out.println("--> Compiling");
