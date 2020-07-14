@@ -19,17 +19,14 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
-        boolean shouldExecuteHook = config.getIncludePlugins().contains("sse-gateway");
+        boolean shouldExecuteHook = (config.getIncludePlugins().contains("sse-gateway") || (config.getIncludePlugins().contains("workflow-cps")));
         runner = new ExternalMavenRunner(config.getExternalMaven());
         mavenConfig = getMavenConfig(config);
 
         if (shouldExecuteHook) {
             File pluginDir = (File) moreInfo.get("pluginDir");
-            System.out.println("--> Plugin dir is " + pluginDir);
-            System.out.println("--> This is sse-gateway");
             try {
-                System.out.println("--> Executing node and node_modules cleanup hook");
-                System.out.println("--> Compiling");
+                System.out.println("Executing node and node_modules cleanup hook");
                 compile(mavenConfig, pluginDir);
                 return moreInfo;
             } catch (Exception e) {
@@ -38,7 +35,7 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
                 throw e;
             }
         } else {
-            System.out.println("--> Not SSE Gateway so skipping hook");
+            System.out.println("Skipping hook because plugin is not workflow-cps or sse-gateway");
             return moreInfo;
         }
     }
@@ -48,9 +45,9 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
     }
 
     private void compile(MavenRunner.Config mavenConfig, File path) throws PomExecutionException, IOException {
-        System.out.println("--> Calling removeNodeFolders");
+        System.out.println("Calling removeNodeFolders");
         removeNodeFolders(path);
-        System.out.println("--> Compile plugin log in " + path);
+        System.out.println("Compile plugin log in " + path);
         File compilePomLogfile = new File(path + "/compilePluginLog.log");
         runner.run(mavenConfig, path, compilePomLogfile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
     }
@@ -58,12 +55,10 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
     private void removeNodeFolders(File path) throws IOException {
         File nodeFolder = new File(path, "node");
         if (nodeFolder.exists() && nodeFolder.isDirectory()) {
-            System.out.println("--> node folder exists, deleting");
             FileUtils.deleteDirectory(nodeFolder);
         }
         File nodeModulesFolder = new File(path, "node_modules");
         if (nodeModulesFolder.exists() && nodeModulesFolder.isDirectory()) {
-            System.out.println("--> node_modules folder exists, deleting");
             FileUtils.deleteDirectory(nodeModulesFolder);
         }
     }
