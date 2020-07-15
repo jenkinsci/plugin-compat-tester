@@ -54,11 +54,11 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
 
     private void removeNodeFolders(File path) throws IOException {
         File nodeFolder = new File(path, "node");
-        if (nodeFolder.exists() && nodeFolder.isDirectory()) {
+        if (nodeFolder.isDirectory()) {
             FileUtils.deleteDirectory(nodeFolder);
         }
         File nodeModulesFolder = new File(path, "node_modules");
-        if (nodeModulesFolder.exists() && nodeModulesFolder.isDirectory()) {
+        if (nodeModulesFolder.isDirectory()) {
             FileUtils.deleteDirectory(nodeModulesFolder);
         }
     }
