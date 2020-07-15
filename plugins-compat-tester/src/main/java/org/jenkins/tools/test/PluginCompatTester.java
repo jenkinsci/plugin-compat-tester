@@ -852,8 +852,7 @@ public class PluginCompatTester {
         if (!top.has("core")) {
             throw new IOException("no jenkins-core.jar in " + war);
         }
-        // TODO un-comment this. I removed because it was annoying me.
-        // System.out.println("Scanned contents of " + war + ": " + top);
+        System.out.println("Scanned contents of " + war + ": " + top);
         return newUpdateSiteData(new UpdateSite(DEFAULT_SOURCE_ID, null), top);
     }
 

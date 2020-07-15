@@ -35,7 +35,7 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
                 throw e;
             }
         } else {
-            System.out.println("Skipping hook because plugin is not workflow-cps or sse-gateway");
+            System.out.println("Hook not triggered. Continuing.");
             return moreInfo;
         }
     }
