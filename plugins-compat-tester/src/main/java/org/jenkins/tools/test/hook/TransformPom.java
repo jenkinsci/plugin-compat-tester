@@ -40,6 +40,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         boolean isPipelineStageViewPlugin = PipelineStageViewHook.isPipelineStageViewPlugin(pomData);
         boolean isSwarm = SwarmHook.isSwarmPlugin(pomData);
         boolean isDeclarativePipelineMigration = DeclarativePipelineMigrationHook.isPlugin(pomData);
+        boolean isWarningsMG = WarningsNGCheckoutHook.isWarningsNG(pomData);
         boolean pluginPOM = pomData.isPluginPOM();
         if (parent != null) {
             isCB = parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
@@ -60,7 +61,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         boolean coreRequiresNewParentPOM = coreCoordinates.compareVersionTo(CORE_NEW_PARENT_POM) >= 0;
         boolean coreRequiresPluginOver233 = coreCoordinates.compareVersionTo(CORE_WITHOUT_WAR_FOR_TEST) >= 0;
 
-        if (isDeclarativePipeline || isBO || isCB || isStructs || isCasC || isPipelineStageViewPlugin || isSwarm || isDeclarativePipelineMigration || (pluginPOM && parentV2)) {
+        if (isDeclarativePipeline || isBO || isCB || isStructs || isCasC || isPipelineStageViewPlugin || isSwarm || isDeclarativePipelineMigration || (pluginPOM && parentV2) || isWarningsMG) {
             List<String> argsToMod = (List<String>)info.get("args");
             argsToMod.add("-Djenkins.version=" + coreCoordinates.version);
             // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores
