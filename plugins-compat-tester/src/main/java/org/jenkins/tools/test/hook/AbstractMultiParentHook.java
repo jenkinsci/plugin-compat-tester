@@ -68,9 +68,16 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             System.out.println("Child path for " + currentPlugin.getDisplayName() + " " + childPath);
             moreInfo.put("checkoutDir", childPath);
             moreInfo.put("pluginDir", childPath);
+        } else {
+            configureLocalCheckOut(currentPlugin, config.getLocalCheckoutDir(), moreInfo);
         }
 
         return moreInfo;
+    }
+
+    protected void configureLocalCheckOut(UpdateSite.Plugin currentPlugin, File localCheckoutDir, Map<String, Object> moreInfo) {
+        // Do nothing to keep compatibility with pre-existing Hooks
+        System.out.println("Ignoring localCheckoutDir for " + currentPlugin.getDisplayName());
     }
 
     /**
