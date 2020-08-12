@@ -586,29 +586,20 @@ public class PluginCompatTester {
                 FileUtils.deleteDirectory(checkoutDirectory);
             }
 
-            Pattern pattern = Pattern.compile("(.*/github.com/)([^/]*)(.*)");
+            Pattern pattern = Pattern.compile("(.*github.com[:|/])([^/]*)(.*)");
             Matcher matcher = pattern.matcher(pomData.getConnectionUrl());
             matcher.find();
-            checkoutFallbackOrganization(scmManager, matcher, checkoutDirectory, scmTag);
-        }
-        else if (!result.isSuccess()) {
-            throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
-        }
-    }
-
-    private void checkoutFallbackOrganization(ScmManager scmManager, Matcher matcher, File checkoutDirectory, String scmTag) throws ScmException{
-        String connectionURL = matcher.replaceFirst("$1" + config.getFallbackGitHubOrganization() + "$3");
-        System.out.println("Using fallback url in github: " + connectionURL);
-        ScmRepository repository = scmManager.makeScmRepository(connectionURL);
-        CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
-        if (!result.isSuccess()) {
-            connectionURL = matcher.replaceFirst("scm:git:git@github.com:" + config.getFallbackGitHubOrganization() + "$3");
+            String connectionURL = matcher.replaceFirst("scm:git:git@github.com:" + config.getFallbackGitHubOrganization() + "$3");
             System.out.println("Using fallback url in github: " + connectionURL);
             repository = scmManager.makeScmRepository(connectionURL);
             result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
             if (!result.isSuccess()) {
                 throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
             }
+
+        }
+        else if (!result.isSuccess()) {
+            throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
         }
     }
 
