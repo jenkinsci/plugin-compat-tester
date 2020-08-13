@@ -1,4 +1,4 @@
-Plugin Compatibility Tester (PCT)
+Plugin Compatibility Tester (PCT) aka PACO
 ------
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/jenkinsci/plugin-compat-tester?label=changelog)](https://github.com/jenkinsci/plugin-compat-tester/releases)
