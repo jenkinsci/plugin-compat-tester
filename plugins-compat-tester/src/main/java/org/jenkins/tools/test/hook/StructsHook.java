@@ -16,10 +16,6 @@ public class StructsHook extends AbstractMultiParentHook {
         return "structs-plugin";
     }
 
-    @Override
-    protected String getParentUrl() {
-        return "scm:git:git://github.com/jenkinsci/structs-plugin.git";
-    }
 
     @Override
     protected String getParentProjectName() {

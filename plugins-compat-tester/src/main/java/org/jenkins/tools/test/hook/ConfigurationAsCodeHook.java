@@ -11,10 +11,6 @@ public class ConfigurationAsCodeHook extends AbstractMultiParentHook {
         return "configuration-as-code-plugin";
     }
 
-    @Override
-    protected String getParentUrl() {
-        return "scm:git:git://github.com/jenkinsci/configuration-as-code-plugin.git";
-    }
 
     @Override
     protected String getParentProjectName() {
