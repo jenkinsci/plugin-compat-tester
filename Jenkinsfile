@@ -8,16 +8,14 @@ properties([[$class: 'BuildDiscarderProperty',
  *  https://github.com/jenkins-infra/documentation/blob/master/ci.adoc
  */
 List platforms = ['linux', 'windows']
-Map branches = [:]
+Map branches = [failFast: true]
 
 for (int i = 0; i < platforms.size(); ++i) {
     String label = platforms[i]
     boolean publishing = (label == 'linux')
     branches[label] = {
         node(label) {
-            timestamps {
                 stage('Checkout') {
-                    deleteDir()
                     checkout scm
                 }
 
@@ -40,7 +38,6 @@ for (int i = 0; i < platforms.size(); ++i) {
                       infra.prepareToPublishIncrementals()
                     }
                 }
-            }
         }
     }
 }
