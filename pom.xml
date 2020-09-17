@@ -36,6 +36,7 @@
     <!-- Test libs -->
     <powermock.version>1.6.1</powermock.version>
     <spotbugs.effort>Max</spotbugs.effort>
+    <spotbugs.excludeFilterFile>${basedir}/../src/spotbugs/excludeFilter.xml</spotbugs.excludeFilterFile>
   </properties>
 
   <modules>
