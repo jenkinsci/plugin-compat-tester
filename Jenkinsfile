@@ -17,6 +17,7 @@ for (int i = 0; i < platforms.size(); ++i) {
         node(label) {
             timestamps {
                 stage('Checkout') {
+                    deleteDir()
                     checkout scm
                 }
 
