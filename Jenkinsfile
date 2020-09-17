@@ -16,6 +16,9 @@ for (int i = 0; i < platforms.size(); ++i) {
     branches[label] = {
         node(label) {
                 stage('Checkout') {
+                    if (isUnix()) { // have to clean the workspace as root
+                        sh 'docker run --rm -v $(pwd):/src -w /src maven:3.6.0-jdk-8 git clean -fdx'
+                    }
                     checkout scm
                 }
 
