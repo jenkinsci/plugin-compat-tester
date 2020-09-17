@@ -12,6 +12,7 @@ Map branches = [:]
 
 for (int i = 0; i < platforms.size(); ++i) {
     String label = platforms[i]
+    boolean publishing = (label == 'linux')
     branches[label] = {
         node(label) {
             timestamps {
@@ -21,7 +22,11 @@ for (int i = 0; i < platforms.size(); ++i) {
 
                 stage('Build') {
                   timeout(30) {
-                    infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"])
+                    def args = ['clean', 'install', '-Dmaven.test.failure.ignore=true']
+                    if (publishing) {
+                      args += '-Dset.changelist'
+                    }
+                    infra.runMaven(args)
                   }
                 }
 
@@ -29,9 +34,9 @@ for (int i = 0; i < platforms.size(); ++i) {
                     /* Archive the test results */
                     junit '**/target/surefire-reports/TEST-*.xml'
 
-                    if (label == 'linux') {
-                      archiveArtifacts artifacts: '**/target/**/*.jar'
+                    if (publishing) {
                       findbugs pattern: '**/target/findbugsXml.xml'
+                      infra.prepareToPublishIncrementals()
                     }
                 }
             }
@@ -191,3 +196,5 @@ disabled_itBranches['CasC tests success'] = {
 
 itBranches.failFast = false
 parallel itBranches
+
+infra.maybePublishIncrementals()
