@@ -13,6 +13,7 @@
 
   <properties>
     <maven.scm.providers.version>1.5</maven.scm.providers.version>
+    <trimStackTrace>false</trimStackTrace>
   </properties>
 
   <dependencies>

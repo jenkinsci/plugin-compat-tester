@@ -31,9 +31,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -60,6 +62,7 @@ public class MavenPom {
     private final static String GROUP_ID_ELEMENT = "groupId";
     private final static String ARTIFACT_ID_ELEMENT = "artifactId";
     private final static String VERSION_ELEMENT = "version";
+    private final static String CLASSIFIER_ELEMENT = "classifier";
 
 	private File rootDir;
 	private String pomFileName;
@@ -174,6 +177,14 @@ public class MavenPom {
             }
         }
 
+        Set<String> depsWithoutClassifier = new HashSet<>();
+        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
+            Element artifactId = mavenDependency.element(ARTIFACT_ID_ELEMENT);
+            if (mavenDependency.element(CLASSIFIER_ELEMENT) == null) {
+                depsWithoutClassifier.add(artifactId.getTextTrim());
+            }
+        }
+
         Element properties = doc.getRootElement().element("properties");
         Map<String,VersionNumber> toReplaceUsed = new LinkedHashMap<>();
         Map<String,VersionNumber> toReplaceTestUsed = new LinkedHashMap<>();
@@ -225,6 +236,14 @@ public class MavenPom {
             Element scope = mavenDependency.element("scope");
             if (scope != null && scope.getTextTrim().equals("test")) {
                 toReplaceTestUsed.put(trimmedArtifactId, replacement);
+                if (toReplaceTest.containsKey(trimmedArtifactId) && !depsWithoutClassifier.contains(trimmedArtifactId)) { // https://github.com/jenkinsci/bom/pull/301#issuecomment-694518923
+                    Element mainDep = mavenDependency.createCopy();
+                    Element classifier = mainDep.element(CLASSIFIER_ELEMENT);
+                    if (classifier != null) {
+                        mainDep.remove(classifier);
+                        dependencies.add(mainDep); // would prefer to insert just before mavenDependency but API does not seem to support this
+                    }
+                }
             } else {
                 toReplaceUsed.put(trimmedArtifactId, replacement);
             }
