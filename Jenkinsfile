@@ -9,7 +9,7 @@ def buildNumber = BUILD_NUMBER as int; if (buildNumber > 1) milestone(buildNumbe
 /* These platforms correspond to labels in ci.jenkins.io, see:
  *  https://github.com/jenkins-infra/documentation/blob/master/ci.adoc
  */
-List platforms = ['linux', 'maven-windows']
+List platforms = ['linux', 'windows']
 Map branches = [failFast: true]
 
 for (int i = 0; i < platforms.size(); ++i) {
