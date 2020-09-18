@@ -37,7 +37,7 @@ import org.jenkins.tools.test.model.PCTPlugin;
 import org.jenkins.tools.test.model.TestStatus;
 
 /**
- * POJO containing CLI arguments & help
+ * POJO containing CLI arguments &amp; help.
  *
  * @author Frederic Camblor
  */

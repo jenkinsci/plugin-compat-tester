@@ -2,26 +2,35 @@
 properties([[$class: 'BuildDiscarderProperty',
                 strategy: [$class: 'LogRotator', numToKeepStr: '10']]])
 
+def buildNumber = BUILD_NUMBER as int; if (buildNumber > 1) milestone(buildNumber - 1); milestone(buildNumber) // JENKINS-43353 / JENKINS-58625
+
 // TODO: Move it to Jenkins Pipeline Library
 
 /* These platforms correspond to labels in ci.jenkins.io, see:
  *  https://github.com/jenkins-infra/documentation/blob/master/ci.adoc
  */
 List platforms = ['linux', 'windows']
-Map branches = [:]
+Map branches = [failFast: true]
 
 for (int i = 0; i < platforms.size(); ++i) {
     String label = platforms[i]
+    boolean publishing = (label == 'linux')
     branches[label] = {
         node(label) {
-            timestamps {
                 stage('Checkout') {
+                    if (isUnix()) { // have to clean the workspace as root
+                        sh 'docker run --rm -v $(pwd):/src -w /src maven:3.6.0-jdk-8 sh -c "rm -rf * .[a-zA-Z]*" || :'
+                    }
                     checkout scm
                 }
 
                 stage('Build') {
                   timeout(30) {
-                    infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"])
+                    def args = ['clean', 'install', '-Dmaven.test.failure.ignore=true']
+                    if (publishing) {
+                      args += '-Dset.changelist'
+                    }
+                    infra.runMaven(args)
                   }
                 }
 
@@ -29,12 +38,11 @@ for (int i = 0; i < platforms.size(); ++i) {
                     /* Archive the test results */
                     junit '**/target/surefire-reports/TEST-*.xml'
 
-                    if (label == 'linux') {
-                      archiveArtifacts artifacts: '**/target/**/*.jar'
+                    if (publishing) {
                       findbugs pattern: '**/target/findbugsXml.xml'
+                      infra.prepareToPublishIncrementals()
                     }
                 }
-            }
         }
     }
 }
@@ -191,3 +199,5 @@ disabled_itBranches['CasC tests success'] = {
 
 itBranches.failFast = false
 parallel itBranches
+
+infra.maybePublishIncrementals()

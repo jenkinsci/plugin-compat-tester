@@ -4,24 +4,29 @@
   <parent> 
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.54</version>
+    <version>1.57</version>
+    <relativePath />
   </parent>
 
   <groupId>org.jenkins-ci.tests</groupId>
   <artifactId>plugins-compat-tester-aggregator</artifactId>
-  <version>0.5.1-SNAPSHOT</version>
+  <version>${revision}${changelist}</version>
   <name>Plugins compatibility tester Aggregator</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
   <url>https://github.com/jenkinsci/plugin-compat-tester</url>
   <packaging>pom</packaging>
 
   <scm>
-    <connection>scm:git:ssh://git@github.com/jenkinsci/plugin-compat-tester.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/plugin-compat-tester.git</developerConnection>
-    <tag>HEAD</tag>
+    <connection>scm:git:ssh://git@github.com/${gitHubRepo}.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/${gitHubRepo}.git</developerConnection>
+    <url>https://github.com/${gitHubRepo}</url>
+    <tag>${scmTag}</tag>
   </scm>
 
   <properties>
+    <revision>0.5.1</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <logbackVersion>1.2.3</logbackVersion>
     <java.level>8</java.level>
@@ -31,6 +36,7 @@
     <!-- Test libs -->
     <powermock.version>1.6.1</powermock.version>
     <spotbugs.effort>Max</spotbugs.effort>
+    <spotbugs.excludeFilterFile>${basedir}/../src/spotbugs/excludeFilter.xml</spotbugs.excludeFilterFile>
   </properties>
 
   <modules>
