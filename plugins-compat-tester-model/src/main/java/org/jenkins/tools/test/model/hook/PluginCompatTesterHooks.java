@@ -5,6 +5,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +23,11 @@ import org.reflections.Reflections;
  * never be called.
  */
 public class PluginCompatTesterHooks {
+    private static final List<String> STAGES = Arrays.asList("checkout", "execution", "compilation");
     private List<String> hookPrefixes = new ArrayList<>();
     private Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
-
+    private Set<String> testTypes = new HashSet<>();
+    
     /**
      * Create and prepopulate the various hooks for this run of Plugin Compatibility Tester.
      */
@@ -35,7 +38,7 @@ public class PluginCompatTesterHooks {
         if(extraPrefixes != null) {
             hookPrefixes.addAll(extraPrefixes);
         }
-        for(String stage : Arrays.asList("checkout", "execution", "compilation")) {
+        for(String stage : STAGES) {
             hooksByType.put(stage, findHooks(stage));
         }
     }
@@ -50,6 +53,10 @@ public class PluginCompatTesterHooks {
     
     public Map<String, Object> runBeforeExecution(Map<String, Object> elements) {
         return runHooks("execution", elements);
+    }
+    
+    public Set<String> getTestTypes() {
+        return this.testTypes;
     }
 
     /**
@@ -80,6 +87,7 @@ public class PluginCompatTesterHooks {
             try {
                 System.out.println("Processing " + hook.getClass().getName());
                 if(hook.check(elements)) {
+                    testTypes.addAll(hook.getTestTypes());
                     elements = hook.action(elements);
                     hook.validate(elements);
                 } else {

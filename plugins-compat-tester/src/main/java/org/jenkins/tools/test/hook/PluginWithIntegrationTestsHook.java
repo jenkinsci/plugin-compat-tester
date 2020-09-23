@@ -1,9 +1,11 @@
 package org.jenkins.tools.test.hook;
 
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
-
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
 /**
  * Workaround for those plugins with integration tests since they need execute the failsafe:integration-test goal before execution.
@@ -21,4 +23,9 @@ public abstract class PluginWithIntegrationTestsHook extends PluginCompatTesterH
         return info;
     }
 
+    @Override
+    public Collection<String> getTestTypes() {
+        return Arrays.asList("failsafe");
+    }
+    
 }

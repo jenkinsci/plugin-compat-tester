@@ -513,6 +513,7 @@ public class PluginCompatTester {
             // and ensures that we are testing a plugin binary as close as possible to what was actually released.
             // We also skip potential javadoc execution to avoid general test failure.
             if (!ranCompile) {
+                runner.setTypes(pcth.getTestTypes());
                 runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
             }
             ranCompile = true;
@@ -551,9 +552,10 @@ public class PluginCompatTester {
             args = (List<String>)forExecutionHooks.get("args");
 
             // Execute with tests
+            runner.setTypes(pcth.getTestTypes());
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
             // TODO extract tests names by filter
-            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(runner.getExecutedTests(), pluginCheckoutDir));
+            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver(pcth.getTestTypes()).solve(runner.getExecutedTests(), pluginCheckoutDir));
         } catch (ExecutedTestNamesSolverException e) {
             throw new PomExecutionException(e);
         } catch (PomExecutionException e){

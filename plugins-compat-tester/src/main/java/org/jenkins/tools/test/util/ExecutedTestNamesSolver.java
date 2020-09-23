@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,18 @@ public class ExecutedTestNamesSolver {
     
     private static final String TEST_PLACEHOLDER = "TEST-%s.xml";
     
+    private Set<String> types;
+    
+    public ExecutedTestNamesSolver(Set<String> types) {
+        initTypes();
+        this.types.addAll(types); 
+    }
+
+    private void initTypes() {
+        this.types = new HashSet<>();
+        this.types.add("surefire"); // by default
+    }
+    
     public ExecutedTestNamesDetails solve(Set<String> executedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
 
         System.out.println("[INFO] -------------------------------------------------------");
@@ -34,26 +47,26 @@ public class ExecutedTestNamesSolver {
         
         ExecutedTestNamesDetails testNames = new ExecutedTestNamesDetails();
         
-        List<String> surefireReportsDirectoryPaths = getSurefireReportsDirectoryPaths(baseDirectory);
-        if(surefireReportsDirectoryPaths.isEmpty()) {
-            System.out.println("[WARNING] No surefire-reports found!");
+        List<String> reportsDirectoryPaths = getReportsDirectoryPaths(baseDirectory);
+        if(reportsDirectoryPaths.isEmpty()) {
+            System.out.println("[WARNING] No test reports found!");
             return testNames;
         }
         
-        for (String surefireReportsDirectoryPath: surefireReportsDirectoryPaths) {
+        for (String reportsDirectoryPath: reportsDirectoryPaths) {
             try {
-                File surefireReportsDirectory = Paths.get(surefireReportsDirectoryPath).toFile();
-                if (!surefireReportsDirectory.exists()) {
-                    System.out.println(String.format(WARNING_MSG, surefireReportsDirectoryPath));
+                File reportsDirectory = Paths.get(reportsDirectoryPath).toFile();
+                if (!reportsDirectory.exists()) {
+                    System.out.println(String.format(WARNING_MSG, reportsDirectoryPath));
                     return testNames;
                 }
                 
-                System.out.println(String.format("[INFO] Reading %s", surefireReportsDirectoryPath));
+                System.out.println(String.format("[INFO] Reading %s", reportsDirectoryPath));
                 
                 DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                 for (String testName : executedTests) {
                     String reference = String.format(TEST_PLACEHOLDER, testName);
-                    String testReportPath = surefireReportsDirectoryPath + File.separator + reference;
+                    String testReportPath = reportsDirectoryPath + File.separator + reference;
                     File testReport = Paths.get(testReportPath).toFile();
                     if (!testReport.exists()) {
                         System.out.println(String.format(WARNING_MSG, testReportPath));
@@ -108,18 +121,20 @@ public class ExecutedTestNamesSolver {
         return testNames;
     }
 
-    private List<String> getSurefireReportsDirectoryPaths(File baseDirectory) throws ExecutedTestNamesSolverException {
+    private List<String> getReportsDirectoryPaths(File baseDirectory) throws ExecutedTestNamesSolverException {
         List<String> paths = new LinkedList<>();
-        try (Stream<Path> walk = Files.walk(Paths.get(baseDirectory.getAbsolutePath()))) {
-            List<Path> result = walk.filter(Files::isDirectory)
-                    .filter(file -> file.getFileName().toString().endsWith("surefire-reports"))
-                    .collect(Collectors.toList());
-            for (Path path : result) {
-                paths.add(path.toString());
-            }
-        } catch (IOException e) {
-            throw new ExecutedTestNamesSolverException(e);
-        } 
+        for(String type: types) {
+            try (Stream<Path> walk = Files.walk(Paths.get(baseDirectory.getAbsolutePath()))) {
+                List<Path> result = walk.filter(Files::isDirectory)
+                        .filter(file -> file.getFileName().toString().endsWith(String.format("%s-reports", type)))
+                        .collect(Collectors.toList());
+                for (Path path : result) {
+                    paths.add(path.toString());
+                }
+            } catch (IOException e) {
+                throw new ExecutedTestNamesSolverException(e);
+            } 
+        }
         return paths;
     }
     

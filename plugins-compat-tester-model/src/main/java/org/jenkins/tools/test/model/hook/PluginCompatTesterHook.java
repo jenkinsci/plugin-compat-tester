@@ -1,9 +1,11 @@
 package org.jenkins.tools.test.model.hook;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The hook interface for creating custom hooks at different points in Plugin Compatibility Tester.
@@ -47,4 +49,11 @@ import java.util.Map;
       * Check the object used for this hook.
       */
      void validate(Map<String, Object> toCheck);
+     
+     /**
+      * Provides a list of test types executed under the hook (i.e. hooks used to launch other tests rather than surefire.
+      */
+     default Collection<String> getTestTypes() {
+         return Collections.emptySet();
+     }
  }

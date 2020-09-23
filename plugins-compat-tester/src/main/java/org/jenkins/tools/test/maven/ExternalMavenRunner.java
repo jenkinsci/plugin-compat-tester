@@ -35,6 +35,8 @@ public class ExternalMavenRunner implements MavenRunner {
 
     private Set<String> executedTests;
 
+    private Set<String> types;
+    
     /**
      * Constructor.
      * 
@@ -48,6 +50,10 @@ public class ExternalMavenRunner implements MavenRunner {
 
     public Set<String> getExecutedTests() {
         return Collections.unmodifiableSet(executedTests);
+    }
+    
+    public void setTypes(Set<String> types) {
+        this.types = types;
     }
 
     @Override
@@ -102,7 +108,7 @@ public class ExternalMavenRunner implements MavenRunner {
             if (p.waitFor() != 0) {
                 throw new PomExecutionException(cmd + " failed in " + baseDirectory, succeededPluginArtifactIds,
                         /* TODO */Collections.emptyList(), Collections.emptyList(),
-                        new ExecutedTestNamesSolver().solve(getExecutedTests(), baseDirectory));
+                        new ExecutedTestNamesSolver(types).solve(getExecutedTests(), baseDirectory));
             }
         } catch (PomExecutionException x) {
             x.printStackTrace();
