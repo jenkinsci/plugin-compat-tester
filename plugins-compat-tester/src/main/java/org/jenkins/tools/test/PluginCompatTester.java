@@ -314,6 +314,7 @@ public class PluginCompatTester {
                     if (errorMessage == null) {
                     try {
                         TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridenPlugins());
+                        System.out.println(result.getTestDetails().getFailed());
                         if (result.getTestDetails().getFailed().isEmpty()) {
                             status = TestStatus.SUCCESS;
                         } else {
@@ -324,7 +325,7 @@ public class PluginCompatTester {
                     } catch (PomExecutionException e) {
                         if(!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")){
                             status = TestStatus.COMPILATION_ERROR;
-                        } else if(!e.succeededPluginArtifactIds.contains("maven-surefire-plugin")){
+                        } else if (!e.getTestDetails().getFailed().isEmpty()) {
                             status = TestStatus.TEST_FAILURES;
                         } else { // Can this really happen ???
                             status = TestStatus.SUCCESS;
