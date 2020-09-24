@@ -314,7 +314,6 @@ public class PluginCompatTester {
                     if (errorMessage == null) {
                     try {
                         TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridenPlugins());
-                        // If no PomExecutionException, everything went well...
                         if (result.getTestDetails().getFailed().isEmpty()) {
                             status = TestStatus.SUCCESS;
                         } else {
