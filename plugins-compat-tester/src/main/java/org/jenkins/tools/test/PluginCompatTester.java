@@ -47,6 +47,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -111,6 +112,7 @@ import org.jenkins.tools.test.model.TestExecutionResult;
 import org.jenkins.tools.test.model.TestStatus;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
+import org.jenkins.tools.test.util.ExecutedTestNamesDetails;
 import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
 import org.springframework.core.io.ClassPathResource;
 
@@ -313,7 +315,11 @@ public class PluginCompatTester {
                     try {
                         TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridenPlugins());
                         // If no PomExecutionException, everything went well...
-                        status = TestStatus.SUCCESS;
+                        if (result.getTestDetails().getFailed().isEmpty()) {
+                            status = TestStatus.SUCCESS;
+                        } else {
+                            status = TestStatus.TEST_FAILURES;
+                        }
                         warningMessages.addAll(result.pomWarningMessages);
                         testDetails.addAll(config.isStoreAll() ? result.getTestDetails().getAll() : result.getTestDetails().getFailed());
                     } catch (PomExecutionException e) {
@@ -554,7 +560,6 @@ public class PluginCompatTester {
             // Execute with tests
             runner.setTypes(pcth.getTestTypes());
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
-            // TODO extract tests names by filter
             return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver(pcth.getTestTypes()).solve(runner.getExecutedTests(), pluginCheckoutDir));
         } catch (ExecutedTestNamesSolverException e) {
             throw new PomExecutionException(e);
