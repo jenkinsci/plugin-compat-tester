@@ -567,6 +567,40 @@ public class PluginCompatTester {
     }
 
     protected void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException, IOException {
+        String scmTag = getScmTag(pomData, name, version);
+        String connectionURLPomData = pomData.getConnectionUrl();
+
+        List<String> connectionURLs = new ArrayList<String>();
+        connectionURLs.add(connectionURLPomData);
+        if(config.getFallbackGitHubOrganization() != null){
+            connectionURLs = getFallbackConnectionURL(connectionURLs, connectionURLPomData);
+        }
+
+        Boolean repositoryCloned = false;
+        String errorMessage = "";
+        ScmRepository repository;
+        ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
+        for (String connectionURL: connectionURLs){
+            System.out.println("Checking out from SCM connection URL : " + connectionURL + " (" + name + "-" + version + ") at tag " + scmTag);
+            if (checkoutDirectory.isDirectory()) {
+                FileUtils.deleteDirectory(checkoutDirectory);
+            }
+            repository = scmManager.makeScmRepository(connectionURL);
+            CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
+            if(result.isSuccess()){
+                repositoryCloned = true;
+                break;
+            } else {
+                errorMessage = result.getProviderMessage() + " || " + result.getCommandOutput();
+            }
+        }
+
+        if (!repositoryCloned) {
+            throw new RuntimeException(errorMessage);
+        }
+    }
+
+    private String getScmTag(PomData pomData, String name, String version){
         String scmTag;
         if (pomData.getScmTag() != null) {
             scmTag = pomData.getScmTag();
@@ -575,32 +609,19 @@ public class PluginCompatTester {
             scmTag = name + "-" + version;
             System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
         }
-        System.out.println("Checking out from SCM connection URL : " + pomData.getConnectionUrl() + " (" + name + "-" + version + ") at tag " + scmTag);
-        ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-        ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
-        CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
+        return scmTag;
+    }
 
-        if (!result.isSuccess() && config.getFallbackGitHubOrganization() != null) {
-            System.out.println("Using fallback organization in github: " + config.getFallbackGitHubOrganization());
-            if (checkoutDirectory.isDirectory()) {
-                FileUtils.deleteDirectory(checkoutDirectory);
-            }
-
-            Pattern pattern = Pattern.compile("(.*github.com[:|/])([^/]*)(.*)");
-            Matcher matcher = pattern.matcher(pomData.getConnectionUrl());
-            matcher.find();
-            String connectionURL = matcher.replaceFirst("scm:git:git@github.com:" + config.getFallbackGitHubOrganization() + "$3");
-            System.out.println("Using fallback url in github: " + connectionURL);
-            repository = scmManager.makeScmRepository(connectionURL);
-            result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
-            if (!result.isSuccess()) {
-                throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
-            }
-
-        }
-        else if (!result.isSuccess()) {
-            throw new RuntimeException(result.getProviderMessage() + " || " + result.getCommandOutput());
-        }
+    private List<String> getFallbackConnectionURL(List<String> connectionURLs,String connectionURLPomData){
+        Pattern pattern = Pattern.compile("(.*github.com[:|/])([^/]*)(.*)");
+        Matcher matcher = pattern.matcher(connectionURLPomData);
+        matcher.find();
+        connectionURLs.add(matcher.replaceFirst("scm:git:git@github.com:" + config.getFallbackGitHubOrganization() + "$3"));
+        pattern = Pattern.compile("(.*github.com[:|/])([^/]*)(.*)");
+        matcher = pattern.matcher(connectionURLPomData);
+        matcher.find();
+        connectionURLs.add(matcher.replaceFirst("$1" + config.getFallbackGitHubOrganization() + "$3"));
+        return connectionURLs;
     }
 
     private boolean localCheckoutProvided() {
@@ -643,11 +664,11 @@ public class PluginCompatTester {
     }
 
     private UpdateSite.Data scanBom(HashMap<String, String> pluginGroupIds, String pluginRegExp) throws IOException, PomExecutionException, XmlPullParserException {
-    	
+
     	JSONObject top = new JSONObject();
     	top.put("id", DEFAULT_SOURCE_ID);
     	JSONObject plugins = new JSONObject();
-    	
+
     	for (File entry : getBomEntries()) {
     		String name = entry.getName();
     		Matcher m = Pattern.compile(pluginRegExp).matcher(name);
@@ -753,9 +774,9 @@ public class PluginCompatTester {
 	Parent parent = model.getParent();
 	return version != null ? version : parent != null ? parent.getVersion() : StringUtils.EMPTY;
     }
-    
+
     /**
-     * Given a value and a model, it checks if it is an interpolated value. In negative case it returns the same 
+     * Given a value and a model, it checks if it is an interpolated value. In negative case it returns the same
      * value. In affirmative case, it retrieves its value from the properties of the Maven model.
      * @param model
      * @param version
@@ -765,11 +786,11 @@ public class PluginCompatTester {
     	if (!value.contains("$")) {
     		return value;
     	}
-    	
+
     	String key = value.replaceAll("\\$", "")
     			.replaceAll("\\{", "")
     			.replaceAll("\\}", "");
-    	
+
     	return getProperty(model, model.getProperties().getProperty(key));
     }
 
