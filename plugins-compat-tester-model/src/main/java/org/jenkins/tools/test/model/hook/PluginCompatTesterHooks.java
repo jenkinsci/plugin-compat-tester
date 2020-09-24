@@ -26,7 +26,6 @@ public class PluginCompatTesterHooks {
     private static final List<String> STAGES = Arrays.asList("checkout", "execution", "compilation");
     private List<String> hookPrefixes = new ArrayList<>();
     private Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
-    private Set<String> testTypes = new HashSet<>();
     
     /**
      * Create and prepopulate the various hooks for this run of Plugin Compatibility Tester.
@@ -55,10 +54,6 @@ public class PluginCompatTesterHooks {
         return runHooks("execution", elements);
     }
     
-    public Set<String> getTestTypes() {
-        return this.testTypes;
-    }
-
     /**
      * Evaluate and execute hooks for a given stage. There is 1 required object for evaluating any
      * hook: the {@link String} {@code pluginName}.
@@ -87,7 +82,6 @@ public class PluginCompatTesterHooks {
             try {
                 System.out.println("Processing " + hook.getClass().getName());
                 if(hook.check(elements)) {
-                    testTypes.addAll(hook.getTestTypes());
                     elements = hook.action(elements);
                     hook.validate(elements);
                 } else {
@@ -104,7 +98,7 @@ public class PluginCompatTesterHooks {
         return elements;
     }
 
-    private Map<String, Queue<PluginCompatTesterHook>> findHooks(String stage) {
+    public Map<String, Queue<PluginCompatTesterHook>> findHooks(String stage) {
         Map<String, Queue<PluginCompatTesterHook>> sortedHooks = new HashMap<>();
         
         // Search for all hooks defined within the given classpath prefix

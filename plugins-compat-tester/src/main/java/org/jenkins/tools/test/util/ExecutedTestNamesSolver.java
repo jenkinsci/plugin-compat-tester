@@ -30,6 +30,10 @@ public class ExecutedTestNamesSolver {
     
     private Set<String> types;
     
+    public ExecutedTestNamesSolver() {
+        initTypes();
+    }
+    
     public ExecutedTestNamesSolver(Set<String> types) {
         initTypes();
         this.types.addAll(types); 
@@ -41,7 +45,7 @@ public class ExecutedTestNamesSolver {
     }
     
     public ExecutedTestNamesDetails solve(Set<String> executedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
-
+        
         System.out.println("[INFO] -------------------------------------------------------");
         System.out.println("[INFO] Solving test names");
         System.out.println("[INFO] -------------------------------------------------------");

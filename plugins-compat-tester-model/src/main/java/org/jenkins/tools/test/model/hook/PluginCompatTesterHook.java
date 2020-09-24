@@ -49,11 +49,4 @@ import java.util.Set;
       * Check the object used for this hook.
       */
      void validate(Map<String, Object> toCheck);
-     
-     /**
-      * Provides a list of test types executed under the hook (i.e. hooks used to launch other tests rather than surefire.
-      */
-     default Collection<String> getTestTypes() {
-         return Collections.emptySet();
-     }
- }
+}

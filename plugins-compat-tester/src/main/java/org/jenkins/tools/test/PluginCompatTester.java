@@ -54,6 +54,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -95,6 +96,7 @@ import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.hook.PluginWithIntegrationTestsHook;
 import org.jenkins.tools.test.exception.ExecutedTestNamesSolverException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.model.MavenBom;
@@ -110,6 +112,7 @@ import org.jenkins.tools.test.model.PluginRemoting;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.TestExecutionResult;
 import org.jenkins.tools.test.model.TestStatus;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHook;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.util.ExecutedTestNamesDetails;
@@ -519,7 +522,6 @@ public class PluginCompatTester {
             // and ensures that we are testing a plugin binary as close as possible to what was actually released.
             // We also skip potential javadoc execution to avoid general test failure.
             if (!ranCompile) {
-                runner.setTypes(pcth.getTestTypes());
                 runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
             }
             ranCompile = true;
@@ -558,9 +560,9 @@ public class PluginCompatTester {
             args = (List<String>)forExecutionHooks.get("args");
 
             // Execute with tests
-            runner.setTypes(pcth.getTestTypes());
+            runner.setTypes(resolveTypes(plugin.name, pcth));
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
-            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver(pcth.getTestTypes()).solve(runner.getExecutedTests(), pluginCheckoutDir));
+            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(runner.getExecutedTests(), pluginCheckoutDir));
         } catch (ExecutedTestNamesSolverException e) {
             throw new PomExecutionException(e);
         } catch (PomExecutionException e){
@@ -571,6 +573,27 @@ public class PluginCompatTester {
             }
             throw e;
         }
+    }
+
+    private Set<String> resolveTypes(String plugin, PluginCompatTesterHooks pcth) {
+        Set<String> types = new HashSet<>();
+        Map<String, Queue<PluginCompatTesterHook>> hooksByPlugin = pcth.findHooks("execution");
+        Set<PluginCompatTesterHook> hooks = new HashSet<>();
+        Queue<PluginCompatTesterHook> hooksToReviewByPlugin = hooksByPlugin.get(plugin);
+        if (hooksToReviewByPlugin != null) {
+            hooks.addAll(hooksToReviewByPlugin);
+        }
+        Queue<PluginCompatTesterHook> hooksToReviewByAll = hooksByPlugin.get("all");
+        if (hooksToReviewByAll != null) {
+            hooks.addAll(hooksToReviewByAll);
+        }
+        for (PluginCompatTesterHook hook : hooks) {
+            if (hook instanceof PluginWithIntegrationTestsHook) {
+                types.addAll(((PluginWithIntegrationTestsHook) hook).getTestTypes()); 
+            }
+        }
+        
+        return types;
     }
 
     protected void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException, IOException {

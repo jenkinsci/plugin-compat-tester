@@ -35,7 +35,7 @@ public class ExternalMavenRunner implements MavenRunner {
 
     private Set<String> executedTests;
 
-    private Set<String> types;
+    private Set<String> types = new HashSet<>();
     
     /**
      * Constructor.
