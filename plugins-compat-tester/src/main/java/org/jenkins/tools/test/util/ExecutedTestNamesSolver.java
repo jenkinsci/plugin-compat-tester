@@ -19,6 +19,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.jenkins.tools.test.exception.ExecutedTestNamesSolverException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class ExecutedTestNamesSolver {
@@ -85,7 +86,7 @@ public class ExecutedTestNamesSolver {
                             String test = testcase.getAttributes().getNamedItem("name").getNodeValue();
                             found++;
                             String testCaseName = String.format("%s.%s", clazzName, test);
-                            if (testcase.getChildNodes().getLength() != 0) {
+                            if (containsFailure(testcase.getChildNodes())) {
                                 testNames.addFailedTest(testCaseName);
                             } else {
                                 testNames.addExecutedTest(testCaseName);
@@ -136,6 +137,20 @@ public class ExecutedTestNamesSolver {
             } 
         }
         return paths;
+    }
+    
+    private boolean containsFailure(NodeList nodeList) {
+        if (nodeList.getLength() == 0) {
+            return false;
+        }
+        
+        for (int j = 0; j < nodeList.getLength(); j++) {
+            if (nodeList.item(j).getNodeName().equals("skipped")) {
+                return false;
+            }
+        }
+        
+        return true;
     }
     
 }
