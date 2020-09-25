@@ -47,6 +47,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -547,6 +548,8 @@ public class PluginCompatTester {
             args.add("surefire:test");
 
             // Run preexecution hooks
+            List<String> testTypes = new LinkedList<>();
+            testTypes.add("surefire"); // default
             Map<String, Object> forExecutionHooks = new HashMap<>();
             forExecutionHooks.put("pluginName", plugin.name);
             forExecutionHooks.put("args", args);
@@ -555,13 +558,15 @@ public class PluginCompatTester {
             forExecutionHooks.put("coreCoordinates", coreCoordinates);
             forExecutionHooks.put("config", config);
             forExecutionHooks.put("pluginDir", pluginCheckoutDir);
+            forExecutionHooks.put("types", testTypes);
             pcth.runBeforeExecution(forExecutionHooks);
             args = (List<String>)forExecutionHooks.get("args");
+            Set<String> types = new HashSet<>((List<String>) forExecutionHooks.get("types"));
 
             // Execute with tests
-            runner.setTypes(resolveTypes(plugin.name, pcth));
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
-            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(runner.getExecutedTests(), pluginCheckoutDir));
+            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), 
+                    new ExecutedTestNamesSolver().solve(types, runner.getExecutedTests(), pluginCheckoutDir));
         } catch (ExecutedTestNamesSolverException e) {
             throw new PomExecutionException(e);
         } catch (PomExecutionException e){
@@ -572,27 +577,6 @@ public class PluginCompatTester {
             }
             throw e;
         }
-    }
-
-    private Set<String> resolveTypes(String plugin, PluginCompatTesterHooks pcth) {
-        Set<String> types = new HashSet<>();
-        Map<String, Queue<PluginCompatTesterHook>> hooksByPlugin = pcth.findHooks("execution");
-        Set<PluginCompatTesterHook> hooks = new HashSet<>();
-        Queue<PluginCompatTesterHook> hooksToReviewByPlugin = hooksByPlugin.get(plugin);
-        if (hooksToReviewByPlugin != null) {
-            hooks.addAll(hooksToReviewByPlugin);
-        }
-        Queue<PluginCompatTesterHook> hooksToReviewByAll = hooksByPlugin.get("all");
-        if (hooksToReviewByAll != null) {
-            hooks.addAll(hooksToReviewByAll);
-        }
-        for (PluginCompatTesterHook hook : hooks) {
-            if (hook instanceof PluginWithIntegrationTestsHook) {
-                types.addAll(((PluginWithIntegrationTestsHook) hook).getTestTypes()); 
-            }
-        }
-        
-        return types;
     }
 
     protected void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException, IOException {

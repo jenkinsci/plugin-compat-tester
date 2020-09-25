@@ -9,22 +9,15 @@ import java.util.Map;
  * Workaround for those plugins with integration tests since they need execute the failsafe:integration-test goal before execution.
  */
 public class PluginWithFailsafeIntegrationTestsHook extends PluginWithIntegrationTestsHook {
-    
-    @SuppressWarnings("unchecked")
+
     @Override
-    public Map<String, Object> action(Map<String, Object> info) throws Exception {
-        List<String> args = (List<String>) info.get("args");
-
-        if (args != null) {
-            args.add("failsafe:integration-test");
-        }
-
-        return info;
+    public Collection<String> getGoals() {
+        return Arrays.asList("failsafe:integration-test");
     }
-    
-    
+
     @Override
     public Collection<String> getTestTypes() {
         return Arrays.asList("failsafe");
     }
+    
 }

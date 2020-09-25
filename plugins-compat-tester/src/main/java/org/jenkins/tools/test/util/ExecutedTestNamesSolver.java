@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -28,23 +27,7 @@ public class ExecutedTestNamesSolver {
     
     private static final String TEST_PLACEHOLDER = "TEST-%s.xml";
     
-    private Set<String> types;
-    
-    public ExecutedTestNamesSolver() {
-        initTypes();
-    }
-    
-    public ExecutedTestNamesSolver(Set<String> types) {
-        initTypes();
-        this.types.addAll(types); 
-    }
-
-    private void initTypes() {
-        this.types = new HashSet<>();
-        this.types.add("surefire"); // by default
-    }
-    
-    public ExecutedTestNamesDetails solve(Set<String> executedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
+    public ExecutedTestNamesDetails solve(Set<String> types, Set<String> executedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
         
         System.out.println("[INFO] -------------------------------------------------------");
         System.out.println("[INFO] Solving test names");
@@ -52,7 +35,7 @@ public class ExecutedTestNamesSolver {
         
         ExecutedTestNamesDetails testNames = new ExecutedTestNamesDetails();
         
-        List<String> reportsDirectoryPaths = getReportsDirectoryPaths(baseDirectory);
+        List<String> reportsDirectoryPaths = getReportsDirectoryPaths(types, baseDirectory);
         if(reportsDirectoryPaths.isEmpty()) {
             System.out.println("[WARNING] No test reports found!");
             return testNames;
@@ -126,8 +109,11 @@ public class ExecutedTestNamesSolver {
         return testNames;
     }
 
-    private List<String> getReportsDirectoryPaths(File baseDirectory) throws ExecutedTestNamesSolverException {
+    private List<String> getReportsDirectoryPaths(Set<String> types, File baseDirectory) throws ExecutedTestNamesSolverException {
         List<String> paths = new LinkedList<>();
+        if (types == null) {
+            return paths;
+        }
         for(String type: types) {
             try (Stream<Path> walk = Files.walk(Paths.get(baseDirectory.getAbsolutePath()))) {
                 List<Path> result = walk.filter(Files::isDirectory)
