@@ -46,8 +46,8 @@ public class NonStandardTagHookTest {
         NonStandardTagHook hook = new NonStandardTagHook();
         List<String> transformedPlugins = hook.transformedPlugins();
         assertNotNull("The list of transformed plugins must be non null", transformedPlugins);
-        assertEquals("List of affected plugins must be of size 3", 3, transformedPlugins.size());
-        assertEquals("The element in transformedPlugins must be 'artifactID'", "artifactID", transformedPlugins.get(0));
+        assertEquals("List of affected plugins must be of size 4", 4, transformedPlugins.size());
+        assertTrue("One element in transformedPlugins must be 'artifactID'", transformedPlugins.contains("artifactID"));
     }
 
     @Test
