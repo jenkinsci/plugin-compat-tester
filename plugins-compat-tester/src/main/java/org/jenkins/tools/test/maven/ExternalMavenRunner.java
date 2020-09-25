@@ -49,7 +49,7 @@ public class ExternalMavenRunner implements MavenRunner {
     public Set<String> getExecutedTests() {
         return Collections.unmodifiableSet(executedTests);
     }
-    
+
     @Override
     public void run(Config config, File baseDirectory, File buildLogFile, String... goals)
             throws PomExecutionException {

@@ -557,8 +557,7 @@ public class PluginCompatTester {
 
             // Execute with tests
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
-            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), 
-                    new ExecutedTestNamesSolver().solve(types, runner.getExecutedTests(), pluginCheckoutDir));
+            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(types, runner.getExecutedTests(), pluginCheckoutDir));
         } catch (ExecutedTestNamesSolverException e) {
             throw new PomExecutionException(e);
         } catch (PomExecutionException e){

@@ -28,7 +28,7 @@ public class ExecutedTestNamesSolver {
     private static final String TEST_PLACEHOLDER = "TEST-%s.xml";
     
     public ExecutedTestNamesDetails solve(Set<String> types, Set<String> executedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
-        
+
         System.out.println("[INFO] -------------------------------------------------------");
         System.out.println("[INFO] Solving test names");
         System.out.println("[INFO] -------------------------------------------------------");
