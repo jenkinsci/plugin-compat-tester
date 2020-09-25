@@ -39,7 +39,7 @@ for (int i = 0; i < platforms.size(); ++i) {
                     junit '**/target/surefire-reports/TEST-*.xml'
 
                     if (publishing) {
-                      findbugs pattern: '**/target/findbugsXml.xml'
+                      findBugs pattern: '**/target/findbugsXml.xml'
                       infra.prepareToPublishIncrementals()
                     }
                 }
