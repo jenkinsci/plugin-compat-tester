@@ -22,10 +22,9 @@ import org.reflections.Reflections;
  * never be called.
  */
 public class PluginCompatTesterHooks {
-    private static final List<String> STAGES = Arrays.asList("checkout", "execution", "compilation");
     private List<String> hookPrefixes = new ArrayList<>();
     private Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
-    
+
     /**
      * Create and prepopulate the various hooks for this run of Plugin Compatibility Tester.
      */
@@ -36,7 +35,7 @@ public class PluginCompatTesterHooks {
         if(extraPrefixes != null) {
             hookPrefixes.addAll(extraPrefixes);
         }
-        for(String stage : STAGES) {
+        for(String stage : Arrays.asList("checkout", "execution", "compilation")) {
             hooksByType.put(stage, findHooks(stage));
         }
     }
@@ -52,7 +51,7 @@ public class PluginCompatTesterHooks {
     public Map<String, Object> runBeforeExecution(Map<String, Object> elements) {
         return runHooks("execution", elements);
     }
-    
+
     /**
      * Evaluate and execute hooks for a given stage. There is 1 required object for evaluating any
      * hook: the {@link String} {@code pluginName}.
@@ -97,7 +96,7 @@ public class PluginCompatTesterHooks {
         return elements;
     }
 
-    public Map<String, Queue<PluginCompatTesterHook>> findHooks(String stage) {
+    private Map<String, Queue<PluginCompatTesterHook>> findHooks(String stage) {
         Map<String, Queue<PluginCompatTesterHook>> sortedHooks = new HashMap<>();
         
         // Search for all hooks defined within the given classpath prefix
