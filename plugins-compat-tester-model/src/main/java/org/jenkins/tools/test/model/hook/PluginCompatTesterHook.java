@@ -47,4 +47,4 @@ import java.util.Map;
       * Check the object used for this hook.
       */
      void validate(Map<String, Object> toCheck);
-}
+ }
