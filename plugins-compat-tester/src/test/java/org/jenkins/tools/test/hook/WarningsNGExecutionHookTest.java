@@ -47,4 +47,18 @@ public class WarningsNGExecutionHookTest {
         assertThat(args.size(), is(5));
         assertTrue(args.contains("failsafe:integration-test"));
     }
+    
+    @Test
+    public void testType() throws Exception {
+        final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("types", Lists.newArrayList("surefire"));
+        Map<String, Object> afterAction = hook.action(info);
+        List<String> types = (List<String>) afterAction.get("types");
+        assertThat(types.size(), is(2));
+        assertTrue(types.contains("failsafe"));
+    }
+    
+    
 }
