@@ -36,5 +36,5 @@ public abstract class PluginWithIntegrationTestsHook extends PluginCompatTesterH
         }
         return info;
     }
-    
+
 }
