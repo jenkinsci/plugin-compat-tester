@@ -37,7 +37,7 @@ import org.jenkins.tools.test.model.PCTPlugin;
 import org.jenkins.tools.test.model.TestStatus;
 
 /**
- * POJO containing CLI arguments & help
+ * POJO containing CLI arguments &amp; help.
  *
  * @author Frederic Camblor
  */
@@ -82,6 +82,13 @@ public class CliOptions {
             description = "Comma separated list of plugins' artifactId to NOT test.\n" +
                     "If not set, see includePlugins behaviour.")
     private String excludePlugins = null;
+
+    @Parameter(names = "-fallbackGitHubOrganization",
+            description = "Include an alternative organization to use as a fallback to download the plugin.\n" +
+                    "It is useful to use your own fork releases for an specific plugin if the " +
+                    "version is not found in the official repository.\n" +
+                    "If set, The PCT will try to use the fallback if a plugin tag is not found in the regular URL.")
+    private String fallbackGitHubOrganization = null;
 
     @Parameter(names = "-m2SettingsFile",
             description = "Maven settings file used while executing maven")
@@ -129,11 +136,21 @@ public class CliOptions {
     private boolean printHelp;
 
     @Parameter(names = "-overridenPlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies." +
-          "Format: 'PLUGIN_NAME=PLUGIN_VERSION", converter = PluginConverter.class, validateWith = PluginValidator.class)
+          "Format: '[GROUP_ID:]PLUGIN_NAME=PLUGIN_VERSION", converter = PluginConverter.class, validateWith = PluginValidator.class)
     private List<PCTPlugin> overridenPlugins;
 
     @Parameter(names = "-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
     private boolean failOnError;
+    
+    @Parameter(names = "-storeAll", 
+            description = "By default only failed tests are stored in PCT report file. \n" + 
+                    "If set, the PCT will store ALL executed test names for each plugin in report file. \n" + 
+                    "Disabled by default because it may bloat reports for plugins which thousands of tests."
+    )
+    private Boolean storeAll = null;
+
+    @Parameter(names = "-bom", description = "BOM file to be used for plugin versions rather than an Update Center or War file")
+    private File bom;
 
     public String getUpdateCenterUrl() {
         return updateCenterUrl;
@@ -179,6 +196,10 @@ public class CliOptions {
         return excludePlugins;
     }
 
+    public String getFallbackGitHubOrganization() {
+        return fallbackGitHubOrganization;
+    }
+
     @CheckForNull
     public String getMavenProperties() {
         return mavenProperties;
@@ -220,15 +241,26 @@ public class CliOptions {
         return overridenPlugins;
     }
 
+    @CheckForNull
+    public File getBOM() {
+        return this.bom;
+    }
+
     public boolean isFailOnError() {
         return failOnError;
+    }
+    
+    public Boolean isStoreAll() {
+        return storeAll;
     }
 
     public static class PluginConverter implements IStringConverter<PCTPlugin> {
         @Override
         public PCTPlugin convert(String s) {
             String[] details = s.split("=");
-            return new PCTPlugin(details[0], new VersionNumber(details[1]));
+            String name = details[0];
+            int colon = name.indexOf(':');
+            return new PCTPlugin(colon == -1 ? name : name.substring(colon + 1), colon == -1 ? null : name.substring(0, colon), new VersionNumber(details[1]));
         }
     }
 

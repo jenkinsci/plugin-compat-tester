@@ -1,0 +1,6 @@
+<FindBugsFilter>
+    <Match>
+        <!-- Irrelevant for a development tool. -->
+        <Bug category="SECURITY"/>
+    </Match>
+</FindBugsFilter>

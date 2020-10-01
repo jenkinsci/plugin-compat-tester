@@ -36,7 +36,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.codehaus.plexus.PlexusContainerException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.model.TestStatus;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
  * Plugin compatibility tester frontend for the CLI
@@ -49,7 +51,7 @@ public class PluginCompatTesterCli {
             value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
             justification =
                     "We're already checking for null in each relevant instance, so why does SpotBugs complain?")
-    public static void main(String[] args) throws IOException, PlexusContainerException {
+    public static void main(String[] args) throws IOException, PlexusContainerException, PomExecutionException, XmlPullParserException { 
         CliOptions options = new CliOptions();
         JCommander jcommander = null;
         try {
@@ -102,6 +104,7 @@ public class PluginCompatTesterCli {
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(updateCenterUrl, parentCoordinates,
                 options.getWorkDirectory(), reportFile, options.getM2SettingsFile());
         config.setWar(war);
+        config.setBom(options.getBOM());
 
         config.setExternalMaven(options.getExternalMaven());
 
@@ -132,9 +135,18 @@ public class PluginCompatTesterCli {
         if (options.getTestJavaArgs() != null && !options.getTestJavaArgs().isEmpty()) {
             config.setTestJavaArgs(options.getTestJavaArgs());
         }
+        if (options.getFallbackGitHubOrganization() != null){
+            config.setFallbackGitHubOrganization(options.getFallbackGitHubOrganization());
+        }
         if (options.isFailOnError()) {
             //TODO: also interpolate it for the case when a single plugin passed?
             config.setFailOnError(true);
+        }
+        
+        if (options.isStoreAll() != null) {
+            config.setStoreAll(options.isStoreAll().booleanValue());
+        } else {
+            config.setStoreAll(false);
         }
 
         if(options.getOverridenPlugins() != null && !options.getOverridenPlugins().isEmpty()) {

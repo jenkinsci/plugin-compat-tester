@@ -1,27 +1,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
+  <parent> 
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.53</version>
+    <version>1.57</version>
+    <relativePath />
   </parent>
 
   <groupId>org.jenkins-ci.tests</groupId>
   <artifactId>plugins-compat-tester-aggregator</artifactId>
-  <version>0.5.0</version>
+  <version>${revision}${changelist}</version>
   <name>Plugins compatibility tester Aggregator</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
   <url>https://github.com/jenkinsci/plugin-compat-tester</url>
   <packaging>pom</packaging>
 
   <scm>
-    <connection>scm:git:ssh://git@github.com/jenkinsci/plugin-compat-tester.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/plugin-compat-tester.git</developerConnection>
-    <tag>plugins-compat-tester-aggregator-0.5.0</tag>
+    <connection>scm:git:ssh://git@github.com/${gitHubRepo}.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/${gitHubRepo}.git</developerConnection>
+    <url>https://github.com/${gitHubRepo}</url>
+    <tag>${scmTag}</tag>
   </scm>
 
   <properties>
+    <revision>0.5.1</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <logbackVersion>1.2.3</logbackVersion>
     <java.level>8</java.level>
@@ -31,6 +36,7 @@
     <!-- Test libs -->
     <powermock.version>1.6.1</powermock.version>
     <spotbugs.effort>Max</spotbugs.effort>
+    <spotbugs.excludeFilterFile>${basedir}/../src/spotbugs/excludeFilter.xml</spotbugs.excludeFilterFile>
   </properties>
 
   <modules>
@@ -63,7 +69,7 @@
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>
-        <version>3.1.0</version>
+        <version>4.0.1</version>
       </dependency>
 
       <dependency>

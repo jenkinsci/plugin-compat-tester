@@ -2,26 +2,35 @@
 properties([[$class: 'BuildDiscarderProperty',
                 strategy: [$class: 'LogRotator', numToKeepStr: '10']]])
 
+def buildNumber = BUILD_NUMBER as int; if (buildNumber > 1) milestone(buildNumber - 1); milestone(buildNumber) // JENKINS-43353 / JENKINS-58625
+
 // TODO: Move it to Jenkins Pipeline Library
 
 /* These platforms correspond to labels in ci.jenkins.io, see:
  *  https://github.com/jenkins-infra/documentation/blob/master/ci.adoc
  */
 List platforms = ['linux', 'windows']
-Map branches = [:]
+Map branches = [failFast: true]
 
 for (int i = 0; i < platforms.size(); ++i) {
     String label = platforms[i]
+    boolean publishing = (label == 'linux')
     branches[label] = {
         node(label) {
-            timestamps {
                 stage('Checkout') {
+                    if (isUnix()) { // have to clean the workspace as root
+                        sh 'docker run --rm -v $(pwd):/src -w /src maven:3.6.0-jdk-8 sh -c "rm -rf * .[a-zA-Z]*" || :'
+                    }
                     checkout scm
                 }
 
                 stage('Build') {
                   timeout(30) {
-                    infra.runMaven(["clean", "install", "-Dmaven.test.failure.ignore=true"])
+                    def args = ['clean', 'install', '-Dmaven.test.failure.ignore=true']
+                    if (publishing) {
+                      args += '-Dset.changelist'
+                    }
+                    infra.runMaven(args)
                   }
                 }
 
@@ -29,12 +38,11 @@ for (int i = 0; i < platforms.size(); ++i) {
                     /* Archive the test results */
                     junit '**/target/surefire-reports/TEST-*.xml'
 
-                    if (label == 'linux') {
-                      archiveArtifacts artifacts: '**/target/**/*.jar'
+                    if (publishing) {
                       findbugs pattern: '**/target/findbugsXml.xml'
+                      infra.prepareToPublishIncrementals()
                     }
                 }
-            }
         }
     }
 }
@@ -116,19 +124,19 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
 itBranches['WAR with non-default groupId plugins - smoke test'] = {
     node('docker') {
         checkout scm
-        
+
         stage('Build Docker Image') {
           sh 'make docker'
         }
-      
+
         dir("src/it/war-with-plugins-test") {
             def settingsXML="mvn-settings.xml"
             infra.retrieveMavenSettingsFile(settingsXML)
-            
+
             stage('Build the custom WAR file') {
               infra.runMaven(["clean", "package"])
             }
-            
+
             stage('Run the integration test') {
               sh '''docker run --rm \
                             -v $(pwd)/tmp/output/target/war-with-plugins-test-1.0.war:/pct/jenkins.war:ro \
@@ -136,7 +144,7 @@ itBranches['WAR with non-default groupId plugins - smoke test'] = {
                             -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
                             -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.6 \
                             jenkins/pct \
-                            -overridenPlugins 'configuration-as-code=1.20'
+                            -overridenPlugins 'io.jenkins:configuration-as-code=1.20'
               '''
               archiveArtifacts artifacts: "out/**"
 
@@ -171,7 +179,7 @@ disabled_itBranches['CasC tests success'] = {
             ]) {
                 def settingsXML="mvn-settings.xml"
                 infra.retrieveMavenSettingsFile(settingsXML)
-              
+
                 sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
                              -reportFile $(pwd)/out/pct-report.xml \
                              -workDirectory $(pwd)/out/work \
@@ -191,3 +199,5 @@ disabled_itBranches['CasC tests success'] = {
 
 itBranches.failFast = false
 parallel itBranches
+
+infra.maybePublishIncrementals()

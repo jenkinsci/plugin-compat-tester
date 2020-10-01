@@ -31,12 +31,16 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.FileUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -58,6 +62,7 @@ public class MavenPom {
     private final static String GROUP_ID_ELEMENT = "groupId";
     private final static String ARTIFACT_ID_ELEMENT = "artifactId";
     private final static String VERSION_ELEMENT = "version";
+    private final static String CLASSIFIER_ELEMENT = "classifier";
 
 	private File rootDir;
 	private String pomFileName;
@@ -172,6 +177,15 @@ public class MavenPom {
             }
         }
 
+        Set<String> depsWithoutClassifier = new HashSet<>();
+        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
+            Element artifactId = mavenDependency.element(ARTIFACT_ID_ELEMENT);
+            if (mavenDependency.element(CLASSIFIER_ELEMENT) == null) {
+                depsWithoutClassifier.add(artifactId.getTextTrim());
+            }
+        }
+
+        Element properties = doc.getRootElement().element("properties");
         Map<String,VersionNumber> toReplaceUsed = new LinkedHashMap<>();
         Map<String,VersionNumber> toReplaceTestUsed = new LinkedHashMap<>();
         for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
@@ -197,13 +211,39 @@ public class MavenPom {
             }
             Element version = mavenDependency.element(VERSION_ELEMENT);
             if (version != null) {
-                mavenDependency.remove(version);
+                if (version.getTextTrim().startsWith("${")) {
+                    // Search property and update its value
+                    String property = version.getTextTrim().replace("${", "").replace("}", "");
+                    Element propertyToUpdate = null;
+                    for (Element mavenProperty: (List<Element>) properties.elements()) {
+                        if(StringUtils.equals(property, mavenProperty.getQName().getName())){
+                            propertyToUpdate = mavenProperty;
+                            break;
+                        }
+                    }
+                    if (propertyToUpdate != null) {
+                        properties.remove(propertyToUpdate);
+                        propertyToUpdate.setText(replacement.toString());
+                        properties.add(propertyToUpdate);
+                        continue;
+                    }
+                } else {
+                    mavenDependency.remove(version);
+                }
             }
             version = mavenDependency.addElement(VERSION_ELEMENT);
             version.addText(replacement.toString());
             Element scope = mavenDependency.element("scope");
             if (scope != null && scope.getTextTrim().equals("test")) {
                 toReplaceTestUsed.put(trimmedArtifactId, replacement);
+                if (toReplaceTest.containsKey(trimmedArtifactId) && !depsWithoutClassifier.contains(trimmedArtifactId)) { // https://github.com/jenkinsci/bom/pull/301#issuecomment-694518923
+                    Element mainDep = mavenDependency.createCopy();
+                    Element classifier = mainDep.element(CLASSIFIER_ELEMENT);
+                    if (classifier != null) {
+                        mainDep.remove(classifier);
+                        dependencies.add(mainDep); // would prefer to insert just before mavenDependency but API does not seem to support this
+                    }
+                }
             } else {
                 toReplaceUsed.put(trimmedArtifactId, replacement);
             }
@@ -233,6 +273,7 @@ public class MavenPom {
             if (group != null && !group.isEmpty()) {
                 dependency.addElement(GROUP_ID_ELEMENT).addText(group);
             } else {
+                System.err.println("WARNING: no known group ID for plugin " + dep.getKey());
                 dependency.addElement(GROUP_ID_ELEMENT).addText("org.jenkins-ci.plugins");
             }
             dependency.addElement(ARTIFACT_ID_ELEMENT).addText(dep.getKey());

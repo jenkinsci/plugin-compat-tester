@@ -159,12 +159,6 @@ under the License.
       <url>http://my.repository.com/repo/path</url>
     </mirror>
      -->
-    <mirror>
-      <id>UK</id>
-      <mirrorOf>central</mirrorOf>
-      <name>Human Readable Name for this Mirror.</name>
-      <url>http://uk.maven.org/maven2/</url>
-    </mirror>
   </mirrors>
 
   <!-- profiles
@@ -263,13 +257,35 @@ under the License.
       <repositories>
         <repository>
           <id>maven.jenkins-ci.org</id>
-          <url>http://maven.jenkins-ci.org/content/groups/artifacts/</url>
+          <url>https://repo.jenkins-ci.org/public</url>
         </repository>
       </repositories>
       <pluginRepositories>
         <pluginRepository>
           <id>maven.jenkins-ci.org</id>
-          <url>http://maven.jenkins-ci.org/content/groups/artifacts/</url>
+          <url>https://repo.jenkins-ci.org/public</url>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+    <profile>
+      <!-- JEP-305 -->
+      <id>consume-incrementals</id>
+      <repositories>
+        <repository>
+          <id>incrementals</id>
+          <url>https://repo.jenkins-ci.org/incrementals/</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>incrementals</id>
+          <url>https://repo.jenkins-ci.org/incrementals/</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
         </pluginRepository>
       </pluginRepositories>
     </profile>

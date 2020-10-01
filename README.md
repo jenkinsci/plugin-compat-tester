@@ -78,7 +78,7 @@ Volumes:
 * `/pct/tmp` - Temporary directory. Can be exposed to analyze run failures
 * `/root/.m2` - Maven repository. It can be used to pass settings.xml or to cache artifacts
 
-:exclamation: Note that the entrypoint script of the PCT docker image tries to checkout the plugin sources *before* invoking the PCT if no war is provided. That means for plugins relying on `PreCheckoutHooks` (like multimodule ones) the standard docker run will fail to get sources as the `PreCheckoutHooks` are not run by the docker image entrypoint script. In that case possible workaorunds are:
+:exclamation: Note that the entrypoint script of the PCT docker image tries to checkout the plugin sources *before* invoking the PCT if no war is provided. That means for plugins relying on `PreCheckoutHooks` (like multimodule ones) the standard docker run will fail to get sources as the `PreCheckoutHooks` are not run by the docker image entrypoint script. In that case possible workarounds are:
 
 * Using a war file
 * Download the sources of the plugin and use the `/pct/plugin-src` volume to inform the PCT about them
@@ -96,7 +96,7 @@ PCT offers the CLI interface which can be used to run PCT locally.
 * Go to `PCT` folder and run the CLI (make sure to modify paths according to your system). Example:
 
 ```shell
-java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli-${PCT_VERSION}.jar \
+java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
   -reportFile $(pwd)/out/report.xml \
   -workDirectory $(pwd)/tmp/work \
   -includePlugins ${PLUGIN_ARTIFACT_ID} \
@@ -109,6 +109,21 @@ java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli-${PCT_VERSI
 You can run the CLI with the `-help` argument to get a full list of supported options.
 
 :exclamation: For the moment testing more than one plugin at once requires plugins to be released, so for testing SNAPSHOTS you need to execute the last step for every plugin you want to test*
+
+### Running PCT with a BOM file
+
+Plugin Compat Tester supports running test suites using a BOM file as source of truth as follows:
+
+```shell
+java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+  -reportFile $(pwd)/out/report.xml \
+  -workDirectory $(pwd)/tmp/work \
+  -includePlugins ${PLUGIN_ARTIFACT_ID} \
+  -bom ${BOM_FILE_LOCATION} \
+  -skipTestCache true \
+  -failOnError \
+  -mvn ${PATH_TO_MAVEN}
+```
 
 ### Running PCT with custom Java versions
 
@@ -143,18 +158,23 @@ Plugin Compat Tester supports overriding the plugin dependency version.
 For example, we might want to validate that a newer version of a plugin is not breaking the latest version of the plugin we want to test.
 
 To do that, the option `overridenPlugins` can be passed to PCT CLI.
-The format of the value **must** be `PLUGIN_NAME=PLUGIN_VERSION`.
+The format of the value **must** be `PLUGIN_GROUP:PLUGIN_NAME=PLUGIN_VERSION`.
 
 So, running
 
 ```
 java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
   [...]
-  -overridenPlugins display-url-api=2.3.0
+  -overridenPlugins org.jenkins-ci.plugins:display-url-api=2.3.0
   -includePlugins mailer
 ```
 
 will run the PCT on the `mailer` plugin, but replacing the `display-url-api` dependency of Mailer (which is `1.0`) with the version `2.3.0`.
+
+For compatibility reasons, the `PLUGIN_GROUP:` part may be omitted,
+but only if the group ID could be inferred by other means:
+either that plugin being included in the `-war`,
+or no `-war` being passed but the plugin being present on the update center.
 
 ### Running the PCT for plugins not following standard tag
 
@@ -197,7 +217,7 @@ and then to properly setup the environment.
 
 ```batch
    set JAVA_HOME=...
-   make demo-jdk8 -e PLUGIN_NAME=artifact-manager-s3 -e WAR_PATH=test-wars/mywar.war -e MVN_EXECUTABLE="C:\ProgramData\chocolatey\bin\mvn.exe" -e EXTRA_OPTS="-overridenPlugins 'configuration-as-code=1.20'"
+   make demo-jdk8 -e PLUGIN_NAME=artifact-manager-s3 -e WAR_PATH=test-wars/mywar.war -e MVN_EXECUTABLE="C:\ProgramData\chocolatey\bin\mvn.exe" -e EXTRA_OPTS="-overridenPlugins 'io.jenkins:configuration-as-code=1.20'"
 ```
 
 ## Useful links

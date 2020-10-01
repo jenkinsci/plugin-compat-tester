@@ -49,7 +49,7 @@ public class PluginCompatTesterConfig {
 
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTesterConfig.class.getName());
 
-    public static final String DEFAULT_UPDATE_CENTER_URL = "https://updates.jenkins-ci.org/update-center.json";
+    public static final String DEFAULT_UPDATE_CENTER_URL = "https://updates.jenkins.io/current/update-center.json";
     public static final String DEFAULT_PARENT_GROUP = "org.jenkins-ci.plugins";
     public static final String DEFAULT_PARENT_ARTIFACT = "plugin";
     public static final String DEFAULT_PARENT_GAV = DEFAULT_PARENT_GROUP + ":" + DEFAULT_PARENT_ARTIFACT;
@@ -100,6 +100,10 @@ public class PluginCompatTesterConfig {
     // If null, tests will be performed on every includePlugins found
     private List<String> excludePlugins = null;
 
+    // URL to be used as an alternative to download plugin source from fallback
+    // organtizations, like your own fork
+    private String fallbackGitHubOrganization = null;
+
     // Allows to skip a plugin test if this plugin test has already been performed
     // within testCacheTimeout ms
     private long testCacheTimeout = 1000L * 60 * 60 * 24 * 100;
@@ -131,6 +135,12 @@ public class PluginCompatTesterConfig {
 
     // Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code
     private boolean failOnError;
+
+    // Path to a BOM file to get plugin data
+    private File bom;
+
+    // Flag to indicate if we want to store all the tests names or only failed ones on PCT report files
+    private boolean storeAll;
 
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
@@ -232,6 +242,14 @@ public class PluginCompatTesterConfig {
         this.excludePlugins = excludePlugins;
     }
 
+    public String getFallbackGitHubOrganization() {
+        return fallbackGitHubOrganization;
+    }
+
+    public void setFallbackGitHubOrganization(String fallbackGitHubOrganization) {
+        this.fallbackGitHubOrganization = fallbackGitHubOrganization;
+    }
+
     public void setMavenProperties(@Nonnull Map<String, String> mavenProperties) {
         this.mavenProperties = new HashMap<>(mavenProperties);
     }
@@ -251,6 +269,15 @@ public class PluginCompatTesterConfig {
 
     public void setMavenPropertiesFiles( String mavenPropertiesFile ) {
         this.mavenPropertiesFile = mavenPropertiesFile;
+    }
+
+    @CheckForNull
+    public File getBom() {
+        return bom;
+    }
+
+    public void setBom(File bom) {
+        this.bom = bom;
     }
 
     /**
@@ -421,5 +448,13 @@ public class PluginCompatTesterConfig {
 
     public void setFailOnError(boolean failOnError) {
         this.failOnError = failOnError;
+    }
+
+    public void setStoreAll(boolean storeAll) {
+        this.storeAll = storeAll;
+    }
+    
+    public boolean isStoreAll() {
+        return storeAll;
     }
 }

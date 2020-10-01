@@ -4,16 +4,16 @@
   <parent>
       <groupId>org.jenkins-ci.tests</groupId>
       <artifactId>plugins-compat-tester-aggregator</artifactId>
-      <version>0.5.0</version>
+      <version>${revision}${changelist}</version>
   </parent>
 
   <artifactId>plugins-compat-tester</artifactId>
-  <version>0.5.0</version>
   <name>Plugins compatibility tester</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
 
   <properties>
     <maven.scm.providers.version>1.5</maven.scm.providers.version>
+    <trimStackTrace>false</trimStackTrace> <!-- SUREFIRE-1798 -->
   </properties>
 
   <dependencies>
@@ -24,7 +24,7 @@
     <dependency>
       <groupId>org.jenkins-ci.tests</groupId>
       <artifactId>plugins-compat-tester-model</artifactId>
-      <version>0.5.0</version>
+      <version>${project.version}</version>
     </dependency>
   	<dependency>
 	    <groupId>org.jenkins-ci.main</groupId>
@@ -58,6 +58,12 @@
       <artifactId>maven-scm-manager-plexus</artifactId>
       <version>1.5</version>
   	</dependency>
+	<dependency>
+	  <groupId>org.apache.maven</groupId>
+	  <artifactId>maven-model</artifactId>
+	  <version>3.0.2</version>
+	</dependency>
+  	
 
     <!--TODO(oleg_nenashev): Remove all providers except Git? -->
     <!-- scm providers declaration -->
