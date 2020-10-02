@@ -39,7 +39,8 @@ for (int i = 0; i < platforms.size(); ++i) {
                     junit '**/target/surefire-reports/TEST-*.xml'
 
                     if (publishing) {
-                      findBugs pattern: '**/target/findbugsXml.xml'
+                      def spotbugs = scanForIssues tool: spotBugs(pattern: '**/target/findbugsXml.xml')
+                      publishIssues issues: [spotbugs]
                       infra.prepareToPublishIncrementals()
                     }
                 }
