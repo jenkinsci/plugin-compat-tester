@@ -25,12 +25,10 @@
  */
 package org.jenkins.tools.test;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import hudson.AbortException;
 import hudson.Functions;
-import hudson.model.UpdateCenter;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import hudson.util.VersionNumber;
@@ -312,14 +310,17 @@ public class PluginCompatTester {
                     if (errorMessage == null) {
                     try {
                         TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridenPlugins());
-                        // If no PomExecutionException, everything went well...
-                        status = TestStatus.SUCCESS;
+                        if (result.getTestDetails().getFailed().isEmpty()) {
+                            status = TestStatus.SUCCESS;
+                        } else {
+                            status = TestStatus.TEST_FAILURES;
+                        }
                         warningMessages.addAll(result.pomWarningMessages);
                         testDetails.addAll(config.isStoreAll() ? result.getTestDetails().getAll() : result.getTestDetails().getFailed());
                     } catch (PomExecutionException e) {
                         if(!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")){
                             status = TestStatus.COMPILATION_ERROR;
-                        } else if(!e.succeededPluginArtifactIds.contains("maven-surefire-plugin")){
+                        } else if (!e.getTestDetails().getFailed().isEmpty()) {
                             status = TestStatus.TEST_FAILURES;
                         } else { // Can this really happen ???
                             status = TestStatus.SUCCESS;
@@ -539,6 +540,8 @@ public class PluginCompatTester {
             args.add("surefire:test");
 
             // Run preexecution hooks
+            List<String> testTypes = new LinkedList<>();
+            testTypes.add("surefire"); // default
             Map<String, Object> forExecutionHooks = new HashMap<>();
             forExecutionHooks.put("pluginName", plugin.name);
             forExecutionHooks.put("args", args);
@@ -547,13 +550,14 @@ public class PluginCompatTester {
             forExecutionHooks.put("coreCoordinates", coreCoordinates);
             forExecutionHooks.put("config", config);
             forExecutionHooks.put("pluginDir", pluginCheckoutDir);
+            forExecutionHooks.put("types", testTypes);
             pcth.runBeforeExecution(forExecutionHooks);
             args = (List<String>)forExecutionHooks.get("args");
+            Set<String> types = new HashSet<>((List<String>) forExecutionHooks.get("types"));
 
             // Execute with tests
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
-            // TODO extract tests names by filter
-            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(runner.getExecutedTests(), pluginCheckoutDir));
+            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(types, runner.getExecutedTests(), pluginCheckoutDir));
         } catch (ExecutedTestNamesSolverException e) {
             throw new PomExecutionException(e);
         } catch (PomExecutionException e){

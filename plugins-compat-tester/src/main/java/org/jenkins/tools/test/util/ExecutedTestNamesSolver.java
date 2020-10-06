@@ -18,6 +18,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.jenkins.tools.test.exception.ExecutedTestNamesSolverException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class ExecutedTestNamesSolver {
@@ -26,7 +27,7 @@ public class ExecutedTestNamesSolver {
     
     private static final String TEST_PLACEHOLDER = "TEST-%s.xml";
     
-    public ExecutedTestNamesDetails solve(Set<String> executedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
+    public ExecutedTestNamesDetails solve(Set<String> types, Set<String> executedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
 
         System.out.println("[INFO] -------------------------------------------------------");
         System.out.println("[INFO] Solving test names");
@@ -34,26 +35,26 @@ public class ExecutedTestNamesSolver {
         
         ExecutedTestNamesDetails testNames = new ExecutedTestNamesDetails();
         
-        List<String> surefireReportsDirectoryPaths = getSurefireReportsDirectoryPaths(baseDirectory);
-        if(surefireReportsDirectoryPaths.isEmpty()) {
-            System.out.println("[WARNING] No surefire-reports found!");
+        List<String> reportsDirectoryPaths = getReportsDirectoryPaths(types, baseDirectory);
+        if(reportsDirectoryPaths.isEmpty()) {
+            System.out.println("[WARNING] No test reports found!");
             return testNames;
         }
         
-        for (String surefireReportsDirectoryPath: surefireReportsDirectoryPaths) {
+        for (String reportsDirectoryPath: reportsDirectoryPaths) {
             try {
-                File surefireReportsDirectory = Paths.get(surefireReportsDirectoryPath).toFile();
-                if (!surefireReportsDirectory.exists()) {
-                    System.out.println(String.format(WARNING_MSG, surefireReportsDirectoryPath));
+                File reportsDirectory = Paths.get(reportsDirectoryPath).toFile();
+                if (!reportsDirectory.exists()) {
+                    System.out.println(String.format(WARNING_MSG, reportsDirectoryPath));
                     return testNames;
                 }
                 
-                System.out.println(String.format("[INFO] Reading %s", surefireReportsDirectoryPath));
+                System.out.println(String.format("[INFO] Reading %s", reportsDirectoryPath));
                 
                 DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                 for (String testName : executedTests) {
                     String reference = String.format(TEST_PLACEHOLDER, testName);
-                    String testReportPath = surefireReportsDirectoryPath + File.separator + reference;
+                    String testReportPath = reportsDirectoryPath + File.separator + reference;
                     File testReport = Paths.get(testReportPath).toFile();
                     if (!testReport.exists()) {
                         System.out.println(String.format(WARNING_MSG, testReportPath));
@@ -72,7 +73,7 @@ public class ExecutedTestNamesSolver {
                             String test = testcase.getAttributes().getNamedItem("name").getNodeValue();
                             found++;
                             String testCaseName = String.format("%s.%s", clazzName, test);
-                            if (testcase.getChildNodes().getLength() != 0) {
+                            if (containsFailure(testcase.getChildNodes())) {
                                 testNames.addFailedTest(testCaseName);
                             } else {
                                 testNames.addExecutedTest(testCaseName);
@@ -108,19 +109,38 @@ public class ExecutedTestNamesSolver {
         return testNames;
     }
 
-    private List<String> getSurefireReportsDirectoryPaths(File baseDirectory) throws ExecutedTestNamesSolverException {
+    private List<String> getReportsDirectoryPaths(Set<String> types, File baseDirectory) throws ExecutedTestNamesSolverException {
         List<String> paths = new LinkedList<>();
-        try (Stream<Path> walk = Files.walk(Paths.get(baseDirectory.getAbsolutePath()))) {
-            List<Path> result = walk.filter(Files::isDirectory)
-                    .filter(file -> file.getFileName().toString().endsWith("surefire-reports"))
-                    .collect(Collectors.toList());
-            for (Path path : result) {
-                paths.add(path.toString());
-            }
-        } catch (IOException e) {
-            throw new ExecutedTestNamesSolverException(e);
-        } 
+        if (types == null) {
+            return paths;
+        }
+        for(String type: types) {
+            try (Stream<Path> walk = Files.walk(Paths.get(baseDirectory.getAbsolutePath()))) {
+                List<Path> result = walk.filter(Files::isDirectory)
+                        .filter(file -> file.getFileName().toString().endsWith(String.format("%s-reports", type)))
+                        .collect(Collectors.toList());
+                for (Path path : result) {
+                    paths.add(path.toString());
+                }
+            } catch (IOException e) {
+                throw new ExecutedTestNamesSolverException(e);
+            } 
+        }
         return paths;
+    }
+    
+    private boolean containsFailure(NodeList nodeList) {
+        if (nodeList.getLength() == 0) {
+            return false;
+        }
+        
+        for (int j = 0; j < nodeList.getLength(); j++) {
+            if (nodeList.item(j).getNodeName().equals("skipped")) {
+                return false;
+            }
+        }
+        
+        return true;
     }
     
 }

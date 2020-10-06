@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Workaround for Warnings NG plugin since it needs execute integration tests.
  */
-public class WarningsNGExecutionHook extends PluginWithIntegrationTestsHook {
+public class WarningsNGExecutionHook extends PluginWithFailsafeIntegrationTestsHook {
 
     @Override
     public boolean check(Map<String, Object> info) {
