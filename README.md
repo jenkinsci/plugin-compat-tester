@@ -194,6 +194,42 @@ electricflow=cloudbees-flow-%s
 electricflow-minimumVersion=1.1.8
 ```
 
+### Running as on-demand GitHub Action
+
+```
+name: PCT Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      jenkins_ver:
+        description: 'Jenkins version'
+        required: true
+        default: '2.249.2'
+      branch:
+        description: 'Branch to test'
+        required: true
+        default: 'master'
+
+jobs:
+  pct:
+    runs-on: ubuntu-latest
+    container:
+      image: jenkins/pct
+      env:
+        CHECKOUT_SRC: "https://github.com/${{ github.repository }}.git"
+        VERSION: ${{ github.event.inputs.branch }}
+        JENKINS_VERSION: ${{ github.event.inputs.jenkins_ver }}
+      volumes:
+        - /home/runner/work/__w/out:/pct/out
+    steps:
+      - run: run-pct
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pct-report
+          path: /home/runner/work/__w/out/pct-report.html
+          if-no-files-found: error
+```
 
 ## Developer Info
 
