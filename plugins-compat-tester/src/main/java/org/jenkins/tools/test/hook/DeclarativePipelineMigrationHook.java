@@ -16,10 +16,6 @@ public class DeclarativePipelineMigrationHook extends AbstractMultiParentHook {
         return "declarative-pipeline-migration-assistant";
     }
 
-    @Override
-    protected String getParentUrl() {
-        return "scm:git:git://github.com/jenkinsci/declarative-pipeline-migration-assistant-plugin.git";
-    }
 
     @Override
     protected String getParentProjectName() {

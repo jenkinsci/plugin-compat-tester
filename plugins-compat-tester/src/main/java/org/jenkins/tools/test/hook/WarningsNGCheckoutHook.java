@@ -13,10 +13,6 @@ public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
         return "warnings-ng-plugin";
     }
 
-    @Override
-    protected String getParentUrl() {
-        return "scm:git:git://github.com/jenkinsci/warnings-ng-plugin.git";
-    }
 
     @Override
     protected String getParentProjectName() {

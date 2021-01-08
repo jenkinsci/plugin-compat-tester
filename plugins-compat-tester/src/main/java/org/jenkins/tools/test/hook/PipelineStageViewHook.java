@@ -11,10 +11,6 @@ public class PipelineStageViewHook extends AbstractMultiParentHook {
         return "pipeline-stage-view";
     }
 
-    @Override
-    protected String getParentUrl() {
-        return "scm:git:git://github.com/jenkinsci/pipeline-stage-view-plugin.git";
-    }
 
     @Override
     protected String getParentProjectName() {

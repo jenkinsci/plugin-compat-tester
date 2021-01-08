@@ -17,10 +17,6 @@ public class DeclarativePipelineHook extends AbstractMultiParentHook {
         return "pipeline-model-definition";
     }
 
-    @Override
-    protected String getParentUrl() {
-        return "scm:git:git://github.com/jenkinsci/pipeline-model-definition-plugin.git";
-    }
 
     @Override
     protected String getParentProjectName() {

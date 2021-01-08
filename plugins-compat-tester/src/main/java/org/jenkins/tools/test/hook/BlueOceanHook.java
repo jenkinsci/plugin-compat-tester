@@ -18,10 +18,6 @@ public class BlueOceanHook extends AbstractMultiParentHook {
         return "blueocean";
     }
 
-    @Override
-    protected String getParentUrl() {
-        return "scm:git:git://github.com/jenkinsci/blueocean-plugin.git";
-    }
 
     @Override
     protected String getParentProjectName() {

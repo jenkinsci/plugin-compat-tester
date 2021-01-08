@@ -47,9 +47,11 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                     scmTag = getParentProjectName() + "-" + currentPlugin.version;
                     System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
                 }
-                System.out.println("Checking out from SCM connection URL: " + getParentUrl() + " (" + getParentProjectName() + "-" + currentPlugin.version + ") at tag " + scmTag);
+                // Like PluginCompatTester.cloneFromSCM but with subdirectories trimmed:
+                String parentUrl = pomData.getConnectionUrl().replaceFirst("^(.+github[.]com/[^/]+/[^/]+)/.+", "$1");
+                System.out.println("Checking out from SCM connection URL: " + parentUrl + " (" + getParentProjectName() + "-" + currentPlugin.version + ") at tag " + scmTag);
                 ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-                ScmRepository repository = scmManager.makeScmRepository(getParentUrl());
+                ScmRepository repository = scmManager.makeScmRepository(parentUrl);
                 CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(scmTag));
 
                 if (!result.isSuccess()) {
@@ -84,11 +86,6 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
      * Returns the folder where the multimodule project parent will be checked out
      */
     protected abstract String getParentFolder();
-
-    /**
-     * Returns the Git URL to check out the multimodule project
-     */
-    protected abstract String getParentUrl();
 
     /**
      * Returns the parent project name. This will be used to form the checkout tag with the format

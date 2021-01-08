@@ -15,10 +15,6 @@ public class SwarmHook extends AbstractMultiParentHook {
         return "swarm";
     }
 
-    @Override
-    protected String getParentUrl() {
-        return "scm:git:git://github.com/jenkinsci/swarm-plugin.git";
-    }
 
     @Override
     protected String getParentProjectName() {
