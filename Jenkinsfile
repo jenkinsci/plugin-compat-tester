@@ -133,7 +133,7 @@ itBranches['google-compute-engine:4.3.3 tests on retrieving the test report'] = 
             sh 'make docker'
         }
 
-        stage('Download Jenkins 2.164.1') {
+        stage('Download Jenkins 2.263.3') {
             sh '''
             curl -sL http://mirrors.jenkins.io/war-stable/2.263.3/jenkins.war --output jenkins.war
             echo "65543f5632ee54344f3351b34b305702df12393b3196a95c3771ddb3819b220b jenkins.war" | sha256sum --check
