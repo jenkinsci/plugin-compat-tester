@@ -125,7 +125,5 @@ public class ExternalMavenRunner implements MavenRunner {
         
         return result;
     }
-    
-    
 
 }
