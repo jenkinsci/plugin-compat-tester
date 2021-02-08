@@ -25,7 +25,6 @@
  */
 package org.jenkins.tools.test;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import hudson.AbortException;
