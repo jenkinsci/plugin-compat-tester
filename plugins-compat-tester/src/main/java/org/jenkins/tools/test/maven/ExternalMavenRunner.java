@@ -114,15 +114,15 @@ public class ExternalMavenRunner implements MavenRunner {
     }
 
     private Set<String> getTypes(Config config) {
+        Set<String> result = new HashSet<>();
         if (config == null || config.userProperties == null || !config.userProperties.containsKey("types")) {
-            return null;
+            result.add("surefire");
+            return result;
         }
         String types = config.userProperties.get("types");
-        Set<String> result = new HashSet<>();
         for (String type : types.split(",")) {
             result.add(type);
         }
-        
         return result;
     }
 
