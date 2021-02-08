@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import hudson.AbortException;
@@ -554,6 +555,7 @@ public class PluginCompatTester {
             pcth.runBeforeExecution(forExecutionHooks);
             args = (List<String>)forExecutionHooks.get("args");
             Set<String> types = new HashSet<>((List<String>) forExecutionHooks.get("types"));
+            mconfig.userProperties.put("types", String.join(",", types));
 
             // Execute with tests
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));

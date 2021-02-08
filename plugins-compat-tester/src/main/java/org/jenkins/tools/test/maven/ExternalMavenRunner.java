@@ -102,7 +102,7 @@ public class ExternalMavenRunner implements MavenRunner {
             if (p.waitFor() != 0) {
                 throw new PomExecutionException(cmd + " failed in " + baseDirectory, succeededPluginArtifactIds,
                         /* TODO */Collections.emptyList(), Collections.emptyList(),
-                        new ExecutedTestNamesSolver().solve(null, getExecutedTests(), baseDirectory));
+                        new ExecutedTestNamesSolver().solve(getTypes(config), getExecutedTests(), baseDirectory));
             }
         } catch (PomExecutionException x) {
             x.printStackTrace();
@@ -112,5 +112,20 @@ public class ExternalMavenRunner implements MavenRunner {
             throw new PomExecutionException(x);
         }
     }
+
+    private Set<String> getTypes(Config config) {
+        if (config == null || config.userProperties == null || !config.userProperties.containsKey("types")) {
+            return null;
+        }
+        String types = config.userProperties.get("types");
+        Set<String> result = new HashSet<>();
+        for (String type : types.split(",")) {
+            result.add(type);
+        }
+        
+        return result;
+    }
+    
+    
 
 }
