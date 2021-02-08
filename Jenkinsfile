@@ -40,7 +40,7 @@ for (int i = 0; i < platforms.size(); ++i) {
 
                     if (publishing) {
                       recordIssues(
-                        enabledForFailure: true, aggregatingResults: true, 
+                        enabledForFailure: true, aggregatingResults: true,
                         tools: [java(), spotBugs(pattern: '**/target/findbugsXml.xml')]
                       )
                       infra.prepareToPublishIncrementals()
@@ -119,6 +119,37 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
             archiveArtifacts artifacts: "out/**"
 
             sh 'cat out/pct-report.html | grep "Tests : Success"'
+        }
+    }
+}
+
+itBranches['google-compute-engine:4.3.3 tests on retrieving the test report'] = {
+    node('docker') {
+        checkout scm
+        def settingsXML="mvn-settings.xml"
+        infra.retrieveMavenSettingsFile(settingsXML)
+
+        stage('Build Docker Image') {
+            sh 'make docker'
+        }
+
+        stage('Download Jenkins 2.164.1') {
+            sh '''
+            curl -sL http://mirrors.jenkins.io/war-stable/2.263.3/jenkins.war --output jenkins.war
+            echo "65543f5632ee54344f3351b34b305702df12393b3196a95c3771ddb3819b220b jenkins.war" | sha256sum --check
+            '''
+        }
+
+        stage("Execute PCT and evaluate test report") {
+            sh '''docker run --rm \
+                         -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
+                         -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
+                         -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
+                         -e ARTIFACT_ID=google-compute-engine -e VERSION=google-compute-engine-4.3.3 \
+                         jenkins/pct
+            '''
+            archiveArtifacts artifacts: "out/**"
+            sh 'cat out/pct-report.xml | grep "TEST_FAILURES"'
         }
     }
 }
