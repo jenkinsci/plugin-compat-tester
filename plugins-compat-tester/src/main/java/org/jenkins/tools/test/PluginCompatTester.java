@@ -554,6 +554,7 @@ public class PluginCompatTester {
             pcth.runBeforeExecution(forExecutionHooks);
             args = (List<String>)forExecutionHooks.get("args");
             Set<String> types = new HashSet<>((List<String>) forExecutionHooks.get("types"));
+            mconfig.userProperties.put("types", String.join(",", types));
 
             // Execute with tests
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
