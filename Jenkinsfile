@@ -145,7 +145,7 @@ itBranches['google-compute-engine:4.3.3 tests on retrieving the test report'] = 
                          -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
                          -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
-                         -e ARTIFACT_ID=google-compute-engine -e VERSION=google-compute-engine-4.3.3 \
+                         -e ARTIFACT_ID=google-compute-engine -e VERSION=google-compute-engine-4.3.3 -e FAIL_ON_ERROR=false \
                          jenkins/pct
             '''
             archiveArtifacts artifacts: "out/**"
