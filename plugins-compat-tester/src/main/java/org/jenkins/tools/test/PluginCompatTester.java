@@ -534,7 +534,9 @@ public class PluginCompatTester {
             }
 
             List<String> args = new ArrayList<>();
-            args.add("--define=forkCount=1");
+            
+            Map<String, String> userProperties = mconfig.userProperties;
+            args.add(String.format("--define=forkCount=%s",userProperties.containsKey("forkCount") ? userProperties.get("forkCount") : "1"));
             args.add("hpi:resolve-test-dependencies");
             args.add("hpi:test-hpl");
             args.add("surefire:test");
@@ -554,7 +556,7 @@ public class PluginCompatTester {
             pcth.runBeforeExecution(forExecutionHooks);
             args = (List<String>)forExecutionHooks.get("args");
             Set<String> types = new HashSet<>((List<String>) forExecutionHooks.get("types"));
-            mconfig.userProperties.put("types", String.join(",", types));
+            userProperties.put("types", String.join(",", types));
 
             // Execute with tests
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
