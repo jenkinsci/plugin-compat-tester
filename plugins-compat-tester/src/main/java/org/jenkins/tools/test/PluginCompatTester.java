@@ -33,6 +33,7 @@ import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Plugin;
 import hudson.util.VersionNumber;
 import io.jenkins.lib.versionnumber.JavaSpecificationVersion;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -72,6 +73,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -380,11 +382,11 @@ public class PluginCompatTester {
         }
 
         if (failed && config.isFailOnError()) {
-            throw new AbortException("Execution was aborted due to the failure in a plugin test (-failOnError is set)");
+		    throw new AbortException("Execution was aborted due to the failure in a plugin test (-failOnError is set)");
         }
 
         return report;
-    }
+	}
 
     protected void generateHtmlReportFile() throws IOException {
         if (!config.reportFile.exists() || !config.reportFile.isFile()) {
@@ -433,7 +435,7 @@ public class PluginCompatTester {
 
         File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath() + File.separator + plugin.name + File.separator);
 
-        try {
+		try {
             // Run any precheckout hooks
             Map<String, Object> beforeCheckout = new HashMap<>();
             beforeCheckout.put("pluginName", plugin.name);
@@ -1013,6 +1015,12 @@ public class PluginCompatTester {
             // Could contain transitive dependencies which were part of the plugin's dependencies or to be added
             toAddTest = difference(pluginDeps, toAddTest);
             toAddTest = difference(toAdd, toAddTest);
+
+            if(toReplaceTest.containsKey("configuration-as-code")){
+                VersionNumber versionNumber = toReplaceTest.get("configuration-as-code");
+                pluginGroupIds.put("test-harness", "io.jenkins.configuration-as-code");
+                toReplaceTest.put("test-harness", versionNumber);
+            }
 
             if (!toAdd.isEmpty() || !toReplace.isEmpty() || !toAddTest.isEmpty() || !toReplaceTest.isEmpty()) {
                 System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
