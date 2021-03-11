@@ -1060,6 +1060,12 @@ public class PluginCompatTester {
             toAddTest = difference(pluginDeps, toAddTest);
             toAddTest = difference(toAdd, toAddTest);
 
+            if (toReplaceTest.containsKey("configuration-as-code")) {
+                VersionNumber versionNumber = toReplaceTest.get("configuration-as-code");
+                pluginGroupIds.put("test-harness", "io.jenkins.configuration-as-code");
+                toReplaceTest.put("test-harness", versionNumber);
+            }
+
             if (!toAdd.isEmpty() || !toReplace.isEmpty() || !toAddTest.isEmpty() || !toReplaceTest.isEmpty()) {
                 System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
                 pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, pluginGroupIds, convertFromTestDep);
