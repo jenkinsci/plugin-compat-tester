@@ -20,7 +20,9 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-FROM maven:3.6.0-jdk-8 as builder
+ARG MAVEN_VERSION=3.6.0-jdk-8
+ARG JAVA_11_VERSION=11.0.1
+FROM maven:$MAVEN_VERSION as builder
 
 # Warmup to avoid downloading the world each time
 RUN git clone https://github.com/jenkinsci/plugin-compat-tester &&\
@@ -37,7 +39,7 @@ COPY LICENSE.txt /pct/src/LICENSE.txt
 WORKDIR /pct/src/
 RUN mvn clean package -Dmaven.test.skip=true
 
-FROM maven:3.6.0-jdk-8
+FROM maven:$MAVEN_VERSION
 LABEL Maintainer="Oleg Nenashev <o.v.nenashev@gmail.com>"
 LABEL Description="Base image for running Jenkins Plugin Compat Tester (PCT) against custom plugins and Jenkins cores" Vendor="Jenkins project"
 ENV JENKINS_WAR_PATH=/pct/jenkins.war
@@ -47,10 +49,10 @@ ENV INSTALL_BUNDLED_SNAPSHOTS=true
 
 RUN apt-get -y update && apt-get install -y groovy apt-transport-https ca-certificates gnupg2 software-properties-common && rm -rf /var/lib/apt/lists/*
 
-RUN curl -L --show-error https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz --output openjdk.tar.gz && \
+RUN curl -L --show-error https://download.java.net/java/GA/jdk11/13/GPL/openjdk-${JAVA_11_VERSION}_linux-x64_bin.tar.gz --output openjdk.tar.gz && \
     echo "7a6bb980b9c91c478421f865087ad2d69086a0583aeeb9e69204785e8e97dcfd  openjdk.tar.gz" | sha256sum -c && \
     tar xvzf openjdk.tar.gz && \
-    mv jdk-11.0.1/ /usr/lib/jvm/java-11-openjdk-amd64 && \
+    mv ${JAVA_11_VERSION}/ /usr/lib/jvm/java-11-openjdk-amd64 && \
     rm openjdk.tar.gz
 
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
