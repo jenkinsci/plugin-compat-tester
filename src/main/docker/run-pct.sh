@@ -160,7 +160,6 @@ mkdir -p "${PCT_OUTPUT_DIR}"
 TEST_JDK_HOME=${TEST_JAVA_ARGS:-"/usr/lib/jvm/java-${JDK_VERSION:-8}-openjdk-amd64"}
 TEST_JAVA_ARGS="'${TEST_JAVA_ARGS:-} -Xmx768M -Djava.awt.headless=true -Djdk.net.URLClassPath.disableClassPathURLCheck=true'"
 
-# The image always uses external Maven due to https://issues.jenkins-ci.org/browse/JENKINS-48710
 pctExitCode=0
 echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -jar /pct/pct-cli.jar \
@@ -170,7 +169,6 @@ echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   ${FAIL_ON_ERROR_ARG}\
   ${LOCAL_CHECKOUT_ARG} \
   -includePlugins "${ARTIFACT_ID}" \
-  -mvn "/usr/bin/mvn" \
   -m2SettingsFile "${MVN_SETTINGS_FILE}" \
   -testJDKHome "${TEST_JDK_HOME}" \
   -testJavaArgs ${TEST_JAVA_ARGS:-} \
