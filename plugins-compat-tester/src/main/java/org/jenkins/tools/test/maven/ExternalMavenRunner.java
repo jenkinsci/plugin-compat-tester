@@ -28,7 +28,7 @@ import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
  */
 public class ExternalMavenRunner implements MavenRunner {
 
-    private static final String DISABLE_DOWNLOAD_LOGS = "-ntp;
+    private static final String DISABLE_DOWNLOAD_LOGS = "-ntp";
 
     @CheckForNull
     private File mvn;
