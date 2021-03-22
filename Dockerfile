@@ -50,7 +50,7 @@ RUN apt-get -y update && apt-get install -y groovy apt-transport-https ca-certif
 RUN curl -L --show-error https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz --output openjdk.tar.gz && \
     echo "7a6bb980b9c91c478421f865087ad2d69086a0583aeeb9e69204785e8e97dcfd  openjdk.tar.gz" | sha256sum -c && \
     tar xvzf openjdk.tar.gz && \
-    mv jdk-11.0.1/ /usr/lib/jvm/java-11-openjdk-amd64 && \
+    mv jdk-11.0.1/ /usr/local/openjdk-11 && \
     rm openjdk.tar.gz
 
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
