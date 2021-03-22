@@ -28,7 +28,7 @@ import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
  */
 public class ExternalMavenRunner implements MavenRunner {
 
-    private static final String DISABLE_DOWNLOAD_LOGS = "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn";
+    private static final String DISABLE_DOWNLOAD_LOGS = "-ntp";
 
     @CheckForNull
     private File mvn;
