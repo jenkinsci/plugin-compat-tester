@@ -465,7 +465,7 @@ public class PluginCompatTester {
                             System.out.println("Copy plugin directory from : " + localCheckoutPluginDir.getAbsolutePath());
                             FileUtils.copyDirectoryStructure(localCheckoutPluginDir, pluginCheckoutDir);
                         } else {
-                            cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir);
+                            cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "");
                         }
                     } else {
                         // TODO this fails when it encounters symlinks (e.g. work/jobs/…/builds/lastUnstableBuild),
@@ -476,7 +476,7 @@ public class PluginCompatTester {
                     }
                 } else {
                     // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
-                    cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir);
+                    cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "");
                 }
             } else {
                 // If the plugin exists in a different directory (multimodule plugins)
@@ -573,10 +573,9 @@ public class PluginCompatTester {
         }
     }
 
-    protected void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory) throws ComponentLookupException, ScmException, IOException {
-        String scmTag = getScmTag(pomData, name, version);
+    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag) throws ComponentLookupException, ScmException, IOException {
+        String scmTag = tag != "" ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
-
         List<String> connectionURLs = new ArrayList<String>();
         connectionURLs.add(connectionURLPomData);
         if(config.getFallbackGitHubOrganization() != null){
