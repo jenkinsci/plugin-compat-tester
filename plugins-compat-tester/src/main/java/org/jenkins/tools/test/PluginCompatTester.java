@@ -574,7 +574,7 @@ public class PluginCompatTester {
     }
 
     public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag) throws ComponentLookupException, ScmException, IOException {
-        String scmTag = tag != "" ? tag : getScmTag(pomData, name, version);
+	String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
         List<String> connectionURLs = new ArrayList<String>();
         connectionURLs.add(connectionURLPomData);
