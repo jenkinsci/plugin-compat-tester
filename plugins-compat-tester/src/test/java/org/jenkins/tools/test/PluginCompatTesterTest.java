@@ -250,7 +250,7 @@ public class PluginCompatTesterTest {
         PomData pomData = new PomData(pluginName, "hpi", nonWorkingConnectionURL, pluginName + "-" + version,
                 mavenCoordinates, "org.jenkins-ci.plugins.workflow");
         pct.cloneFromSCM(pomData, pluginName, version,
-                new File(config.workDirectory.getAbsolutePath() + File.separator + pluginName + File.separator));
+                new File(config.workDirectory.getAbsolutePath() + File.separator + pluginName + File.separator), "");
     }
 
     @Test(expected = Test.None.class)
@@ -268,7 +268,7 @@ public class PluginCompatTesterTest {
         PomData pomData = new PomData(pluginName, "hpi", nonWorkingConnectionURL, pluginName + "-" + version,
                 mavenCoordinates, "org.jenkins-ci.plugins.workflow");
         pct.cloneFromSCM(pomData, pluginName, version,
-                new File(config.workDirectory.getAbsolutePath() + File.separator + pluginName + File.separator));
+                new File(config.workDirectory.getAbsolutePath() + File.separator + pluginName + File.separator), "");
     }
 
     @Test
