@@ -34,6 +34,8 @@ public class ExternalMavenRunner implements MavenRunner {
     private File mvn;
 
     private Set<String> executedTests;
+    
+    private Set<String> crashedTests;
 
     /**
      * Constructor.
@@ -44,6 +46,7 @@ public class ExternalMavenRunner implements MavenRunner {
     public ExternalMavenRunner(@CheckForNull File mvn) {
         this.mvn = mvn;
         this.executedTests = new HashSet<>();
+        this.crashedTests = new HashSet<>();
     }
 
     public Set<String> getExecutedTests() {
@@ -77,6 +80,7 @@ public class ExternalMavenRunner implements MavenRunner {
                 Pattern pattern = Pattern.compile("\\[INFO\\] --- (.+):.+:.+ [(].+[)] @ .+ ---");
                 String line;
                 boolean testPhase = false;
+                boolean testPhaseCrashed = false;
                 while ((line = r.readLine()) != null) {
                     System.out.println(line);
                     w.println(line);
@@ -93,6 +97,16 @@ public class ExternalMavenRunner implements MavenRunner {
                         succeededPluginArtifactIds.add(completed);
                     } else if (testPhase && line.startsWith("[INFO] Running") && !line.contains("InjectedTest")) {
                         this.executedTests.add(line.split("Running")[1].trim());
+                    } else if (testPhase && line.startsWith("[ERROR] Crashed tests:")) {
+                        testPhaseCrashed = true;
+
+                    } else if (testPhaseCrashed) {
+                        String crashedTest = line.replace("[ERROR] ", "");
+                        if (line.contains("The forked VM terminated") || crashedTests.contains(crashedTest)) {
+                            testPhaseCrashed = false;
+                        } else {
+                            crashedTests.add(crashedTest);
+                        }
                     }
                 }
                 w.flush();
@@ -102,7 +116,7 @@ public class ExternalMavenRunner implements MavenRunner {
             if (p.waitFor() != 0) {
                 throw new PomExecutionException(cmd + " failed in " + baseDirectory, succeededPluginArtifactIds,
                         /* TODO */Collections.emptyList(), Collections.emptyList(),
-                        new ExecutedTestNamesSolver().solve(getTypes(config), getExecutedTests(), baseDirectory));
+                        new ExecutedTestNamesSolver().solve(getTypes(config), getExecutedTests(), getCrashedTests(), baseDirectory));
             }
         } catch (PomExecutionException x) {
             x.printStackTrace();
@@ -111,6 +125,10 @@ public class ExternalMavenRunner implements MavenRunner {
             x.printStackTrace();
             throw new PomExecutionException(x);
         }
+    }
+    
+    public Set<String> getCrashedTests() {
+        return Collections.unmodifiableSet(crashedTests);
     }
 
     private Set<String> getTypes(Config config) {

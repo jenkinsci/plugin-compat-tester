@@ -84,4 +84,13 @@ public class PomExecutionException extends Exception {
     public ExecutedTestNamesDetails getTestDetails() {
         return testDetails;
     }
+    
+    public boolean failedOnTestExecution() {
+        for (Throwable throwable : exceptionsThrown) {
+            if (throwable instanceof ExecutedTestNamesSolverException) {
+                return true;
+            }
+        } 
+        return false;
+    }
 }

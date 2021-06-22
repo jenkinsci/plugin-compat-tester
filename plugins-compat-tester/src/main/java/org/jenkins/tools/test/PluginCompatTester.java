@@ -318,6 +318,10 @@ public class PluginCompatTester {
                         warningMessages.addAll(result.pomWarningMessages);
                         testDetails.addAll(config.isStoreAll() ? result.getTestDetails().getAll() : result.getTestDetails().getFailed());
                     } catch (PomExecutionException e) {
+                        if (e.failedOnTestExecution()) {
+                            // Test execution failed (i.e.: crashed tests)
+                            throw e;
+                        }
                         if(!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")){
                             status = TestStatus.COMPILATION_ERROR;
                         } else if (!e.getTestDetails().getFailed().isEmpty()) {
@@ -560,7 +564,7 @@ public class PluginCompatTester {
 
             // Execute with tests
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
-            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(types, runner.getExecutedTests(), pluginCheckoutDir));
+            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(types, runner.getExecutedTests(), runner.getCrashedTests(), pluginCheckoutDir));
         } catch (ExecutedTestNamesSolverException e) {
             throw new PomExecutionException(e);
         } catch (PomExecutionException e){

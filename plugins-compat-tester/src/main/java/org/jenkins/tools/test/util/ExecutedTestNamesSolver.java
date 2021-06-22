@@ -27,7 +27,7 @@ public class ExecutedTestNamesSolver {
     
     private static final String TEST_PLACEHOLDER = "TEST-%s.xml";
     
-    public ExecutedTestNamesDetails solve(Set<String> types, Set<String> executedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
+    public ExecutedTestNamesDetails solve(Set<String> types, Set<String> executedTests, Set<String> crashedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
 
         System.out.println("[INFO] -------------------------------------------------------");
         System.out.println("[INFO] Solving test names");
@@ -58,6 +58,9 @@ public class ExecutedTestNamesSolver {
                     File testReport = Paths.get(testReportPath).toFile();
                     if (!testReport.exists()) {
                         System.out.println(String.format(WARNING_MSG, testReportPath));
+                        if (crashedTests.contains(testName)) {
+                            throw new ExecutedTestNamesSolverException(String.format("Crashed tests!: %s", crashedTests));
+                        }
                         continue;
                     }
                     
