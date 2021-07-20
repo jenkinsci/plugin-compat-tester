@@ -39,7 +39,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
-
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.FileUtils;
 import org.dom4j.Document;
@@ -64,23 +63,23 @@ public class MavenPom {
     private final static String VERSION_ELEMENT = "version";
     private final static String CLASSIFIER_ELEMENT = "classifier";
 
-	private File rootDir;
-	private String pomFileName;
-	
-	public MavenPom(File rootDir){
-		this(rootDir, "pom.xml");
-	}
-	
-	private MavenPom(File rootDir, String pomFileName){
-		this.rootDir = rootDir;
-		this.pomFileName = pomFileName;
-	}
+    private File rootDir;
+    private String pomFileName;
 
-	public void transformPom(MavenCoordinates coreCoordinates) throws PomTransformationException{
-		File pom = new File(rootDir.getAbsolutePath()+"/"+pomFileName);
-		File backupPom = new File(rootDir.getAbsolutePath()+"/"+pomFileName+".backup");
-		try {
-			FileUtils.rename(pom, backupPom);
+    public MavenPom(File rootDir) {
+        this(rootDir, "pom.xml");
+    }
+
+    private MavenPom(File rootDir, String pomFileName) {
+        this.rootDir = rootDir;
+        this.pomFileName = pomFileName;
+    }
+
+    public void transformPom(MavenCoordinates coreCoordinates) throws PomTransformationException {
+        File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
+        File backupPom = new File(rootDir.getAbsolutePath() + "/" + pomFileName + ".backup");
+        try {
+            FileUtils.rename(pom, backupPom);
 
             Document doc;
             try {
@@ -108,15 +107,15 @@ public class MavenPom {
             }
 
             writeDocument(pom, doc);
-		} catch (Exception e) {
-			throw new PomTransformationException("Error while transforming pom : "+pom.getAbsolutePath(), e);
-		}
-	}
+        } catch (Exception e) {
+            throw new PomTransformationException("Error while transforming pom : " + pom.getAbsolutePath(), e);
+        }
+    }
 
     /**
      * Removes the dependency if it exists.
      */
-	public void removeDependency(@Nonnull String groupId, @Nonnull String artifactId) throws IOException {
+    public void removeDependency(@Nonnull String groupId, @Nonnull String artifactId) throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -136,9 +135,9 @@ public class MavenPom {
             }
 
             Element groupIdElem = mavenDependency.element(GROUP_ID_ELEMENT);
-            if (groupIdElem != null && groupId.equalsIgnoreCase(groupIdElem.getText()) ) {
+            if (groupIdElem != null && groupId.equalsIgnoreCase(groupIdElem.getText())) {
                 LOGGER.log(Level.WARNING, "Removing dependency on {0}:{1}",
-                        new Object[] {groupId, artifactId});
+                        new Object[]{groupId, artifactId});
                 dependencies.remove(mavenDependency);
             }
         }
@@ -146,9 +145,8 @@ public class MavenPom {
         writeDocument(pom, doc);
     }
 
-    public void addDependencies(Map<String,VersionNumber> toAdd, Map<String,VersionNumber> toReplace, Map<String,VersionNumber> toAddTest, Map<String,VersionNumber> toReplaceTest, VersionNumber coreDep, Map<String,String> pluginGroupIds, List<String> toConvert) 
-        throws IOException 
-    {
+    public void addDependencies(Map<String, VersionNumber> toAdd, Map<String, VersionNumber> toReplace, Map<String, VersionNumber> toAddTest, Map<String, VersionNumber> toReplaceTest, VersionNumber coreDep, Map<String, String> pluginGroupIds, List<String> toConvert)
+            throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -186,8 +184,8 @@ public class MavenPom {
         }
 
         Element properties = doc.getRootElement().element("properties");
-        Map<String,VersionNumber> toReplaceUsed = new LinkedHashMap<>();
-        Map<String,VersionNumber> toReplaceTestUsed = new LinkedHashMap<>();
+        Map<String, VersionNumber> toReplaceUsed = new LinkedHashMap<>();
+        Map<String, VersionNumber> toReplaceTestUsed = new LinkedHashMap<>();
         for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
             Element artifactId = mavenDependency.element(ARTIFACT_ID_ELEMENT);
             Element groupId = mavenDependency.element(GROUP_ID_ELEMENT);
@@ -196,7 +194,7 @@ public class MavenPom {
             }
 
             String expectedGroupId = pluginGroupIds.get(artifactId.getTextTrim());
-            if(expectedGroupId == null || !groupId.getTextTrim().equals(expectedGroupId)) {
+            if (expectedGroupId == null || !groupId.getTextTrim().equals(expectedGroupId)) {
                 continue;
             }
 
@@ -215,8 +213,8 @@ public class MavenPom {
                     // Search property and update its value
                     String property = version.getTextTrim().replace("${", "").replace("}", "");
                     Element propertyToUpdate = null;
-                    for (Element mavenProperty: (List<Element>) properties.elements()) {
-                        if(StringUtils.equals(property, mavenProperty.getQName().getName())){
+                    for (Element mavenProperty : (List<Element>) properties.elements()) {
+                        if (StringUtils.equals(property, mavenProperty.getQName().getName())) {
                             propertyToUpdate = mavenProperty;
                             break;
                         }
@@ -262,10 +260,10 @@ public class MavenPom {
     }
 
     /**
-     * Add the given new plugins to the pom file. 
+     * Add the given new plugins to the pom file.
      */
-    private void addPlugins(Map<String,VersionNumber> adding, Map<String,String> pluginGroupIds, Element dependencies, String scope) {
-        for (Map.Entry<String,VersionNumber> dep : adding.entrySet()) {
+    private void addPlugins(Map<String, VersionNumber> adding, Map<String, String> pluginGroupIds, Element dependencies, String scope) {
+        for (Map.Entry<String, VersionNumber> dep : adding.entrySet()) {
             Element dependency = dependencies.addElement("dependency");
             String group = pluginGroupIds.get(dep.getKey());
 
@@ -280,14 +278,14 @@ public class MavenPom {
             dependency.addElement(VERSION_ELEMENT).addText(dep.getValue().toString());
 
             // Add required scope
-            if(scope != null) {
+            if (scope != null) {
                 dependency.addElement("scope").addText(scope);
             }
         }
     }
 
     private void writeDocument(final File target, final Document doc) throws IOException {
-        Writer w = Files.newBufferedWriter(target.toPath(), Charset.defaultCharset());
+        Writer w = Files.newBufferedWriter(target.toPath(), getSafeCharset(doc));
         OutputFormat format = OutputFormat.createPrettyPrint();
         XMLWriter writer = new XMLWriter(w, format);
         try {
@@ -295,6 +293,14 @@ public class MavenPom {
         } finally {
             writer.close();
             w.close();
+        }
+    }
+
+    private Charset getSafeCharset(final Document doc) {
+        try {
+            return Charset.forName(doc.getXMLEncoding());
+        } catch (Exception ex) {
+            return Charset.defaultCharset();
         }
     }
 
