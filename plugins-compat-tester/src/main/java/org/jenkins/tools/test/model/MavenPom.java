@@ -223,6 +223,7 @@ public class MavenPom {
                         properties.remove(propertyToUpdate);
                         propertyToUpdate.setText(replacement.toString());
                         properties.add(propertyToUpdate);
+                        toReplaceUsed.put(trimmedArtifactId, replacement);
                         continue;
                     }
                 } else {

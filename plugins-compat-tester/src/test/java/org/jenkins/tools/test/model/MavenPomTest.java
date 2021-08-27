@@ -67,6 +67,23 @@ public class MavenPomTest {
         assertResourceEqualsXmlFile("demo-plugin-pom-after.xml", pomFile);
     }
 
+    @Test
+    public void doNotDuplicateDependenciesWhoseVersionsAreProperties() throws Exception {
+        File folder = tmp.newFolder();
+        File pomFile = createPomFileFromResource(folder, "demo-plugin-properties-pom-before.xml");
+        Map<String, VersionNumber> toAdd = new HashMap<>();
+        Map<String, VersionNumber> toReplace = new HashMap<>();
+        toReplace.put("workflow-step-api", new VersionNumber("2.24"));
+        Map<String, VersionNumber> toAddTest = new HashMap<>();
+        Map<String, VersionNumber> toReplaceTest = new HashMap<>();
+        VersionNumber coreDep = new VersionNumber("2.303.1");
+        Map<String, String> pluginGroupIds = new HashMap<>();
+        pluginGroupIds.put("workflow-step-api", "org.jenkins-ci.plugins.workflow");
+        List<String> toConvert = Collections.emptyList();
+        new MavenPom(folder).addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, toConvert);
+        assertResourceEqualsXmlFile("demo-plugin-properties-pom-after.xml", pomFile);
+    }
+
     private void assertResourceEqualsXmlFile(String resource, File pom) throws IOException {
         Charset charset = Charset.forName("UTF-8");
         assertEquals(
