@@ -44,6 +44,8 @@ import org.codehaus.plexus.util.FileUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.dom4j.Namespace;
+import org.dom4j.QName;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
@@ -141,7 +143,38 @@ public class MavenPom {
                 dependencies.remove(mavenDependency);
             }
         }
+        writeDocument(pom, doc);
+    }
 
+    /**
+     * Adds arbitrary element(s) to the POM at the given path 
+     * @param path the path to insert the element at - e.g. /dependencies/dependency
+     * @param e the Element to insert
+     * @throws IOException if an issue occured writing the file
+     */
+    public void addToPom(String path, Element e) throws IOException {
+        File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
+        Document doc;
+        try {
+            doc = new SAXReader().read(pom);
+        } catch (DocumentException x) {
+            throw new IOException(x);
+        }
+        
+        Element insertAt = doc.getRootElement();
+        String[] paths = path.split("/");
+        for (String p : paths) {
+            if (p.isEmpty()) {
+                break;
+            }
+            Element child = insertAt.element(p);
+            if (child != null) {
+                insertAt = child;
+            } else {
+                insertAt = insertAt.addElement(p);
+            }
+        }
+        insertAt.add(e);
         writeDocument(pom, doc);
     }
 
