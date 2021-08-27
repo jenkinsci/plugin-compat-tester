@@ -499,6 +499,7 @@ public class PluginCompatTester {
 
         // Ran the BeforeCompileHooks
         Map<String, Object> beforeCompile = new HashMap<>();
+
         beforeCompile.put("pluginName", plugin.name);
         beforeCompile.put("plugin", plugin);
         beforeCompile.put("pluginDir", pluginCheckoutDir);
@@ -545,6 +546,7 @@ public class PluginCompatTester {
             List<String> testTypes = new LinkedList<>();
             testTypes.add("surefire"); // default
             Map<String, Object> forExecutionHooks = new HashMap<>();
+            forExecutionHooks.put("pluginsData", otherPlugins);
             forExecutionHooks.put("pluginName", plugin.name);
             forExecutionHooks.put("args", args);
             forExecutionHooks.put("pomData", pomData);

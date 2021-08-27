@@ -1,5 +1,7 @@
 package org.jenkins.tools.test.hook;
 
+import hudson.model.UpdateCenter;
+import hudson.model.UpdateSite;
 import java.util.Map;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
@@ -24,17 +26,15 @@ public class RemoveBouncyCastleLibrariesHook  extends PluginCompatTesterHookBefo
             pom.removeDependency("org.jenkins-ci.plugins", "bouncycastle-api");
             
             // add the bouncy castle plugin back in dependencyManagement (how do we obtain the version), with exclusions on org.bouncycastle:*
-            // TODO where can we get this version from?
-            pom.addToPom("dependencyManagement/dependencies", getBCExclusionElement("2.23"));
+            Map<String, UpdateSite.Plugin>  plugins = (Map<String, UpdateSite.Plugin>) moreInfo.get("pluginsData");
+            pom.addToPom("dependencyManagement/dependencies", getBCExclusionElement(plugins.get("bouncycastle-api").version));
         }
         return moreInfo;
     }
 
     @Override
     public boolean check(Map<String, Object> info) {
-        // TODO uncomment me for production
-        // return Boolean.parseBoolean(System.getenv("REMOVE_BC_DEPS"));
-        return true;
+        return Boolean.parseBoolean(System.getenv("REMOVE_BC_DEPS"));
     }
     
     private boolean isBouncyCastleAPIPlugin(Map<String, Object> info) {
