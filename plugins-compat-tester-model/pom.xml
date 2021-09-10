@@ -46,7 +46,7 @@
     <dependency>
       <groupId>org.reflections</groupId>
       <artifactId>reflections</artifactId>
-      <version>0.9.11</version> <!-- Downgrade due to: https://github.com/ronmamo/reflections/issues/273 -->
+      <version>0.9.12</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
