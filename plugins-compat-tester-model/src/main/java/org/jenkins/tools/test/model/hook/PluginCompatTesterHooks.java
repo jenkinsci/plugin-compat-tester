@@ -12,6 +12,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 
 /**
  * Loads and executes hooks for modifying the state of Plugin Compatibility Tester at different
@@ -106,7 +107,7 @@ public class PluginCompatTesterHooks {
         
         // Search for all hooks defined within the given classpath prefix
         for(String prefix : hookPrefixes) {
-            Reflections reflections = new Reflections(prefix);
+            Reflections reflections = new Reflections(prefix, new SubTypesScanner());
             Set<Class<? extends PluginCompatTesterHook>> subTypes;
             
             // Find all steps for a given stage. Long due to casting
