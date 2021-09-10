@@ -29,12 +29,12 @@ public class BlueOceanHook extends AbstractMultiParentHook {
         return isBOPlugin(info);
     }
 
-    public static boolean isBOPlugin(Map<String, Object> moreInfo) {
+    private boolean isBOPlugin(Map<String, Object> moreInfo) {
         PomData data = (PomData) moreInfo.get("pomData");
         return isBOPlugin(data);
     }
 
-    public static boolean isBOPlugin(PomData data) {
+    private boolean isBOPlugin(PomData data) {
         if (data.parent != null) {
             return data.parent.artifactId.equalsIgnoreCase("blueocean-parent");
         } else {

@@ -19,6 +19,8 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBeforeCheckout {
 
     protected boolean firstRun = true;
+    
+    private PomData pomData;
 
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
@@ -38,7 +40,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 // Checkout to the parent directory. All other processes will be on the child directory
                 File parentPath = new File(config.workDirectory.getAbsolutePath() + "/" + getParentFolder());
 
-                PomData pomData = (PomData) moreInfo.get("pomData");
+                pomData = (PomData) moreInfo.get("pomData");
                 String scmTag;
                 if (pomData.getScmTag() != null) {
                     scmTag = pomData.getScmTag();
@@ -48,7 +50,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                     System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
                 }
                 // Like PluginCompatTester.cloneFromSCM but with subdirectories trimmed:
-                String parentUrl = pomData.getConnectionUrl().replaceFirst("^(.+github[.]com/[^/]+/[^/]+)/.+", "$1");
+                String parentUrl = getUrl(pomData);
                 System.out.println("Checking out from SCM connection URL: " + parentUrl + " (" + getParentProjectName() + "-" + currentPlugin.version + ") at tag " + scmTag);
                 ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
                 ScmRepository repository = scmManager.makeScmRepository(parentUrl);
@@ -75,6 +77,10 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
         }
 
         return moreInfo;
+    }
+
+    public String getUrl() {
+        return pomData.getConnectionUrl().replaceFirst("^(.+github[.]com/[^/]+/[^/]+)/.+", "$1");
     }
 
     protected void configureLocalCheckOut(UpdateSite.Plugin currentPlugin, File localCheckoutDir, Map<String, Object> moreInfo) {

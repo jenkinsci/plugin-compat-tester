@@ -28,12 +28,12 @@ public class DeclarativePipelineHook extends AbstractMultiParentHook {
         return isDPPlugin(info);
     }
 
-    public static boolean isDPPlugin(Map<String, Object> moreInfo) {
+    private boolean isDPPlugin(Map<String, Object> moreInfo) {
         PomData data = (PomData) moreInfo.get("pomData");
         return isDPPlugin(data);
     }
 
-    public static boolean isDPPlugin(PomData data) {
+    private boolean isDPPlugin(PomData data) {
         if (data.parent != null) {
             return data.parent.artifactId.equalsIgnoreCase("pipeline-model-parent");
         } else {
