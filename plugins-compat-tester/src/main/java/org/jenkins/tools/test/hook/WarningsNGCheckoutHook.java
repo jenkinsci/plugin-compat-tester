@@ -29,12 +29,12 @@ public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
         return "plugin";
     }
 
-    public static boolean isWarningsNG(Map<String, Object> moreInfo) {
+    private boolean isWarningsNG(Map<String, Object> moreInfo) {
         PomData data = (PomData) moreInfo.get("pomData");
         return isWarningsNG(data);
     }
 
-    public static boolean isWarningsNG(PomData data) {
+    private boolean isWarningsNG(PomData data) {
         return "warnings-ng-parent".equals(data.artifactId) // localCheckoutDir
                 || "warnings-ng".equals(data.artifactId); // checkout
     }
