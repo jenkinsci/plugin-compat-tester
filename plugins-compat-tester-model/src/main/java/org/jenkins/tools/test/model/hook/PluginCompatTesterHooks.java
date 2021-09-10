@@ -23,7 +23,7 @@ import org.reflections.Reflections;
  */
 public class PluginCompatTesterHooks {
     private List<String> hookPrefixes = new ArrayList<>();
-    private Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
+    private static Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
 
     /**
      * Create and prepopulate the various hooks for this run of Plugin Compatibility Tester.
@@ -60,19 +60,7 @@ public class PluginCompatTesterHooks {
      * @param elements relevant information to hooks at various stages.
      */
     private Map<String, Object> runHooks(String stage, Map<String, Object> elements) throws RuntimeException {
-        String pluginName = (String)elements.get("pluginName");
-        // List of hooks to execute for the given plugin
-        Queue<PluginCompatTesterHook> beforeHooks = new LinkedList<>();
-
-        // Add any hooks that apply for all plugins
-        if(hooksByType.get(stage).get("all") != null) {
-            beforeHooks.addAll(hooksByType.get(stage).get("all"));
-        }
-
-        // Add hooks that applied to this concrete plugin
-        if(hooksByType.get(stage).get(pluginName) != null) {
-            beforeHooks.addAll(hooksByType.get(stage).get(pluginName));
-        }
+        Queue<PluginCompatTesterHook> beforeHooks = getHooksFromStage(stage, elements);
         
         // Loop through hooks in a series run in no particular order
         // Modifications build on each other, pertinent checks should be handled in the hook
@@ -94,6 +82,23 @@ public class PluginCompatTesterHooks {
             }
         }
         return elements;
+    }
+    
+    public static Queue<PluginCompatTesterHook> getHooksFromStage(String stage, Map<String, Object> elements) {
+        // List of hooks to execute for the given plugin
+        Queue<PluginCompatTesterHook> hooks = new LinkedList<>();
+
+        // Add any hooks that apply for all plugins
+        if(hooksByType.get(stage).get("all") != null) {
+            hooks.addAll(hooksByType.get(stage).get("all"));
+        }
+
+        // Add hooks that applied to this concrete plugin
+        String pluginName = (String)elements.get("pluginName");
+        if(hooksByType.get(stage).get(pluginName) != null) {
+            hooks.addAll(hooksByType.get(stage).get(pluginName));
+        }
+        return hooks;
     }
 
     private Map<String, Queue<PluginCompatTesterHook>> findHooks(String stage) {

@@ -50,7 +50,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                     System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
                 }
                 // Like PluginCompatTester.cloneFromSCM but with subdirectories trimmed:
-                String parentUrl = getUrl(pomData);
+                String parentUrl = getUrl();
                 System.out.println("Checking out from SCM connection URL: " + parentUrl + " (" + getParentProjectName() + "-" + currentPlugin.version + ") at tag " + scmTag);
                 ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
                 ScmRepository repository = scmManager.makeScmRepository(parentUrl);
