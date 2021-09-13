@@ -107,7 +107,7 @@ public class PluginCompatTesterHooks {
         
         // Search for all hooks defined within the given classpath prefix
         for(String prefix : hookPrefixes) {
-            Reflections reflections = new Reflections(prefix, new SubTypesScanner());
+            Reflections reflections = new Reflections(prefix);
             Set<Class<? extends PluginCompatTesterHook>> subTypes;
             
             // Find all steps for a given stage. Long due to casting
