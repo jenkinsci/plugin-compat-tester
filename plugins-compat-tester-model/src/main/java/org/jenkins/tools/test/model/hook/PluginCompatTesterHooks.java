@@ -1,10 +1,16 @@
 package org.jenkins.tools.test.model.hook;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +28,7 @@ import org.reflections.Reflections;
  * never be called.
  */
 public class PluginCompatTesterHooks {
+    private Set<ClassLoader> classLoaders = new HashSet<>(Collections.singletonList(PluginCompatTesterHooks.class.getClassLoader()));
     private List<String> hookPrefixes = new ArrayList<>();
     private static Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
 
@@ -32,14 +39,38 @@ public class PluginCompatTesterHooks {
         this(new ArrayList<>());
     }
     public PluginCompatTesterHooks(List<String> extraPrefixes) {
-        if(extraPrefixes != null) {
-            hookPrefixes.addAll(extraPrefixes);
-        }
+        setupPrefixes(extraPrefixes);
+        setupHooksByType();
+    }
+
+    public PluginCompatTesterHooks(List<String> extraPrefixes, List<String> externalJars) throws MalformedURLException {
+        setupPrefixes(extraPrefixes);
+        setupExternalClassLoaders(externalJars);
+        setupHooksByType();
+    }
+
+    private void setupHooksByType() {
         for(String stage : Arrays.asList("checkout", "execution", "compilation")) {
             hooksByType.put(stage, findHooks(stage));
         }
     }
+    private void setupPrefixes(List<String> extraPrefixes) {
+        if(extraPrefixes != null) {
+            hookPrefixes.addAll(extraPrefixes);
+        }
+    }
 
+    private void setupExternalClassLoaders(List<String> externalJars) throws MalformedURLException {
+        if (externalJars == null) {
+            return;
+        }
+        for (String jar : externalJars) {
+            File file = new File(jar);
+            if (file.exists() && file.isFile()) {
+                classLoaders.add(new URLClassLoader(new URL[] { file.toURI().toURL() }, PluginCompatTesterHooks.class.getClassLoader()));
+            }
+        }
+    }
     public Map<String, Object> runBeforeCheckout(Map<String, Object> elements) {
         return runHooks("checkout", elements);
     }
@@ -103,9 +134,9 @@ public class PluginCompatTesterHooks {
 
     private Map<String, Queue<PluginCompatTesterHook>> findHooks(String stage) {
         Map<String, Queue<PluginCompatTesterHook>> sortedHooks = new HashMap<>();
-        
+
         // Search for all hooks defined within the given classpath prefix
-        Reflections reflections = new Reflections(hookPrefixes.toArray(new String[0]), PluginCompatTesterHooks.class.getClassLoader());
+        Reflections reflections = new Reflections(hookPrefixes.toArray(new String[0]), classLoaders.toArray(new ClassLoader[classLoaders.size()]));
         Set<Class<? extends PluginCompatTesterHook>> subTypes;
 
         // Find all steps for a given stage. Long due to casting

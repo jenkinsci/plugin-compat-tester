@@ -128,6 +128,9 @@ public class CliOptions {
 
     @Parameter(names="-hookPrefixes", description = "Prefixes of the extra hooks' classes")
     private String hookPrefixes;
+    
+    @Parameter(names="-externalHooksJars", description = "Comma-separated list of external hooks jar file locations")
+    private String externalHooksJars;
 
     @Parameter(names="-localCheckoutDir", description = "Folder containing either a local (possibly modified) clone of a plugin repository or a set of local clone of different plugins")
     private String localCheckoutDir;
@@ -216,6 +219,10 @@ public class CliOptions {
 
     public String getHookPrefixes() {
         return hookPrefixes;
+    }
+    
+    public String getExternalHooksJars() {
+        return externalHooksJars;
     }
 
     public String getLocalCheckoutDir() {
