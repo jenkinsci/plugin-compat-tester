@@ -43,7 +43,7 @@ public class PluginCompatTesterHooks {
         setupHooksByType();
     }
 
-    public PluginCompatTesterHooks(List<String> extraPrefixes, List<String> externalJars) throws MalformedURLException {
+    public PluginCompatTesterHooks(List<String> extraPrefixes, List<File> externalJars) throws MalformedURLException {
         setupPrefixes(extraPrefixes);
         setupExternalClassLoaders(externalJars);
         setupHooksByType();
@@ -60,14 +60,13 @@ public class PluginCompatTesterHooks {
         }
     }
 
-    private void setupExternalClassLoaders(List<String> externalJars) throws MalformedURLException {
+    private void setupExternalClassLoaders(List<File> externalJars) throws MalformedURLException {
         if (externalJars == null) {
             return;
         }
-        for (String jar : externalJars) {
-            File file = new File(jar);
-            if (file.exists() && file.isFile()) {
-                classLoaders.add(new URLClassLoader(new URL[] { file.toURI().toURL() }, PluginCompatTesterHooks.class.getClassLoader()));
+        for (File jar : externalJars) {
+            if (jar.exists() && jar.isFile()) {
+                classLoaders.add(new URLClassLoader(new URL[] { jar.toURI().toURL() }, PluginCompatTesterHooks.class.getClassLoader()));
             }
         }
     }
