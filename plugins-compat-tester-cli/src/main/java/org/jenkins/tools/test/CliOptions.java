@@ -134,7 +134,7 @@ public class CliOptions {
     @Parameter(names="-hookPrefixes", description = "Prefixes of the extra hooks' classes")
     private String hookPrefixes;
     
-    @Parameter(names="-externalHooksJars", description = "Comma-separated list of external hooks jar file locations", listConverter = FileListConverter.class)
+    @Parameter(names="-externalHooksJars", description = "Comma-separated list of external hooks jar file locations", listConverter = FileListConverter.class, validateWith = FileValidator.class)
     private List<File> externalHooksJars;
 
     @Parameter(names="-localCheckoutDir", description = "Folder containing either a local (possibly modified) clone of a plugin repository or a set of local clone of different plugins")
@@ -285,6 +285,18 @@ public class CliOptions {
                 fileList.add(new File(path));
             }
             return fileList;
+        }
+    }
+    
+    public static class FileValidator implements IParameterValidator {
+        @Override
+        public void validate(String name, String value) throws ParameterException {
+            for (String path : value.split(",")) {
+                File jar = new File(path);
+                if (!jar.exists() || !jar.isFile()) {
+                    throw new ParameterException(path + " must exists and be a normal file (not a directory)");
+                }
+            }
         }
     }
 

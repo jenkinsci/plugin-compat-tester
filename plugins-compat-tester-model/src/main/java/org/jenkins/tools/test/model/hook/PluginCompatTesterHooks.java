@@ -65,9 +65,7 @@ public class PluginCompatTesterHooks {
             return;
         }
         for (File jar : externalJars) {
-            if (jar.exists() && jar.isFile()) {
-                classLoaders.add(new URLClassLoader(new URL[] { jar.toURI().toURL() }, PluginCompatTesterHooks.class.getClassLoader()));
-            }
+            classLoaders.add(new URLClassLoader(new URL[] { jar.toURI().toURL() }, PluginCompatTesterHooks.class.getClassLoader()));
         }
     }
     public Map<String, Object> runBeforeCheckout(Map<String, Object> elements) {
