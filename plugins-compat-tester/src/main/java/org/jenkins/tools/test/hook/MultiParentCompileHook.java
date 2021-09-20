@@ -1,5 +1,7 @@
 package org.jenkins.tools.test.hook;
 
+import static org.jenkins.tools.test.model.hook.PluginCompatTesterHooks.getHooksFromStage;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHook;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 
 public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
@@ -80,9 +83,12 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
     @Override
     public boolean check(Map<String, Object> info) {
-        return BlueOceanHook.isBOPlugin(info) || DeclarativePipelineHook.isDPPlugin(info) || StructsHook.isStructsPlugin(info) ||
-        SwarmHook.isSwarmPlugin(info) || ConfigurationAsCodeHook.isCascPlugin(info) || PipelineStageViewHook.isPipelineStageViewPlugin(info) ||
-        DeclarativePipelineMigrationHook.isPlugin(info) ;
+        for (PluginCompatTesterHook hook : getHooksFromStage("checkout", info)) {
+            if (hook instanceof AbstractMultiParentHook && hook.check(info)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isEslintFile(Path file) {

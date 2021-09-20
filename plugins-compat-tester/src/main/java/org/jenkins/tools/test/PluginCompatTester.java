@@ -172,7 +172,7 @@ public class PluginCompatTester {
             splitCycles = HISTORICAL_SPLIT_CYCLES;
         }
 
-        PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(config.getHookPrefixes());
+        PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(config.getHookPrefixes(), config.getExternalHooksJars());
         // Providing XSL Stylesheet along xml report file
         if(config.reportFile != null){
             if(config.isProvideXslReport()){

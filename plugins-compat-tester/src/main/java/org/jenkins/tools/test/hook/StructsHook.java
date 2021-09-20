@@ -32,12 +32,12 @@ public class StructsHook extends AbstractMultiParentHook {
         return "plugin";
     }
 
-    public static boolean isStructsPlugin(Map<String, Object> moreInfo) {
+    private boolean isStructsPlugin(Map<String, Object> moreInfo) {
         PomData data = (PomData) moreInfo.get("pomData");
         return isStructsPlugin(data);
     }
 
-    public static boolean isStructsPlugin(PomData data) {
+    private boolean isStructsPlugin(PomData data) {
         if (data.parent != null) {
             // Non-incrementals
             return data.parent.artifactId.equalsIgnoreCase("structs-parent");

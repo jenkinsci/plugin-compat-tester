@@ -1,5 +1,7 @@
 package org.jenkins.tools.test.hook;
 
+import static org.jenkins.tools.test.model.hook.PluginCompatTesterHooks.getHooksFromStage;
+
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -7,6 +9,7 @@ import java.util.logging.Logger;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHook;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
 public class TransformPom extends PluginCompatTesterHookBeforeExecution {
@@ -33,14 +36,6 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         MavenCoordinates coreCoordinates = (MavenCoordinates)info.get("coreCoordinates");
 
         final boolean isCB, parentV2, parentUnder233;
-        boolean isStructs = StructsHook.isStructsPlugin(pomData);
-        boolean isBO = BlueOceanHook.isBOPlugin(pomData);
-        boolean isDeclarativePipeline = DeclarativePipelineHook.isDPPlugin(pomData);
-        boolean isCasC = ConfigurationAsCodeHook.isCascPlugin(pomData);
-        boolean isPipelineStageViewPlugin = PipelineStageViewHook.isPipelineStageViewPlugin(pomData);
-        boolean isSwarm = SwarmHook.isSwarmPlugin(pomData);
-        boolean isDeclarativePipelineMigration = DeclarativePipelineMigrationHook.isPlugin(pomData);
-        boolean isWarningsMG = WarningsNGCheckoutHook.isWarningsNG(pomData);
         boolean pluginPOM = pomData.isPluginPOM();
         if (parent != null) {
             isCB = parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
@@ -61,7 +56,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         boolean coreRequiresNewParentPOM = coreCoordinates.compareVersionTo(CORE_NEW_PARENT_POM) >= 0;
         boolean coreRequiresPluginOver233 = coreCoordinates.compareVersionTo(CORE_WITHOUT_WAR_FOR_TEST) >= 0;
 
-        if (isDeclarativePipeline || isBO || isCB || isStructs || isCasC || isPipelineStageViewPlugin || isSwarm || isDeclarativePipelineMigration || (pluginPOM && parentV2) || isWarningsMG) {
+        if (isCB || (pluginPOM && parentV2) || mustTransformByHooks(info)) {
             List<String> argsToMod = (List<String>)info.get("args");
             argsToMod.add("-Djenkins.version=" + coreCoordinates.version);
             // There are rules that avoid dependencies on a higher java level. Depending on the baselines and target cores
@@ -80,6 +75,15 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
         }
 
         return mustTransformPom;
+    }
+    
+    private boolean mustTransformByHooks(Map<String, Object> info) {
+        for (PluginCompatTesterHook hook : getHooksFromStage("checkout", info)) {
+            if (hook instanceof AbstractMultiParentHook && hook.check(info)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

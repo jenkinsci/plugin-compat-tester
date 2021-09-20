@@ -32,12 +32,12 @@ public class DeclarativePipelineMigrationHook extends AbstractMultiParentHook {
         return isPlugin(info);
     }
 
-    public static boolean isPlugin(Map<String, Object> moreInfo) {
+    private boolean isPlugin(Map<String, Object> moreInfo) {
         PomData data = (PomData) moreInfo.get("pomData");
         return isPlugin(data);
     }
 
-    public static boolean isPlugin(PomData data) {
+    private boolean isPlugin(PomData data) {
         if (data.parent != null) {
             return data.parent.artifactId.equalsIgnoreCase("declarative-pipeline-migration-assistant-parent");
         }

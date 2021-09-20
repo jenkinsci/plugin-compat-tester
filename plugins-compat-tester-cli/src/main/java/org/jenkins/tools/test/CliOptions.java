@@ -25,16 +25,21 @@
  */
 package org.jenkins.tools.test;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.CheckForNull;
+
+import org.jenkins.tools.test.model.PCTPlugin;
+import org.jenkins.tools.test.model.TestStatus;
+
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+
 import hudson.util.VersionNumber;
-import java.io.File;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.jenkins.tools.test.model.PCTPlugin;
-import org.jenkins.tools.test.model.TestStatus;
 
 /**
  * POJO containing CLI arguments &amp; help.
@@ -128,6 +133,9 @@ public class CliOptions {
 
     @Parameter(names="-hookPrefixes", description = "Prefixes of the extra hooks' classes")
     private String hookPrefixes;
+    
+    @Parameter(names="-externalHooksJars", description = "Comma-separated list of external hooks jar file locations", listConverter = FileListConverter.class, validateWith = FileValidator.class)
+    private List<File> externalHooksJars;
 
     @Parameter(names="-localCheckoutDir", description = "Folder containing either a local (possibly modified) clone of a plugin repository or a set of local clone of different plugins")
     private String localCheckoutDir;
@@ -217,6 +225,10 @@ public class CliOptions {
     public String getHookPrefixes() {
         return hookPrefixes;
     }
+    
+    public List<File> getExternalHooksJars() {
+        return externalHooksJars;
+    }
 
     public String getLocalCheckoutDir() {
         return localCheckoutDir;
@@ -261,6 +273,30 @@ public class CliOptions {
             String name = details[0];
             int colon = name.indexOf(':');
             return new PCTPlugin(colon == -1 ? name : name.substring(colon + 1), colon == -1 ? null : name.substring(0, colon), new VersionNumber(details[1]));
+        }
+    }
+    
+    public static class FileListConverter implements IStringConverter<List<File>> {
+        @Override
+        public List<File> convert(String files) {
+            String [] paths = files.split(",");
+            List<File> fileList = new ArrayList<>();
+            for(String path : paths){
+                fileList.add(new File(path));
+            }
+            return fileList;
+        }
+    }
+    
+    public static class FileValidator implements IParameterValidator {
+        @Override
+        public void validate(String name, String value) throws ParameterException {
+            for (String path : value.split(",")) {
+                File jar = new File(path);
+                if (!jar.exists() || !jar.isFile()) {
+                    throw new ParameterException(path + " must exists and be a normal file (not a directory)");
+                }
+            }
         }
     }
 
