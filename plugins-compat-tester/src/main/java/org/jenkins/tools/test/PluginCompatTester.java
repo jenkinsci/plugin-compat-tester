@@ -323,7 +323,7 @@ public class PluginCompatTester {
                             status = TestStatus.COMPILATION_ERROR;
                         } else if (!e.getTestDetails().hasBeenExecuted()) { // testing was not able to start properly (i.e: invalid exclusion list file format)
                             status = TestStatus.INTERNAL_ERROR;
-                        } else if (!e.getTestDetails().hasFailures()) { 
+                        } else if (e.getTestDetails().hasFailures()) { 
                             status = TestStatus.TEST_FAILURES;                            
                         } else { // Can this really happen ???
                             status = TestStatus.SUCCESS;
