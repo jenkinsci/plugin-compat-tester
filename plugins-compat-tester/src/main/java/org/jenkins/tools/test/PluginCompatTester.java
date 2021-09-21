@@ -317,7 +317,7 @@ public class PluginCompatTester {
                             status = TestStatus.TEST_FAILURES;
                         }
                         warningMessages.addAll(result.pomWarningMessages);
-                        testDetails.addAll(config.isStoreAll() ? result.getTestDetails().getAll() : result.getTestDetails().getFailed());
+                        testDetails.addAll(config.isStoreAll() ? result.getTestDetails().getAll() : result.getTestDetails().hasFailures() ? result.getTestDetails().getFailed() : Collections.emptySet());
                     } catch (PomExecutionException e) {
                         if(!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")){
                             status = TestStatus.COMPILATION_ERROR;
