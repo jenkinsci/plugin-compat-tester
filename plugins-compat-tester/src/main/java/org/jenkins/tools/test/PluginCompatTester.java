@@ -45,6 +45,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -310,24 +311,26 @@ public class PluginCompatTester {
                     if (errorMessage == null) {
                     try {
                         TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pluginsToCheck, pluginGroupIds, pcth, config.getOverridenPlugins());
-                        if (result.getTestDetails().getFailed().isEmpty()) {
+                        if (result.getTestDetails().isSuccess()) {
                             status = TestStatus.SUCCESS;
                         } else {
                             status = TestStatus.TEST_FAILURES;
                         }
                         warningMessages.addAll(result.pomWarningMessages);
-                        testDetails.addAll(config.isStoreAll() ? result.getTestDetails().getAll() : result.getTestDetails().getFailed());
+                        testDetails.addAll(config.isStoreAll() ? result.getTestDetails().getAll() : result.getTestDetails().hasFailures() ? result.getTestDetails().getFailed() : Collections.emptySet());
                     } catch (PomExecutionException e) {
                         if(!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")){
                             status = TestStatus.COMPILATION_ERROR;
-                        } else if (!e.getTestDetails().getFailed().isEmpty()) {
-                            status = TestStatus.TEST_FAILURES;
+                        } else if (!e.getTestDetails().hasBeenExecuted()) { // testing was not able to start properly (i.e: invalid exclusion list file format)
+                            status = TestStatus.INTERNAL_ERROR;
+                        } else if (e.getTestDetails().hasFailures()) { 
+                            status = TestStatus.TEST_FAILURES;                            
                         } else { // Can this really happen ???
                             status = TestStatus.SUCCESS;
                         }
                         errorMessage = e.getErrorMessage();
                         warningMessages.addAll(e.getPomWarningMessages());
-                        testDetails.addAll(config.isStoreAll() ? e.getTestDetails().getAll() : e.getTestDetails().getFailed());
+                        testDetails.addAll(config.isStoreAll() ? e.getTestDetails().getAll() : e.getTestDetails().hasFailures() ? e.getTestDetails().getFailed() : Collections.emptySet());
                     } catch (Error e){
                         // Rethrow the error ... something is wrong !
                         throw e;
@@ -566,7 +569,7 @@ public class PluginCompatTester {
         } catch (PomExecutionException e){
             e.getPomWarningMessages().addAll(pomData.getWarningMessages());
             if (ranCompile) {
-                // So the status is considered to be TEST_FAILURES not COMPILATION_ERROR:
+                // So the status cannot be considered COMPILATION_ERROR
                 e.succeededPluginArtifactIds.add("maven-compiler-plugin");
             }
             throw e;

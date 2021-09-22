@@ -101,18 +101,20 @@ public class ExecutedTestNamesSolver {
 
         System.out.println("[INFO] ");
         System.out.println("[INFO] Results:");
-        System.out.println("[INFO] ");
-        System.out.println(String.format("[INFO] Executed: %s", testNames.getExecuted().size()));
-        for (String testName : testNames.getExecuted()) {
-            System.out.println(String.format("[INFO] - %s", testName));
-        }
-        System.out.println("[INFO] ");
-        System.out.println(String.format("[INFO] Failed: %s", testNames.getFailed().size()));
-        for (String testName : testNames.getFailed()) {
-            System.out.println(String.format("[INFO] - %s", testName));
-        }
-
+        printDetails(testNames.getExecuted(), "Executed");
+        printDetails(testNames.getFailed(), "Failed");
         return testNames;
+    }
+
+    private void printDetails(Set<String> tests, String type) {
+        System.out.println("[INFO] ");
+        int size = tests != null ? tests.size() : 0;
+        System.out.println(String.format("[INFO] %s: %s", type, size));
+        if (size != 0) {
+            for (String testName : tests) {
+                System.out.println(String.format("[INFO] - %s", testName));
+            }
+        }
     }
 
     private List<String> getReportsDirectoryPaths(Set<String> types, File baseDirectory) throws ExecutedTestNamesSolverException {
