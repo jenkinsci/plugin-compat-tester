@@ -55,7 +55,7 @@ parallel(branches)
 def itBranches = [:]
 
 
-itBranches['buildtriggerbadge:2.10 tests success on JDK11'] = {
+itBranches['buildtriggerbadge:2.11 tests success on JDK11'] = {
     node('docker') {
         checkout scm
         def settingsXML="mvn-settings.xml"
@@ -79,7 +79,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK11'] = {
                          -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=11 \
                          -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
-                         -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
+                         -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.11 \
                          jenkins/pct
             '''
             archiveArtifacts artifacts: "out/**"
@@ -89,7 +89,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK11'] = {
     }
 }
 
-itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
+itBranches['buildtriggerbadge:2.11 tests success on JDK8'] = {
     node('docker') {
         checkout scm
         def settingsXML="mvn-settings.xml"
@@ -113,7 +113,7 @@ itBranches['buildtriggerbadge:2.10 tests success on JDK8'] = {
                          -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
                          -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
-                         -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.10 \
+                         -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.11 \
                          jenkins/pct
             '''
             archiveArtifacts artifacts: "out/**"
