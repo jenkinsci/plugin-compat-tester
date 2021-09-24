@@ -54,7 +54,6 @@ parallel(branches)
 // Integration testing, using a locally built Docker image
 def itBranches = [:]
 
-
 itBranches['buildtriggerbadge:2.11 tests success on JDK11'] = {
     node('docker') {
         checkout scm
