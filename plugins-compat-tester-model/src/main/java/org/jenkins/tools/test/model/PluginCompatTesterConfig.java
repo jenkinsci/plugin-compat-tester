@@ -127,6 +127,9 @@ public class PluginCompatTesterConfig {
  
     // Classpath prefixes of the extra hooks
     private List<String> hookPrefixes = new ArrayList<>(Collections.singletonList("org.jenkins"));
+    
+    // External hooks jar files path locations
+    private List<File> externalHooksJars = new ArrayList<>();
 
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
     private File localCheckoutDir;
@@ -407,10 +410,18 @@ public class PluginCompatTesterConfig {
     public List<String> getHookPrefixes() {
         return hookPrefixes;
     }
+    
+    public List<File> getExternalHooksJars() {
+        return externalHooksJars;
+    }
 
     public void setHookPrefixes(List<String> hookPrefixes) {
         // Want to also process the default
         this.hookPrefixes.addAll(hookPrefixes);
+    }
+    
+    public void setExternalHooksJars(List<File> externalHooksJars) {
+        this.externalHooksJars = externalHooksJars;
     }
 
     /**

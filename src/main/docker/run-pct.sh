@@ -157,7 +157,7 @@ mkdir -p "${PCT_OUTPUT_DIR}"
 ###
 # Determine if we test the plugin against another JDK
 ###
-TEST_JDK_HOME=${TEST_JAVA_ARGS:-"/usr/lib/jvm/java-${JDK_VERSION:-8}-openjdk-amd64"}
+TEST_JDK_HOME=${TEST_JAVA_ARGS:-"/usr/local/openjdk-${JDK_VERSION:-8}"}
 TEST_JAVA_ARGS="'${TEST_JAVA_ARGS:-} -Xmx768M -Djava.awt.headless=true -Djdk.net.URLClassPath.disableClassPathURLCheck=true'"
 
 # The image always uses external Maven due to https://issues.jenkins-ci.org/browse/JENKINS-48710

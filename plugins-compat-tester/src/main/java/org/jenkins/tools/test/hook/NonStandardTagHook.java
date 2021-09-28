@@ -14,6 +14,7 @@ import org.apache.maven.scm.command.checkout.CheckOutScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.jenkins.tools.test.SCMManagerFactory;
+import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
@@ -69,25 +70,15 @@ public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
         if (shouldExecuteHook) {
             System.out.println("Executing " + this.getClass().getSimpleName() + " for " + pomData.artifactId);
 
-                // Checkout to the parent directory. All other processes will be on the child directory
-                File checkoutPath = new File(config.workDirectory.getAbsolutePath() + "/" + pomData.artifactId);
+            // Checkout to the parent directory. All other processes will be on the child directory
+            File checkoutPath = new File(config.workDirectory.getAbsolutePath() + "/" + pomData.artifactId);
 
-                String scmTag =  String.format(affectedPlugins.get(pomData.artifactId).toString(), plugin.version);
-                System.out.println("Checking out from SCM tag " + scmTag);
-                ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-                ScmRepository repository = scmManager.makeScmRepository(pomData.getConnectionUrl());
-                CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutPath), new ScmTag(scmTag));
-
-                if (!result.isSuccess()) {
-                    // Throw an exception if there are any download errors.
-                    throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
-                }
-
+            String scmTag =  String.format(affectedPlugins.get(pomData.artifactId).toString(), plugin.version);
+            PluginCompatTester pct = new PluginCompatTester(config);
+            pct.cloneFromSCM(pomData, plugin.name, plugin.version, checkoutPath, scmTag);
 
             // Checkout already happened, don't run through again
             info.put("runCheckout", false);
-
-
             info.put("checkoutDir", checkoutPath);
             info.put("pluginDir", checkoutPath);
         }

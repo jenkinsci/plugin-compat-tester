@@ -27,12 +27,12 @@ public class ConfigurationAsCodeHook extends AbstractMultiParentHook {
         return "plugin";
     }
 
-    public static boolean isCascPlugin(Map<String, Object> moreInfo) {
+    private boolean isCascPlugin(Map<String, Object> moreInfo) {
         PomData data = (PomData) moreInfo.get("pomData");
         return isCascPlugin(data);
     }
 
-    public static boolean isCascPlugin(PomData data) {
+    private boolean isCascPlugin(PomData data) {
         if (data.parent != null) {
             // Non-incrementals
             return data.parent.groupId.equalsIgnoreCase("io.jenkins.configuration-as-code");

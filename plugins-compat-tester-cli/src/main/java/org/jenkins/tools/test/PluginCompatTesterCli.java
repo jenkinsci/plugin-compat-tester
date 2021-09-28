@@ -126,6 +126,9 @@ public class PluginCompatTesterCli {
         if(options.getHookPrefixes() != null && !options.getHookPrefixes().isEmpty()){
             config.setHookPrefixes(Arrays.asList(options.getHookPrefixes().split(",")));
         }
+        if(options.getExternalHooksJars() != null && !options.getExternalHooksJars().isEmpty()){
+            config.setExternalHooksJars(options.getExternalHooksJars());
+        }
         if(options.getLocalCheckoutDir() != null && !options.getLocalCheckoutDir().isEmpty()){
             config.setLocalCheckoutDir(options.getLocalCheckoutDir());
         }

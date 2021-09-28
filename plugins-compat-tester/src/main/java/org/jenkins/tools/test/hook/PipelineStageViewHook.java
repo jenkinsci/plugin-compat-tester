@@ -27,12 +27,12 @@ public class PipelineStageViewHook extends AbstractMultiParentHook {
         return isPipelineStageViewPlugin(info);
     }
 
-    public static boolean isPipelineStageViewPlugin(Map<String, Object> moreInfo) {
+    private boolean isPipelineStageViewPlugin(Map<String, Object> moreInfo) {
         PomData data = (PomData) moreInfo.get("pomData");
         return isPipelineStageViewPlugin(data);
     }
 
-    public static boolean isPipelineStageViewPlugin(PomData data) {
+    private boolean isPipelineStageViewPlugin(PomData data) {
         return data.groupId.equals("org.jenkins-ci.plugins.pipeline-stage-view") || data.artifactId.contains("pipeline-rest-api");
     }
 }

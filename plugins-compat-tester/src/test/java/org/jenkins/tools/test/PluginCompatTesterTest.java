@@ -213,6 +213,30 @@ public class PluginCompatTesterTest {
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
     }
+    
+    @Test
+    public void testWithInvalidExclusionList() throws Throwable {
+        File exclusionList = new ClassPathResource("bad-surefire-exclusion-list").getFile();
+        PluginCompatTesterConfig config = getConfig(ImmutableList.of("active-directory"));
+        Map<String, String> mavenProperties = new HashMap<>();
+        mavenProperties.put("surefire.excludesFile", exclusionList.getAbsolutePath());
+        config.setMavenProperties(mavenProperties);
+        
+        PluginCompatTester tester = new PluginCompatTester(config);
+        PluginCompatReport report = tester.testPlugins();
+        assertNotNull(report);
+        Map<PluginInfos, List<PluginCompatResult>> pluginCompatTests = report.getPluginCompatTests();
+        assertNotNull(pluginCompatTests);
+        for (Entry<PluginInfos, List<PluginCompatResult>> entry : pluginCompatTests.entrySet()) {
+            assertEquals("active-directory", entry.getKey().pluginName);
+            List<PluginCompatResult> results = entry.getValue();
+            assertEquals(1, results.size());
+            PluginCompatResult result = results.get(0);
+            assertNotNull(result);
+            assertNotNull(result.status);
+            assertEquals(TestStatus.INTERNAL_ERROR, result.status);
+        }
+    }
 
     private PluginCompatTesterConfig getConfig(List<String> includedPlugins) throws IOException {
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
@@ -250,7 +274,7 @@ public class PluginCompatTesterTest {
         PomData pomData = new PomData(pluginName, "hpi", nonWorkingConnectionURL, pluginName + "-" + version,
                 mavenCoordinates, "org.jenkins-ci.plugins.workflow");
         pct.cloneFromSCM(pomData, pluginName, version,
-                new File(config.workDirectory.getAbsolutePath() + File.separator + pluginName + File.separator));
+                new File(config.workDirectory.getAbsolutePath() + File.separator + pluginName + File.separator), "");
     }
 
     @Test(expected = Test.None.class)
@@ -268,7 +292,7 @@ public class PluginCompatTesterTest {
         PomData pomData = new PomData(pluginName, "hpi", nonWorkingConnectionURL, pluginName + "-" + version,
                 mavenCoordinates, "org.jenkins-ci.plugins.workflow");
         pct.cloneFromSCM(pomData, pluginName, version,
-                new File(config.workDirectory.getAbsolutePath() + File.separator + pluginName + File.separator));
+                new File(config.workDirectory.getAbsolutePath() + File.separator + pluginName + File.separator), "");
     }
 
     @Test

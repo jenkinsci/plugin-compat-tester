@@ -31,12 +31,12 @@ public class SwarmHook extends AbstractMultiParentHook {
         return isSwarmPlugin(info);
     }
 
-    public static boolean isSwarmPlugin(Map<String, Object> moreInfo) {
+    private boolean isSwarmPlugin(Map<String, Object> moreInfo) {
         PomData data = (PomData) moreInfo.get("pomData");
         return isSwarmPlugin(data);
     }
 
-    public static boolean isSwarmPlugin(PomData data) {
+    private boolean isSwarmPlugin(PomData data) {
         if (data.parent != null) {
             // Non-incrementals
             return data.parent.artifactId.equalsIgnoreCase("swarm-plugin");
