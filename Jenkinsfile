@@ -175,7 +175,7 @@ itBranches['WAR with non-default groupId plugins - smoke test'] = {
                             -v $(pwd)/tmp/output/target/war-with-plugins-test-1.0.war:/pct/jenkins.war:ro \
                             -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
                             -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
-                            -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.6 \
+                            -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.15 \
                             jenkins/pct \
                             -overridenPlugins 'io.jenkins:configuration-as-code=1.20'
               '''
