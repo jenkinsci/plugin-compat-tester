@@ -145,7 +145,7 @@ public class MavenPom {
         writeDocument(pom, doc);
     }
 
-    public void addDependencies(Map<String, VersionNumber> toAdd, Map<String, VersionNumber> toReplace, Map<String, VersionNumber> toAddTest, Map<String, VersionNumber> toReplaceTest, VersionNumber coreDep, Map<String, String> pluginGroupIds, List<String> toConvert)
+    public void addDependencies(Map<String, VersionNumber> toAdd, Map<String, VersionNumber> toReplace, Map<String, VersionNumber> toAddTest, Map<String, VersionNumber> toReplaceTest, Map<String, String> pluginGroupIds, List<String> toConvert)
             throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
@@ -157,22 +157,6 @@ public class MavenPom {
         Element dependencies = doc.getRootElement().element("dependencies");
         if (dependencies == null) {
             dependencies = doc.getRootElement().addElement("dependencies");
-        }
-
-        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
-            Element artifactId = mavenDependency.element(ARTIFACT_ID_ELEMENT);
-            if (artifactId == null || !"maven-plugin".equals(artifactId.getTextTrim())) {
-                continue;
-            }
-            Element version = mavenDependency.element(VERSION_ELEMENT);
-            if (version == null || version.getTextTrim().startsWith("${")) {
-                // Prior to 1.532, plugins sometimes assumed they could pick up the Maven plugin version from their parent POM.
-                if (version != null) {
-                    mavenDependency.remove(version);
-                }
-                version = mavenDependency.addElement(VERSION_ELEMENT);
-                version.addText(coreDep.toString());
-            }
         }
 
         Set<String> depsWithoutClassifier = new HashSet<>();
