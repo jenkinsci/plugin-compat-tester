@@ -1020,7 +1020,7 @@ public class PluginCompatTester {
 
             if (!toAdd.isEmpty() || !toReplace.isEmpty() || !toAddTest.isEmpty() || !toReplaceTest.isEmpty()) {
                 System.out.println("Adding/replacing plugin dependencies for compatibility: " + toAdd + " " + toReplace + "\nFor test: " + toAddTest + " " + toReplaceTest);
-                pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, convertFromTestDep);
+                pom.addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, pluginGroupIds, convertFromTestDep);
             }
 
         // TODO(oleg_nenashev): This is a hack, logic above should be refactored somehow (JENKINS-55279)
