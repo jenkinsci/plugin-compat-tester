@@ -11,6 +11,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
@@ -62,7 +63,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             // only if the plugin is not already compiled
             boolean ranCompile = moreInfo.containsKey(OVERRIDE_DEFAULT_COMPILE) && (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE);
             if (!ranCompile) {
-                compile(mavenConfig, pluginDir);
+                compile(mavenConfig, pluginDir, (String) moreInfo.get("parentFolder"), (String) moreInfo.get("pluginName"));
                 moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
             }
 
@@ -113,12 +114,27 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         return mconfig;
     }
 
-    private void compile(MavenRunner.Config mavenConfig, File path) throws PomExecutionException, IOException {
+    private void compile(MavenRunner.Config mavenConfig, File path, String parentFolder, String pluginName) throws PomExecutionException, IOException {
+        if (StringUtils.isBlank(parentFolder)) {
+            runner.run(mavenConfig, path, setupCompileResources(path), "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+        } else {
+            if (!path.getAbsolutePath().contains(parentFolder)) {
+                throw new IOException(String.format("Something is really wrong here! parentFolder:%s not present in path %s", parentFolder, path.getAbsolutePath()));
+            }
+            if (!StringUtils.equals(parentFolder, path.getParentFile().getName())) {
+                throw new IOException(String.format("Something is really wrong here! %s is not the parent folder of %s", parentFolder, path.getAbsolutePath()));
+            }
+            // "process-test-classes" not working properly on multi-module plugin. See https://issues.jenkins.io/browse/JENKINS-62658
+            // using "mvn clean install -DskipTests -Dinvoker.skip -Denforcer.skip to skip testing and just compile and install dependencies"
+            runner.run(mavenConfig, path.getParentFile(), setupCompileResources(path.getParentFile()), "clean", "install", "-DskipTests", "-Dinvoker.skip", "-Denforcer.skip", "-Dmaven.javadoc.skip", "-am", "-pl", pluginName);
+        }
+    }
+
+    private File setupCompileResources(File path) throws IOException {
         System.out.println("Cleaning up node modules if necessary");
         removeNodeFolders(path);
         System.out.println("Compile plugin log in " + path);
-        File compilePomLogfile = new File(path + "/compilePluginLog.log");
-        runner.run(mavenConfig, path, compilePomLogfile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+        return new File(path + "/compilePluginLog.log");
     }
 
     private void removeNodeFolders(File path) throws IOException {
