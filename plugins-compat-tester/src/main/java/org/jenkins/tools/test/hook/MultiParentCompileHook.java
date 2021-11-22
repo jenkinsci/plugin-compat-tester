@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.hook;
 
+import static org.jenkins.tools.test.PluginCompatTester.getMavenModule;
 import static org.jenkins.tools.test.model.hook.PluginCompatTesterHooks.getHooksFromStage;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -12,6 +13,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
@@ -118,18 +120,22 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     }
 
     private void compile(MavenRunner.Config mavenConfig, File path, File localCheckoutDir, String parentFolder, String pluginName) throws PomExecutionException, IOException {
-        if (isSnapshotJep229EnabledMultiParentPlugin(parentFolder, path, localCheckoutDir)) {
+        if (isSnapshotMultiParentPlugin(parentFolder, path, localCheckoutDir)) {
             // "process-test-classes" not working properly on multi-module plugin. See https://issues.jenkins.io/browse/JENKINS-62658
             // using "mvn clean install -DskipTests -Dinvoker.skip -Denforcer.skip to skip testing and just compile and install dependencies"
-            runner.run(mavenConfig, path.getParentFile(), setupCompileResources(path.getParentFile()), "clean", "install", "-DskipTests", "-Dinvoker.skip", "-Denforcer.skip", "-Dmaven.javadoc.skip", "-am", "-pl", pluginName);
+            String mavenModule = getMavenModule(pluginName, path, runner, mavenConfig);
+            if (StringUtils.isBlank(mavenModule)) {
+                throw new IOException(String.format("Unable to retrieve the Maven module for plugin %s on %s", pluginName, path));
+            }
+            runner.run(mavenConfig, path.getParentFile(), setupCompileResources(path.getParentFile()), "clean", "install", "-DskipTests", "-Dinvoker.skip", "-Denforcer.skip", "-Dmaven.javadoc.skip", "-am", "-pl", mavenModule);
         } else {
             runner.run(mavenConfig, path, setupCompileResources(path), "clean", "process-test-classes", "-Dmaven.javadoc.skip");
         }
     }
 
     /**
-     * Checks if a plugin is a multiparent plugin with JEP-229 enabled (see: https://github.com/jenkinsci/jep/blob/master/jep/229/README.adoc)
-     * and an SNAPSHOT project.version and without local checkout directory overriden. 
+     * Checks if a plugin is a multiparent plugin with a SNAPSHOT project.version and 
+     * without local checkout directory overriden. 
      * 
      * @param parentFolder
      * @param path
@@ -138,7 +144,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
      * @throws PomExecutionException 
      * @throws IOException 
      */
-    private boolean isSnapshotJep229EnabledMultiParentPlugin(String parentFolder, File path, File localCheckoutDir) throws PomExecutionException, IOException {
+    private boolean isSnapshotMultiParentPlugin(String parentFolder, File path, File localCheckoutDir) throws PomExecutionException, IOException {
         if (localCheckoutDir != null) {
             return false;
         }
