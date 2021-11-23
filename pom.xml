@@ -10,7 +10,7 @@
 
   <groupId>org.jenkins-ci.tests</groupId>
   <artifactId>plugins-compat-tester-aggregator</artifactId>
-  <version>${revision}${changelist}</version>
+  <version>${changelist}</version>
   <name>Plugins compatibility tester Aggregator</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
   <url>https://github.com/jenkinsci/plugin-compat-tester</url>
@@ -24,8 +24,7 @@
   </scm>
 
   <properties>
-    <revision>0.5.2</revision>
-    <changelist>-SNAPSHOT</changelist>
+    <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <logbackVersion>1.2.3</logbackVersion>
@@ -43,7 +42,6 @@
     <module>plugins-compat-tester</module>
     <module>plugins-compat-tester-cli</module>
     <module>plugins-compat-tester-model</module>
-    <!--<module>plugins-compat-tester-rest</module>-->
   </modules>
 
   <dependencyManagement>
@@ -138,28 +136,14 @@
     </pluginRepository>
   </pluginRepositories>
 
-  <distributionManagement>
-    <repository>
-      <uniqueVersion>false</uniqueVersion>
-      <id>maven.jenkins-ci.org</id>
-      <url>https://repo.jenkins-ci.org/releases/</url>
-    </repository>
-    <snapshotRepository>
-      <id>maven.jenkins-ci.org</id>
-      <url>https://repo.jenkins-ci.org/snapshots/</url>
-    </snapshotRepository>
-  </distributionManagement>
-
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.3</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <inherited>false</inherited>
         <configuration>
-          <mavenExecutorId>forked-path</mavenExecutorId>
-          <useReleaseProfile>false</useReleaseProfile>
-          <preparationGoals>clean install</preparationGoals>
-          <goals>deploy</goals>
+          <skip>true</skip>
         </configuration>
       </plugin>
     </plugins>
