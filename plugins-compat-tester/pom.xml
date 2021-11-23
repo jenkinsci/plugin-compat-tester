@@ -12,7 +12,7 @@
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
 
   <properties>
-    <maven.scm.providers.version>1.5</maven.scm.providers.version>
+    <maven.scm.providers.version>1.12.0</maven.scm.providers.version>
     <trimStackTrace>false</trimStackTrace> <!-- SUREFIRE-1798 -->
   </properties>
 
@@ -41,7 +41,7 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>3.3.0</version>
+      <version>3.4.1</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
