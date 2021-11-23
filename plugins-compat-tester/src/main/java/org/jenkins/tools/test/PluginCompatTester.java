@@ -901,12 +901,7 @@ public class PluginCompatTester {
     }
     
     /**
-     * Provides the Maven module used for a plugin on a `mvn [...] -pl` operation in the parent path 
-     * @param plugin
-     * @param pluginPath
-     * @return the maven module 
-     * @throws PomExecutionException 
-     * @throws IOException 
+     * Provides the Maven module used for a plugin on a {@code mvn [...] -pl} operation in the parent path 
      */
     public static String getMavenModule(String plugin, File pluginPath, MavenRunner runner, MavenRunner.Config mavenConfig) throws PomExecutionException, IOException {
         String absolutePath = pluginPath.getAbsolutePath();
@@ -919,7 +914,7 @@ public class PluginCompatTester {
             return null;
         }
         File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "modules.log");
-        runner.run(mavenConfig, parentFile, log,"-Dexpression=project.modules", "-q", "-DforceStdout", "help:evaluate");
+        runner.run(mavenConfig, parentFile, log, "-Dexpression=project.modules", "-q", "-DforceStdout", "help:evaluate");
         for (String line : org.apache.commons.io.FileUtils.readLines(log)) {
             if (!StringUtils.startsWith(line.trim(), "<string>")) {
                 continue;
@@ -1075,7 +1070,6 @@ public class PluginCompatTester {
             pom.removeDependency(pluginGroupIds.get(thisPlugin), thisPlugin);
         }
     }
-    
     private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins) {
         checkDefinedDeps(pluginList, adding, replacing, otherPlugins, new ArrayList<>(), null);
     }

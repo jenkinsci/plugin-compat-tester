@@ -122,7 +122,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     private void compile(MavenRunner.Config mavenConfig, File path, File localCheckoutDir, String parentFolder, String pluginName) throws PomExecutionException, IOException {
         if (isSnapshotMultiParentPlugin(parentFolder, path, localCheckoutDir)) {
             // "process-test-classes" not working properly on multi-module plugin. See https://issues.jenkins.io/browse/JENKINS-62658
-            // using "mvn clean install -DskipTests -Dinvoker.skip -Denforcer.skip to skip testing and just compile and install dependencies"
+            // installs dependencies into local repository
             String mavenModule = getMavenModule(pluginName, path, runner, mavenConfig);
             if (StringUtils.isBlank(mavenModule)) {
                 throw new IOException(String.format("Unable to retrieve the Maven module for plugin %s on %s", pluginName, path));
@@ -136,13 +136,6 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     /**
      * Checks if a plugin is a multiparent plugin with a SNAPSHOT project.version and 
      * without local checkout directory overriden. 
-     * 
-     * @param parentFolder
-     * @param path
-     * @param localCheckoutDir
-     * @return
-     * @throws PomExecutionException 
-     * @throws IOException 
      */
     private boolean isSnapshotMultiParentPlugin(String parentFolder, File path, File localCheckoutDir) throws PomExecutionException, IOException {
         if (localCheckoutDir != null) {
