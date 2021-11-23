@@ -4,7 +4,7 @@
   <parent>
       <groupId>org.jenkins-ci.tests</groupId>
       <artifactId>plugins-compat-tester-aggregator</artifactId>
-      <version>${revision}${changelist}</version>
+      <version>${changelist}</version>
   </parent>
 
   <artifactId>plugins-compat-tester-cli</artifactId>
