@@ -80,7 +80,8 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     }
 
     public String getUrl() {
-        return pomData.getConnectionUrl().replaceFirst("^(.+github[.]com/[^/]+/[^/]+)/.+", "$1");
+        return pomData.getConnectionUrl().replaceFirst("^(.+github[.]com/[^/]+/[^/]+)/.+", "$1")
+                .replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
     }
 
     protected void configureLocalCheckOut(UpdateSite.Plugin currentPlugin, File localCheckoutDir, Map<String, Object> moreInfo) {

@@ -33,7 +33,6 @@ public class MavenPomTest {
         Map<String, VersionNumber> toAddTest = new HashMap<>();
         Map<String, VersionNumber> toReplaceTest = new HashMap<>(ImmutableMap.of("workflow-scm-step", new VersionNumber("2.11"), "workflow-durable-task-step", new VersionNumber("2.35"), "display-url-api", new VersionNumber("2.3.3"), "script-security", new VersionNumber("1.74"), "workflow-cps", new VersionNumber("2.83")));
         toReplaceTest.putAll(ImmutableMap.of("workflow-support", new VersionNumber("3.5"), "workflow-job", new VersionNumber("2.39"), "workflow-basic-steps", new VersionNumber("2.20")));
-        VersionNumber coreDep = new VersionNumber("2.164.3");
         Map<String, String> pluginGroupIds = new HashMap<>(ImmutableMap.of("credentials-binding", "org.jenkins-ci.plugins", "pipeline-build-step", "org.jenkins-ci.plugins", "credentials", "org.jenkins-ci.plugins", "jdk-tool", "org.jenkins-ci.plugins", "snakeyaml-api", "io.jenkins.plugins"));
         pluginGroupIds.putAll(ImmutableMap.of("workflow-step-api", "org.jenkins-ci.plugins.workflow", "plain-credentials", "org.jenkins-ci.plugins", "trilead-api", "org.jenkins-ci.plugins", "command-launcher", "org.jenkins-ci.plugins", "jquery", "org.jenkins-ci.plugins"));
         pluginGroupIds.putAll(ImmutableMap.of("matrix-project", "org.jenkins-ci.plugins", "jquery-detached", "org.jenkins-ci.ui", "ace-editor", "org.jenkins-ci.ui", "git", "org.jenkins-ci.plugins", "workflow-durable-task-step", "org.jenkins-ci.plugins.workflow"));
@@ -45,7 +44,7 @@ public class MavenPomTest {
         pluginGroupIds.putAll(ImmutableMap.of("display-url-api", "org.jenkins-ci.plugins", "token-macro", "org.jenkins-ci.plugins", "script-security", "org.jenkins-ci.plugins", "pipeline-input-step", "org.jenkins-ci.plugins", "branch-api", "org.jenkins-ci.plugins"));
         pluginGroupIds.putAll(ImmutableMap.of("workflow-api", "org.jenkins-ci.plugins.workflow", "git-server", "org.jenkins-ci.plugins"));
         List<String> toConvert = Collections.emptyList();
-        new MavenPom(prj).addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, toConvert);
+        new MavenPom(prj).addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, pluginGroupIds, toConvert);
 
         assertResourceEqualsXmlFile("credentials-binding-pom-after.xml", pom);
     }
@@ -76,11 +75,10 @@ public class MavenPomTest {
         toReplace.put("workflow-step-api", new VersionNumber("2.24"));
         Map<String, VersionNumber> toAddTest = new HashMap<>();
         Map<String, VersionNumber> toReplaceTest = new HashMap<>();
-        VersionNumber coreDep = new VersionNumber("2.303.1");
         Map<String, String> pluginGroupIds = new HashMap<>();
         pluginGroupIds.put("workflow-step-api", "org.jenkins-ci.plugins.workflow");
         List<String> toConvert = Collections.emptyList();
-        new MavenPom(folder).addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, coreDep, pluginGroupIds, toConvert);
+        new MavenPom(folder).addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, pluginGroupIds, toConvert);
         assertResourceEqualsXmlFile("demo-plugin-properties-pom-after.xml", pomFile);
     }
 
