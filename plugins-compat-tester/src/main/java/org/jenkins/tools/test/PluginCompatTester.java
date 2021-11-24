@@ -435,6 +435,7 @@ public class PluginCompatTester {
         System.out.println(String.format("%n%n%n%n%n"));
 
         File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath() + File.separator + plugin.name + File.separator);
+        String parentFolder = StringUtils.EMPTY;
 
         try {
             // Run any precheckout hooks
@@ -486,6 +487,9 @@ public class PluginCompatTester {
                 if (beforeCheckout.get("pluginDir") != null) {
                     pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
                 }
+                if (beforeCheckout.get("parentFolder") != null) {
+                    parentFolder = (String) beforeCheckout.get("parentFolder");
+                }
                 System.out.println("The plugin has already been checked out, likely due to a multimodule situation. Continue.");
             }
         } catch (ComponentLookupException e) {
@@ -508,6 +512,9 @@ public class PluginCompatTester {
         beforeCompile.put("pomData", pomData);
         beforeCompile.put("config", config);
         beforeCompile.put("core", coreCoordinates);
+        if (StringUtils.isNotEmpty(parentFolder)) {
+            beforeCompile.put("parentFolder", parentFolder);
+        }
         Map<String, Object> hookInfo = pcth.runBeforeCompilation(beforeCompile);
 
         boolean ranCompile = hookInfo.containsKey(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) && (boolean) hookInfo.get(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE);
@@ -529,7 +536,7 @@ public class PluginCompatTester {
             // Much simpler to do use the parent POM to set up the test classpath.
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
-                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version, overridenPlugins);
+                addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version, overridenPlugins, parentFolder);
             } catch (Exception x) {
                 x.printStackTrace();
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
@@ -892,14 +899,49 @@ public class PluginCompatTester {
             throw new RuntimeException("UpdateSite.Data instantiation problems", e);
         }
     }
+    
+    /**
+     * Provides the Maven module used for a plugin on a {@code mvn [...] -pl} operation in the parent path 
+     */
+    public static String getMavenModule(String plugin, File pluginPath, MavenRunner runner, MavenRunner.Config mavenConfig) throws PomExecutionException, IOException {
+        String absolutePath = pluginPath.getAbsolutePath();
+        if (absolutePath.endsWith(plugin)) {
+            return plugin;
+        }
+        String module = absolutePath.substring(absolutePath.lastIndexOf(File.separatorChar) + 1, absolutePath.length());
+        File parentFile = pluginPath.getParentFile();
+        if (parentFile == null) {
+            return null;
+        }
+        File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "modules.log");
+        runner.run(mavenConfig, parentFile, log, "-Dexpression=project.modules", "-q", "-DforceStdout", "help:evaluate");
+        for (String line : org.apache.commons.io.FileUtils.readLines(log)) {
+            if (!StringUtils.startsWith(line.trim(), "<string>")) {
+                continue;
+            }
+            String mvnModule = line.replace("<string>", "").replace("</string>", "").trim();
+            if (StringUtils.contains(mvnModule, module)) {
+                return mvnModule;
+            }
+        }
+        return null;
+    }
 
-    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion, List<PCTPlugin> overridenPlugins) throws PomExecutionException, IOException {
+    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion, List<PCTPlugin> overridenPlugins, String parentFolder) throws PomExecutionException, IOException {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<>();
         Map<String,VersionNumber> pluginDepsTest = new HashMap<>();
         try {
-            runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
+            if (StringUtils.isBlank(parentFolder)) {
+                runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
+            } else {
+                String mavenModule = getMavenModule(thisPlugin, pluginCheckoutDir, runner, mconfig);
+                if (StringUtils.isBlank(mavenModule)) {
+                    throw new IOException(String.format("Unable to retrieve the Maven module for plugin %s on %s", thisPlugin, pluginCheckoutDir));
+                }
+                runner.run(mconfig, pluginCheckoutDir.getParentFile(), tmp, "dependency:resolve", "-am", "-pl", mavenModule);
+            }
             try (BufferedReader br =
                     Files.newBufferedReader(tmp.toPath(), Charset.defaultCharset())) {
                 Pattern p = Pattern.compile("\\[INFO\\]([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(provided|compile|runtime|system)(\\(optional\\))?");
@@ -1028,7 +1070,6 @@ public class PluginCompatTester {
             pom.removeDependency(pluginGroupIds.get(thisPlugin), thisPlugin);
         }
     }
-
     private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins) {
         checkDefinedDeps(pluginList, adding, replacing, otherPlugins, new ArrayList<>(), null);
     }
