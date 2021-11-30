@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -65,6 +66,7 @@ public class PomData {
         this.connectionUrl = connectionUrl;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Deliberately mutable")
     public List<String> getWarningMessages() {
         return warningMessages;
     }

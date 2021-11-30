@@ -25,7 +25,7 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
 
     @Override
     public List<String> transformedPlugins() {
-        return allBundlePlugins;
+        return Collections.unmodifiableList(allBundlePlugins);
     }
 
     /**

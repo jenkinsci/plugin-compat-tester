@@ -4,6 +4,7 @@ import hudson.model.UpdateSite;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,6 @@ public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
 
     @Override
     public List<String> transformedPlugins() {
-        return transformedPlugins;
+        return Collections.unmodifiableList(transformedPlugins);
     }
 }

@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test.model;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -101,6 +102,6 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
     }
 
     public Set<String> getTestsDetails() {
-        return testDetails;
+        return Collections.unmodifiableSet(testDetails);
     }
 }
