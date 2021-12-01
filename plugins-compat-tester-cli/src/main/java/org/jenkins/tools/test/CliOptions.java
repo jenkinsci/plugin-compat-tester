@@ -228,7 +228,7 @@ public class CliOptions {
     }
     
     public List<File> getExternalHooksJars() {
-        return Collections.unmodifiableList(externalHooksJars);
+        return externalHooksJars != null ? Collections.unmodifiableList(externalHooksJars) : null;
     }
 
     public String getLocalCheckoutDir() {
@@ -251,7 +251,7 @@ public class CliOptions {
 
     @CheckForNull
     public List<PCTPlugin> getOverridenPlugins() {
-        return Collections.unmodifiableList(overridenPlugins);
+        return overridenPlugins != null ? Collections.unmodifiableList(overridenPlugins) : null;
     }
 
     @CheckForNull
