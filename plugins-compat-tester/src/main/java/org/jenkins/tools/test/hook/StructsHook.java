@@ -45,7 +45,7 @@ public class StructsHook extends AbstractMultiParentHook {
     private boolean isStructsPlugin(PomData data, String version) {
         if (data.artifactId.equalsIgnoreCase("structs")) {
             VersionNumber pluginVersion = new VersionNumber(version);
-            VersionNumber oldVersion = new VersionNumber("1.25");
+            VersionNumber flattenedSince = new VersionNumber("1.25");
             return pluginVersion.isOlderThan(oldVersion);
         }
         return false;
