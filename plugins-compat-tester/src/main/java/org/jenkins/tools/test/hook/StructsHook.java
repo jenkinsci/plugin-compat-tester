@@ -1,6 +1,7 @@
 package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
+import hudson.util.VersionNumber;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,20 +35,19 @@ public class StructsHook extends AbstractMultiParentHook {
 
     private boolean isStructsPlugin(Map<String, Object> moreInfo) {
         PomData data = (PomData) moreInfo.get("pomData");
-        return isStructsPlugin(data);
+        UpdateSite.Plugin plugin = moreInfo.get("plugin") != null ? (UpdateSite.Plugin) moreInfo.get("plugin") : null;
+        if (plugin != null && plugin.version != null) {
+            return isStructsPlugin(data, plugin.version);
+        }
+        return false;
     }
 
-    private boolean isStructsPlugin(PomData data) {
-        if (data.parent != null) {
-            // Non-incrementals
-            return data.parent.artifactId.equalsIgnoreCase("structs-parent");
-        } else if (!"structs".equalsIgnoreCase(data.artifactId)) {
-            return false;
-        } else {
-            LOGGER.log(Level.WARNING, "Structs Plugin may have been incrementalified. " +
-                    "See JENKINS-55169 and linked tickets. Will guess by the packaging: {0}",
-                    data.getPackaging());
-            return "hpi".equalsIgnoreCase(data.getPackaging());
+    private boolean isStructsPlugin(PomData data, String version) {
+        if (data.artifactId.equalsIgnoreCase("structs")) {
+            VersionNumber pluginVersion = new VersionNumber(version);
+            VersionNumber oldVersion = new VersionNumber("1.25");
+            return pluginVersion.isOlderThan(oldVersion);
         }
+        return false;
     }
 }
