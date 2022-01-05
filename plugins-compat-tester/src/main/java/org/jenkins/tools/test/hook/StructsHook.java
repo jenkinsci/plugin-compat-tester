@@ -46,7 +46,7 @@ public class StructsHook extends AbstractMultiParentHook {
         if (data.artifactId.equalsIgnoreCase("structs")) {
             VersionNumber pluginVersion = new VersionNumber(version);
             VersionNumber flattenedSince = new VersionNumber("1.25");
-            return pluginVersion.isOlderThan(oldVersion);
+            return pluginVersion.isOlderThan(flattenedSince);
         }
         return false;
     }
