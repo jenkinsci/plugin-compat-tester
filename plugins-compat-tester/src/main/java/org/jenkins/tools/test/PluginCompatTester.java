@@ -597,6 +597,7 @@ public class PluginCompatTester {
         ScmRepository repository;
         ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
         for (String connectionURL: connectionURLs){
+            connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
             System.out.println("Checking out from SCM connection URL : " + connectionURL + " (" + name + "-" + version + ") at tag " + scmTag);
             if (checkoutDirectory.isDirectory()) {
                 FileUtils.deleteDirectory(checkoutDirectory);
