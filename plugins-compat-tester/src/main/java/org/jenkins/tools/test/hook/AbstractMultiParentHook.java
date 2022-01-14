@@ -2,12 +2,20 @@ package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
+import org.apache.maven.scm.manager.NoSuchScmProviderException;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
+import org.apache.maven.scm.repository.ScmRepositoryException;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.SCMManagerFactory;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
@@ -50,16 +58,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                     System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
                 }
                 // Like PluginCompatTester.cloneFromSCM but with subdirectories trimmed:
-                String parentUrl = getUrl();
-                System.out.println("Checking out from SCM connection URL: " + parentUrl + " (" + getParentProjectName() + "-" + currentPlugin.version + ") at tag " + scmTag);
-                ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-                ScmRepository repository = scmManager.makeScmRepository(parentUrl);
-                CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(scmTag));
-
-                if (!result.isSuccess()) {
-                    // Throw an exception if there are any download errors.
-                    throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
-                }
+                cloneFromSCM(currentPlugin, parentPath, scmTag, getUrl(), config.getFallbackGitHubOrganization());
             }
 
             // Checkout already happened, don't run through again
@@ -80,9 +79,42 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
         return moreInfo;
     }
 
+    private void cloneFromSCM(UpdateSite.Plugin currentPlugin, File parentPath, String scmTag, String url, String fallbackGitHubOrganization)
+            throws ComponentLookupException, ScmRepositoryException, NoSuchScmProviderException, ScmException {
+        
+        List<String> connectionURLs = new ArrayList<String>();
+        connectionURLs.add(url);
+        if(fallbackGitHubOrganization != null){
+            connectionURLs = PluginCompatTester.getFallbackConnectionURL(connectionURLs, url, fallbackGitHubOrganization);
+        }
+        
+        Boolean repositoryCloned = false;
+        String errorMessage = "";
+        ScmRepository repository;
+        ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
+        for (String connectionURL: connectionURLs){
+            if (connectionURL != null) {
+                connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
+            }
+            System.out.println("Checking out from SCM connection URL: " + connectionURL + " (" + getParentProjectName() + "-" + currentPlugin.version + ") at tag " + scmTag);
+            repository = scmManager.makeScmRepository(connectionURL);
+            CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(scmTag));
+            if(result.isSuccess()){
+                repositoryCloned = true;
+                break;
+            } else {
+                errorMessage = result.getProviderMessage() + " || " + result.getCommandOutput();
+            }
+        }
+        
+        if (!repositoryCloned) {
+            // Throw an exception if there are any download errors.
+            throw new RuntimeException(errorMessage);
+        }
+    }
+
     public String getUrl() {
-        return pomData.getConnectionUrl().replaceFirst("^(.+github[.]com/[^/]+/[^/]+)/.+", "$1")
-                .replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
+        return pomData.getConnectionUrl().replaceFirst("^(.+github[.]com/[^/]+/[^/]+)/.+", "$1");
     }
 
     protected void configureLocalCheckOut(UpdateSite.Plugin currentPlugin, File localCheckoutDir, Map<String, Object> moreInfo) {
