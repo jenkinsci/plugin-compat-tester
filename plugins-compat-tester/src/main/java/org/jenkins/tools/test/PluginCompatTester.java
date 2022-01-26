@@ -589,7 +589,7 @@ public class PluginCompatTester {
         List<String> connectionURLs = new ArrayList<String>();
         connectionURLs.add(connectionURLPomData);
         if(config.getFallbackGitHubOrganization() != null){
-            connectionURLs = getFallbackConnectionURL(connectionURLs, connectionURLPomData);
+            connectionURLs = getFallbackConnectionURL(connectionURLs, connectionURLPomData, config.getFallbackGitHubOrganization());
         }
 
         Boolean repositoryCloned = false;
@@ -597,7 +597,9 @@ public class PluginCompatTester {
         ScmRepository repository;
         ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
         for (String connectionURL: connectionURLs){
-            connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
+            if (connectionURL != null) {
+                connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
+            }
             System.out.println("Checking out from SCM connection URL : " + connectionURL + " (" + name + "-" + version + ") at tag " + scmTag);
             if (checkoutDirectory.isDirectory()) {
                 FileUtils.deleteDirectory(checkoutDirectory);
@@ -629,15 +631,15 @@ public class PluginCompatTester {
         return scmTag;
     }
 
-    private List<String> getFallbackConnectionURL(List<String> connectionURLs,String connectionURLPomData){
+    public static List<String> getFallbackConnectionURL(List<String> connectionURLs,String connectionURLPomData, String fallbackGitHubOrganization){
         Pattern pattern = Pattern.compile("(.*github.com[:|/])([^/]*)(.*)");
         Matcher matcher = pattern.matcher(connectionURLPomData);
         matcher.find();
-        connectionURLs.add(matcher.replaceFirst("scm:git:git@github.com:" + config.getFallbackGitHubOrganization() + "$3"));
+        connectionURLs.add(matcher.replaceFirst("scm:git:git@github.com:" + fallbackGitHubOrganization + "$3"));
         pattern = Pattern.compile("(.*github.com[:|/])([^/]*)(.*)");
         matcher = pattern.matcher(connectionURLPomData);
         matcher.find();
-        connectionURLs.add(matcher.replaceFirst("$1" + config.getFallbackGitHubOrganization() + "$3"));
+        connectionURLs.add(matcher.replaceFirst("$1" + fallbackGitHubOrganization + "$3"));
         return connectionURLs;
     }
 
