@@ -153,6 +153,9 @@ itBranches['google-compute-engine:4.3.3 tests on retrieving the test report'] = 
 }
 
 
+/*
+ TODO Fails as it tries to override with the jcasc test harness which doesn't exist on the core version targeted
+ need to update plugins and war version to fix this
 itBranches['WAR with non-default groupId plugins - smoke test'] = {
     node('docker') {
         checkout scm
@@ -185,6 +188,7 @@ itBranches['WAR with non-default groupId plugins - smoke test'] = {
         }
     }
 }
+*/
 
 //TODO (oleg-nenashev): This step is unstable at the moment, see JENKINS-60583
 Map disabled_itBranches = [:]
