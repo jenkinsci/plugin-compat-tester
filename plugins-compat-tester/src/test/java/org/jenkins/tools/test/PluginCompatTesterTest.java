@@ -262,6 +262,7 @@ public class PluginCompatTesterTest {
         return config;
     }
 
+    @Ignore("TODO broken by GH protocol changes. Requesting user data access via https on local execution")
     @Test(expected = RuntimeException.class)
     public void testWithoutAlternativeUrl() throws Throwable {
         String pluginName = "workflow-api";
@@ -279,6 +280,7 @@ public class PluginCompatTesterTest {
                 new File(config.workDirectory.getAbsolutePath() + File.separator + pluginName + File.separator), "");
     }
 
+    @Ignore("TODO broken by GH protocol changes. Requesting user data access via https on local execution")
     @Test(expected = Test.None.class)
     public void testWithAlternativeUrl() throws Throwable {
         String pluginName = "workflow-api";

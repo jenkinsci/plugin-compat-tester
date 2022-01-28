@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -145,7 +147,7 @@ public class MavenPom {
         writeDocument(pom, doc);
     }
 
-    public void addDependencies(Map<String, VersionNumber> toAdd, Map<String, VersionNumber> toReplace, Map<String, VersionNumber> toAddTest, Map<String, VersionNumber> toReplaceTest, VersionNumber coreDep, Map<String, String> pluginGroupIds, List<String> toConvert)
+    public void addDependencies(Map<String, VersionNumber> toAdd, Map<String, VersionNumber> toReplace, Map<String, VersionNumber> toAddTest, Map<String, VersionNumber> toReplaceTest, Map<String, String> pluginGroupIds, List<String> toConvert)
             throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
@@ -159,22 +161,26 @@ public class MavenPom {
             dependencies = doc.getRootElement().addElement("dependencies");
         }
 
-        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
-            Element artifactId = mavenDependency.element(ARTIFACT_ID_ELEMENT);
-            if (artifactId == null || !"maven-plugin".equals(artifactId.getTextTrim())) {
-                continue;
-            }
-            Element version = mavenDependency.element(VERSION_ELEMENT);
-            if (version == null || version.getTextTrim().startsWith("${")) {
-                // Prior to 1.532, plugins sometimes assumed they could pick up the Maven plugin version from their parent POM.
-                if (version != null) {
-                    mavenDependency.remove(version);
+        manageDependencies(toAdd, toReplace, toAddTest, toReplaceTest, pluginGroupIds, doc, dependencies, true);
+        Element profiles = doc.getRootElement().element("profiles");
+        if (profiles != null) {
+            Map<String, VersionNumber> empty = new HashMap<>();
+            Iterator<Element> elementIterator = profiles.elementIterator("profile");
+            while(elementIterator.hasNext()) {
+                Element e = elementIterator.next();
+                Element profileDependencies = e.element("dependencies");
+                if (profileDependencies == null) {
+                    continue;
                 }
-                version = mavenDependency.addElement(VERSION_ELEMENT);
-                version.addText(coreDep.toString());
+                manageDependencies(empty, toReplace, empty, toReplaceTest, pluginGroupIds, doc, profileDependencies, false);
             }
         }
+        writeDocument(pom, doc);
+    }
 
+    private void manageDependencies(Map<String, VersionNumber> toAdd, Map<String, VersionNumber> toReplace,
+            Map<String, VersionNumber> toAddTest, Map<String, VersionNumber> toReplaceTest,
+            Map<String, String> pluginGroupIds, Document doc, Element dependencies, boolean addition) {
         Set<String> depsWithoutClassifier = new HashSet<>();
         for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
             Element artifactId = mavenDependency.element(ARTIFACT_ID_ELEMENT);
@@ -247,17 +253,18 @@ public class MavenPom {
                 toReplaceUsed.put(trimmedArtifactId, replacement);
             }
         }
-        // If the replacement dependencies weren't explicitly present in the pom, add them directly now
-        toReplace.entrySet().removeAll(toReplaceUsed.entrySet());
-        toReplaceTest.entrySet().removeAll(toReplaceTestUsed.entrySet());
-        toAdd.putAll(toReplace);
-        toAddTest.putAll(toReplaceTest);
-
-        dependencies.addComment("SYNTHETIC");
-        addPlugins(toAdd, pluginGroupIds, dependencies, null);
-        addPlugins(toAddTest, pluginGroupIds, dependencies, "test");
-
-        writeDocument(pom, doc);
+        
+        if (addition) {
+            // If the replacement dependencies weren't explicitly present in the pom, add them directly now
+            toReplace.entrySet().removeAll(toReplaceUsed.entrySet());
+            toReplaceTest.entrySet().removeAll(toReplaceTestUsed.entrySet());
+            toAdd.putAll(toReplace);
+            toAddTest.putAll(toReplaceTest);
+    
+            dependencies.addComment("SYNTHETIC");
+            addPlugins(toAdd, pluginGroupIds, dependencies, null);
+            addPlugins(toAddTest, pluginGroupIds, dependencies, "test");
+        }
     }
 
     /**
