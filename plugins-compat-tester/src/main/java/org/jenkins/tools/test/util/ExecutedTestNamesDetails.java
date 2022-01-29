@@ -16,8 +16,6 @@ public class ExecutedTestNamesDetails {
     
     public ExecutedTestNamesDetails() {
         this.tests = new HashMap<>();
-        this.tests.put(FAILED, new TreeSet<String>());
-        this.tests.put(EXECUTED, new TreeSet<String>());
     }
     
     public void addFailedTest(String test) {
@@ -29,8 +27,13 @@ public class ExecutedTestNamesDetails {
     }
     
     public Set<String> getAll() {
-        Set<String> result = new TreeSet<>(this.tests.get(EXECUTED));
-        result.addAll(this.tests.get(FAILED));
+        Set<String> result = new TreeSet<>();
+        if (this.tests.containsKey(EXECUTED)) {
+            result.addAll(this.tests.get(EXECUTED));
+        }
+        if (this.tests.containsKey(FAILED)) {
+            result.addAll(this.tests.get(FAILED));
+        }
         return Collections.unmodifiableSet(result);
     }
     
@@ -43,7 +46,7 @@ public class ExecutedTestNamesDetails {
     }
     
     private Set<String> get(String key) {
-        return Collections.unmodifiableSet(new TreeSet<>(this.tests.get(key)));
+        return this.tests.containsKey(key) ? Collections.unmodifiableSet(new TreeSet<>(this.tests.get(key))) : null;
     }
     
     private void add(String key, String test) {

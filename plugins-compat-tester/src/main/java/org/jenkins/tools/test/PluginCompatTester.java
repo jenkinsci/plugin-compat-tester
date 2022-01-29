@@ -328,7 +328,7 @@ public class PluginCompatTester {
                         }
                         errorMessage = e.getErrorMessage();
                         warningMessages.addAll(e.getPomWarningMessages());
-                        testDetails.addAll(config.isStoreAll() ? e.getTestDetails().getAll() : e.getTestDetails().getFailed());
+                        testDetails.addAll(config.isStoreAll() ? e.getTestDetails().getAll() : e.getTestDetails().hasFailures() ? e.getTestDetails().getFailed() : Collections.emptySet());
                     } catch (Error e){
                         // Rethrow the error ... something is wrong !
                         throw e;
