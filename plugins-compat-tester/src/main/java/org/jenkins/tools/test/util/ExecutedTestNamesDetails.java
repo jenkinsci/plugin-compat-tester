@@ -49,7 +49,17 @@ public class ExecutedTestNamesDetails {
     private void add(String key, String test) {
         this.tests.get(key).add(test);
     }
-    
-    
+
+    public boolean hasBeenExecuted() {
+        return getExecuted() != null || getFailed() != null;
+    }
+
+    public boolean isSuccess() {
+        return getExecuted() != null && getFailed() == null;
+    }
+
+    public boolean hasFailures() {
+        return getFailed() != null && !getFailed().isEmpty();
+    }
 
 }
