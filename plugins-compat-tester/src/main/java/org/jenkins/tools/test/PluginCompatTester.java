@@ -321,7 +321,7 @@ public class PluginCompatTester {
                     } catch (PomExecutionException e) {
                         if(!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")){
                             status = TestStatus.COMPILATION_ERROR;
-                        } else if (!e.getTestDetails().getFailed().isEmpty()) {
+                        } else if (e.getTestDetails().getFailed() != null && !e.getTestDetails().getFailed().isEmpty()) {
                             status = TestStatus.TEST_FAILURES;
                         } else { // Can this really happen ???
                             status = TestStatus.SUCCESS;
