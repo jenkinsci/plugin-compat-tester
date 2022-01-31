@@ -37,6 +37,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -144,6 +146,80 @@ public class MavenPom {
             }
         }
 
+        writeDocument(pom, doc);
+    }
+    
+    /**
+     * Create/Update a plugin management section with a set of plugins 
+     * @param pluginsToAdd
+     * @param includeGroupId - specify if we want to add the groupId or not 
+     * @throws IOException 
+     */
+    public void addPluginManagement(List<MavenCoordinates> pluginsToAdd, boolean includeGroupId) throws IOException {
+        File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
+        Document doc;
+        try {
+            doc = new SAXReader().read(pom);
+        } catch (DocumentException x) {
+            throw new IOException(x);
+        }
+        
+        Element build = doc.getRootElement().element("build");
+        if (build == null) {
+            build = doc.getRootElement().addElement("build");
+        }
+        
+        Element pluginManagement = build.element("pluginManagement");
+        if (pluginManagement == null) {
+            pluginManagement = build.addElement("pluginManagement");
+        }
+        
+        Element plugins = pluginManagement.element("plugins");
+        if (plugins == null) {        
+            plugins = pluginManagement.addElement("plugins");
+        }
+        for (MavenCoordinates plugin : pluginsToAdd) {
+            Element entry = plugins.addElement("plugin");
+            if (includeGroupId) {
+                Element groupIdElem = entry.addElement(GROUP_ID_ELEMENT);
+                groupIdElem.setText(plugin.groupId);
+            }
+            Element artifactIdElem = entry.addElement(ARTIFACT_ID_ELEMENT);
+            artifactIdElem.setText(plugin.artifactId);
+            Element versionIdElem = entry.addElement(VERSION_ELEMENT);
+            versionIdElem.setText(plugin.version);
+        }
+        
+        writeDocument(pom, doc);
+    }
+    
+    /**
+     * Create/Update the properties section adding/updating some of them
+     * @param propertiesToAdd
+     * @throws IOException
+     */
+    public void addProperties(Properties propertiesToAdd) throws IOException {
+        File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
+        Document doc;
+        try {
+            doc = new SAXReader().read(pom);
+        } catch (DocumentException x) {
+            throw new IOException(x);
+        }
+        
+        Element properties = doc.getRootElement().element("properties");
+        if (properties == null) {
+            properties = doc.getRootElement().addElement("properties");
+        }
+        
+        for (Entry<Object, Object> property : propertiesToAdd.entrySet()) {
+            String key = (String)property.getKey();
+            Element entry = properties.element(key);
+            if (entry == null) {
+                entry = properties.addElement(key);
+            }
+            entry.setText((String)property.getValue());
+        }
         writeDocument(pom, doc);
     }
 
