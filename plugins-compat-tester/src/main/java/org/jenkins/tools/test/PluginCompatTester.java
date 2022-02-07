@@ -239,7 +239,7 @@ public class PluginCompatTester {
                 Plugin extracted = extractFromLocalCheckout();
                 pluginsToCheck.put(artifactId, extracted);
             } catch (PluginSourcesUnavailableException e) {
-                LOGGER.log(Level.SEVERE, String.format("Local checkout provided by plugin sources are not available. Cannot test plugin [%s]", artifactId));
+                LOGGER.log(Level.SEVERE, String.format("Local checkout provided but plugin sources are not available. Cannot test plugin [%s]", artifactId));
             }
         }
 
