@@ -406,7 +406,7 @@ public class PluginCompatTester {
         PomData data = new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml")).retrievePomData();
         JSONObject o = new JSONObject();
         o.put("name", data.artifactId);
-        o.put("version", ""); // TODO retrieve version
+        o.put("version", ""); // version is not required
         o.put("url", data.getConnectionUrl());
         o.put("dependencies", new JSONArray());
         return new UpdateSite(DEFAULT_SOURCE_ID, null).new Plugin(DEFAULT_SOURCE_ID, o);
