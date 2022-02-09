@@ -40,6 +40,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 import hudson.util.VersionNumber;
+import java.util.Collections;
 
 /**
  * POJO containing CLI arguments &amp; help.
@@ -227,7 +228,7 @@ public class CliOptions {
     }
     
     public List<File> getExternalHooksJars() {
-        return externalHooksJars;
+        return externalHooksJars != null ? Collections.unmodifiableList(externalHooksJars) : null;
     }
 
     public String getLocalCheckoutDir() {
@@ -250,7 +251,7 @@ public class CliOptions {
 
     @CheckForNull
     public List<PCTPlugin> getOverridenPlugins() {
-        return overridenPlugins;
+        return overridenPlugins != null ? Collections.unmodifiableList(overridenPlugins) : null;
     }
 
     @CheckForNull

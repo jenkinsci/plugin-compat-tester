@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test.exception;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -56,6 +57,7 @@ public class PomExecutionException extends Exception {
         this(exceptionToCopy.getMessage(), exceptionToCopy.succeededPluginArtifactIds, exceptionToCopy.exceptionsThrown, exceptionToCopy.pomWarningMessages, exceptionToCopy.testDetails);
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "oh well")
     public PomExecutionException(String message, List<String> succeededPluginArtifactIds, List<Throwable> exceptionsThrown, List<String> pomWarningMessages, ExecutedTestNamesDetails testDetails){
         super(message, exceptionsThrown.isEmpty() ? null : exceptionsThrown.iterator().next());
         this.exceptionsThrown = new ArrayList<>(exceptionsThrown);
@@ -77,10 +79,12 @@ public class PomExecutionException extends Exception {
         return strBldr.toString();
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "deliberately mutable")
     public List<String> getPomWarningMessages() {
         return pomWarningMessages;
     }
     
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "oh well")
     public ExecutedTestNamesDetails getTestDetails() {
         return testDetails;
     }

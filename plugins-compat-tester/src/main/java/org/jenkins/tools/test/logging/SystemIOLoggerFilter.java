@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test.logging;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -52,6 +53,7 @@ public class SystemIOLoggerFilter extends PrintStream {
         return currentPSFile;
     }
 
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "as designed")
     public static class SystemIOWrapper extends PrintStream {
         private SystemIOLoggerFilter loggerFilter;
         private PrintStream systemIO;

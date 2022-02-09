@@ -3,6 +3,7 @@ package org.jenkins.tools.test.hook;
 import hudson.model.UpdateSite.Plugin;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.maven.scm.ScmFileSet;
@@ -32,7 +33,7 @@ public class ExampleMultiParent { //extends PluginCompatTesterHookBeforeCheckout
      * All the plugins that are part of this repository.
      */
     public List<String> transformedPlugins() {
-        return allBundlePlugins;
+        return Collections.unmodifiableList(allBundlePlugins);
     }
 
     /*
