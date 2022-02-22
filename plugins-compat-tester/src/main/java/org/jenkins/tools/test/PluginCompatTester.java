@@ -342,8 +342,8 @@ public class PluginCompatTester {
                             status = TestStatus.INTERNAL_ERROR;
                         } else if (e.getTestDetails().hasFailures()) { 
                             status = TestStatus.TEST_FAILURES;                            
-                        } else { // Can this really happen ???
-                            status = TestStatus.SUCCESS;
+                        } else { // ???
+                            status = TestStatus.INTERNAL_ERROR;
                         }
                         errorMessage = e.getErrorMessage();
                         warningMessages.addAll(e.getPomWarningMessages());
