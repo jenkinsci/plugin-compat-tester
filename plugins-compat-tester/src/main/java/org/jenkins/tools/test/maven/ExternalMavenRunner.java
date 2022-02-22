@@ -57,6 +57,7 @@ public class ExternalMavenRunner implements MavenRunner {
         cmd.add(mvn != null ? mvn.getAbsolutePath() : "mvn");
         cmd.add("--show-version");
         cmd.add("--batch-mode");
+        cmd.add("--errors");
         cmd.add(DISABLE_DOWNLOAD_LOGS);
         if (config.userSettingsFile != null) {
             cmd.add("--settings=" + config.userSettingsFile);
