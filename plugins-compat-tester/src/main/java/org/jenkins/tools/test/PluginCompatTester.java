@@ -233,6 +233,19 @@ public class PluginCompatTester {
             throw new IOException("List of plugins to check is empty, it is not possible to run PCT");
         }
 
+        // if there is only one plugin and it's not already resolved (not in the war, not in a bom and not in an update center)
+        // and there is a local checkout available then it needs to be added to the plugins to check
+        if (onlyOnePluginIncluded() && localCheckoutProvided() && !pluginsToCheck.containsKey(config.getIncludePlugins().get(0))) {
+            String artifactId = config.getIncludePlugins().get(0);
+            try {
+                Plugin extracted = extractFromLocalCheckout();
+                pluginsToCheck.put(artifactId, extracted);
+            } catch (PluginSourcesUnavailableException e) {
+                LOGGER.log(Level.SEVERE, String.format("Local checkout provided but plugin sources are not available. Cannot test plugin [%s]", artifactId));
+            }
+        }
+
+
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
         SortedSet<MavenCoordinates> testedCores = config.getWar() == null ? generateCoreCoordinatesToTest(data, report) : coreVersionFromWAR(data);
@@ -389,6 +402,16 @@ public class PluginCompatTester {
         }
 
         return report;
+    }
+
+    private Plugin extractFromLocalCheckout() throws PluginSourcesUnavailableException {
+        PomData data = new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml")).retrievePomData();
+        JSONObject o = new JSONObject();
+        o.put("name", data.artifactId);
+        o.put("version", ""); // version is not required
+        o.put("url", data.getConnectionUrl());
+        o.put("dependencies", new JSONArray());
+        return new UpdateSite(DEFAULT_SOURCE_ID, null).new Plugin(DEFAULT_SOURCE_ID, o);
     }
 
     protected void generateHtmlReportFile() throws IOException {
