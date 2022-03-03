@@ -1100,6 +1100,10 @@ public class PluginCompatTester {
             // Remove the self-dependency if any
             pom.removeDependency(pluginGroupIds.get(thisPlugin), thisPlugin);
         }
+        else {
+            // bad, we should always find a core dependency!
+            throw new PomTransformationException("No jenkins core dependency found, aborting!", new Throwable());
+        }
     }
     private void checkDefinedDeps(Map<String,VersionNumber> pluginList, Map<String,VersionNumber> adding, Map<String,VersionNumber> replacing, Map<String,Plugin> otherPlugins) {
         checkDefinedDeps(pluginList, adding, replacing, otherPlugins, new ArrayList<>(), null);
