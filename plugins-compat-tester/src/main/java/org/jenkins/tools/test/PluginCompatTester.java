@@ -113,6 +113,7 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
 import org.springframework.core.io.ClassPathResource;
+import org.jenkins.tools.test.exception.PomTransformationException;
 
 /**
  * Frontend for plugin compatibility tests
@@ -449,8 +450,7 @@ public class PluginCompatTester {
     }
 
     private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, Plugin plugin, MavenRunner.Config mconfig, PomData pomData, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, PluginCompatTesterHooks pcth, List<PCTPlugin> overridenPlugins)
-        throws PluginSourcesUnavailableException, PomExecutionException, IOException
-    {
+            throws PluginSourcesUnavailableException, PomExecutionException, IOException, PomTransformationException {
         System.out.println(String.format("%n%n%n%n%n"));
         System.out.println("#############################################");
         System.out.println("#############################################");
@@ -562,7 +562,10 @@ public class PluginCompatTester {
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
                 addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version, overridenPlugins, parentFolder);
-            } catch (Exception x) {
+            } catch (PomTransformationException x) {
+                throw x;
+            }
+            catch (Exception x) {
                 x.printStackTrace();
                 pomData.getWarningMessages().add(Functions.printThrowable(x));
                 // but continue
@@ -955,7 +958,7 @@ public class PluginCompatTester {
         return null;
     }
 
-    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion, List<PCTPlugin> overridenPlugins, String parentFolder) throws PomExecutionException, IOException {
+    private void addSplitPluginDependencies(String thisPlugin, MavenRunner.Config mconfig, File pluginCheckoutDir, MavenPom pom, Map<String, Plugin> otherPlugins, Map<String, String> pluginGroupIds, String coreVersion, List<PCTPlugin> overridenPlugins, String parentFolder) throws Exception {
         File tmp = File.createTempFile("dependencies", ".log");
         VersionNumber coreDep = null;
         Map<String,VersionNumber> pluginDeps = new HashMap<>();
@@ -972,8 +975,8 @@ public class PluginCompatTester {
             }
             try (BufferedReader br =
                     Files.newBufferedReader(tmp.toPath(), Charset.defaultCharset())) {
-                Pattern p = Pattern.compile("\\[INFO\\]([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(provided|compile|runtime|system)(\\(optional\\))?");
-                Pattern p2 = Pattern.compile("\\[INFO\\]([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(test)");
+                Pattern p = Pattern.compile("\\[INFO\\]([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(provided|compile|runtime|system)(\\(optional\\))?.*");
+                Pattern p2 = Pattern.compile("\\[INFO\\]([^:]+):([^:]+):([a-z-]+):(([^:]+):)?([^:]+):(test).*");
                 String line;
                 while ((line = br.readLine()) != null) {
                     line = line.replace(" ", "");
