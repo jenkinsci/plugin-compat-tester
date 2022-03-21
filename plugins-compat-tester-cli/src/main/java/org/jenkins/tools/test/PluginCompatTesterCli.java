@@ -161,9 +161,9 @@ public class PluginCompatTesterCli {
             String[] split = options.getMavenProperties().split("\\s*:\\s*");
             Map<String, String> mavenProps = new HashMap<>(split.length);
             for (String expr : split) {
-                String[] split2 = expr.split("=");
+                String[] split2 = expr.split("=", 2);
                 String key = split2[0];
-                String value = split2.length >= 2 ? split2[1] : null;
+                String value = split2.length == 2 ? split2[1] : null;
                 mavenProps.put(key, value);
             }
             config.setMavenProperties(mavenProps);
