@@ -155,6 +155,10 @@ public class PluginCompatTesterCli {
         if(options.getOverridenPlugins() != null && !options.getOverridenPlugins().isEmpty()) {
             config.setOverridenPlugins(options.getOverridenPlugins());
         }
+        
+        if(options.getMavenProfiles() != null && !options.getMavenProperties().isEmpty()) {
+            config.setMavenProfiles(options.getMavenProfiles());
+        }
 
         // Handle properties
         if (options.getMavenProperties() != null) {

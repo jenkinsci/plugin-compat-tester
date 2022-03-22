@@ -132,6 +132,9 @@ public class CliOptions {
             "These options will be used a la -D")
     private String mavenPropertiesFile;
 
+    @Parameter(names="-mavenProfiles", description = "Comma-separated list of Maven profiles to be used on testing. This value will be used a la -P", listConverter = ProfilesListConverter.class)
+    private List<String> mavenProfiles;
+
     @Parameter(names="-hookPrefixes", description = "Prefixes of the extra hooks' classes")
     private String hookPrefixes;
     
@@ -218,6 +221,11 @@ public class CliOptions {
     public String getMavenPropertiesFile() {
         return mavenPropertiesFile;
     }
+    
+    @CheckForNull
+    public List<String> getMavenProfiles() {
+        return mavenProfiles;
+    }
 
     public String getCacheThresholdStatus() {
         return cacheThresholdStatus;
@@ -274,6 +282,18 @@ public class CliOptions {
             String name = details[0];
             int colon = name.indexOf(':');
             return new PCTPlugin(colon == -1 ? name : name.substring(colon + 1), colon == -1 ? null : name.substring(0, colon), new VersionNumber(details[1]));
+        }
+    }
+    
+    public static class ProfilesListConverter implements IStringConverter<List<String>> {
+        @Override
+        public List<String> convert(String profiles) {
+            String [] provided = profiles.split(",");
+            List<String> profilesList = new ArrayList<>();
+            for(String profile : provided){
+                profilesList.add(profile);
+            }
+            return profilesList;
         }
     }
     

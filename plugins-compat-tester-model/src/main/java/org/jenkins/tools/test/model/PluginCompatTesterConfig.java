@@ -147,6 +147,9 @@ public class PluginCompatTesterConfig {
     // Flag to indicate if we want to store all the tests names or only failed ones on PCT report files
     private boolean storeAll;
 
+    // Maven profiles to be used on testing (if provided)
+    private List<String> mavenProfiles = new ArrayList<>();
+
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
         this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
                 workDirectory, reportFile, m2SettingsFile);
@@ -469,5 +472,13 @@ public class PluginCompatTesterConfig {
     
     public boolean isStoreAll() {
         return storeAll;
+    }
+    
+    public void setMavenProfiles(List<String> mavenProfiles) {
+        this.mavenProfiles = mavenProfiles;
+    }
+    
+    public List<String> getMavenProfiles() {
+        return mavenProfiles;
     }
 }

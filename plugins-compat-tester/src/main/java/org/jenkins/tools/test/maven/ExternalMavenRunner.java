@@ -65,6 +65,9 @@ public class ExternalMavenRunner implements MavenRunner {
         for (Map.Entry<String, String> entry : config.userProperties.entrySet()) {
             cmd.add("--define=" + entry);
         }
+        if (config.mavenProfiles != null && !config.mavenProfiles.isEmpty()) {
+            cmd.add("--activate-profiles=" + String.join(",", config.mavenProfiles));
+        }
         cmd.addAll(Arrays.asList(goals));
         System.out.println("running " + cmd + " in " + baseDirectory + " >> " + buildLogFile);
         try {

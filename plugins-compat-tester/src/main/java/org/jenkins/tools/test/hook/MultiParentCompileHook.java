@@ -115,6 +115,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         // TODO REMOVE
         mconfig.userProperties.put("failIfNoTests", "false");
         mconfig.userProperties.putAll(config.retrieveMavenProperties());
+        mconfig.mavenProfiles = config.getMavenProfiles();
 
         return mconfig;
     }
