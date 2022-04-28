@@ -584,6 +584,7 @@ public class PluginCompatTester {
             testTypes.add("surefire"); // default
             Map<String, Object> forExecutionHooks = new HashMap<>();
             forExecutionHooks.put("pluginName", plugin.name);
+            forExecutionHooks.put("plugin", plugin);
             forExecutionHooks.put("args", args);
             forExecutionHooks.put("pomData", pomData);
             forExecutionHooks.put("pom", pom);
