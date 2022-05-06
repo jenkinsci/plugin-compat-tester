@@ -2,6 +2,7 @@ package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.apache.maven.scm.repository.ScmRepositoryException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.codehaus.plexus.util.FileUtils;
 import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.SCMManagerFactory;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
@@ -80,7 +82,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     }
 
     private void cloneFromSCM(UpdateSite.Plugin currentPlugin, File parentPath, String scmTag, String url, String fallbackGitHubOrganization)
-            throws ComponentLookupException, ScmRepositoryException, NoSuchScmProviderException, ScmException {
+            throws ComponentLookupException, ScmRepositoryException, NoSuchScmProviderException, ScmException, IOException {
         
         List<String> connectionURLs = new ArrayList<String>();
         connectionURLs.add(url);
@@ -97,6 +99,9 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
             }
             System.out.println("Checking out from SCM connection URL: " + connectionURL + " (" + getParentProjectName() + "-" + currentPlugin.version + ") at tag " + scmTag);
+            if (parentPath.isDirectory()) {
+                FileUtils.deleteDirectory(parentPath);
+            }
             repository = scmManager.makeScmRepository(connectionURL);
             CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(scmTag));
             if(result.isSuccess()){
