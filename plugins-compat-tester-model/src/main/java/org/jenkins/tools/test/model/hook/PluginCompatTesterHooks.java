@@ -31,6 +31,7 @@ public class PluginCompatTesterHooks {
     private Set<ClassLoader> classLoaders = new HashSet<>(Collections.singletonList(PluginCompatTesterHooks.class.getClassLoader()));
     private List<String> hookPrefixes = new ArrayList<>();
     private static Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
+    private List<String> excludeHooks = new ArrayList<>();
 
     /**
      * Create and prepopulate the various hooks for this run of Plugin Compatibility Tester.
@@ -44,9 +45,16 @@ public class PluginCompatTesterHooks {
     }
 
     public PluginCompatTesterHooks(List<String> extraPrefixes, List<File> externalJars) throws MalformedURLException {
+        this(extraPrefixes, externalJars, Collections.emptyList());
+    }
+
+    public PluginCompatTesterHooks(List<String> extraPrefixes, List<File> externalJars, List<String> excludeHooks) throws MalformedURLException {
         setupPrefixes(extraPrefixes);
         setupExternalClassLoaders(externalJars);
         setupHooksByType();
+        if (excludeHooks != null) {
+            this.excludeHooks.addAll(excludeHooks);
+        }
     }
 
     private void setupHooksByType() {
@@ -95,7 +103,7 @@ public class PluginCompatTesterHooks {
         for(PluginCompatTesterHook hook : beforeHooks) {
             try {
                 System.out.println("Processing " + hook.getClass().getName());
-                if(hook.check(elements)) {
+                if(!excludeHooks.contains(hook.getClass().getName()) && hook.check(elements)) {
                     elements = hook.action(elements);
                     hook.validate(elements);
                 } else {
