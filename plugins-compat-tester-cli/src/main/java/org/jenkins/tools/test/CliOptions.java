@@ -89,6 +89,11 @@ public class CliOptions {
                     "If not set, see includePlugins behaviour.")
     private String excludePlugins = null;
 
+    @Parameter(names = "-excludeHooks",
+            description = "Comma separated list of hooks to NOT execute.\n" +
+                    "If not set, all hooks will be executed.")
+    private String excludeHooks = null;
+
     @Parameter(names = "-fallbackGitHubOrganization",
             description = "Include an alternative organization to use as a fallback to download the plugin.\n" +
                     "It is useful to use your own fork releases for an specific plugin if the " +
@@ -203,6 +208,10 @@ public class CliOptions {
 
     public String getExcludePlugins() {
         return excludePlugins;
+    }
+
+    public String getExcludeHooks() {
+        return excludeHooks;
     }
 
     public String getFallbackGitHubOrganization() {

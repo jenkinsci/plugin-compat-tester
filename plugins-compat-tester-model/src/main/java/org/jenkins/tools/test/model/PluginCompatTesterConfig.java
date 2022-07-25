@@ -102,6 +102,10 @@ public class PluginCompatTesterConfig {
     // If null, tests will be performed on every includePlugins found
     private List<String> excludePlugins = null;
 
+    // List of hooks that will not be executed
+    // If null, all hooks will be executed
+    private List<String> excludeHooks = null;
+
     // URL to be used as an alternative to download plugin source from fallback
     // organtizations, like your own fork
     private String fallbackGitHubOrganization = null;
@@ -245,6 +249,14 @@ public class PluginCompatTesterConfig {
 
     public void setExcludePlugins(List<String> excludePlugins) {
         this.excludePlugins = excludePlugins;
+    }
+
+    public List<String> getExcludeHooks() {
+        return excludeHooks;
+    }
+
+    public void setExcludeHooks(List<String> excludeHooks) {
+        this.excludeHooks = excludeHooks;
     }
 
     public String getFallbackGitHubOrganization() {
