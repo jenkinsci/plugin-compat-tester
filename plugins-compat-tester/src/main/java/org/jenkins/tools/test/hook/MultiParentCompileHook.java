@@ -110,12 +110,9 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     }
 
     private MavenRunner.Config getMavenConfig(PluginCompatTesterConfig config) throws IOException {
-        MavenRunner.Config mconfig = new MavenRunner.Config();
-        mconfig.userSettingsFile = config.getM2SettingsFile();
+        MavenRunner.Config mconfig = new MavenRunner.Config(config);
         // TODO REMOVE
         mconfig.userProperties.put("failIfNoTests", "false");
-        mconfig.userProperties.putAll(config.retrieveMavenProperties());
-
         return mconfig;
     }
 

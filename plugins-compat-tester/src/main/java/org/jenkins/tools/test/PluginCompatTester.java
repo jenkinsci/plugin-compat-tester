@@ -252,11 +252,9 @@ public class PluginCompatTester {
 
         SortedSet<MavenCoordinates> testedCores = config.getWar() == null ? generateCoreCoordinatesToTest(data, report) : coreVersionFromWAR(data);
 
-        MavenRunner.Config mconfig = new MavenRunner.Config();
-        mconfig.userSettingsFile = config.getM2SettingsFile();
+        MavenRunner.Config mconfig = new MavenRunner.Config(config);
         // TODO REMOVE
         mconfig.userProperties.put( "failIfNoTests", "false" );
-        mconfig.userProperties.putAll(this.config.retrieveMavenProperties());
         report.setTestJavaVersion(config.getTestJavaVersion());
 
         boolean failed = false;
@@ -791,11 +789,8 @@ public class PluginCompatTester {
     private List<File> getBomEntries() throws IOException, XmlPullParserException, PomExecutionException {
         File fullDepPom = new MavenBom(config.getBom()).writeFullDepPom(config.workDirectory);
 
-    	MavenRunner.Config mconfig = new MavenRunner.Config();
-    	mconfig.userSettingsFile = config.getM2SettingsFile();
+        MavenRunner.Config mconfig = new MavenRunner.Config(config);
     	System.out.println(mconfig.userSettingsFile);
-    	// TODO REMOVE
-    	mconfig.userProperties.putAll(this.config.retrieveMavenProperties());
 
     	File buildLogFile = new File(config.workDirectory
     			+ File.separator + "bom-download.log");
