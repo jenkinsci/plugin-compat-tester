@@ -41,7 +41,8 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
             isCB = parent.matches("com.cloudbees.jenkins.plugins", "jenkins-plugins") ||
                     // TODO ought to analyze the chain of parent POMs, which would lead to com.cloudbees.jenkins.plugins:jenkins-plugins in this case:
                     parent.matches("com.cloudbees.operations-center.common", "operations-center-parent") ||
-                    parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client");
+                    parent.matches("com.cloudbees.operations-center.client", "operations-center-parent-client") ||
+                    parent.matches("com.cloudbees.operations-center.server", "operations-center-parent-server");
             parentV2 = parent.compareVersionTo("2.0") >= 0;
             parentUnder233 = parentV2 && parent.compareVersionTo(PLUGINS_PARENT_POM_FOR_CORE_WITHOUT_WAR_TEST) < 0;
         } else {
