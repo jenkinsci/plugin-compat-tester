@@ -95,6 +95,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.ExecutedTestNamesSolverException;
+import org.jenkins.tools.test.hook.TransformPom;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.model.MavenBom;
 import org.jenkins.tools.test.maven.MavenRunner;
@@ -176,7 +177,7 @@ public class PluginCompatTester {
             splitCycles = HISTORICAL_SPLIT_CYCLES;
         }
 
-        PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(config.getHookPrefixes(), config.getExternalHooksJars());
+        PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(config.getHookPrefixes(), config.getExternalHooksJars(), config.getExcludeHooks());
         // Providing XSL Stylesheet along xml report file
         if(config.reportFile != null){
             if(config.isProvideXslReport()){
@@ -341,8 +342,8 @@ public class PluginCompatTester {
                             status = TestStatus.INTERNAL_ERROR;
                         } else if (e.getTestDetails().hasFailures()) { 
                             status = TestStatus.TEST_FAILURES;                            
-                        } else { // Can this really happen ???
-                            status = TestStatus.SUCCESS;
+                        } else { // ???
+                            status = TestStatus.INTERNAL_ERROR;
                         }
                         errorMessage = e.getErrorMessage();
                         warningMessages.addAll(e.getPomWarningMessages());
@@ -561,7 +562,9 @@ public class PluginCompatTester {
             // Much simpler to do use the parent POM to set up the test classpath.
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
+              if (config.getExcludeHooks() != null && !config.getExcludeHooks().contains(TransformPom.class.getName())) {
                 addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version, overridenPlugins, parentFolder);
+              }
             } catch (PomTransformationException x) {
                 throw x;
             }

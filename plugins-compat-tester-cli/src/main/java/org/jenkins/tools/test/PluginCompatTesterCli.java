@@ -114,6 +114,9 @@ public class PluginCompatTesterCli {
         if(options.getExcludePlugins() != null && !options.getExcludePlugins().isEmpty()){
             config.setExcludePlugins(Arrays.asList(options.getExcludePlugins().toLowerCase().split(",")));
         }
+        if(options.getExcludeHooks() != null && !options.getExcludeHooks().isEmpty()){
+            config.setExcludeHooks(Arrays.asList(options.getExcludeHooks().split(",")));
+        }
         if(options.getSkipTestCache() != null){
             config.setSkipTestCache(Boolean.parseBoolean(options.getSkipTestCache()));
         }
