@@ -129,7 +129,7 @@ public class PluginCompatTesterConfig {
     private Map<String, String> mavenProperties = Collections.emptyMap();
     private String mavenPropertiesFile;
 
-    private List<String> mavenOptions;
+    private List<String> mavenOptions = Collections.emptyList();
  
     // Classpath prefixes of the extra hooks
     private List<String> hookPrefixes = new ArrayList<>(Collections.singletonList("org.jenkins"));
