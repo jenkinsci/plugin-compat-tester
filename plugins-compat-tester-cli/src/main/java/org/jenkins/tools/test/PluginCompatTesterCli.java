@@ -93,16 +93,23 @@ public class PluginCompatTesterCli {
             }
         }
 
-        // We may need this data even in the -war mode
-        if (updateCenterUrl == null) {
-            updateCenterUrl = PluginCompatTesterConfig.DEFAULT_UPDATE_CENTER_URL;
-        }
-        if (parentCoordinates == null) {
-            parentCoordinates = PluginCompatTesterConfig.DEFAULT_PARENT_GAV;
+        PluginCompatTesterConfig config = new PluginCompatTesterConfig();
+
+        config.setUpdateCenterUrl(updateCenterUrl);
+        config.setWorkDirectory(options.getWorkDirectory());
+        config.setReportFile(reportFile);
+        config.setM2SettingsFile(options.getM2SettingsFile());
+
+        if (parentCoordinates != null && !parentCoordinates.isEmpty()) {
+            String[] gavChunks = parentCoordinates.split(":");
+            assert gavChunks.length == 3 || gavChunks.length == 2;
+            config.setParentGroupId(gavChunks[0]);
+            config.setParentArtifactId(gavChunks[1]);
+            if (gavChunks.length == 3 && !"".equals(gavChunks[2])) {
+                config.setParentVersion(gavChunks[2]);
+            }
         }
 
-        PluginCompatTesterConfig config = new PluginCompatTesterConfig(updateCenterUrl, parentCoordinates,
-                options.getWorkDirectory(), reportFile, options.getM2SettingsFile());
         config.setWar(war);
         config.setBom(options.getBOM());
 
