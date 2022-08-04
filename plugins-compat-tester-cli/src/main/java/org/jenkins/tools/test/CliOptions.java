@@ -41,6 +41,7 @@ import com.beust.jcommander.ParameterException;
 
 import hudson.util.VersionNumber;
 import java.util.Collections;
+import javax.annotation.Nonnull;
 
 /**
  * POJO containing CLI arguments &amp; help.
@@ -137,6 +138,9 @@ public class CliOptions {
             "These options will be used a la -D")
     private String mavenPropertiesFile;
 
+    @Parameter(names="-mavenOptions", description = "Options to pass to Maven (like -Pxxx; not to be confused with Java options, nor Maven properties).")
+    private List<String> mavenOptions;
+
     @Parameter(names="-hookPrefixes", description = "Prefixes of the extra hooks' classes")
     private String hookPrefixes;
     
@@ -226,6 +230,11 @@ public class CliOptions {
     @CheckForNull
     public String getMavenPropertiesFile() {
         return mavenPropertiesFile;
+    }
+
+    @Nonnull
+    public List<String> getMavenOptions() {
+        return mavenOptions != null ? Collections.unmodifiableList(mavenOptions) : Collections.emptyList();
     }
 
     public String getCacheThresholdStatus() {
