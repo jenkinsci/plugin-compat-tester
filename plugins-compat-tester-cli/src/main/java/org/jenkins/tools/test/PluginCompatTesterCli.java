@@ -95,7 +95,9 @@ public class PluginCompatTesterCli {
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig();
 
-        config.setUpdateCenterUrl(updateCenterUrl);
+        if (updateCenterUrl != null) {
+            config.setUpdateCenterUrl(updateCenterUrl);
+        }
         config.setWorkDirectory(options.getWorkDirectory());
         config.setReportFile(reportFile);
         config.setM2SettingsFile(options.getM2SettingsFile());
