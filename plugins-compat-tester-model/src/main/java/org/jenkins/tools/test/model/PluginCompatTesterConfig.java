@@ -51,6 +51,9 @@ public class PluginCompatTesterConfig {
 
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTesterConfig.class.getName());
 
+    public static final String DEFAULT_PARENT_GROUP = "org.jenkins-ci.plugins";
+    public static final String DEFAULT_PARENT_ARTIFACT = "plugin";
+
     // Update center used to retrieve plugins informations
     public String updateCenterUrl = "https://updates.jenkins.io/current/update-center.json";
 
@@ -67,10 +70,10 @@ public class PluginCompatTesterConfig {
 
     // GroupId which will be used to replace tested plugin's parent groupId
     // If null, every recorded core coordinates (in report xml) will be played
-    private String parentGroupId = "org.jenkins-ci.plugins";
+    private String parentGroupId = DEFAULT_PARENT_GROUP;
     // ArtifactId which will be used to replace tested plugin's parent artifactId
     // If null, every recorded core coordinates (in report xml) will be played
-    private String parentArtifactId = "plugin";
+    private String parentArtifactId = DEFAULT_PARENT_ARTIFACT;
     // Version which will be used to replace tested plugin's parent version
     // If null, latest core version (retrieved via the update center) will be used
     private String parentVersion = null;
