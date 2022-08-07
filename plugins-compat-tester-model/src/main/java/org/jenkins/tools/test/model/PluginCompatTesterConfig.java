@@ -51,31 +51,29 @@ public class PluginCompatTesterConfig {
 
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTesterConfig.class.getName());
 
-    public static final String DEFAULT_UPDATE_CENTER_URL = "https://updates.jenkins.io/current/update-center.json";
     public static final String DEFAULT_PARENT_GROUP = "org.jenkins-ci.plugins";
     public static final String DEFAULT_PARENT_ARTIFACT = "plugin";
-    public static final String DEFAULT_PARENT_GAV = DEFAULT_PARENT_GROUP + ":" + DEFAULT_PARENT_ARTIFACT;
 
     // Update center used to retrieve plugins informations
-    public final String updateCenterUrl;
+    public String updateCenterUrl = "https://updates.jenkins.io/current/update-center.json";
 
     // A working directory where the tested plugin's sources will be checked out
-    public final File workDirectory;
+    public File workDirectory;
 
     // A report file where will be generated testing report
     // If the file already exist, testing report will be merged into it
-    public final File reportFile;
+    public File reportFile;
 
     // Path for maven settings file where repository will be provided allowing to
     // download jenkins-core artifact (and dependencies)
-    private final File m2SettingsFile;
+    private File m2SettingsFile;
 
     // GroupId which will be used to replace tested plugin's parent groupId
     // If null, every recorded core coordinates (in report xml) will be played
-    private String parentGroupId = null;
+    private String parentGroupId = DEFAULT_PARENT_GROUP;
     // ArtifactId which will be used to replace tested plugin's parent artifactId
     // If null, every recorded core coordinates (in report xml) will be played
-    private String parentArtifactId = null;
+    private String parentArtifactId = DEFAULT_PARENT_ARTIFACT;
     // Version which will be used to replace tested plugin's parent version
     // If null, latest core version (retrieved via the update center) will be used
     private String parentVersion = null;
@@ -130,6 +128,8 @@ public class PluginCompatTesterConfig {
 
     private Map<String, String> mavenProperties = Collections.emptyMap();
     private String mavenPropertiesFile;
+
+    private List<String> mavenOptions = Collections.emptyList();
  
     // Classpath prefixes of the extra hooks
     private List<String> hookPrefixes = new ArrayList<>(Collections.singletonList("org.jenkins"));
@@ -151,26 +151,40 @@ public class PluginCompatTesterConfig {
     // Flag to indicate if we want to store all the tests names or only failed ones on PCT report files
     private boolean storeAll;
 
+    /**
+     * @deprecated just for tests; use {@link #PluginCompatTesterConfig()} and call whatever setters are actually required
+     */
+    @Deprecated
     public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
-        this(DEFAULT_UPDATE_CENTER_URL, DEFAULT_PARENT_GAV,
-                workDirectory, reportFile, m2SettingsFile);
+        setWorkDirectory(workDirectory);
+        setReportFile(reportFile);
+        setM2SettingsFile(m2SettingsFile);
     }
 
-    public PluginCompatTesterConfig(String updateCenterUrl, String parentGAV,
-                                    File workDirectory, File reportFile, File m2SettingsFile){
+    public PluginCompatTesterConfig() {}
+
+    public void setUpdateCenterUrl(String updateCenterUrl) {
         this.updateCenterUrl = updateCenterUrl;
-        if(parentGAV != null && !"".equals(parentGAV)){
-            String[] gavChunks = parentGAV.split(":");
-            assert gavChunks.length == 3 || gavChunks.length == 2;
-            this.parentGroupId = gavChunks[0];
-            this.parentArtifactId = gavChunks[1];
-            if(gavChunks.length == 3 && !"".equals(gavChunks[2])){
-                this.setParentVersion(gavChunks[2]);
-            }
-        }
+    }
+
+    public void setWorkDirectory(File workDirectory) {
         this.workDirectory = workDirectory;
+    }
+
+    public void setReportFile(File reportFile) {
         this.reportFile = reportFile;
+    }
+
+    public void setM2SettingsFile(File m2SettingsFile) {
         this.m2SettingsFile = m2SettingsFile;
+    }
+
+    public void setParentGroupId(String parentGroupId) {
+        this.parentGroupId = parentGroupId;
+    }
+
+    public void setParentArtifactId(String parentArtifactId) {
+        this.parentArtifactId = parentArtifactId;
     }
 
     public String getParentVersion() {
@@ -286,6 +300,14 @@ public class PluginCompatTesterConfig {
 
     public void setMavenPropertiesFiles( String mavenPropertiesFile ) {
         this.mavenPropertiesFile = mavenPropertiesFile;
+    }
+
+    public List<String> getMavenOptions() {
+        return mavenOptions;
+    }
+
+    public void setMavenOptions(List<String> mavenOptions) {
+        this.mavenOptions = mavenOptions;
     }
 
     @CheckForNull

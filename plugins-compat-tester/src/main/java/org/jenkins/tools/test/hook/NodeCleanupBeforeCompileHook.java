@@ -21,7 +21,7 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
         PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
         boolean shouldExecuteHook = (config.getIncludePlugins().contains("sse-gateway") || (config.getIncludePlugins().contains("workflow-cps")));
         runner = new ExternalMavenRunner(config.getExternalMaven());
-        mavenConfig = getMavenConfig(config);
+        mavenConfig = new MavenRunner.Config(config);
 
         if (shouldExecuteHook) {
             File pluginDir = (File) moreInfo.get("pluginDir");
@@ -63,10 +63,4 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
         }
     }
 
-    private MavenRunner.Config getMavenConfig(PluginCompatTesterConfig config) throws IOException {
-        MavenRunner.Config mconfig = new MavenRunner.Config();
-        mconfig.userSettingsFile = config.getM2SettingsFile();
-        mconfig.userProperties.putAll(config.retrieveMavenProperties());
-        return mconfig;
-    }
 }
