@@ -560,9 +560,7 @@ public class PluginCompatTester {
             // Much simpler to do use the parent POM to set up the test classpath.
             MavenPom pom = new MavenPom(pluginCheckoutDir);
             try {
-              if (config.getExcludeHooks() != null && !config.getExcludeHooks().contains(TransformPom.class.getName())) {
                 addSplitPluginDependencies(plugin.name, mconfig, pluginCheckoutDir, pom, otherPlugins, pluginGroupIds, coreCoordinates.version, overridenPlugins, parentFolder);
-              }
             } catch (PomTransformationException x) {
                 throw x;
             }
