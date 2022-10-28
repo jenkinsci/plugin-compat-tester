@@ -100,6 +100,12 @@
         <version>${logbackVersion}</version>
       </dependency>
 
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.6</version>
+      </dependency>
+
       <!-- Test libs -->
       <dependency>
         <groupId>org.powermock</groupId>

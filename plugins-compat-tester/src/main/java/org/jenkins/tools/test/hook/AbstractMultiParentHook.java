@@ -7,12 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.maven.scm.CommandParameter;
+import org.apache.maven.scm.CommandParameters;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
 import org.apache.maven.scm.manager.NoSuchScmProviderException;
 import org.apache.maven.scm.manager.ScmManager;
+import org.apache.maven.scm.provider.ScmProvider;
+import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.apache.maven.scm.repository.ScmRepositoryException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -22,6 +26,8 @@ import org.jenkins.tools.test.SCMManagerFactory;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
+
+import static java.lang.Boolean.TRUE;
 
 /**
  * Utility class to ease create simple hooks for multimodule projects
@@ -103,7 +109,17 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 FileUtils.deleteDirectory(parentPath);
             }
             repository = scmManager.makeScmRepository(connectionURL);
-            CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(scmTag));
+            ScmProvider scmProvider = scmManager.getProviderByRepository(repository);
+            CheckOutScmResult result;
+            if (scmProvider instanceof GitExeScmProvider) {
+                CommandParameters parameters = new CommandParameters();
+                parameters.setString(CommandParameter.SHALLOW, TRUE.toString());
+                parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(scmTag));
+                result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(parentPath), parameters);
+            } else {
+                result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(scmTag));
+            }
+
             if(result.isSuccess()){
                 repositoryCloned = true;
                 break;
