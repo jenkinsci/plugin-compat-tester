@@ -81,11 +81,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
+import org.apache.maven.scm.CommandParameter;
+import org.apache.maven.scm.CommandParameters;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
 import org.apache.maven.scm.command.checkout.CheckOutScmResult;
 import org.apache.maven.scm.manager.ScmManager;
+import org.apache.maven.scm.provider.ScmProvider;
+import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -635,7 +639,16 @@ public class PluginCompatTester {
                 FileUtils.deleteDirectory(checkoutDirectory);
             }
             repository = scmManager.makeScmRepository(connectionURL);
-            CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
+            ScmProvider scmProvider = scmManager.getProviderByRepository(repository);
+            CheckOutScmResult result;
+            if (scmProvider instanceof GitExeScmProvider) {
+                CommandParameters parameters = new CommandParameters();
+                parameters.setString(CommandParameter.SHALLOW, "true");
+                parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(scmTag));
+                result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
+            } else {
+                result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
+            }
             if(result.isSuccess()){
                 repositoryCloned = true;
                 break;
