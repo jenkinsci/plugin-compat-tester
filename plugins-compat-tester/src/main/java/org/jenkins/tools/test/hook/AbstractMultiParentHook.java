@@ -113,7 +113,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             CheckOutScmResult result;
             if (scmProvider instanceof GitExeScmProvider) {
                 CommandParameters parameters = new CommandParameters();
-                parameters.setString(CommandParameter.SHALLOW, TRUE.toString());
+                parameters.setString(CommandParameter.SHALLOW, "true");
                 parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(scmTag));
                 result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(parentPath), parameters);
             } else {
