@@ -8,13 +8,9 @@ import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
 public class WorkflowCpsHooks {
-    public static boolean isMultiModuleVersionOfWorkflowCps(Map<String, Object> info) {
-        PomData data = (PomData) info.get("pomData");
-        UpdateSite.Plugin plugin = info.get("plugin") != null ? (UpdateSite.Plugin) info.get("plugin") : null;
-        return isMultiModuleVersionOfWorkflowCps(plugin);
-    }
 
-    public static boolean isMultiModuleVersionOfWorkflowCps(UpdateSite.Plugin plugin) {
+    public static boolean isMultiModuleVersionOfWorkflowCps(Map<String, Object> info) {
+        UpdateSite.Plugin plugin = info.get("plugin") != null ? (UpdateSite.Plugin) info.get("plugin") : null;
         if (plugin != null && plugin.name.equalsIgnoreCase("workflow-cps") && plugin.version != null) {
             VersionNumber pluginVersion = new VersionNumber(plugin.version);
             VersionNumber multiModuleSince = new VersionNumber("2803.v1a_f77ffcc773");
