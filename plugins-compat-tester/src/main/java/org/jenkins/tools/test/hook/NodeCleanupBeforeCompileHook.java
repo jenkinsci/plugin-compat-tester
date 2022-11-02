@@ -47,9 +47,6 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
     private void compile(MavenRunner.Config mavenConfig, File path) throws PomExecutionException, IOException {
         System.out.println("Calling removeNodeFolders");
         removeNodeFolders(path);
-        System.out.println("Compile plugin log in " + path);
-        File compilePomLogfile = new File(path + "/compilePluginLog.log");
-        runner.run(mavenConfig, path, compilePomLogfile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
     }
 
     private void removeNodeFolders(File path) throws IOException {
