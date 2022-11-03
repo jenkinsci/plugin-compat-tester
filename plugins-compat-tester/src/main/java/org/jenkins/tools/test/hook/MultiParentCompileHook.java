@@ -117,11 +117,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     }
 
     private void compile(MavenRunner.Config mavenConfig, File path, File localCheckoutDir, String parentFolder, String pluginName) throws PomExecutionException, IOException {
-        if (pluginName.equals("workflow-cps")) {
-            // TODO: Why does the following condition not work for workflow-cps? Is it only broken for local checkouts?
-            // The groovy-cps library in workflow-cps runs a jar-with-dependencies version groovy-cps-dgm-builder at build time, so we need to run at least the package phase whenever working with workflow-cps.
-            runner.run(mavenConfig, path, setupCompileResources(path.getParentFile()), "clean", "install", "-DskipTests", "-Dinvoker.skip", "-Denforcer.skip", "-Dmaven.javadoc.skip", "-am", "-pl", "plugin");
-        } else if (isSnapshotMultiParentPlugin(parentFolder, path, localCheckoutDir)) {
+        if (isSnapshotMultiParentPlugin(parentFolder, path, localCheckoutDir)) {
             // "process-test-classes" not working properly on multi-module plugin. See https://issues.jenkins.io/browse/JENKINS-62658
             // installs dependencies into local repository
             String mavenModule = getMavenModule(pluginName, path, runner, mavenConfig);
