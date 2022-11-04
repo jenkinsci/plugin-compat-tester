@@ -618,7 +618,7 @@ public class PluginCompatTester {
     }
 
     public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag) throws ComponentLookupException, ScmException, IOException {
-	String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
+	    String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
         List<String> connectionURLs = new ArrayList<String>();
         connectionURLs.add(connectionURLPomData);
@@ -646,6 +646,13 @@ public class PluginCompatTester {
                 parameters.setString(CommandParameter.SHALLOW, "true");
                 parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(scmTag));
                 result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
+                if(!result.isSuccess()){
+                    parameters = new CommandParameters();
+                    parameters.setString(CommandParameter.SHALLOW, "true");
+                    // in some cases e.g when the tag element in the pom is not the git tag we try again with the version
+                    parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(version));
+                    result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
+                }
             } else {
                 result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
             }
