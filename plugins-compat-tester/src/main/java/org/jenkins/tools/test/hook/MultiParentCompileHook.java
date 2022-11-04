@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -68,7 +70,8 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             // only if the plugin is not already compiled
             boolean ranCompile = moreInfo.containsKey(OVERRIDE_DEFAULT_COMPILE) && (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE);
             if (!ranCompile) {
-                compile(mavenConfig, pluginDir, localCheckoutDir, (String) moreInfo.get("parentFolder"), (String) moreInfo.get("pluginName"));
+                compile(mavenConfig, pluginDir, localCheckoutDir, (String) moreInfo.get("parentFolder"),
+                        (String) moreInfo.get("pluginName"), (List<String>) moreInfo.get("compileArgs"));
                 moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
             }
 
@@ -116,7 +119,8 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         return mconfig;
     }
 
-    private void compile(MavenRunner.Config mavenConfig, File path, File localCheckoutDir, String parentFolder, String pluginName) throws PomExecutionException, IOException {
+    private void compile(MavenRunner.Config mavenConfig, File path, File localCheckoutDir, String parentFolder, String pluginName, List<String> compileArgs)
+            throws PomExecutionException, IOException {
         if (isSnapshotMultiParentPlugin(parentFolder, path, localCheckoutDir)) {
             // "process-test-classes" not working properly on multi-module plugin. See https://issues.jenkins.io/browse/JENKINS-62658
             // installs dependencies into local repository
@@ -124,9 +128,18 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             if (StringUtils.isBlank(mavenModule)) {
                 throw new IOException(String.format("Unable to retrieve the Maven module for plugin %s on %s", pluginName, path));
             }
-            runner.run(mavenConfig, path.getParentFile(), setupCompileResources(path.getParentFile()), "clean", "install", "-DskipTests", "-Dinvoker.skip", "-Denforcer.skip", "-Dmaven.javadoc.skip", "-am", "-pl", mavenModule);
+            List<String> goals = new ArrayList<>(Arrays.asList("clean", "install", "-DskipTests",
+                    "-Dinvoker.skip", "-Denforcer.skip", "-Dmaven.javadoc.skip", "-am", "-pl", mavenModule));
+            if (compileArgs!=null) {
+                goals.addAll(compileArgs);
+            }
+            runner.run(mavenConfig, path.getParentFile(), setupCompileResources(path.getParentFile()), goals.toArray(new String[0]));
         } else {
-            runner.run(mavenConfig, path, setupCompileResources(path), "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+            List<String> goals = new ArrayList<>(Arrays.asList("clean", "process-test-classes", "-Dmaven.javadoc.skip"));
+            if (compileArgs!=null) {
+                goals.addAll(compileArgs);
+            }
+            runner.run(mavenConfig, path, setupCompileResources(path), goals.toArray(new String[0]));
         }
     }
 

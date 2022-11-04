@@ -46,6 +46,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -548,7 +549,12 @@ public class PluginCompatTester {
             // and ensures that we are testing a plugin binary as close as possible to what was actually released.
             // We also skip potential javadoc execution to avoid general test failure.
             if (!ranCompile) {
-                runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+                List<String> goals = new ArrayList<>(Arrays.asList("clean", "process-test-classes", "-Dmaven.javadoc.skip"));
+                List<String> compileArgs = (List<String>) beforeCompile.get("compileArgs");
+                if (compileArgs!=null) {
+                    goals.addAll(compileArgs);
+                }
+                runner.run(mconfig, pluginCheckoutDir, buildLogFile, goals.toArray(new String[0]));
             }
             ranCompile = true;
 
