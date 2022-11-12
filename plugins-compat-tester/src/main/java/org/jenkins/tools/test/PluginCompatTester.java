@@ -649,7 +649,7 @@ public class PluginCompatTester {
                 if(!result.isSuccess()){
                     parameters = new CommandParameters();
                     parameters.setString(CommandParameter.SHALLOW, "true");
-                    // in some cases e.g when the tag element in the pom is not the git tag we try again with the version
+                    // in some cases e.g when the tag element in the pom is not the git tag we try again with the version (e.g JEP-229)
                     parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(version));
                     result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
                 }

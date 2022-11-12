@@ -129,7 +129,7 @@
     <structs-plugin.version>1.20</structs-plugin.version>
     <maven-localizer-plugin.version>1.24</maven-localizer-plugin.version>
     <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-    <workflow-api-plugin.version>2.37</workflow-api-plugin.version>
+    <workflow-api-plugin.version>1200.v8005c684b_a_c6</workflow-api-plugin.version>
     <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
     <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
     <openjpa-maven-plugin.version>1.2</openjpa-maven-plugin.version>
