@@ -116,6 +116,13 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 parameters.setString(CommandParameter.SHALLOW, "true");
                 parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(scmTag));
                 result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(parentPath), parameters);
+                if(!result.isSuccess()){
+                    parameters = new CommandParameters();
+                    parameters.setString(CommandParameter.SHALLOW, "true");
+                    // in some cases e.g when the tag element in the pom is not the git tag we try again with the version (e.g JEP-229)
+                    parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(currentPlugin.version));
+                    result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(parentPath), parameters);
+                }
             } else {
                 result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(scmTag));
             }
