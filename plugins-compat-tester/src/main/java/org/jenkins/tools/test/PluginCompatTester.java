@@ -139,6 +139,8 @@ public class PluginCompatTester {
     private List<String> splits;
     private Set<String> splitCycles;
 
+    public static final String SHALLOW_CLONE = "SHALLOW_CLONE";
+
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "not mutated after this point I hope")
     public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
@@ -473,6 +475,7 @@ public class PluginCompatTester {
             beforeCheckout.put("pomData", pomData);
             beforeCheckout.put("config", config);
             beforeCheckout.put("runCheckout", true);
+            beforeCheckout.put(SHALLOW_CLONE, true);
             beforeCheckout = pcth.runBeforeCheckout(beforeCheckout);
 
             if(beforeCheckout.get("executionResult") != null) { // Check if the hook returned a result
@@ -497,7 +500,7 @@ public class PluginCompatTester {
                             System.out.println("Copy plugin directory from : " + localCheckoutPluginDir.getAbsolutePath());
                             FileUtils.copyDirectoryStructure(localCheckoutPluginDir, pluginCheckoutDir);
                         } else {
-                            cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "");
+                            cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "", beforeCheckout);
                         }
                     } else {
                         // TODO this fails when it encounters symlinks (e.g. work/jobs/…/builds/lastUnstableBuild),
@@ -508,7 +511,7 @@ public class PluginCompatTester {
                     }
                 } else {
                     // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
-                    cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "");
+                    cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "", beforeCheckout);
                 }
             } else {
                 // If the plugin exists in a different directory (multimodule plugins)
@@ -617,7 +620,17 @@ public class PluginCompatTester {
         }
     }
 
-    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag) throws ComponentLookupException, ScmException, IOException {
+    /**
+     *
+     * @deprecated
+     */
+    @Deprecated
+    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag)
+            throws ComponentLookupException, ScmException, IOException {
+        cloneFromSCM(pomData, name, version, checkoutDirectory, tag, Collections.emptyMap());
+    }
+
+    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag, Map<String, Object> beforeCheckout) throws ComponentLookupException, ScmException, IOException {
 	    String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
         List<String> connectionURLs = new ArrayList<String>();
@@ -647,12 +660,16 @@ public class PluginCompatTester {
             CheckOutScmResult result;
             if (scmProvider instanceof GitExeScmProvider) {
                 CommandParameters parameters = new CommandParameters();
-                parameters.setString(CommandParameter.SHALLOW, "true");
+                if((boolean)beforeCheckout.get(SHALLOW_CLONE)) {
+                    parameters.setString(CommandParameter.SHALLOW, "true");
+                }
                 parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(scmTag));
                 result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
                 if(!result.isSuccess()){
                     parameters = new CommandParameters();
-                    parameters.setString(CommandParameter.SHALLOW, "true");
+                    if((boolean)beforeCheckout.get(SHALLOW_CLONE)) {
+                        parameters.setString(CommandParameter.SHALLOW, "true");
+                    }
                     // in some cases e.g when the tag element in the pom is not the git tag we try again with the version (e.g JEP-229)
                     parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(version));
                     result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);

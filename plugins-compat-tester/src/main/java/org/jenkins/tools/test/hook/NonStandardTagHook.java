@@ -76,7 +76,7 @@ public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
 
             String scmTag =  String.format(affectedPlugins.get(pomData.artifactId).toString(), plugin.version);
             PluginCompatTester pct = new PluginCompatTester(config);
-            pct.cloneFromSCM(pomData, plugin.name, plugin.version, checkoutPath, scmTag);
+            pct.cloneFromSCM(pomData, plugin.name, plugin.version, checkoutPath, scmTag, info);
 
             // Checkout already happened, don't run through again
             info.put("runCheckout", false);

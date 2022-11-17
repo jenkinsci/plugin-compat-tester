@@ -49,6 +49,8 @@ public class PomData {
     private String scmTag;
     private List<String> warningMessages = new ArrayList<>();
 
+    private boolean shallowClone = true;
+
     public PomData(String artifactId, @CheckForNull String packaging, String connectionUrl, String scmTag, @CheckForNull MavenCoordinates parent, String groupId){
         this.artifactId = artifactId;
         this.groupId = groupId;
@@ -86,5 +88,13 @@ public class PomData {
         } else { // Interpolate by packaging
             return "hpi".equalsIgnoreCase(packaging);
         }
+    }
+
+    public boolean isShallowClone() {
+        return shallowClone;
+    }
+
+    public void setShallowClone(boolean shallowClone) {
+        this.shallowClone = shallowClone;
     }
 }

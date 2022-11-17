@@ -27,7 +27,7 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
-import static java.lang.Boolean.TRUE;
+import static org.jenkins.tools.test.PluginCompatTester.SHALLOW_CLONE;
 
 /**
  * Utility class to ease create simple hooks for multimodule projects
@@ -66,7 +66,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                     System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
                 }
                 // Like PluginCompatTester.cloneFromSCM but with subdirectories trimmed:
-                cloneFromSCM(currentPlugin, parentPath, scmTag, getUrl(), config.getFallbackGitHubOrganization());
+                cloneFromSCM(currentPlugin, parentPath, scmTag, getUrl(), config.getFallbackGitHubOrganization(), moreInfo);
             }
 
             // Checkout already happened, don't run through again
@@ -87,7 +87,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
         return moreInfo;
     }
 
-    private void cloneFromSCM(UpdateSite.Plugin currentPlugin, File parentPath, String scmTag, String url, String fallbackGitHubOrganization)
+    private void cloneFromSCM(UpdateSite.Plugin currentPlugin, File parentPath, String scmTag, String url, String fallbackGitHubOrganization, Map<String, Object> beforeCheckout)
             throws ComponentLookupException, ScmRepositoryException, NoSuchScmProviderException, ScmException, IOException {
         
         List<String> connectionURLs = new ArrayList<String>();
@@ -113,7 +113,9 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             CheckOutScmResult result;
             if (scmProvider instanceof GitExeScmProvider) {
                 CommandParameters parameters = new CommandParameters();
-                parameters.setString(CommandParameter.SHALLOW, "true");
+                if((boolean)beforeCheckout.get(SHALLOW_CLONE)) {
+                    parameters.setString(CommandParameter.SHALLOW, "true");
+                }
                 parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(scmTag));
                 result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(parentPath), parameters);
                 if(!result.isSuccess()){
