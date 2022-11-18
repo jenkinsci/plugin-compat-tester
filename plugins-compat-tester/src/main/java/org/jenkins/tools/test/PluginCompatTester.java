@@ -633,7 +633,7 @@ public class PluginCompatTester {
     public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag, Map<String, Object> beforeCheckout) throws ComponentLookupException, ScmException, IOException {
 	    String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
-        List<String> connectionURLs = new ArrayList<String>();
+        List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(connectionURLPomData);
         if(config.getFallbackGitHubOrganization() != null){
             connectionURLs = getFallbackConnectionURL(connectionURLs, connectionURLPomData, config.getFallbackGitHubOrganization());
@@ -659,30 +659,14 @@ public class PluginCompatTester {
             ScmProvider scmProvider = scmManager.getProviderByRepository(repository);
             CheckOutScmResult result;
             if (scmProvider instanceof GitExeScmProvider) {
-                CommandParameters parameters = new CommandParameters();
-                if((boolean)beforeCheckout.get(SHALLOW_CLONE)) {
-                    parameters.setString(CommandParameter.SHALLOW, "true");
-                }
-                parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(scmTag));
-                result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
+                  result = clone(connectionURL, beforeCheckout, scmTag, checkoutDirectory, scmProvider, repository);
                 if(!result.isSuccess()){
-                    parameters = new CommandParameters();
-                    if((boolean)beforeCheckout.get(SHALLOW_CLONE)) {
-                        parameters.setString(CommandParameter.SHALLOW, "true");
-                    }
                     // in some cases e.g when the tag element in the pom is not the git tag we try again with the version (e.g JEP-229)
-                    parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(version));
-                    result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
+                    result = clone(connectionURL, beforeCheckout, version, checkoutDirectory, scmProvider, repository);
                 }
                 // try one more time as some plugin use another tag naming convention such https://github.com/jenkinsci/apache-httpcomponents-client-4-api-plugin/tags
                 if(!result.isSuccess()){
-                    parameters = new CommandParameters();
-                    if((boolean)beforeCheckout.get(SHALLOW_CLONE)) {
-                        parameters.setString(CommandParameter.SHALLOW, "true");
-                    }
-                    // in some cases e.g when the tag element in the pom is not the git tag we try again with the version (e.g JEP-229)
-                    parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(name + "-" + version));
-                    result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
+                    result = clone(connectionURL, beforeCheckout, name + "-" + version, checkoutDirectory, scmProvider, repository);
                 }
             } else {
                 result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
@@ -698,6 +682,16 @@ public class PluginCompatTester {
         if (!repositoryCloned) {
             throw new RuntimeException(errorMessage);
         }
+    }
+
+    private CheckOutScmResult clone(String connectionURL, Map<String, Object> beforeCheckout, String scmTag, File checkoutDirectory, ScmProvider scmProvider, ScmRepository repository)
+            throws ScmException {
+        CommandParameters parameters = new CommandParameters();
+        if((boolean)beforeCheckout.get(SHALLOW_CLONE)) {
+            parameters.setString(CommandParameter.SHALLOW, "true");
+        }
+        parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(scmTag));
+        return ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
     }
 
     private String getScmTag(PomData pomData, String name, String version){
