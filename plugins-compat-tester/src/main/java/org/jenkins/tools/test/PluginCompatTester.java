@@ -722,7 +722,7 @@ public class PluginCompatTester {
                 System.out.println("git remote add failed");
                 return new CheckOutScmResult(null, null, null, false);
             }
-            res = new ProcessBuilder().directory(checkoutDirectory).command("git", "fetch", "origin", scmTag).inheritIO().start().waitFor();
+            res = new ProcessBuilder().directory(checkoutDirectory).command("git", "fetch", "--depth=1", "origin", scmTag).inheritIO().start().waitFor();
             if (res != 0) {
                 System.out.println("git fetch origin failed");
                 return new CheckOutScmResult(null, null, null, false);
