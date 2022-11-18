@@ -697,7 +697,7 @@ public class PluginCompatTester {
         // we try something quick as the maven scm is doing clone and another useless fetch
         // git init
         // git remote add origin url
-        // git fetch origin scmTag (this will worl with SHA1 or tag)
+        // git fetch --depth=1 origin scmTag (this will worl with SHA1 or tag)
         // git checkout FETCH_HEAD
 
         if (Files.exists(checkoutDirectory.toPath())) {
