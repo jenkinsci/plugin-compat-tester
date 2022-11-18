@@ -649,10 +649,6 @@ public class PluginCompatTester {
             if (checkoutDirectory.isDirectory()) {
                 FileUtils.deleteDirectory(checkoutDirectory);
             }
-            //if (Boolean.getBoolean("forceJGit")) {
-            // using  jgit could be faster as not forking a command line but it doesn't care about shallow
-            ///    connectionURL = StringUtils.replace(connectionURL, "scm:git:", "scm:jgit:", 1);
-            //}
             repository = scmManager.makeScmRepository(connectionURL);
             ScmProvider scmProvider = scmManager.getProviderByRepository(repository);
             CheckOutScmResult result;
