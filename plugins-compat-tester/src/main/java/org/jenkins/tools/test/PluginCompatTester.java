@@ -674,6 +674,16 @@ public class PluginCompatTester {
                     parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(version));
                     result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
                 }
+                // try one more time as some plugin use another tag naming convention such https://github.com/jenkinsci/apache-httpcomponents-client-4-api-plugin/tags
+                if(!result.isSuccess()){
+                    parameters = new CommandParameters();
+                    if((boolean)beforeCheckout.get(SHALLOW_CLONE)) {
+                        parameters.setString(CommandParameter.SHALLOW, "true");
+                    }
+                    // in some cases e.g when the tag element in the pom is not the git tag we try again with the version (e.g JEP-229)
+                    parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(name + "-" + version));
+                    result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
+                }
             } else {
                 result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
             }
