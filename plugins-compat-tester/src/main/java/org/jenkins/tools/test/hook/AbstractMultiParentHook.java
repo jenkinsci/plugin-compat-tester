@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.maven.scm.CommandParameter;
-import org.apache.maven.scm.CommandParameters;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmTag;
@@ -90,7 +88,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     private void cloneFromSCM(UpdateSite.Plugin currentPlugin, File parentPath, String scmTag, String url, String fallbackGitHubOrganization, Map<String, Object> beforeCheckout)
             throws ComponentLookupException, ScmRepositoryException, NoSuchScmProviderException, ScmException, IOException {
         
-        List<String> connectionURLs = new ArrayList<String>();
+        List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(url);
         if(fallbackGitHubOrganization != null){
             connectionURLs = PluginCompatTester.getFallbackConnectionURL(connectionURLs, url, fallbackGitHubOrganization);
@@ -111,19 +109,11 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             repository = scmManager.makeScmRepository(connectionURL);
             ScmProvider scmProvider = scmManager.getProviderByRepository(repository);
             CheckOutScmResult result;
-            if (scmProvider instanceof GitExeScmProvider) {
-                CommandParameters parameters = new CommandParameters();
-                if((boolean)beforeCheckout.get(SHALLOW_CLONE)) {
-                    parameters.setString(CommandParameter.SHALLOW, "true");
-                }
-                parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(scmTag));
-                result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(parentPath), parameters);
+            if (scmProvider instanceof GitExeScmProvider && (boolean)beforeCheckout.get(SHALLOW_CLONE)) {
+                result =  PluginCompatTester.clone(connectionURL, scmTag, parentPath);
                 if(!result.isSuccess()){
-                    parameters = new CommandParameters();
-                    parameters.setString(CommandParameter.SHALLOW, "true");
                     // in some cases e.g when the tag element in the pom is not the git tag we try again with the version (e.g JEP-229)
-                    parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(currentPlugin.version));
-                    result = ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(parentPath), parameters);
+                    result =  PluginCompatTester.clone(connectionURL, currentPlugin.version, parentPath);
                 }
             } else {
                 result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(scmTag));
