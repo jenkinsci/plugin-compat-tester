@@ -11,7 +11,7 @@ import java.util.Map;
 public class NoShallowCloneHook extends PluginCompatTesterHookBeforeCheckout {
 
 
-    private static final List<String> NO_SHALLOW_PLUGIN = Arrays.asList("git");
+    private static final List<String> NO_SHALLOW_PLUGIN = Arrays.asList("git", "git-client");
 
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
