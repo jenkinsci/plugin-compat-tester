@@ -8,19 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.ScmTag;
-import org.apache.maven.scm.command.checkout.CheckOutScmResult;
 import org.apache.maven.scm.manager.NoSuchScmProviderException;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.provider.ScmProvider;
-import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
-import org.apache.maven.scm.repository.ScmRepository;
 import org.apache.maven.scm.repository.ScmRepositoryException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
 import org.jenkins.tools.test.PluginCompatTester;
-import org.jenkins.tools.test.SCMManagerFactory;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
@@ -94,10 +86,8 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             connectionURLs = PluginCompatTester.getFallbackConnectionURL(connectionURLs, url, fallbackGitHubOrganization);
         }
         
-        Boolean repositoryCloned = false;
+        boolean repositoryCloned = false;
         String errorMessage = "";
-        ScmRepository repository;
-        ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
         for (String connectionURL: connectionURLs){
             if (connectionURL != null) {
                 connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
@@ -106,24 +96,14 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             if (parentPath.isDirectory()) {
                 FileUtils.deleteDirectory(parentPath);
             }
-            repository = scmManager.makeScmRepository(connectionURL);
-            ScmProvider scmProvider = scmManager.getProviderByRepository(repository);
-            CheckOutScmResult result;
-            if (scmProvider instanceof GitExeScmProvider && (boolean)beforeCheckout.get(SHALLOW_CLONE)) {
-                result =  PluginCompatTester.clone(connectionURL, scmTag, parentPath);
-                if(!result.isSuccess()){
-                    // in some cases e.g when the tag element in the pom is not the git tag we try again with the version (e.g JEP-229)
-                    result =  PluginCompatTester.clone(connectionURL, currentPlugin.version, parentPath);
+            try {
+                boolean result =  PluginCompatTester.clone(connectionURL, scmTag, parentPath, (boolean)beforeCheckout.get(SHALLOW_CLONE));
+                if(result) {
+                    repositoryCloned = true;
+                    break;
                 }
-            } else {
-                result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(scmTag));
-            }
-
-            if(result.isSuccess()){
-                repositoryCloned = true;
-                break;
-            } else {
-                errorMessage = result.getProviderMessage() + " || " + result.getCommandOutput();
+            } catch (IOException | InterruptedException e){
+                errorMessage = e.getMessage();
             }
         }
         

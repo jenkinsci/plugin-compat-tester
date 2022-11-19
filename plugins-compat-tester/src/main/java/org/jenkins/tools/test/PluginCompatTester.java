@@ -82,13 +82,6 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.ScmTag;
-import org.apache.maven.scm.command.checkout.CheckOutScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.provider.ScmProvider;
-import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
-import org.apache.maven.scm.repository.ScmRepository;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
@@ -521,9 +514,6 @@ public class PluginCompatTester {
                 }
                 System.out.println("The plugin has already been checked out, likely due to a multimodule situation. Continue.");
             }
-        } catch (ComponentLookupException e) {
-            System.err.println("Error : " + e.getMessage());
-            throw new PluginSourcesUnavailableException("Problem while creating ScmManager !", e);
         } catch (Exception e) {
             System.err.println("Error : " + e.getMessage());
             throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
@@ -628,7 +618,7 @@ public class PluginCompatTester {
         cloneFromSCM(pomData, name, version, checkoutDirectory, tag, Collections.emptyMap());
     }
 
-    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag, Map<String, Object> beforeCheckout) throws ComponentLookupException, ScmException, IOException {
+    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag, Map<String, Object> beforeCheckout) throws IOException {
 	    String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
         List<String> connectionURLs = new ArrayList<>();
@@ -639,8 +629,6 @@ public class PluginCompatTester {
 
         Boolean repositoryCloned = false;
         String errorMessage = "";
-        ScmRepository repository;
-        ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
         for (String connectionURL: connectionURLs){
             if (connectionURL != null) {
                 connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
@@ -649,27 +637,14 @@ public class PluginCompatTester {
             if (checkoutDirectory.isDirectory()) {
                 FileUtils.deleteDirectory(checkoutDirectory);
             }
-            repository = scmManager.makeScmRepository(connectionURL);
-            ScmProvider scmProvider = scmManager.getProviderByRepository(repository);
-            CheckOutScmResult result;
-            if (scmProvider instanceof GitExeScmProvider && (boolean)beforeCheckout.get(SHALLOW_CLONE)) {
-                result = clone(connectionURL, scmTag, checkoutDirectory);
-                if(!result.isSuccess()){
-                    // in some cases e.g when the tag element in the pom is not the git tag we try again with the version (e.g JEP-229)
-                    result = clone(connectionURL, version, checkoutDirectory);
+            try {
+                boolean result = clone(connectionURL, scmTag, checkoutDirectory, (boolean)beforeCheckout.get(SHALLOW_CLONE));
+                if(result) {
+                    repositoryCloned = true;
+                    break;
                 }
-                // try one more time as some plugin use another tag naming convention such https://github.com/jenkinsci/apache-httpcomponents-client-4-api-plugin/tags
-                if(!result.isSuccess()){
-                    result = clone(connectionURL, name + "-" + version, checkoutDirectory);
-                }
-            } else {
-                result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
-            }
-            if(result.isSuccess()){
-                repositoryCloned = true;
-                break;
-            } else {
-                errorMessage = result.getProviderMessage() + " || " + result.getCommandOutput();
+            } catch (IOException | InterruptedException e) {
+                errorMessage = e.getMessage();
             }
         }
 
@@ -678,8 +653,8 @@ public class PluginCompatTester {
         }
     }
 
-    public static CheckOutScmResult clone(String connectionURL, String scmTag, File checkoutDirectory)
-            throws ScmException, IOException {
+    public static boolean clone(String connectionURL, String scmTag, File checkoutDirectory, boolean shallowClone)
+            throws IOException, InterruptedException {
 //        CommandParameters parameters = new CommandParameters();
 //        if((boolean)beforeCheckout.get(SHALLOW_CLONE)) {
 //            parameters.setString(CommandParameter.SHALLOW, "true");
@@ -705,35 +680,37 @@ public class PluginCompatTester {
         }
         checkoutDirectory.mkdirs();
 
-        try {
-            // TODO timeout??
-            int res = new ProcessBuilder().directory(checkoutDirectory).command("git", "init").inheritIO().start().waitFor();
-            if (res != 0) {
-                System.out.println("git init failed");
-                return new CheckOutScmResult(null, null, null, false);
-            }
-            String gitUrl = StringUtils.substringAfter(connectionURL, "scm:git:");
-            res = new ProcessBuilder().directory(checkoutDirectory).command("git", "remote", "add", "origin", gitUrl).inheritIO().start().waitFor();
-            if (res != 0) {
-                System.out.println("git remote add failed");
-                return new CheckOutScmResult(null, null, null, false);
-            }
-            res = new ProcessBuilder().directory(checkoutDirectory).command("git", "fetch", "--depth=1", "origin", scmTag).inheritIO().start().waitFor();
-            if (res != 0) {
-                System.out.println("git fetch origin failed");
-                return new CheckOutScmResult(null, null, null, false);
-            }
-            res = new ProcessBuilder().directory(checkoutDirectory).command("git", "checkout", "FETCH_HEAD").inheritIO().start().waitFor();
-            if (res != 0) {
-                System.out.println("git checkout FETCH_HEAD failed");
-                return new CheckOutScmResult(null, null, null, false);
-            }
-        } catch (IOException | InterruptedException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-            return new CheckOutScmResult(null, null, null, false);
+        // TODO timeout??
+        int res = new ProcessBuilder().directory(checkoutDirectory).command("git", "init").inheritIO().start().waitFor();
+        if (res != 0) {
+            System.out.println("git init failed");
+            return false;
         }
-        return new CheckOutScmResult(null, null, null, true);
+        String gitUrl = StringUtils.substringAfter(connectionURL, "scm:git:");
+        res = new ProcessBuilder().directory(checkoutDirectory).command("git", "remote", "add", "origin", gitUrl).inheritIO().start().waitFor();
+        if (res != 0) {
+            System.out.println("git remote add failed");
+            return false;
+        }
+        List<String> commands = new ArrayList<>();
+        commands.add("git");
+        commands.add("fetch");
+        if (shallowClone) {
+            commands.add("--depth=1");
+        }
+        commands.add("origin");
+        commands.add(scmTag);
+        res = new ProcessBuilder().directory(checkoutDirectory).command(commands).inheritIO().start().waitFor();
+        if (res != 0) {
+            System.out.println("git fetch origin failed");
+            return false;
+        }
+        res = new ProcessBuilder().directory(checkoutDirectory).command("git", "checkout", "FETCH_HEAD").inheritIO().start().waitFor();
+        if (res != 0) {
+            System.out.println("git checkout FETCH_HEAD failed");
+            return false;
+        }
+        return true;
     }
 
     private String getScmTag(PomData pomData, String name, String version){
