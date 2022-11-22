@@ -650,6 +650,22 @@ public class PluginCompatTester {
         }
     }
 
+    /**
+     * In order to perform a clone, the following cli in this order will be runned in the checkoutDirectory
+     * <ul>
+     *     <li>git init</li>
+     *     <li>git remote add origin url</li>
+     *     <li>git fetch --depth=1 origin scmTag</li>
+     *     <li>git checkout FETCH_HEAD</li>
+     * </ul>
+     * @param connectionURL can have a format such scm:git:https://github.com/jenkinsci/mailer-plugin.git or https://github.com/jenkinsci/mailer-plugin.git
+     * @param scmTag the tag or sha1 to clone
+     * @param checkoutDirectory the directory where to clone the git repository
+     * @param shallowClone if <code>true</code> the fetch will use <code>--depth=1</code>
+     * @return success or not
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public static boolean clone(String connectionURL, String scmTag, File checkoutDirectory, boolean shallowClone)
             throws IOException, InterruptedException {
 //        CommandParameters parameters = new CommandParameters();
@@ -683,7 +699,10 @@ public class PluginCompatTester {
             System.out.println("git init failed");
             return false;
         }
-        String gitUrl = StringUtils.substringAfter(connectionURL, "scm:git:");
+        String gitUrl = connectionURL;
+        if (StringUtils.startsWith(connectionURL, "scm:git:")) {
+            gitUrl = StringUtils.substringAfter(connectionURL, "scm:git:");
+        }
         res = new ProcessBuilder().directory(checkoutDirectory).command("git", "remote", "add", "origin", gitUrl).inheritIO().start().waitFor();
         if (res != 0) {
             System.out.println("git remote add failed");
