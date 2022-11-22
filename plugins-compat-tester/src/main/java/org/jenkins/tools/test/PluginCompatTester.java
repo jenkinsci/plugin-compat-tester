@@ -81,9 +81,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
-import org.apache.maven.scm.ScmException;
 import org.codehaus.plexus.PlexusContainerException;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -255,7 +253,6 @@ public class PluginCompatTester {
         report.setTestJavaVersion(config.getTestJavaVersion());
 
         boolean failed = false;
-        SCMManagerFactory.getInstance().start();
         ROOT_CYCLE: for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
             for (Plugin plugin : pluginsToCheck.values()) {
@@ -614,7 +611,7 @@ public class PluginCompatTester {
      */
     @Deprecated
     public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag)
-            throws ComponentLookupException, ScmException, IOException {
+            throws IOException {
         cloneFromSCM(pomData, name, version, checkoutDirectory, tag, Collections.emptyMap());
     }
 

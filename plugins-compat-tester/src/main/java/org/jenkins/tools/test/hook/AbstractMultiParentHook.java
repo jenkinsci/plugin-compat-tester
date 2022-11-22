@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.manager.NoSuchScmProviderException;
-import org.apache.maven.scm.repository.ScmRepositoryException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
 import org.jenkins.tools.test.PluginCompatTester;
@@ -78,7 +75,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     }
 
     private void cloneFromSCM(UpdateSite.Plugin currentPlugin, File parentPath, String scmTag, String url, String fallbackGitHubOrganization, Map<String, Object> beforeCheckout)
-            throws ComponentLookupException, ScmRepositoryException, NoSuchScmProviderException, ScmException, IOException {
+            throws ComponentLookupException, IOException {
         
         List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(url);

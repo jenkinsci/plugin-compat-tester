@@ -88,16 +88,10 @@ public class PluginCompatTesterTest {
 
     @Before
     public void setUp() throws Exception {
-        SCMManagerFactory.getInstance().start();
         File file = Paths.get(REPORT_FILE).toFile();
         if (file.exists()) {
             FileUtils.deleteQuietly(file);
         }
-    }
-
-    @After
-    public void tearDown() {
-        SCMManagerFactory.getInstance().stop();
     }
 
     @Ignore("TODO broken by https://github.com/jenkinsci/active-directory-plugin/releases/tag/active-directory-2.17; figure out how to pin a version")
