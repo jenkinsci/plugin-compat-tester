@@ -691,7 +691,10 @@ public class PluginCompatTester {
         if (Files.exists(checkoutDirectory.toPath())) {
             org.apache.commons.io.FileUtils.deleteDirectory(checkoutDirectory);
         }
-        checkoutDirectory.mkdirs();
+        if (!checkoutDirectory.mkdirs()) {
+            System.out.println("cannot create directory " + checkoutDirectory);
+            return false;
+        }
 
         // TODO timeout??
         int res = new ProcessBuilder().directory(checkoutDirectory).command("git", "init").inheritIO().start().waitFor();
