@@ -668,14 +668,8 @@ public class PluginCompatTester {
      */
     public static boolean clone(String connectionURL, String scmTag, File checkoutDirectory, boolean shallowClone)
             throws IOException, InterruptedException {
-//        CommandParameters parameters = new CommandParameters();
-//        if((boolean)beforeCheckout.get(SHALLOW_CLONE)) {
-//            parameters.setString(CommandParameter.SHALLOW, "true");
-//        }
-//        parameters.setScmVersion(CommandParameter.SCM_VERSION, new ScmTag(scmTag));
-//        return ((GitExeScmProvider)scmProvider).checkout(repository.getProviderRepository(), new ScmFileSet(checkoutDirectory), parameters);
 
-        // maven is doing all of this, not sure why...
+        // maven scm is doing all of this, not sure why...
         // 'git' 'clone' '--depth' '1' '--branch' 'scmTag' 'git url'
         // 'git' 'ls-remote' 'giturl'
         // 'git' 'fetch' 'giturl'
