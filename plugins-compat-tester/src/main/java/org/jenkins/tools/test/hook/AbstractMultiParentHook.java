@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
 import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
@@ -75,7 +74,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     }
 
     private void cloneFromSCM(UpdateSite.Plugin currentPlugin, File parentPath, String scmTag, String url, String fallbackGitHubOrganization, Map<String, Object> beforeCheckout)
-            throws ComponentLookupException, IOException {
+            throws IOException {
         
         List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(url);

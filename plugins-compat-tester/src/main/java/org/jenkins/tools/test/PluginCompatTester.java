@@ -81,7 +81,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
-import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -162,7 +161,7 @@ public class PluginCompatTester {
     }
 
 	public PluginCompatReport testPlugins()
-            throws PlexusContainerException, IOException, PomExecutionException, XmlPullParserException {
+            throws IOException, PomExecutionException, XmlPullParserException {
         File war = config.getWar();
         if (war != null) {
             populateSplits(war);
@@ -616,7 +615,7 @@ public class PluginCompatTester {
     }
 
     public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag, Map<String, Object> beforeCheckout) throws IOException {
-	    String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
+	    String scmTag = !("".equals(tag)) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
         List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(connectionURLPomData);
@@ -635,7 +634,8 @@ public class PluginCompatTester {
                 FileUtils.deleteDirectory(checkoutDirectory);
             }
             try {
-                boolean result = clone(connectionURL, scmTag, checkoutDirectory, (boolean)beforeCheckout.get(SHALLOW_CLONE));
+                boolean result = clone(connectionURL, scmTag, checkoutDirectory,
+                        beforeCheckout != null?(boolean)beforeCheckout.getOrDefault(SHALLOW_CLONE, false):false);
                 if(result) {
                     repositoryCloned = true;
                     break;

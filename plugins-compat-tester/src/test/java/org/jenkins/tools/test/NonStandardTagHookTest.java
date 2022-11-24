@@ -106,6 +106,7 @@ public class NonStandardTagHookTest {
             Map<String, Object> returnedConfig = hook.action(info);
             assertEquals("RunCheckout should be false", Boolean.FALSE, returnedConfig.get("runCheckout"));
         } catch (Exception e) {
+            e.printStackTrace();
             fail("No exception should be thrown when invoking the hook for valid data but got: " + e);
         }
     }

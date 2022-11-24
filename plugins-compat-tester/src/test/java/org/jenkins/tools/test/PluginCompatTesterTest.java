@@ -48,7 +48,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.model.MavenCoordinates;
@@ -58,7 +57,6 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PluginInfos;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.TestStatus;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -185,7 +183,7 @@ public class PluginCompatTesterTest {
     } 
 
     @Test
-    public void testBom() throws IOException, PlexusContainerException, PomExecutionException, XmlPullParserException {
+    public void testBom() throws IOException, PomExecutionException, XmlPullParserException {
         PluginCompatTesterConfig config = getConfig(ImmutableList.of("workflow-api", // From BOM
                 "accurev" // From Update Center
         ));
