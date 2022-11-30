@@ -678,8 +678,7 @@ public class PluginCompatTester {
 
         // we try something quick as the maven scm is doing clone and another useless fetch
         // git init
-        // git remote add origin url
-        // git fetch --depth=1 origin scmTag (this will work with SHA1 or tag)
+        // git fetch --depth=1 url scmTag (this will work with SHA1 or tag)
         // git checkout FETCH_HEAD
 
         if (Files.exists(checkoutDirectory.toPath())) {
@@ -700,18 +699,13 @@ public class PluginCompatTester {
         if (StringUtils.startsWith(connectionURL, "scm:git:")) {
             gitUrl = StringUtils.substringAfter(connectionURL, "scm:git:");
         }
-        res = new ProcessBuilder().directory(checkoutDirectory).command("git", "remote", "add", "origin", gitUrl).inheritIO().start().waitFor();
-        if (res != 0) {
-            System.out.println("git remote add failed");
-            return false;
-        }
         List<String> commands = new ArrayList<>();
         commands.add("git");
         commands.add("fetch");
         if (shallowClone) {
             commands.add("--depth=1");
         }
-        commands.add("origin");
+        commands.add(gitUrl);
         commands.add(scmTag);
         res = new ProcessBuilder().directory(checkoutDirectory).command(commands).inheritIO().start().waitFor();
         if (res != 0) {
