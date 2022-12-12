@@ -13,8 +13,6 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
-import static org.jenkins.tools.test.PluginCompatTester.SHALLOW_CLONE;
-
 /**
  * Utility class to ease create simple hooks for multimodule projects
  */
@@ -93,7 +91,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 FileUtils.deleteDirectory(parentPath);
             }
             try {
-                boolean result =  PluginCompatTester.clone(connectionURL, scmTag, parentPath, (boolean)beforeCheckout.get(SHALLOW_CLONE));
+                boolean result =  PluginCompatTester.clone(connectionURL, scmTag, parentPath);
                 if(result) {
                     repositoryCloned = true;
                     break;

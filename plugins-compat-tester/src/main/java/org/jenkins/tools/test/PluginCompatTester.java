@@ -127,8 +127,6 @@ public class PluginCompatTester {
     private List<String> splits;
     private Set<String> splitCycles;
 
-    public static final String SHALLOW_CLONE = "SHALLOW_CLONE";
-
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "not mutated after this point I hope")
     public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
@@ -462,7 +460,6 @@ public class PluginCompatTester {
             beforeCheckout.put("pomData", pomData);
             beforeCheckout.put("config", config);
             beforeCheckout.put("runCheckout", true);
-            beforeCheckout.put(SHALLOW_CLONE, true);
             beforeCheckout = pcth.runBeforeCheckout(beforeCheckout);
 
             if(beforeCheckout.get("executionResult") != null) { // Check if the hook returned a result
@@ -566,7 +563,7 @@ public class PluginCompatTester {
             List<String> args = new ArrayList<>();
             
             Map<String, String> userProperties = mconfig.userProperties;
-            args.add(String.format("--define=forkCount=%s",userProperties.containsKey("forkCount") ? userProperties.get("forkCount") : "1"));
+            args.add(String.format("--define=forkCount=%s",userProperties.getOrDefault("forkCount","1")));
             args.add("hpi:resolve-test-dependencies");
             args.add("hpi:test-hpl");
             args.add("surefire:test");
@@ -634,8 +631,7 @@ public class PluginCompatTester {
                 FileUtils.deleteDirectory(checkoutDirectory);
             }
             try {
-                boolean result = clone(connectionURL, scmTag, checkoutDirectory,
-                        beforeCheckout != null?(boolean)beforeCheckout.getOrDefault(SHALLOW_CLONE, false):false);
+                boolean result = clone(connectionURL, scmTag, checkoutDirectory);
                 if(result) {
                     repositoryCloned = true;
                     break;
@@ -661,12 +657,11 @@ public class PluginCompatTester {
      * @param connectionURL can have a format such scm:git:https://github.com/jenkinsci/mailer-plugin.git or https://github.com/jenkinsci/mailer-plugin.git
      * @param scmTag the tag or sha1 to clone
      * @param checkoutDirectory the directory where to clone the git repository
-     * @param shallowClone if <code>true</code> the fetch will use <code>--depth=1</code>
      * @return success or not
      * @throws IOException
      * @throws InterruptedException
      */
-    public static boolean clone(String connectionURL, String scmTag, File checkoutDirectory, boolean shallowClone)
+    public static boolean clone(String connectionURL, String scmTag, File checkoutDirectory)
             throws IOException, InterruptedException {
 
         // maven scm is doing all of this, not sure why...
@@ -702,9 +697,8 @@ public class PluginCompatTester {
         List<String> commands = new ArrayList<>();
         commands.add("git");
         commands.add("fetch");
-        if (shallowClone) {
-            commands.add("--depth=1");
-        }
+        commands.add("--depth=1");
+
         commands.add(gitUrl);
         commands.add(scmTag);
         res = new ProcessBuilder().directory(checkoutDirectory).command(commands).inheritIO().start().waitFor();
@@ -896,7 +890,7 @@ public class PluginCompatTester {
      * Given a value and a model, it checks if it is an interpolated value. In negative case it returns the same
      * value. In affirmative case, it retrieves its value from the properties of the Maven model.
      * @param model
-     * @param version
+     * @param value
      * @return the effective value of an specific value in a model
      */
     private String getProperty(Model model, String value) {

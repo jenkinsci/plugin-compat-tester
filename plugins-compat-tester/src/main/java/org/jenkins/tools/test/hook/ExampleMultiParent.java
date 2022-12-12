@@ -52,7 +52,7 @@ public class ExampleMultiParent { //extends PluginCompatTesterHookBeforeCheckout
             
             System.out.println("Checking out from SCM connection URL : "+parentUrl+" ("+parentName+"-"+currentPlugin.version+")");
             boolean result =
-                    PluginCompatTester.clone(parentUrl, parentName+"-"+currentPlugin.version, parentPath, true);
+                    PluginCompatTester.clone(parentUrl, parentName+"-"+currentPlugin.version, parentPath);
             
             if(!result){
                 throw new RuntimeException("Cannot clone " + parentUrl + " to " + parentPath);
