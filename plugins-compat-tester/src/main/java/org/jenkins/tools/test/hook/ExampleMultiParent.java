@@ -51,12 +51,7 @@ public class ExampleMultiParent { //extends PluginCompatTesterHookBeforeCheckout
             File parentPath = new File(config.workDirectory.getAbsolutePath()+"/"+parentName);
             
             System.out.println("Checking out from SCM connection URL : "+parentUrl+" ("+parentName+"-"+currentPlugin.version+")");
-            boolean result =
-                    PluginCompatTester.clone(parentUrl, parentName+"-"+currentPlugin.version, parentPath);
-            
-            if(!result){
-                throw new RuntimeException("Cannot clone " + parentUrl + " to " + parentPath);
-            } 
+            PluginCompatTester.clone(parentUrl, parentName+"-"+currentPlugin.version, parentPath);
         }
 
         // Checkout already happened, don't run through again

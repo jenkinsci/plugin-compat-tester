@@ -77,7 +77,6 @@ public class NonStandardTagHookTest {
 
     @Test
     public void testActuallyPerformsTheCheckoutWithVersionGreaterThanMinimum() {
-
         try {
             PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                     new File("../reports/PluginCompatReport.xml"),
@@ -100,7 +99,6 @@ public class NonStandardTagHookTest {
             UpdateSite.Plugin plugin = new UpdateSite("fake", "fake").new Plugin("NO Source", pluginData);
             info.put("plugin", plugin);
             info.put("config", config);
-
 
             NonStandardTagHook hook = new NonStandardTagHook();
             Map<String, Object> returnedConfig = hook.action(info);

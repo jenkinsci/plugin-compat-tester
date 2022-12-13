@@ -484,7 +484,7 @@ public class PluginCompatTester {
                             System.out.println("Copy plugin directory from : " + localCheckoutPluginDir.getAbsolutePath());
                             FileUtils.copyDirectoryStructure(localCheckoutPluginDir, pluginCheckoutDir);
                         } else {
-                            cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "", beforeCheckout);
+                            cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "");
                         }
                     } else {
                         // TODO this fails when it encounters symlinks (e.g. work/jobs/…/builds/lastUnstableBuild),
@@ -495,7 +495,7 @@ public class PluginCompatTester {
                     }
                 } else {
                     // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
-                    cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "", beforeCheckout);
+                    cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "");
                 }
             } else {
                 // If the plugin exists in a different directory (multimodule plugins)
@@ -601,17 +601,7 @@ public class PluginCompatTester {
         }
     }
 
-    /**
-     *
-     * @deprecated
-     */
-    @Deprecated
-    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag)
-            throws IOException {
-        cloneFromSCM(pomData, name, version, checkoutDirectory, tag, Collections.emptyMap());
-    }
-
-    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag, Map<String, Object> beforeCheckout) throws IOException {
+    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag) throws IOException {
 	    String scmTag = !("".equals(tag)) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
         List<String> connectionURLs = new ArrayList<>();
@@ -620,8 +610,7 @@ public class PluginCompatTester {
             connectionURLs = getFallbackConnectionURL(connectionURLs, connectionURLPomData, config.getFallbackGitHubOrganization());
         }
 
-        Boolean repositoryCloned = false;
-        String errorMessage = "";
+        Exception lastException = null;
         for (String connectionURL: connectionURLs){
             if (connectionURL != null) {
                 connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
@@ -631,18 +620,15 @@ public class PluginCompatTester {
                 FileUtils.deleteDirectory(checkoutDirectory);
             }
             try {
-                boolean result = clone(connectionURL, scmTag, checkoutDirectory);
-                if(result) {
-                    repositoryCloned = true;
-                    break;
-                }
+                clone(connectionURL, scmTag, checkoutDirectory);
+                break;
             } catch (IOException | InterruptedException e) {
-                errorMessage = e.getMessage();
+                lastException = e;
             }
         }
 
-        if (!repositoryCloned) {
-            throw new RuntimeException(errorMessage);
+        if (lastException != null) {
+            throw new RuntimeException(lastException);
         }
     }
 
@@ -661,7 +647,7 @@ public class PluginCompatTester {
      * @throws IOException
      * @throws InterruptedException
      */
-    public static boolean clone(String connectionURL, String scmTag, File checkoutDirectory)
+    public static void clone(String connectionURL, String scmTag, File checkoutDirectory)
             throws IOException, InterruptedException {
 
         // maven scm is doing all of this, not sure why...
@@ -679,16 +665,13 @@ public class PluginCompatTester {
         if (Files.exists(checkoutDirectory.toPath())) {
             org.apache.commons.io.FileUtils.deleteDirectory(checkoutDirectory);
         }
-        if (!checkoutDirectory.mkdirs()) {
-            System.out.println("cannot create directory " + checkoutDirectory);
-            return false;
-        }
+        Files.createDirectories(checkoutDirectory.toPath());
 
         // TODO timeout??
         int res = new ProcessBuilder().directory(checkoutDirectory).command("git", "init").inheritIO().start().waitFor();
         if (res != 0) {
             System.out.println("git init failed");
-            return false;
+            throw new IOException("git init failed");
         }
         String gitUrl = connectionURL;
         if (StringUtils.startsWith(connectionURL, "scm:git:")) {
@@ -704,14 +687,13 @@ public class PluginCompatTester {
         res = new ProcessBuilder().directory(checkoutDirectory).command(commands).inheritIO().start().waitFor();
         if (res != 0) {
             System.out.println("git fetch origin failed");
-            return false;
+            throw new IOException("git fetch origin failed");
         }
         res = new ProcessBuilder().directory(checkoutDirectory).command("git", "checkout", "FETCH_HEAD").inheritIO().start().waitFor();
         if (res != 0) {
             System.out.println("git checkout FETCH_HEAD failed");
-            return false;
+            throw new IOException("git checkout FETCH_HEAD failed");
         }
-        return true;
     }
 
     private String getScmTag(PomData pomData, String name, String version){

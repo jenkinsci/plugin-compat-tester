@@ -50,7 +50,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                     System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
                 }
                 // Like PluginCompatTester.cloneFromSCM but with subdirectories trimmed:
-                cloneFromSCM(currentPlugin, parentPath, scmTag, getUrl(), config.getFallbackGitHubOrganization(), moreInfo);
+                cloneFromSCM(currentPlugin, parentPath, scmTag, getUrl(), config.getFallbackGitHubOrganization());
             }
 
             // Checkout already happened, don't run through again
@@ -71,7 +71,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
         return moreInfo;
     }
 
-    private void cloneFromSCM(UpdateSite.Plugin currentPlugin, File parentPath, String scmTag, String url, String fallbackGitHubOrganization, Map<String, Object> beforeCheckout)
+    private void cloneFromSCM(UpdateSite.Plugin currentPlugin, File parentPath, String scmTag, String url, String fallbackGitHubOrganization)
             throws IOException {
         
         List<String> connectionURLs = new ArrayList<>();
@@ -80,8 +80,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             connectionURLs = PluginCompatTester.getFallbackConnectionURL(connectionURLs, url, fallbackGitHubOrganization);
         }
         
-        boolean repositoryCloned = false;
-        String errorMessage = "";
+        Exception lastException = null;
         for (String connectionURL: connectionURLs){
             if (connectionURL != null) {
                 connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
@@ -90,20 +89,18 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             if (parentPath.isDirectory()) {
                 FileUtils.deleteDirectory(parentPath);
             }
+
             try {
-                boolean result =  PluginCompatTester.clone(connectionURL, scmTag, parentPath);
-                if(result) {
-                    repositoryCloned = true;
-                    break;
-                }
+                PluginCompatTester.clone(connectionURL, scmTag, parentPath);
+                break;
             } catch (IOException | InterruptedException e){
-                errorMessage = e.getMessage();
+                lastException = e;
             }
         }
-        
-        if (!repositoryCloned) {
+
+        if (lastException != null) {
             // Throw an exception if there are any download errors.
-            throw new RuntimeException(errorMessage);
+            throw new RuntimeException(lastException);
         }
     }
 
