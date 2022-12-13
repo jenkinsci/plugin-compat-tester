@@ -643,7 +643,6 @@ public class PluginCompatTester {
      * @param connectionURL can have a format such scm:git:https://github.com/jenkinsci/mailer-plugin.git or https://github.com/jenkinsci/mailer-plugin.git
      * @param scmTag the tag or sha1 to clone
      * @param checkoutDirectory the directory where to clone the git repository
-     * @return success or not
      * @throws IOException
      * @throws InterruptedException
      */
