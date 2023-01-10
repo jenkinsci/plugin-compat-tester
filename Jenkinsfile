@@ -212,7 +212,7 @@ disabled_itBranches['CasC tests success'] = {
                 def settingsXML="mvn-settings.xml"
                 infra.retrieveMavenSettingsFile(settingsXML)
 
-                sh '''java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+                sh '''java -jar target/plugins-compat-tester-cli.jar \
                              -reportFile $(pwd)/out/pct-report.xml \
                              -workDirectory $(pwd)/out/work \
                              -skipTestCache true \

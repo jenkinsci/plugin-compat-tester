@@ -28,9 +28,7 @@ RUN git clone https://github.com/jenkinsci/plugin-compat-tester &&\
     mvn clean package -Dmaven.test.skip=true dependency:go-offline && \
     mvn clean
 
-COPY plugins-compat-tester/ /pct/src/plugins-compat-tester/
-COPY plugins-compat-tester-cli/ /pct/src/plugins-compat-tester-cli/
-COPY plugins-compat-tester-model/ /pct/src/plugins-compat-tester-model/
+COPY src/ /pct/src/src/
 COPY *.xml /pct/src/
 COPY LICENSE.txt /pct/src/LICENSE.txt
 
@@ -58,7 +56,7 @@ RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debia
 RUN apt-get -y update && apt-get install -y docker-ce docker-ce-cli containerd.io
 
 COPY src/main/docker/*.groovy /pct/scripts/
-COPY --from=builder /pct/src/plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar /pct/pct-cli.jar
+COPY --from=builder /pct/src/target/plugins-compat-tester-cli.jar /pct/pct-cli.jar
 COPY src/main/docker/run-pct.sh /usr/local/bin/run-pct
 COPY src/main/docker/pct-default-settings.xml /pct/default-m2-settings.xml
 
