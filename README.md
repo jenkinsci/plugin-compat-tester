@@ -96,7 +96,7 @@ PCT offers the CLI interface which can be used to run PCT locally.
 * Go to `PCT` folder and run the CLI (make sure to modify paths according to your system). Example:
 
 ```shell
-java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+java -jar target/plugins-compat-tester-cli.jar \
   -reportFile $(pwd)/out/report.xml \
   -workDirectory $(pwd)/tmp/work \
   -includePlugins ${PLUGIN_ARTIFACT_ID} \
@@ -115,7 +115,7 @@ You can run the CLI with the `-help` argument to get a full list of supported op
 Plugin Compat Tester supports running test suites using a BOM file as source of truth as follows:
 
 ```shell
-java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+java -jar target/plugins-compat-tester-cli.jar \
   -reportFile $(pwd)/out/report.xml \
   -workDirectory $(pwd)/tmp/work \
   -includePlugins ${PLUGIN_ARTIFACT_ID} \
@@ -163,7 +163,7 @@ The format of the value **must** be `PLUGIN_GROUP:PLUGIN_NAME=PLUGIN_VERSION`.
 So, running
 
 ```
-java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+java -jar target/plugins-compat-tester-cli.jar \
   [...]
   -overridenPlugins org.jenkins-ci.plugins:display-url-api=2.3.0
   -includePlugins mailer

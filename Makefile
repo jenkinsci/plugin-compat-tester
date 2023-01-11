@@ -21,10 +21,10 @@ allNoDocker: clean package
 clean:
 	mvn clean
 
-plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar:
+target/plugins-compat-tester-cli.jar:
 	mvn package
 .PHONY: package
-package: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar
+package: target/plugins-compat-tester-cli.jar
 
 .PHONY: docker
 docker: Dockerfile 
@@ -43,8 +43,8 @@ print-java-home:
 	echo "Using JAVA_HOME for tests $(TEST_JDK_HOME)"
 
 .PHONY: demo-jdk8
-demo-jdk8: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar $(WAR_PATH) print-java-home
-	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+demo-jdk8: target/plugins-compat-tester-cli.jar $(WAR_PATH) print-java-home
+	java -jar target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -failOnError \
 	     -workDirectory $(CURDIR)/work \
@@ -56,8 +56,8 @@ demo-jdk8: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar $(WAR_
 	     $(EXTRA_OPTS)
 
 .PHONY: demo-jdk11
-demo-jdk11: plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar $(WAR_PATH) print-java-home
-	java -jar plugins-compat-tester-cli/target/plugins-compat-tester-cli.jar \
+demo-jdk11: target/plugins-compat-tester-cli.jar $(WAR_PATH) print-java-home
+	java -jar target/plugins-compat-tester-cli.jar \
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -failOnError \
 	     -workDirectory $(CURDIR)/work \
