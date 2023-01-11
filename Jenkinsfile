@@ -14,13 +14,14 @@ Map branches = [failFast: true]
 for (int i = 0; i < platforms.size(); ++i) {
     String label = platforms[i]
     boolean publishing = (label == 'linux')
+    def agentContainerLabel = 'maven-11'
+    if (label == 'windows') {
+      agentContainerLabel += '-windows'
+    }
     branches[label] = {
-        node(label) {
+        node(agentContainerLabel) {
                 stage('Checkout') {
-                    if (isUnix()) { // have to clean the workspace as root
-                        sh 'docker run --rm -v $(pwd):/src -w /src maven:3.6.0-jdk-8 sh -c "rm -rf * .[a-zA-Z]*" || :'
-                    }
-                    checkout scm
+                    infra.checkoutSCM()
                 }
 
                 stage('Build') {
@@ -29,7 +30,7 @@ for (int i = 0; i < platforms.size(); ++i) {
                     if (publishing) {
                       args += '-Dset.changelist'
                     }
-                    infra.runMaven(args)
+                    infra.runMaven(args, 11)
                   }
                 }
 
@@ -53,9 +54,9 @@ parallel(branches)
 // Integration testing, using a locally built Docker image
 def itBranches = [:]
 
-itBranches['buildtriggerbadge:2.11 tests success on JDK11'] = {
+itBranches['text-finder:1.22 tests success on JDK17'] = {
     node('docker') {
-        checkout scm
+        infra.checkoutSCM()
         def settingsXML="mvn-settings.xml"
         infra.retrieveMavenSettingsFile(settingsXML)
 
@@ -65,166 +66,58 @@ itBranches['buildtriggerbadge:2.11 tests success on JDK11'] = {
             sh 'make docker'
         }
 
-        stage('Download Jenkins 2.164.1') {
+        stage('Download Jenkins 2.375.1') {
             sh '''
-            curl --silent --show-error --location https://get.jenkins.io/war-stable/2.164.1/jenkins.war --output jenkins.war
-            echo "65543f5632ee54344f3351b34b305702df12393b3196a95c3771ddb3819b220b jenkins.war" | sha256sum --check
+            curl -sSL https://get.jenkins.io/war-stable/2.375.1/jenkins.war -o jenkins.war
+            echo "e96ae7f59d8a009bdbf3551d5e9facd97ff8a6d404c7ea2438ef267988d53427 jenkins.war" | sha256sum --check
             '''
         }
 
         stage("Run known successful case(s)") {
             sh '''docker run --rm \
                          -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
+                         -v $(pwd)/out:/pct/out -e JDK_VERSION=17 \
+                         -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
+                         -e ARTIFACT_ID=text-finder -e VERSION=text-finder-1.22 \
+                         jenkins/pct
+            '''
+            archiveArtifacts artifacts: "out/**"
+
+            sh 'cat out/pct-report.html | grep "Tests : Success"'
+        }
+    }
+}
+
+itBranches['text-finder:1.22 tests success on JDK11'] = {
+    node('docker') {
+        infra.checkoutSCM()
+        def settingsXML="mvn-settings.xml"
+        infra.retrieveMavenSettingsFile(settingsXML)
+
+        // should we build the image only once and somehow export and stash/unstash it then?
+        // not sure this would be that quicker
+        stage('Build Docker Image') {
+            sh 'make docker'
+        }
+
+        stage('Download Jenkins 2.375.1') {
+            sh '''
+            curl -sSL https://get.jenkins.io/war-stable/2.375.1/jenkins.war -o jenkins.war
+            echo "e96ae7f59d8a009bdbf3551d5e9facd97ff8a6d404c7ea2438ef267988d53427 jenkins.war" | sha256sum --check
+            '''
+        }
+
+        stage("Run known successful case(s)") {
+            sh '''docker run --rm \
+                         -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
+                         -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
                          -v $(pwd)/out:/pct/out -e JDK_VERSION=11 \
-                         -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
-                         -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.11 \
+                         -e ARTIFACT_ID=text-finder -e VERSION=text-finder-1.22 \
                          jenkins/pct
             '''
             archiveArtifacts artifacts: "out/**"
 
             sh 'cat out/pct-report.html | grep "Tests : Success"'
-        }
-    }
-}
-
-itBranches['buildtriggerbadge:2.11 tests success on JDK8'] = {
-    node('docker') {
-        checkout scm
-        def settingsXML="mvn-settings.xml"
-        infra.retrieveMavenSettingsFile(settingsXML)
-
-        // should we build the image only once and somehow export and stash/unstash it then?
-        // not sure this would be that quicker
-        stage('Build Docker Image') {
-            sh 'make docker'
-        }
-
-        stage('Download Jenkins 2.164.1') {
-            sh '''
-            curl -sL http://mirrors.jenkins.io/war-stable/2.164.1/jenkins.war --output jenkins.war
-            echo "65543f5632ee54344f3351b34b305702df12393b3196a95c3771ddb3819b220b jenkins.war" | sha256sum --check
-            '''
-        }
-
-        stage("Run known successful case(s)") {
-            sh '''docker run --rm \
-                         -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
-                         -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
-                         -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
-                         -e ARTIFACT_ID=buildtriggerbadge -e VERSION=buildtriggerbadge-2.11 \
-                         jenkins/pct
-            '''
-            archiveArtifacts artifacts: "out/**"
-
-            sh 'cat out/pct-report.html | grep "Tests : Success"'
-        }
-    }
-}
-
-itBranches['google-compute-engine:4.3.3 tests on retrieving the test report'] = {
-    node('docker') {
-        checkout scm
-        def settingsXML="mvn-settings.xml"
-        infra.retrieveMavenSettingsFile(settingsXML)
-
-        stage('Build Docker Image') {
-            sh 'make docker'
-        }
-
-        stage('Download Jenkins 2.263.3') {
-            sh '''
-            curl -sL http://mirrors.jenkins.io/war-stable/2.263.3/jenkins.war --output jenkins.war
-            echo "a355f58c26afaf2ed08cedeacdbc0de85c821bb7a15edac8255f7a74c6aedf53 jenkins.war" | sha256sum --check
-            '''
-        }
-
-        stage("Execute PCT and evaluate test report") {
-            sh '''docker run --rm \
-                         -v $(pwd)/jenkins.war:/pct/jenkins.war:ro \
-                         -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
-                         -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
-                         -e ARTIFACT_ID=google-compute-engine -e VERSION=google-compute-engine-4.3.3 -e FAIL_ON_ERROR=false\
-                         jenkins/pct
-            '''
-            archiveArtifacts artifacts: "out/**"
-            sh 'cat out/pct-report.xml | grep "TEST_FAILURES"'
-        }
-    }
-}
-
-
-itBranches['WAR with non-default groupId plugins - smoke test'] = {
-    node('docker') {
-        checkout scm
-
-        stage('Build Docker Image') {
-          sh 'make docker'
-        }
-
-        dir("src/it/war-with-plugins-test") {
-            def settingsXML="mvn-settings.xml"
-            infra.retrieveMavenSettingsFile(settingsXML)
-
-            stage('Build the custom WAR file') {
-              infra.runMaven(["clean", "package"])
-            }
-
-            stage('Run the integration test') {
-              sh '''docker run --rm \
-                            -v $(pwd)/tmp/output/target/war-with-plugins-test-1.0.war:/pct/jenkins.war:ro \
-                            -v $(pwd)/mvn-settings.xml:/pct/m2-settings.xml \
-                            -v $(pwd)/out:/pct/out -e JDK_VERSION=8 \
-                            -e ARTIFACT_ID=artifact-manager-s3 -e VERSION=artifact-manager-s3-1.6 \
-                            jenkins/pct \
-                            -overridenPlugins 'io.jenkins:configuration-as-code=1.20'
-              '''
-              archiveArtifacts artifacts: "out/**"
-
-              sh 'cat out/pct-report.html | grep "Tests : Success"'
-            }
-        }
-    }
-}
-
-//TODO (oleg-nenashev): This step is unstable at the moment, see JENKINS-60583
-Map disabled_itBranches = [:]
-disabled_itBranches['CasC tests success'] = {
-    node('linux') {
-        checkout scm
-
-        stage('Build PCT CLI') {
-            withEnv([
-                "JAVA_HOME=${tool 'jdk8'}",
-                "PATH+MVN=${tool 'mvn'}/bin",
-                'PATH+JDK=$JAVA_HOME/bin',
-            ]) {
-                sh 'make allNoDocker'
-            }
-        }
-
-        stage("Run known successful case(s)") {
-            withEnv([
-                "JAVA_HOME=${tool 'jdk8'}",
-                "MVN_PATH=${tool 'mvn'}/bin",
-                "PATH+MVN=${tool 'mvn'}/bin",
-                'PATH+JDK=$JAVA_HOME/bin',
-            ]) {
-                def settingsXML="mvn-settings.xml"
-                infra.retrieveMavenSettingsFile(settingsXML)
-
-                sh '''java -jar target/plugins-compat-tester-cli.jar \
-                             -reportFile $(pwd)/out/pct-report.xml \
-                             -workDirectory $(pwd)/out/work \
-                             -skipTestCache true \
-                             -mvn "$MVN_PATH/mvn" \
-                             -m2SettingsFile $(pwd)/mvn-settings.xml \
-                             -includePlugins configuration-as-code
-                '''
-
-                archiveArtifacts artifacts: "out/**"
-
-                sh 'cat out/pct-report.html | grep "Tests : Success"'
-            }
         }
     }
 }
