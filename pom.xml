@@ -5,7 +5,7 @@
   <parent> 
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.67</version>
+    <version>1.93</version>
     <relativePath />
   </parent>
 
@@ -26,124 +26,51 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <logbackVersion>1.2.3</logbackVersion>
-    <maven.scm.providers.version>1.5</maven.scm.providers.version>
-    <trimStackTrace>false</trimStackTrace> <!-- SUREFIRE-1798 -->
-    <java.level>8</java.level>
-
-    <!-- Components -->
-
-    <!-- Test libs -->
-    <powermock.version>1.6.1</powermock.version>
+    <logbackVersion>1.4.5</logbackVersion>
+    <maven.scm.providers.version>1.6</maven.scm.providers.version>
     <spotbugs.effort>Max</spotbugs.effort>
-    <spotbugs.excludeFilterFile>${basedir}/src/spotbugs/excludeFilter.xml</spotbugs.excludeFilterFile>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.jenkins-ci.main</groupId>
-        <artifactId>jenkins-core</artifactId>
-        <version>1.625.3</version>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.11.0</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.jenkins-ci</groupId>
-        <artifactId>version-number</artifactId>
-        <version>1.6</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.google.code.findbugs</groupId>
-        <artifactId>annotations</artifactId>
-        <version>3.0.1u2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>15.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>4.0.1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jvnet.hudson</groupId>
-        <artifactId>xstream</artifactId>
-        <version>1.4.7-jenkins-1</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.25</version>
-      </dependency>
-
       <dependency>
         <groupId>net.java.dev.jna</groupId>
         <artifactId>jna</artifactId>
-        <version>4.1.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-core</artifactId>
-        <version>${logbackVersion}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>${logbackVersion}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-access</artifactId>
-        <version>${logbackVersion}</version>
-      </dependency>
-
-      <!-- Test libs -->
-      <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-module-junit4</artifactId>
-        <version>${powermock.version}</version>
+        <version>5.12.1</version>
       </dependency>
       <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-mockito</artifactId>
-        <version>${powermock.version}</version>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>2.0.6</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
     <dependency>
-      <groupId>antlr</groupId>
-      <artifactId>antlr</artifactId>
-      <version>2.7.7</version>
-    </dependency>
-    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-access</artifactId>
+      <version>${logbackVersion}</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
+      <version>${logbackVersion}</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
+      <version>${logbackVersion}</version>
     </dependency>
     <dependency>
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
-      <version>1.78</version>
+      <version>1.82</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.maven-scm-provider-svnjava</groupId>
@@ -151,13 +78,14 @@
       <version>1.12</version>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>4.0.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-model</artifactId>
-      <version>3.0.2</version>
+      <version>3.8.7</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.scm</groupId>
@@ -231,19 +159,8 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-classworlds</artifactId>
-      <version>2.6.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-container-default</artifactId>
-      <version>2.1.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.google.collections</groupId>
-          <artifactId>google-collections</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>2.1.1</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
@@ -253,28 +170,163 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>3.4.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci</groupId>
-      <artifactId>version-number</artifactId>
+      <version>3.5.0</version>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>jenkins-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jvnet.hudson</groupId>
-      <artifactId>xstream</artifactId>
+      <version>2.386</version>
+      <exclusions>
+        <exclusion>
+          <groupId>args4j</groupId>
+          <artifactId>args4j</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.inject</groupId>
+          <artifactId>guice</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.infradna.tool</groupId>
+          <artifactId>bridge-method-annotation</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.sun.solaris</groupId>
+          <artifactId>embedded_su4j</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.sun.xml.txw2</groupId>
+          <artifactId>txw2</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>commons-jelly</groupId>
+          <artifactId>commons-jelly-tags-fmt</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>commons-jelly</groupId>
+          <artifactId>commons-jelly-tags-xml</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.jenkins.stapler</groupId>
+          <artifactId>jenkins-stapler-support</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jakarta.servlet.jsp.jstl</groupId>
+          <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jaxen</groupId>
+          <artifactId>jaxen</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jline</groupId>
+          <artifactId>jline</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>net.java.sezpoz</groupId>
+          <artifactId>sezpoz</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>net.sf.kxml</groupId>
+          <artifactId>kxml2</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.antlr</groupId>
+          <artifactId>antlr4-runtime</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-compress</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy-all</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.connectbot.jbcrypt</groupId>
+          <artifactId>jbcrypt</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.fusesource.jansi</groupId>
+          <artifactId>jansi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jenkins-ci</groupId>
+          <artifactId>annotation-indexer</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jenkins-ci</groupId>
+          <artifactId>crypto-util</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jenkins-ci</groupId>
+          <artifactId>memory-monitor</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jenkins-ci.main</groupId>
+          <artifactId>cli</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jenkins-ci.main</groupId>
+          <artifactId>websocket-spi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jfree</groupId>
+          <artifactId>jfreechart</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jvnet.hudson</groupId>
+          <artifactId>commons-jelly-tags-define</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jvnet.robust-http-client</groupId>
+          <artifactId>robust-http-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jvnet.winp</groupId>
+          <artifactId>winp</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.kohsuke</groupId>
+          <artifactId>windows-package-checker</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.kohsuke.jinterop</groupId>
+          <artifactId>j-interop</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.kohsuke.stapler</groupId>
+          <artifactId>stapler-adjunct-codemirror</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.kohsuke.stapler</groupId>
+          <artifactId>stapler-adjunct-timeline</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm-analysis</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm-commons</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm-tree</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm-util</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.reflections</groupId>
       <artifactId>reflections</artifactId>
-      <version>0.9.12</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <version>0.10.2</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -284,16 +336,6 @@
     <dependency>
       <groupId>org.jenkins-ci</groupId>
       <artifactId>test-annotations</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -318,11 +360,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.2.2</version>
+        <version>3.3.0</version>
         <configuration>
           <archive>
             <manifestEntries>
-              <Add-Opens>java.base/java.lang.reflect java.base/java.text java.base/java.util java.desktop/java.awt.font</Add-Opens>
+              <Add-Opens>java.base/java.util</Add-Opens>
             </manifestEntries>
           </archive>
         </configuration>
@@ -330,7 +372,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.2</version>
+        <version>3.4.1</version>
         <executions>
           <execution>
             <goals>

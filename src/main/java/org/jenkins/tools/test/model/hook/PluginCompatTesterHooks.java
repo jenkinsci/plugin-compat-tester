@@ -18,6 +18,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
 
 /**
  * Loads and executes hooks for modifying the state of Plugin Compatibility Tester at different
@@ -141,7 +142,13 @@ public class PluginCompatTesterHooks {
         Map<String, Queue<PluginCompatTesterHook>> sortedHooks = new HashMap<>();
 
         // Search for all hooks defined within the given classpath prefix
-        Reflections reflections = new Reflections(hookPrefixes.toArray(new String[0]), classLoaders.toArray(new ClassLoader[classLoaders.size()]));
+        ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+        ClassLoader[] loaders = classLoaders.toArray(new ClassLoader[classLoaders.size()]);
+        configurationBuilder.addClassLoaders(loaders);
+        for (String hookPrefix : hookPrefixes) {
+            configurationBuilder.forPackage(hookPrefix, loaders);
+        }
+        Reflections reflections = new Reflections(configurationBuilder);
         Set<Class<? extends PluginCompatTesterHook>> subTypes;
 
         // Find all steps for a given stage. Long due to casting

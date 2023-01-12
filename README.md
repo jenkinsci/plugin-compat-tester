@@ -139,15 +139,15 @@ Two options can be passed to PCT CLI for such purpose:
 
 You can run the example by running the following command:
 
-    make demo-jdk11 -e TEST_JDK_HOME=${YOUR_JDK11_HOME} -e PLUGIN_NAME=git
+    make demo TEST_JDK_HOME=${YOUR_JDK_HOME} PLUGIN_NAME=git
     
 When using the Docker image, it is possible to use `JDK_VERSION` variable to select 
 the version to use. The version needs to be bundled in the docker image.
-Currently Java 8 and Java 11 are bundled (JDK_VERSION= {8, 11}).
+Currently Java 17 and Java 11 are bundled (JDK_VERSION= {17, 11}).
     
-    make demo-jdk11-docker -e JDK_VERSION=11 PLUGIN_NAME=git
+    make demo-docker JDK_VERSION=17 PLUGIN_NAME=git
 
-Full list of options for JDK11 can be found [here](./Makefile).
+Full list of options be found [here](./Makefile).
 
 ### Running PCT with different version of dependencies
 
@@ -217,7 +217,7 @@ and then to properly setup the environment.
 
 ```batch
    set JAVA_HOME=...
-   make demo-jdk8 -e PLUGIN_NAME=artifact-manager-s3 -e WAR_PATH=test-wars/mywar.war -e MVN_EXECUTABLE="C:\ProgramData\chocolatey\bin\mvn.exe" -e EXTRA_OPTS="-overridenPlugins 'io.jenkins:configuration-as-code=1.20'"
+   make demo PLUGIN_NAME=artifact-manager-s3 WAR_PATH=test-wars/mywar.war MVN_EXECUTABLE="C:\ProgramData\chocolatey\bin\mvn.exe" EXTRA_OPTS="-overridenPlugins 'io.jenkins:configuration-as-code=1.20'"
 ```
 
 ## Useful links

@@ -157,7 +157,12 @@ mkdir -p "${PCT_OUTPUT_DIR}"
 ###
 # Determine if we test the plugin against another JDK
 ###
-TEST_JDK_HOME=${TEST_JAVA_ARGS:-"/usr/local/openjdk-${JDK_VERSION:-8}"}
+TEST_JDK_HOME=${TEST_JDK_HOME:-"/opt/java/openjdk"}
+if [[ "${TEST_JDK_HOME}" == "/opt/java/openjdk" ]] && [[ -n "${JDK_VERSION}" ]] && [[ "${JDK_VERSION}" != 17 ]]; then
+  TEST_JDK_HOME+="-${JDK_VERSION}"
+  export JAVA_HOME="${TEST_JDK_HOME}"
+  export PATH="${JAVA_HOME}/bin:${PATH}"
+fi
 TEST_JAVA_ARGS="'${TEST_JAVA_ARGS:-} -Xmx768M -Djava.awt.headless=true -Djdk.net.URLClassPath.disableClassPathURLCheck=true'"
 
 pctExitCode=0
