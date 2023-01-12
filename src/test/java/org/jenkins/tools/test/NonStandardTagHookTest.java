@@ -79,8 +79,6 @@ public class NonStandardTagHookTest {
     public void testActuallyPerformsTheCheckoutWithVersionGreaterThanMinimum() {
 
         try {
-            SCMManagerFactory.getInstance().start();
-
             PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                     new File("../reports/PluginCompatReport.xml"),
                     new ClassPathResource("m2-settings.xml").getFile());

@@ -40,6 +40,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -81,14 +82,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
-import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.ScmTag;
-import org.apache.maven.scm.command.checkout.CheckOutScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.repository.ScmRepository;
-import org.codehaus.plexus.PlexusContainerException;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -167,7 +160,7 @@ public class PluginCompatTester {
     }
 
 	public PluginCompatReport testPlugins()
-            throws PlexusContainerException, IOException, PomExecutionException, XmlPullParserException {
+            throws IOException, PomExecutionException, XmlPullParserException {
         File war = config.getWar();
         if (war != null) {
             populateSplits(war);
@@ -258,7 +251,6 @@ public class PluginCompatTester {
         report.setTestJavaVersion(config.getTestJavaVersion());
 
         boolean failed = false;
-        SCMManagerFactory.getInstance().start();
         ROOT_CYCLE: for(MavenCoordinates coreCoordinates : testedCores){
             System.out.println("Starting plugin tests on core coordinates : "+coreCoordinates.toString());
             for (Plugin plugin : pluginsToCheck.values()) {
@@ -516,9 +508,6 @@ public class PluginCompatTester {
                 }
                 System.out.println("The plugin has already been checked out, likely due to a multimodule situation. Continue.");
             }
-        } catch (ComponentLookupException e) {
-            System.err.println("Error : " + e.getMessage());
-            throw new PluginSourcesUnavailableException("Problem while creating ScmManager !", e);
         } catch (Exception e) {
             System.err.println("Error : " + e.getMessage());
             throw new PluginSourcesUnavailableException("Problem while checking out plugin sources!", e);
@@ -613,7 +602,7 @@ public class PluginCompatTester {
         }
     }
 
-    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag) throws ComponentLookupException, ScmException, IOException {
+    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag) throws IOException {
 	String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
         List<String> connectionURLs = new ArrayList<String>();
@@ -622,30 +611,122 @@ public class PluginCompatTester {
             connectionURLs = getFallbackConnectionURL(connectionURLs, connectionURLPomData, config.getFallbackGitHubOrganization());
         }
 
-        Boolean repositoryCloned = false;
-        String errorMessage = "";
-        ScmRepository repository;
-        ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
+        IOException lastException = null;
         for (String connectionURL: connectionURLs){
             if (connectionURL != null) {
                 connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
             }
-            System.out.println("Checking out from SCM connection URL : " + connectionURL + " (" + name + "-" + version + ") at tag " + scmTag);
-            if (checkoutDirectory.isDirectory()) {
-                FileUtils.deleteDirectory(checkoutDirectory);
-            }
-            repository = scmManager.makeScmRepository(connectionURL);
-            CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(checkoutDirectory), new ScmTag(scmTag));
-            if(result.isSuccess()){
-                repositoryCloned = true;
+            try {
+                clone(connectionURL, scmTag, checkoutDirectory);
                 break;
-            } else {
-                errorMessage = result.getProviderMessage() + " || " + result.getCommandOutput();
+            } catch (IOException e) {
+                if (lastException != null) {
+                    e.addSuppressed(lastException);
+                }
+                lastException = e;
             }
         }
 
-        if (!repositoryCloned) {
-            throw new RuntimeException(errorMessage);
+        if (lastException != null) {
+            throw new UncheckedIOException(lastException);
+        }
+    }
+
+    /**
+     * Clone the given Git repository in the given checkout directory by running, in order, the
+     * following CLI operations:
+     *
+     * <ul>
+     *   <li><code>git init</code>
+     *   <li><code>git remote add origin url</code>
+     *   <li><code>git fetch origin ${SCM_TAG}</code>
+     *   <li><code>git checkout FETCH_HEAD</code>
+     * </ul>
+     *
+     * @param connectionURL The connection URL, in a format such as
+     *     scm:git:https://github.com/jenkinsci/mailer-plugin.git or
+     *     https://github.com/jenkinsci/mailer-plugin.git
+     * @param scmTag the tag or sha1 hash to clone
+     * @param checkoutDirectory the directory in which to clone the Git repository
+     * @throws IOException if an error occurs
+     */
+    public static void clone(String connectionURL, String scmTag, File checkoutDirectory)
+            throws IOException {
+        System.out.println("Checking out from SCM connection URL " + connectionURL + "  at " + scmTag);
+
+        /*
+         * We previously used the Maven SCM API to clone the repository, which ran the following
+         * commands:
+         *
+         *     git clone --depth 1 --branch ${SCM_TAG} ${CONNECTION_URL}
+         *     git ls-remote ${CONNECTION_URL}
+         *     git fetch ${CONNECTION_URL}
+         *     git checkout ${SCM_TAG}
+         *     git ls-files
+         *
+         * This proved to be inefficient, so we instead run only the commands we need to run:
+         *
+         *     git init
+         *     git fetch ${CONNECTION_URL} ${SCM_TAG} (this will work with a SHA1 hash or a tag)
+         *     git checkout FETCH_HEAD
+         */
+        if (checkoutDirectory.isDirectory()) {
+            org.apache.commons.io.FileUtils.deleteDirectory(checkoutDirectory);
+        }
+        Files.createDirectories(checkoutDirectory.toPath());
+
+        // git init
+        Process p = new ProcessBuilder()
+                .directory(checkoutDirectory)
+                .command("git", "init")
+                .redirectErrorStream(true)
+                .start();
+        try {
+            int exitStatus = p.waitFor();
+            String output = new String(p.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+            if (exitStatus != 0) {
+                throw new IOException("git init failed with exit status " + exitStatus + ": " + output);
+            }
+        } catch (InterruptedException e) {
+            throw new IOException("git init was interrupted", e);
+        }
+
+        // git fetch ${CONNECTION_URL} ${SCM_TAG}
+        String gitUrl;
+        if (StringUtils.startsWith(connectionURL, "scm:git:")) {
+            gitUrl = StringUtils.substringAfter(connectionURL, "scm:git:");
+        } else {
+            gitUrl = connectionURL;
+        }
+        p = new ProcessBuilder()
+                .directory(checkoutDirectory)
+                .command("git", "fetch", gitUrl, scmTag)
+                .redirectErrorStream(true)
+                .start();
+        try {
+            int exitStatus = p.waitFor();
+            String output = new String(p.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+            if (exitStatus != 0) {
+                throw new IOException("git fetch origin failed with exit status " + exitStatus + ": " + output);
+            }
+        } catch (InterruptedException e) {
+            throw new IOException("git fetch origin was interrupted", e);
+        }
+
+        // git checkout FETCH_HEAD
+        p = new ProcessBuilder()
+                .directory(checkoutDirectory)
+                .command("git", "checkout", "FETCH_HEAD")
+                .redirectErrorStream(true)
+                .start();
+        try {
+            int exitStatus = p.waitFor();
+            String output = new String(p.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+            if (exitStatus != 0) {
+                throw new IOException("git checkout FETCH_HEAD failed with exit status " + exitStatus + ": " + output);
+            }
+        } catch (InterruptedException e) {
+            throw new IOException("git checkout FETCH_HEAD was interrupted", e);
         }
     }
 
