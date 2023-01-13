@@ -25,7 +25,6 @@
  */
 package org.jenkins.tools.test.model;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -47,13 +46,11 @@ public class TestExecutionResult {
         this(pomWarningMessages, new ExecutedTestNamesDetails());
     }
 
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "oh well")
     public TestExecutionResult(List<String> pomWarningMessages, ExecutedTestNamesDetails testDetails){
         this.pomWarningMessages = Collections.unmodifiableList(pomWarningMessages);
         this.testDetails = testDetails;
     }
 
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "oh well")
     public ExecutedTestNamesDetails getTestDetails() {
         return testDetails;
     }

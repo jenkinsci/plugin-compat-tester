@@ -27,7 +27,6 @@ package org.jenkins.tools.test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.AbortException;
 import hudson.Functions;
 import hudson.model.UpdateSite;
@@ -135,7 +134,6 @@ public class PluginCompatTester {
     private List<String> splits;
     private Set<String> splitCycles;
 
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "not mutated after this point I hope")
     public PluginCompatTester(PluginCompatTesterConfig config){
         this.config = config;
         runner = new ExternalMavenRunner(config.getExternalMaven());
