@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.codehaus.plexus.PlexusContainerException;
+import org.jenkins.tools.test.logging.LoggingConfiguration;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.model.TestStatus;
@@ -46,6 +47,14 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  * @author Frederic Camblor
  */
 public class PluginCompatTesterCli {
+
+    static {
+        String configFile = System.getProperty("java.util.logging.config.file");
+        String configClass = System.getProperty("java.util.logging.config.class");
+        if (configClass == null && configFile == null) {
+            new LoggingConfiguration();
+        }
+    }
 
     @SuppressFBWarnings(
             value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",

@@ -8,8 +8,12 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCompile {
+
+    private static final Logger LOGGER = Logger.getLogger(NodeCleanupBeforeCompileHook.class.getName());
 
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
@@ -19,16 +23,15 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
         if (shouldExecuteHook) {
             File pluginDir = (File) moreInfo.get("pluginDir");
             try {
-                System.out.println("Executing node and node_modules cleanup hook");
+                LOGGER.log(Level.INFO, "Executing node and node_modules cleanup hook");
                 compile(pluginDir);
                 return moreInfo;
             } catch (Exception e) {
-                System.out.println("Exception executing hook");
-                System.out.println(e);
+                LOGGER.log(Level.WARNING, "Exception executing hook", e);
                 throw e;
             }
         } else {
-            System.out.println("Hook not triggered. Continuing.");
+            LOGGER.log(Level.INFO, "Hook not triggered; continuing");
             return moreInfo;
         }
     }
@@ -38,7 +41,7 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
     }
 
     private void compile(File path) throws PomExecutionException, IOException {
-        System.out.println("Calling removeNodeFolders");
+        LOGGER.log(Level.INFO, "Calling removeNodeFolders");
         removeNodeFolders(path);
     }
 
