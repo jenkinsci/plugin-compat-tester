@@ -1,16 +1,13 @@
 package org.jenkins.tools.test.hook;
 
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jenkins.tools.test.model.PomData;
 
 public class AwsJavaSdkHook extends AbstractMultiParentHook {
-    private static final Logger LOGGER = Logger.getLogger(AwsJavaSdkHook.class.getName());
 
     @Override
     protected String getParentFolder() {
-        return "aws-java-sdk";
+        return "aws-java-sdk-plugin";
     }
 
     @Override
@@ -20,21 +17,12 @@ public class AwsJavaSdkHook extends AbstractMultiParentHook {
 
     @Override
     public boolean check(Map<String, Object> info) {
-        return isAwsJavaSdkPlugin(info);
-    }
-
-    private boolean isAwsJavaSdkPlugin(Map<String, Object> moreInfo) {
-        PomData data = (PomData) moreInfo.get("pomData");
-        return isAwsJavaSdkPlugin(data);
-    }
-
-    private boolean isAwsJavaSdkPlugin(PomData data) {
-        if (data.parent != null) {
-            return data.parent.artifactId.equalsIgnoreCase("aws-java-sdk-parent");
-        } else {
-            LOGGER.log(Level.WARNING, "Artifact {0} has no parent POM, likely it was incrementalified (JEP-305). " +
-                    "Will guess the plugin by artifact ID. FTR JENKINS-55169", data.artifactId);
-            return data.artifactId.contains("aws-java-sdk");
-        }
+        PomData data = (PomData) info.get("pomData");
+        return ("org.jenkins-ci.plugins".equals(data.groupId)
+                        && "aws-java-sdk".equals(data.artifactId)
+                        && "hpi".equals(data.getPackaging()))
+                || ("org.jenkins-ci.plugins.aws-java-sdk".equals(data.groupId)
+                        && data.artifactId.startsWith("aws-java-sdk")
+                        && "hpi".equals(data.getPackaging()));
     }
 }
