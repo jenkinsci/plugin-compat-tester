@@ -1,7 +1,7 @@
 package org.jenkins.tools.test.model;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.util.VersionNumber;
-import javax.annotation.CheckForNull;
 
 public class PCTPlugin {
     private String name;

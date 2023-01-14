@@ -27,6 +27,7 @@ package org.jenkins.tools.test.model;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.Xpp3DomDriver;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.XStream2;
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,7 +46,6 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import javax.annotation.Nonnull;
 
 /**
  * POJO allowing to store the Plugin Compatibility Tester report
@@ -97,19 +97,19 @@ public class PluginCompatReport {
         Files.move(tempReportPath.toPath(), reportPath.toPath(), StandardCopyOption.ATOMIC_MOVE);
     }
 
-    public static String getXslFilename(@Nonnull File reportPath){
+    public static String getXslFilename(@NonNull File reportPath){
         return getBaseFilename(reportPath)+".xsl";
     }
 
-    public static File getXslFilepath(@Nonnull File reportPath){
+    public static File getXslFilepath(@NonNull File reportPath){
         return new File(getBaseFilepath(reportPath)+".xsl");
     }
 
-    public static File getHtmlFilepath(@Nonnull File reportPath){
+    public static File getHtmlFilepath(@NonNull File reportPath){
         return new File(getBaseFilepath(reportPath)+".html");
     }
 
-    public static String getBaseFilepath(@Nonnull File reportPath){
+    public static String getBaseFilepath(@NonNull File reportPath){
         File parentFile = reportPath.getParentFile();
         if (parentFile == null) {
             throw new IllegalArgumentException("The report path " + reportPath + " does not have a directory specification. " +
@@ -159,7 +159,7 @@ public class PluginCompatReport {
      * @return Report. If the file does not exist, an empty report will be returned
      * @throws IOException Unexpected read error.
      */
-    @Nonnull
+    @NonNull
     public static PluginCompatReport fromXml(File reportPath) throws IOException {
         PluginCompatReport report;
 

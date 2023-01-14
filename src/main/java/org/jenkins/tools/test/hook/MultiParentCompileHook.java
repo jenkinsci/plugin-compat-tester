@@ -7,6 +7,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -121,7 +122,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             // "process-test-classes" not working properly on multi-module plugin. See https://issues.jenkins.io/browse/JENKINS-62658
             // installs dependencies into local repository
             String mavenModule = getMavenModule(pluginName, path, runner, mavenConfig);
-            if (StringUtils.isBlank(mavenModule)) {
+            if (mavenModule == null || mavenModule.isBlank()) {
                 throw new IOException(String.format("Unable to retrieve the Maven module for plugin %s on %s", pluginName, path));
             }
             runner.run(mavenConfig, path.getParentFile(), setupCompileResources(path.getParentFile()), "clean", "install", "-DskipTests", "-Dinvoker.skip", "-Denforcer.skip", "-Dmaven.javadoc.skip", "-am", "-pl", mavenModule);
@@ -138,7 +139,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         if (localCheckoutDir != null) {
             return false;
         }
-        if (StringUtils.isBlank(parentFolder)) {
+        if (parentFolder == null || parentFolder.isBlank()) {
             return false;
         }
         if (!path.getAbsolutePath().contains(parentFolder)) {
@@ -153,7 +154,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         
         File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "version.log");
         runner.run(mavenConfig, parentFile, log, "-Dexpression=project.version", "-q", "-DforceStdout", "help:evaluate");
-        List<String> output = FileUtils.readLines(log);
+        List<String> output = Files.readAllLines(log.toPath(), Charset.defaultCharset());
         return output.get(output.size() - 1).endsWith("-SNAPSHOT");
     }
 

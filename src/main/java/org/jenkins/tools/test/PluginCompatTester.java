@@ -25,8 +25,7 @@
  */
 package org.jenkins.tools.test;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.AbortException;
 import hudson.Functions;
 import hudson.model.UpdateSite;
@@ -39,7 +38,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -65,7 +66,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -189,7 +189,7 @@ public class PluginCompatTester {
 
         // Scan bundled plugins
         // If there is any bundled plugin, only these plugins will be taken under the consideration for the PCT run
-        UpdateSite.Data data = null;
+        UpdateSite.Data data;
         if (config.getBom() != null) {
             data = scanBom(pluginGroupIds, "([^/.]+)[.][hj]pi");
         } else {
@@ -457,7 +457,7 @@ public class PluginCompatTester {
         System.out.println(String.format("%n%n%n%n%n"));
 
         File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath() + File.separator + plugin.name + File.separator);
-        String parentFolder = StringUtils.EMPTY;
+        String parentFolder = "";
 
         try {
             // Run any precheckout hooks
@@ -534,7 +534,7 @@ public class PluginCompatTester {
         beforeCompile.put("pomData", pomData);
         beforeCompile.put("config", config);
         beforeCompile.put("core", coreCoordinates);
-        if (StringUtils.isNotEmpty(parentFolder)) {
+        if (parentFolder != null && !parentFolder.isEmpty()) {
             beforeCompile.put("parentFolder", parentFolder);
         }
         Map<String, Object> hookInfo = pcth.runBeforeCompilation(beforeCompile);
@@ -573,7 +573,7 @@ public class PluginCompatTester {
             List<String> args = new ArrayList<>();
             
             Map<String, String> userProperties = mconfig.userProperties;
-            args.add(String.format("--define=forkCount=%s",userProperties.containsKey("forkCount") ? userProperties.get("forkCount") : "1"));
+            args.add(String.format("--define=forkCount=%s", userProperties.getOrDefault("forkCount", "1")));
             args.add("hpi:resolve-test-dependencies");
             args.add("hpi:test-hpl");
             args.add("surefire:test");
@@ -597,7 +597,7 @@ public class PluginCompatTester {
             userProperties.put("types", String.join(",", types));
 
             // Execute with tests
-            runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[args.size()]));
+            runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[0]));
             return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(types, runner.getExecutedTests(), pluginCheckoutDir));
         } catch (ExecutedTestNamesSolverException e) {
             throw new PomExecutionException(e);
@@ -614,13 +614,13 @@ public class PluginCompatTester {
     public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag) throws ComponentLookupException, ScmException, IOException {
 	String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
-        List<String> connectionURLs = new ArrayList<String>();
+        List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(connectionURLPomData);
         if(config.getFallbackGitHubOrganization() != null){
             connectionURLs = getFallbackConnectionURL(connectionURLs, connectionURLPomData, config.getFallbackGitHubOrganization());
         }
 
-        Boolean repositoryCloned = false;
+        boolean repositoryCloned = false;
         String errorMessage = "";
         ScmRepository repository;
         ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
@@ -686,12 +686,17 @@ public class PluginCompatTester {
      */
     private UpdateSite.Data extractUpdateCenterData(Map<String, String> groupIDs){
         URL url;
-        String jsonp;
         try {
             url = new URL(config.updateCenterUrl);
-            jsonp = IOUtils.toString(url.openStream());
+        } catch (MalformedURLException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        String jsonp;
+        try (InputStream is = url.openStream()) {
+            jsonp = new String(is.readAllBytes(), Charset.defaultCharset());
         }catch(IOException e){
-            throw new RuntimeException("Invalid update center url : "+config.updateCenterUrl, e);
+            throw new UncheckedIOException("Invalid Update Center URL: " + config.updateCenterUrl, e);
         }
 
         String json = jsonp.substring(jsonp.indexOf('(')+1,jsonp.lastIndexOf(')'));
@@ -775,7 +780,7 @@ public class PluginCompatTester {
     	if (!top.has("core")) {
     		// Not all boms have the jenkins core dependency explicit, so, assume the bom version matches the jenkins version
     		String core = solveCoreVersionFromBom();
-    		if (StringUtils.isEmpty(core)) {
+    		if (core == null || core.isEmpty()) {
     			throw new IllegalStateException("Unable to retrieve any version for the core");
     		}
     		top.put("core", new JSONObject().accumulate("name", "core").accumulate("version",core).accumulate("url", "https://foobar"));
@@ -800,8 +805,6 @@ public class PluginCompatTester {
 
     /**
      * @return Provides the core version from the bomfile and in case it is not found, the bom version, if bom version does not exist, it provides from its parent
-     * @throws IOException
-     * @throws XmlPullParserException
      */
     private String solveCoreVersionFromBom() throws IOException, XmlPullParserException {
     	Model model = new MavenBom(config.getBom()).getModel();
@@ -816,14 +819,12 @@ public class PluginCompatTester {
     private String solveVersionFromModel(Model model) {
 	String version = model.getVersion();
 	Parent parent = model.getParent();
-	return version != null ? version : parent != null ? parent.getVersion() : StringUtils.EMPTY;
+	return version != null ? version : parent != null ? parent.getVersion() : "";
     }
 
     /**
      * Given a value and a model, it checks if it is an interpolated value. In negative case it returns the same
      * value. In affirmative case, it retrieves its value from the properties of the Maven model.
-     * @param model
-     * @param version
      * @return the effective value of an specific value in a model
      */
     private String getProperty(Model model, String value) {
@@ -846,7 +847,7 @@ public class PluginCompatTester {
      *                     in the war file
      * @return Update center data
      */
-    private UpdateSite.Data scanWAR(File war, @Nonnull Map<String, String> pluginGroupIds, String pluginRegExp) throws IOException {
+    private UpdateSite.Data scanWAR(File war, @NonNull Map<String, String> pluginGroupIds, String pluginRegExp) throws IOException {
         JSONObject top = new JSONObject();
         top.put("id", DEFAULT_SOURCE_ID);
         JSONObject plugins = new JSONObject();
@@ -936,19 +937,19 @@ public class PluginCompatTester {
         if (absolutePath.endsWith(plugin)) {
             return plugin;
         }
-        String module = absolutePath.substring(absolutePath.lastIndexOf(File.separatorChar) + 1, absolutePath.length());
+        String module = absolutePath.substring(absolutePath.lastIndexOf(File.separatorChar) + 1);
         File parentFile = pluginPath.getParentFile();
         if (parentFile == null) {
             return null;
         }
         File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "modules.log");
         runner.run(mavenConfig, parentFile, log, "-Dexpression=project.modules", "-q", "-DforceStdout", "help:evaluate");
-        for (String line : org.apache.commons.io.FileUtils.readLines(log)) {
+        for (String line : Files.readAllLines(log.toPath(), Charset.defaultCharset())) {
             if (!StringUtils.startsWith(line.trim(), "<string>")) {
                 continue;
             }
             String mvnModule = line.replace("<string>", "").replace("</string>", "").trim();
-            if (StringUtils.contains(mvnModule, module)) {
+            if (mvnModule != null && mvnModule.contains(module)) {
                 return mvnModule;
             }
         }
@@ -961,11 +962,11 @@ public class PluginCompatTester {
         Map<String,VersionNumber> pluginDeps = new HashMap<>();
         Map<String,VersionNumber> pluginDepsTest = new HashMap<>();
         try {
-            if (StringUtils.isBlank(parentFolder)) {
+            if (parentFolder == null || parentFolder.isBlank()) {
                 runner.run(mconfig, pluginCheckoutDir, tmp, "dependency:resolve");
             } else {
                 String mavenModule = getMavenModule(thisPlugin, pluginCheckoutDir, runner, mconfig);
-                if (StringUtils.isBlank(mavenModule)) {
+                if (mavenModule == null || mavenModule.isBlank()) {
                     throw new IOException(String.format("Unable to retrieve the Maven module for plugin %s on %s", thisPlugin, pluginCheckoutDir));
                 }
                 runner.run(mconfig, pluginCheckoutDir.getParentFile(), tmp, "dependency:resolve", "-am", "-pl", mavenModule);
@@ -1227,7 +1228,7 @@ public class PluginCompatTester {
     private static Stream<String> configLines(InputStream is) throws IOException {
         return IOUtils.readLines(is, StandardCharsets.UTF_8).stream().filter(line -> !line.matches("#.*|\\s*"));
     }
-    private static final ImmutableList<String> HISTORICAL_SPLITS = ImmutableList.of(
+    private static final List<String> HISTORICAL_SPLITS = List.of(
         "maven-plugin 1.296 1.296",
         "subversion 1.310 1.0",
         "cvs 1.340 0.1",
@@ -1245,7 +1246,7 @@ public class PluginCompatTester {
         "bouncycastle-api 2.16 2.16.0",
         "command-launcher 2.86 1.0"
     );
-    private static final ImmutableSet<String> HISTORICAL_SPLIT_CYCLES = ImmutableSet.of(
+    private static final Set<String> HISTORICAL_SPLIT_CYCLES = Set.of(
         "script-security matrix-auth",
         "script-security windows-slaves",
         "script-security antisamy-markup-formatter",

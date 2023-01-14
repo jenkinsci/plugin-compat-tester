@@ -7,7 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +28,7 @@ import org.reflections.util.ConfigurationBuilder;
  * never be called.
  */
 public class PluginCompatTesterHooks {
-    private Set<ClassLoader> classLoaders = new HashSet<>(Collections.singletonList(PluginCompatTesterHooks.class.getClassLoader()));
+    private Set<ClassLoader> classLoaders = new HashSet<>(List.of(PluginCompatTesterHooks.class.getClassLoader()));
     private List<String> hookPrefixes = new ArrayList<>();
     private static Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
     private List<String> excludeHooks = new ArrayList<>();
@@ -59,7 +58,7 @@ public class PluginCompatTesterHooks {
     }
 
     private void setupHooksByType() {
-        for(String stage : Arrays.asList("checkout", "execution", "compilation")) {
+        for (String stage : List.of("checkout", "execution", "compilation")) {
             hooksByType.put(stage, findHooks(stage));
         }
     }
@@ -143,7 +142,7 @@ public class PluginCompatTesterHooks {
 
         // Search for all hooks defined within the given classpath prefix
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-        ClassLoader[] loaders = classLoaders.toArray(new ClassLoader[classLoaders.size()]);
+        ClassLoader[] loaders = classLoaders.toArray(new ClassLoader[0]);
         configurationBuilder.addClassLoaders(loaders);
         for (String hookPrefix : hookPrefixes) {
             configurationBuilder.forPackage(hookPrefix, loaders);

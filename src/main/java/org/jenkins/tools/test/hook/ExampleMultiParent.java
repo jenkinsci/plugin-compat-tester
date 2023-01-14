@@ -2,7 +2,6 @@ package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite.Plugin;
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +23,7 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 public class ExampleMultiParent { //extends PluginCompatTesterHookBeforeCheckout {
     private String parentUrl = "scm:git:git@github.com:jenkinsci/parent_repo.git";
     private String parentName = "parent_repo";
-    private List<String> allBundlePlugins = Arrays.asList("possible", "plugins");
+    private List<String> allBundlePlugins = List.of("possible", "plugins");
     boolean firstRun = true;
 
     public ExampleMultiParent() {}

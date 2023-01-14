@@ -27,7 +27,6 @@ package org.jenkins.tools.test.model;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.jenkins.tools.test.util.ExecutedTestNamesDetails;
 

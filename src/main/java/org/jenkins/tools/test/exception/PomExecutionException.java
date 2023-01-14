@@ -32,9 +32,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.jenkins.tools.test.util.ExecutedTestNamesDetails;
 
 /**
@@ -49,7 +46,7 @@ public class PomExecutionException extends Exception {
     private final ExecutedTestNamesDetails testDetails;
 
     public PomExecutionException(Throwable cause) {
-        this(cause.toString(), Collections.emptyList(), Collections.singletonList(cause), Collections.emptyList(), new ExecutedTestNamesDetails());
+        this(cause.toString(), Collections.emptyList(), List.of(cause), Collections.emptyList(), new ExecutedTestNamesDetails());
     }
 
     public PomExecutionException(PomExecutionException exceptionToCopy){
