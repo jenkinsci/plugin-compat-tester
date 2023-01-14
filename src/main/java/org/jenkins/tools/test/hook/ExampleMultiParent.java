@@ -6,12 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.ScmTag;
-import org.apache.maven.scm.command.checkout.CheckOutScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.repository.ScmRepository;
-import org.jenkins.tools.test.SCMManagerFactory;
+import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
 /**
@@ -55,14 +50,7 @@ public class ExampleMultiParent { //extends PluginCompatTesterHookBeforeCheckout
             // Checkout to the parent directory. All other processes will be on the child directory
             File parentPath = new File(config.workDirectory.getAbsolutePath()+"/"+parentName);
             
-            System.out.println("Checking out from SCM connection URL : "+parentUrl+" ("+parentName+"-"+currentPlugin.version+")");
-            ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
-            ScmRepository repository = scmManager.makeScmRepository(parentUrl);
-            CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(parentName+"-"+currentPlugin.version));
-            
-            if(!result.isSuccess()){
-                throw new RuntimeException(result.getProviderMessage() + "||" + result.getCommandOutput());
-            } 
+            PluginCompatTester.clone(parentUrl, parentName + "-" + currentPlugin.version, parentPath);
         }
 
         // Checkout already happened, don't run through again
