@@ -25,7 +25,6 @@
  */
 package org.jenkins.tools.test.model;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -46,7 +45,6 @@ import org.apache.commons.lang.StringUtils;
  *
  * @author Frederic Camblor
  */
-@SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"}, justification = "limited callers should know not to mutate")
 public class PluginCompatTesterConfig {
 
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTesterConfig.class.getName());

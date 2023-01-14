@@ -1,6 +1,5 @@
 package org.jenkins.tools.test.model;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,7 +29,6 @@ public class MavenBom {
         }
     }
 
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "so be it")
     public Model getModel() {
         return contents;
     }
