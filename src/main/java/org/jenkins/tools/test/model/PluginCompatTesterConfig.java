@@ -30,7 +30,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
+import org.jenkins.tools.test.util.StreamGobbler;
 
 /**
  * POJO used to configure Plugin Compatibility Tester execution
@@ -396,12 +396,18 @@ public class PluginCompatTesterConfig {
             javaCmdAbsolutePath = "java";
         }
         final Process process = new ProcessBuilder().command(javaCmdAbsolutePath, "-XshowSettings:properties", "-version").redirectErrorStream(true).start();
+        StreamGobbler gobbler = new StreamGobbler(process.getInputStream());
+        gobbler.start();
         try {
-            process.waitFor();
+            int exitStatus = process.waitFor();
+            gobbler.join();
+            if (exitStatus != 0) {
+                throw new IOException("java -XshowSettings:properties -version failed with exit status " + exitStatus + ": " + gobbler.getOutput().trim());
+            }
         } catch (InterruptedException e) {
             throw new IOException("interrupted while getting Java version", e);
         }
-        final String javaVersionOutput = new String(process.getInputStream().readAllBytes(), Charset.defaultCharset());
+        final String javaVersionOutput = gobbler.getOutput().trim();
         final String[] lines = javaVersionOutput.split("[\\r\\n]+");
         for (String line: lines) {
             String trimmed = line.trim();
@@ -412,12 +418,18 @@ public class PluginCompatTesterConfig {
         }
         // Default to fullversion output as before
         final Process process2 = new ProcessBuilder().command(javaCmdAbsolutePath, "-fullversion").redirectErrorStream(true).start();
+        StreamGobbler gobbler2 = new StreamGobbler(process2.getInputStream());
+        gobbler2.start();
         try {
-            process2.waitFor();
+            int exitStatus2 = process2.waitFor();
+            gobbler2.join();
+            if (exitStatus2 != 0) {
+                throw new IOException("java -fullversion failed with exit status " + exitStatus2 + ": " + gobbler2.getOutput().trim());
+            }
         } catch (InterruptedException e) {
             throw new IOException("interrupted while getting full Java version", e);
         }
-        final String javaVersionOutput2 = new String(process2.getInputStream().readAllBytes(), Charset.defaultCharset());
+        final String javaVersionOutput2 = gobbler2.getOutput().trim();
         // Expected format is something like openjdk full version "1.8.0_181-8u181-b13-2~deb9u1-b13"
         // We shorten it by removing the "full version" in the middle
         return javaVersionOutput2.
