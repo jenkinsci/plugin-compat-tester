@@ -71,7 +71,7 @@ public class ExternalMavenRunner implements MavenRunner {
         }
         cmd.addAll(config.mavenOptions);
         cmd.addAll(Arrays.asList(goals));
-        LOGGER.log(Level.INFO, "Running {0} in {1} >> {2}" + buildLogFile, new Object[]{String.join(" ", cmd), baseDirectory, buildLogFile});
+        LOGGER.log(Level.INFO, "Running {0} in {1} >> {2}", new Object[]{String.join(" ", cmd), baseDirectory, buildLogFile});
         try {
             Process p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
             List<String> succeededPluginArtifactIds = new ArrayList<>();
