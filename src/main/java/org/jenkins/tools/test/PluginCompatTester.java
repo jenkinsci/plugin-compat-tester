@@ -105,6 +105,7 @@ import org.jenkins.tools.test.model.TestStatus;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
+import org.jenkins.tools.test.util.StreamGobbler;
 import org.springframework.core.io.ClassPathResource;
 import org.jenkins.tools.test.exception.PomTransformationException;
 
@@ -679,9 +680,12 @@ public class PluginCompatTester {
                 .command("git", "init")
                 .redirectErrorStream(true)
                 .start();
+        StreamGobbler gobbler = new StreamGobbler(p.getInputStream());
+        gobbler.start();
         try {
             int exitStatus = p.waitFor();
-            String output = new String(p.getInputStream().readAllBytes(), Charset.defaultCharset()).trim();
+            gobbler.join();
+            String output = gobbler.getOutput().trim();
             if (exitStatus != 0) {
                 throw new IOException("git init failed with exit status " + exitStatus + ": " + output);
             }
@@ -701,9 +705,12 @@ public class PluginCompatTester {
                 .command("git", "fetch", gitUrl, scmTag)
                 .redirectErrorStream(true)
                 .start();
+        gobbler = new StreamGobbler(p.getInputStream());
+        gobbler.start();
         try {
             int exitStatus = p.waitFor();
-            String output = new String(p.getInputStream().readAllBytes(), Charset.defaultCharset()).trim();
+            gobbler.join();
+            String output = gobbler.getOutput().trim();
             if (exitStatus != 0) {
                 throw new IOException("git fetch origin failed with exit status " + exitStatus + ": " + output);
             }
@@ -717,9 +724,12 @@ public class PluginCompatTester {
                 .command("git", "checkout", "FETCH_HEAD")
                 .redirectErrorStream(true)
                 .start();
+        gobbler = new StreamGobbler(p.getInputStream());
+        gobbler.start();
         try {
             int exitStatus = p.waitFor();
-            String output = new String(p.getInputStream().readAllBytes(), Charset.defaultCharset()).trim();
+            gobbler.join();
+            String output = gobbler.getOutput().trim();
             if (exitStatus != 0) {
                 throw new IOException("git checkout FETCH_HEAD failed with exit status " + exitStatus + ": " + output);
             }
