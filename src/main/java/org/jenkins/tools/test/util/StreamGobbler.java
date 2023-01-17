@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
 
 public class StreamGobbler extends Thread {
 
@@ -24,8 +25,7 @@ public class StreamGobbler extends Thread {
 
     @Override
     public void run() {
-        try (Reader r = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(r)) {
+        try (Reader r = new InputStreamReader(is, Charset.defaultCharset()); BufferedReader br = new BufferedReader(r)) {
             String line;
             while ((line = br.readLine()) != null) {
                 output.append(line);
