@@ -27,7 +27,7 @@ package org.jenkins.tools.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PluginRemoting;

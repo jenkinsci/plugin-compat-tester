@@ -25,6 +25,8 @@
  */
 package org.jenkins.tools.test.model;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -36,10 +38,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.jenkins.tools.test.util.StreamGobbler;
 
 /**
  * POJO used to configure Plugin Compatibility Tester execution
@@ -131,7 +130,7 @@ public class PluginCompatTesterConfig {
     private List<String> mavenOptions = Collections.emptyList();
  
     // Classpath prefixes of the extra hooks
-    private List<String> hookPrefixes = new ArrayList<>(Collections.singletonList("org.jenkins"));
+    private List<String> hookPrefixes = new ArrayList<>(List.of("org.jenkins"));
     
     // External hooks jar files path locations
     private List<File> externalHooksJars = new ArrayList<>();
@@ -280,7 +279,7 @@ public class PluginCompatTesterConfig {
         this.fallbackGitHubOrganization = fallbackGitHubOrganization;
     }
 
-    public void setMavenProperties(@Nonnull Map<String, String> mavenProperties) {
+    public void setMavenProperties(@NonNull Map<String, String> mavenProperties) {
         this.mavenProperties = new HashMap<>(mavenProperties);
     }
 
@@ -288,7 +287,7 @@ public class PluginCompatTesterConfig {
      * Gets a list of Maven properties defined in the configuration. It is not a full list of
      * properties; {@link #retrieveMavenProperties()} should be used to construct it.
      */
-    @Nonnull
+    @NonNull
     public Map<String, String> getMavenProperties() {
         return Collections.unmodifiableMap(mavenProperties);
     }
@@ -329,7 +328,7 @@ public class PluginCompatTesterConfig {
         Map<String, String> res = new HashMap<>(mavenProperties);
 
         // Read properties from File
-        if ( StringUtils.isNotBlank( mavenPropertiesFile )) {
+        if (mavenPropertiesFile != null && !mavenPropertiesFile.isBlank()) {
             File file = new File (mavenPropertiesFile);
             if (file.exists() && file.isFile()) {
                 try(FileInputStream fileInputStream = new FileInputStream(file)) {
@@ -364,7 +363,7 @@ public class PluginCompatTesterConfig {
         }
 
         // Merge test Java args if needed
-        if (StringUtils.isNotBlank(testJavaArgs)) {
+        if (testJavaArgs != null && !testJavaArgs.isBlank()) {
             if (res.containsKey("argLine")) {
                 LOGGER.log(Level.WARNING, "Maven properties already contain the 'argLine' argument; " +
                         "merging value from properties and from the command line");
@@ -397,8 +396,19 @@ public class PluginCompatTesterConfig {
             LOGGER.log(Level.INFO, "Test JDK home unset; using Java from PATH");
             javaCmdAbsolutePath = "java";
         }
-        final Process process = new ProcessBuilder().command(javaCmdAbsolutePath, "-XshowSettings:properties -version").redirectErrorStream(true).start();
-        final String javaVersionOutput = IOUtils.toString(process.getInputStream());
+        final Process process = new ProcessBuilder().command(javaCmdAbsolutePath, "-XshowSettings:properties", "-version").redirectErrorStream(true).start();
+        StreamGobbler gobbler = new StreamGobbler(process.getInputStream());
+        gobbler.start();
+        try {
+            int exitStatus = process.waitFor();
+            gobbler.join();
+            if (exitStatus != 0) {
+                throw new IOException("java -XshowSettings:properties -version failed with exit status " + exitStatus + ": " + gobbler.getOutput().trim());
+            }
+        } catch (InterruptedException e) {
+            throw new IOException("interrupted while getting Java version", e);
+        }
+        final String javaVersionOutput = gobbler.getOutput().trim();
         final String[] lines = javaVersionOutput.split("[\\r\\n]+");
         for (String line: lines) {
             String trimmed = line.trim();
@@ -409,7 +419,18 @@ public class PluginCompatTesterConfig {
         }
         // Default to fullversion output as before
         final Process process2 = new ProcessBuilder().command(javaCmdAbsolutePath, "-fullversion").redirectErrorStream(true).start();
-        final String javaVersionOutput2 = IOUtils.toString(process2.getInputStream());
+        StreamGobbler gobbler2 = new StreamGobbler(process2.getInputStream());
+        gobbler2.start();
+        try {
+            int exitStatus2 = process2.waitFor();
+            gobbler2.join();
+            if (exitStatus2 != 0) {
+                throw new IOException("java -fullversion failed with exit status " + exitStatus2 + ": " + gobbler2.getOutput().trim());
+            }
+        } catch (InterruptedException e) {
+            throw new IOException("interrupted while getting full Java version", e);
+        }
+        final String javaVersionOutput2 = gobbler2.getOutput().trim();
         // Expected format is something like openjdk full version "1.8.0_181-8u181-b13-2~deb9u1-b13"
         // We shorten it by removing the "full version" in the middle
         return javaVersionOutput2.

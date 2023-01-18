@@ -23,7 +23,7 @@ public abstract class PluginWithIntegrationTestsHook extends PluginCompatTesterH
     
     @SuppressWarnings("unchecked")
     @Override
-    public Map<String, Object> action(Map<String, Object> info) throws Exception {
+    public Map<String, Object> action(Map<String, Object> info) {
         List<String> args = (List<String>) info.get("args");
 
         if (args != null) {

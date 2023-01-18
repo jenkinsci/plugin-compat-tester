@@ -25,10 +25,10 @@
  */
 package org.jenkins.tools.test.model;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 
 /**
  * POJO containing important data residing in plugin's POM
@@ -39,7 +39,7 @@ public class PomData {
     public final String artifactId;
     public final String groupId;
 
-    @Nonnull
+    @NonNull
     private final String packaging;
 
     @CheckForNull
@@ -69,7 +69,7 @@ public class PomData {
         return warningMessages;
     }
 
-    @Nonnull
+    @NonNull
     public String getPackaging() {
         return packaging;
     }

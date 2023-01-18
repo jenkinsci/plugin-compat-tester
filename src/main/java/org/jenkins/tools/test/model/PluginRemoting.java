@@ -25,18 +25,21 @@
  */
 package org.jenkins.tools.test.model;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,9 +50,9 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.tools.ant.filters.StringInputStream;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -130,7 +133,7 @@ public class PluginRemoting {
 
     private String retrievePomContentFromXmlFile() throws PluginSourcesUnavailableException{
         try {
-            return FileUtils.readFileToString(pomFile);
+            return Files.readString(pomFile.toPath(), StandardCharsets.UTF_8);
         } catch(Exception e) {
             LOGGER.log(Level.WARNING, String.format("Failed to retrieve POM content from XML file '%s'", pomFile), e);
             throw new PluginSourcesUnavailableException(String.format("Failed to retrieve POM content from XML file '%s'", pomFile), e);
@@ -149,7 +152,7 @@ public class PluginRemoting {
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 		try {
 			DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
-			Document doc = builder.parse(new StringInputStream(pomContent));
+			Document doc = builder.parse(new InputSource(new StringReader(pomContent)));
 			
 			XPathFactory xpathFactory = XPathFactory.newInstance();
             XPath xpath = xpathFactory.newXPath();
@@ -166,7 +169,7 @@ public class PluginRemoting {
             packaging = StringUtils.trimToNull((String)packagingXPath.evaluate(doc, XPathConstants.STRING));
 
             String parentNode = xpath.evaluate("/project/parent", doc);
-            if (StringUtils.isNotBlank(parentNode)) {
+            if (parentNode != null && !parentNode.isBlank()) {
                 LOGGER.log(Level.FINE, "Parent POM: {0}", parentNode);
                 parent = new MavenCoordinates(
                         getValueOrFail(doc, xpath, "/project/parent/groupId"),
@@ -193,7 +196,7 @@ public class PluginRemoting {
      *
      * @throws IOException parsing error
      */
-	@Nonnull
+	@NonNull
 	private static String getValueOrFail(Document doc, XPath xpath, String field) throws IOException {
         String res;
 	    try {
@@ -202,7 +205,7 @@ public class PluginRemoting {
             throw new IOException("Expression failed for the field " + field, e);
         }
 
-        if (StringUtils.isBlank(res)) {
+        if (res == null || res.isBlank()) {
             throw new IOException("Field is either null or blank: " + field);
         }
         return res;

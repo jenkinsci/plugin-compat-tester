@@ -1,5 +1,7 @@
 package org.jenkins.tools.test.maven;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -19,8 +20,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.annotation.CheckForNull;
 
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
@@ -70,7 +69,7 @@ public class ExternalMavenRunner implements MavenRunner {
             cmd.add("--define=" + entry);
         }
         cmd.addAll(config.mavenOptions);
-        cmd.addAll(Arrays.asList(goals));
+        cmd.addAll(List.of(goals));
         LOGGER.log(Level.INFO, "Running {0} in {1} >> {2}", new Object[]{String.join(" ", cmd), baseDirectory, buildLogFile});
         try {
             Process p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
@@ -126,9 +125,7 @@ public class ExternalMavenRunner implements MavenRunner {
             return result;
         }
         String types = config.userProperties.get("types");
-        for (String type : types.split(",")) {
-            result.add(type);
-        }
+        result.addAll(List.of(types.split(",")));
         return result;
     }
 

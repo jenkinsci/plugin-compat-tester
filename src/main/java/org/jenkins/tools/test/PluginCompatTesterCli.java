@@ -31,8 +31,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.codehaus.plexus.PlexusContainerException;
 import org.jenkins.tools.test.logging.LoggingConfiguration;
@@ -127,13 +127,13 @@ public class PluginCompatTesterCli {
         config.setExternalMaven(options.getExternalMaven());
 
         if(options.getIncludePlugins() != null && !options.getIncludePlugins().isEmpty()){
-            config.setIncludePlugins(Arrays.asList(options.getIncludePlugins().toLowerCase().split(",")));
+            config.setIncludePlugins(List.of(options.getIncludePlugins().toLowerCase().split(",")));
         }
         if(options.getExcludePlugins() != null && !options.getExcludePlugins().isEmpty()){
-            config.setExcludePlugins(Arrays.asList(options.getExcludePlugins().toLowerCase().split(",")));
+            config.setExcludePlugins(List.of(options.getExcludePlugins().toLowerCase().split(",")));
         }
         if(options.getExcludeHooks() != null && !options.getExcludeHooks().isEmpty()){
-            config.setExcludeHooks(Arrays.asList(options.getExcludeHooks().split(",")));
+            config.setExcludeHooks(List.of(options.getExcludeHooks().split(",")));
         }
         if(options.getSkipTestCache() != null){
             config.setSkipTestCache(Boolean.parseBoolean(options.getSkipTestCache()));
@@ -145,7 +145,7 @@ public class PluginCompatTesterCli {
             config.setCacheThresholdStatus(TestStatus.valueOf(options.getCacheThresholdStatus()));
         }
         if(options.getHookPrefixes() != null && !options.getHookPrefixes().isEmpty()){
-            config.setHookPrefixes(Arrays.asList(options.getHookPrefixes().split(",")));
+            config.setHookPrefixes(List.of(options.getHookPrefixes().split(",")));
         }
         if(options.getExternalHooksJars() != null && !options.getExternalHooksJars().isEmpty()){
             config.setExternalHooksJars(options.getExternalHooksJars());

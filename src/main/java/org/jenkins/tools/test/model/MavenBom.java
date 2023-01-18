@@ -57,8 +57,7 @@ public class MavenBom {
     }
 
     public boolean containsDep(Dependency toCheck, Model model) {
-        return model.getDependencies().stream().filter(dep -> getDepDescription(dep).equals(getDepDescription(toCheck)))
-                .count() > 0;
+        return model.getDependencies().stream().anyMatch(dep -> getDepDescription(dep).equals(getDepDescription(toCheck)));
     }
 
     private String getDepDescription(Dependency toCheck) {
