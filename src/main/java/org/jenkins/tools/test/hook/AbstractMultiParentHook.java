@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
@@ -22,9 +24,11 @@ import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
 /**
- * Utility class to ease create simple hooks for multimodule projects
+ * Utility class to ease create simple hooks for multi-module projects
  */
 public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBeforeCheckout {
+
+    private static final Logger LOGGER = Logger.getLogger(AbstractMultiParentHook.class.getName());
 
     protected boolean firstRun = true;
     
@@ -40,10 +44,10 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
         boolean shouldExecuteHook = config.getLocalCheckoutDir() == null || !config.getLocalCheckoutDir().exists();
 
         if (shouldExecuteHook) {
-            System.out.println("Executing Hook for " + getParentProjectName());
+            LOGGER.log(Level.INFO, "Executing hook for {0}", getParentProjectName());
             // Determine if we need to run the download; only run for first identified plugin in the series
             if (firstRun) {
-                System.out.println("Preparing for Multimodule checkout");
+                LOGGER.log(Level.INFO, "Preparing for multi-module checkout");
 
                 // Checkout to the parent directory. All other processes will be on the child directory
                 File parentPath = new File(config.workDirectory.getAbsolutePath() + "/" + getParentFolder());
@@ -52,10 +56,10 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 String scmTag;
                 if (pomData.getScmTag() != null) {
                     scmTag = pomData.getScmTag();
-                    System.out.println(String.format("Using SCM tag '%s' from POM.", scmTag));
+                    LOGGER.log(Level.INFO, "Using SCM tag {0} from POM", scmTag);
                 } else {
                     scmTag = getParentProjectName() + "-" + currentPlugin.version;
-                    System.out.println(String.format("POM did not provide an SCM tag. Inferring tag '%s'.", scmTag));
+                    LOGGER.log(Level.INFO, "POM did not provide an SCM tag; inferring tag {0}", scmTag);
                 }
                 // Like PluginCompatTester.cloneFromSCM but with subdirectories trimmed:
                 cloneFromSCM(currentPlugin, parentPath, scmTag, getUrl(), config.getFallbackGitHubOrganization());
@@ -68,7 +72,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             // Change the "download"" directory; after download, it's simply used for reference
             File childPath = new File(config.workDirectory.getAbsolutePath() + "/" + getParentFolder() + "/" + getPluginFolderName(currentPlugin));
 
-            System.out.println("Child path for " + currentPlugin.getDisplayName() + " " + childPath);
+            LOGGER.log(Level.INFO, "Child path for {0}: {1}", new Object[]{currentPlugin.getDisplayName(), childPath.getPath()});
             moreInfo.put("checkoutDir", childPath);
             moreInfo.put("pluginDir", childPath);
             moreInfo.put("parentFolder", getParentFolder());
@@ -96,7 +100,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             if (connectionURL != null) {
                 connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
             }
-            System.out.println("Checking out from SCM connection URL: " + connectionURL + " (" + getParentProjectName() + "-" + currentPlugin.version + ") at tag " + scmTag);
+            LOGGER.log(Level.INFO, "Checking out from SCM connection URL {0}: {1} ({2}-{3}) at tag {4}", new Object[]{connectionURL, getParentProjectName(), currentPlugin.version, scmTag});
             if (parentPath.isDirectory()) {
                 FileUtils.deleteDirectory(parentPath);
             }
@@ -122,11 +126,11 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
 
     protected void configureLocalCheckOut(UpdateSite.Plugin currentPlugin, File localCheckoutDir, Map<String, Object> moreInfo) {
         // Do nothing to keep compatibility with pre-existing Hooks
-        System.out.println("Ignoring localCheckoutDir for " + currentPlugin.getDisplayName());
+        LOGGER.log(Level.INFO, "Ignoring local checkout directory for {0}", currentPlugin.getDisplayName());
     }
 
     /**
-     * Returns the folder where the multimodule project parent will be checked out
+     * Returns the folder where the multi-module project parent will be checked out
      */
     protected abstract String getParentFolder();
 

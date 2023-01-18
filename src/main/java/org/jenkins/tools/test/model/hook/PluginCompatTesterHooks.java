@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
@@ -28,6 +30,8 @@ import org.reflections.util.ConfigurationBuilder;
  * never be called.
  */
 public class PluginCompatTesterHooks {
+    private static final Logger LOGGER = Logger.getLogger(PluginCompatTesterHooks.class.getName());
+
     private Set<ClassLoader> classLoaders = new HashSet<>(List.of(PluginCompatTesterHooks.class.getClassLoader()));
     private List<String> hookPrefixes = new ArrayList<>();
     private static Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
@@ -102,19 +106,18 @@ public class PluginCompatTesterHooks {
         // Modifications build on each other, pertinent checks should be handled in the hook
         for(PluginCompatTesterHook hook : beforeHooks) {
             try {
-                System.out.println("Processing " + hook.getClass().getName());
                 if(!excludeHooks.contains(hook.getClass().getName()) && hook.check(elements)) {
+                    LOGGER.log(Level.INFO, "Running hook: {0}", hook.getClass().getName());
                     elements = hook.action(elements);
                     hook.validate(elements);
                 } else {
-                    System.out.println("Hook not triggered.  Continuing.");
+                    LOGGER.log(Level.FINE, "Skipping hook: {0}", hook.getClass().getName());
                 }
             } catch (RuntimeException re) {
                 //this type of exception should stop processing the plugins. Throw it up the chain
                 throw re;
             } catch (Exception ex) {
-                ex.printStackTrace();
-                System.out.println("Cannot make transformation; continue.");
+                LOGGER.log(Level.WARNING, "Failed to run hook; continuing", ex);
             }
         }
         return elements;
@@ -178,7 +181,7 @@ public class PluginCompatTesterHooks {
             // Ignore abstract hooks
             if (!Modifier.isAbstract(c.getModifiers())) {
                 try {
-                    System.out.println("Hook: " + c.getName());
+                    LOGGER.log(Level.FINE, "Loading hook: {0}", c.getName());
                     Constructor<?> constructor = c.getConstructor();
                     PluginCompatTesterHook hook = (PluginCompatTesterHook) constructor.newInstance();
 
@@ -192,8 +195,7 @@ public class PluginCompatTesterHooks {
                         sortedHooks.put(plugin, allForType);
                     }
                 } catch (Exception ex) {
-                    System.out.println("Error when loading " + c.getName());
-                    ex.printStackTrace();
+                    LOGGER.log(Level.WARNING, "Error when loading " + c.getName() + "; continuing", ex);
                 }
             }
         }

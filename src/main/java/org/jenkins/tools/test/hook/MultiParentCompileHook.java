@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
@@ -26,13 +28,15 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 
 public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
 
+    private static final Logger LOGGER = Logger.getLogger(MultiParentCompileHook.class.getName());
+
     protected MavenRunner runner;
     protected MavenRunner.Config mavenConfig;
 
     public static final String ESLINTRC = ".eslintrc";
 
     public MultiParentCompileHook() {
-        System.out.println("Loaded multi-parent compile hook");
+        LOGGER.log(Level.INFO, "Loaded multi-parent compile hook");
     }
 
 
@@ -40,14 +44,14 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "silly rule")
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         try {
-            System.out.println("Executing multi-parent compile hook");
+            LOGGER.log(Level.INFO, "Executing multi-parent compile hook");
             PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
 
             runner = new ExternalMavenRunner(config.getExternalMaven());
             mavenConfig = getMavenConfig(config);
 
             File pluginDir = (File) moreInfo.get("pluginDir");
-            System.out.println("Plugin dir is " + pluginDir);
+            LOGGER.log(Level.INFO, "Plugin dir is {0}", pluginDir);
 
             File localCheckoutDir = config.getLocalCheckoutDir();
             if (localCheckoutDir != null) {
@@ -73,12 +77,11 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
                 moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
             }
 
-            System.out.println("Executed multi-parent compile hook");
+            LOGGER.log(Level.INFO, "Executed multi-parent compile hook");
             return moreInfo;
             // Exceptions get swallowed, so we print to console here and rethrow again
         } catch (Exception e) {
-            System.out.println("Exception executing hook");
-            System.out.println(e);
+            LOGGER.log(Level.WARNING, "Exception executing hook", e);
             throw e;
         }
     }
@@ -143,12 +146,12 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             return false;
         }
         if (!path.getAbsolutePath().contains(parentFolder)) {
-            System.out.println(String.format("Something is really wrong here! parentFolder:%s not present in path %s", parentFolder, path.getAbsolutePath()));
+            LOGGER.log(Level.WARNING, "Parent folder {0} not present in path {1}", new Object[]{parentFolder, path.getAbsolutePath()});
             return false;
         }
         File parentFile = path.getParentFile();
         if (!StringUtils.equals(parentFolder, parentFile.getName())) {
-            System.out.println(String.format("Something is really wrong here! %s is not the parent folder of %s", parentFolder, path.getAbsolutePath()));
+            LOGGER.log(Level.WARNING, "{0} is not the parent folder of {1}", new Object[]{parentFolder, path.getAbsolutePath()});
             return false;
         }
         
@@ -160,9 +163,9 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
 
     private File setupCompileResources(File path) throws IOException {
-        System.out.println("Cleaning up node modules if necessary");
+        LOGGER.log(Level.INFO, "Cleaning up node modules if necessary");
         removeNodeFolders(path);
-        System.out.println("Compile plugin log in " + path);
+        LOGGER.log(Level.INFO, "Plugin compilation log directory: {0}", path);
         return new File(path + "/compilePluginLog.log");
     }
 

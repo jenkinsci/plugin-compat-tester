@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -17,6 +19,8 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 public class MavenBom {
+
+    private static final Logger LOGGER = Logger.getLogger(MavenBom.class.getName());
 
     private Model contents;
 
@@ -47,7 +51,7 @@ public class MavenBom {
             writer.write(out, modified);
             return fullDepPom;
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.WARNING, "Failed to write full dependency POM; continuing", e);
         }
         return null;
     }

@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkins.tools.test.util.StreamGobbler;
 
@@ -351,11 +352,11 @@ public class PluginCompatTesterConfig {
             }
 
             if (res.containsKey("jvm")) {
-                System.out.println("WARNING: Maven properties already contain the 'jvm' argument. " +
-                        "Overriding the previous Test JDK home value '" + res.get("jvm") +
+                LOGGER.log(Level.WARNING, "Maven properties already contain the 'jvm' argument; " +
+                        "overriding the previous test JDK home value '" + res.get("jvm") +
                         "' by the explicit argument: " + testJDKHome);
             } else {
-                System.out.println("Using custom Test JDK home: " + testJDKHome);
+                LOGGER.log(Level.INFO, "Using custom test JDK home: {0}", testJDKHome);
             }
             final String javaCmdAbsolutePath = getTestJavaCommandPath();
             res.put("jvm", javaCmdAbsolutePath);
@@ -364,8 +365,8 @@ public class PluginCompatTesterConfig {
         // Merge test Java args if needed
         if (testJavaArgs != null && !testJavaArgs.isBlank()) {
             if (res.containsKey("argLine")) {
-                System.out.println("WARNING: Maven properties already contain the 'argLine' argument. " +
-                        "Merging value from properties and from the command line");
+                LOGGER.log(Level.WARNING, "Maven properties already contain the 'argLine' argument; " +
+                        "merging value from properties and from the command line");
                 res.put("argLine", res.get("argLine") + " " + testJavaArgs);
             } else {
                 res.put("argLine", testJavaArgs);
@@ -392,7 +393,7 @@ public class PluginCompatTesterConfig {
     public String getTestJavaVersion() throws IOException {
         String javaCmdAbsolutePath = getTestJavaCommandPath();
         if (javaCmdAbsolutePath == null) {
-            LOGGER.info("testJdkHome unset, using java available from the PATH");
+            LOGGER.log(Level.INFO, "Test JDK home unset; using Java from PATH");
             javaCmdAbsolutePath = "java";
         }
         final Process process = new ProcessBuilder().command(javaCmdAbsolutePath, "-XshowSettings:properties", "-version").redirectErrorStream(true).start();

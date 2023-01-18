@@ -86,7 +86,7 @@ public class PluginRemoting {
         try {
 	    return retrievePomContentFromHpiRemoteUrl(new URL(hpiRemoteUrl));
 	} catch (MalformedURLException e) {
-	    LOGGER.log(Level.INFO, String.format("hpi reference %s is not a remote URL", hpiRemoteUrl));
+	    LOGGER.log(Level.WARNING, "HPI reference {0} is not a remote URL", hpiRemoteUrl);
 	    return retrievePomContentFromHpiFileReference();
 	}
     }
@@ -95,8 +95,8 @@ public class PluginRemoting {
     	try {
     	    return retrievePomContentFromInputStream(url.openStream());
 	} catch (IOException e) {
-	    System.err.println("Error : " + e.getMessage());
-          throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
+	    LOGGER.log(Level.WARNING, "Failed to retrieve POM content from HPI remote URL", e);
+          throw new PluginSourcesUnavailableException("Failed to retrieve POM content from HPI remote URL", e);
 	}
     }
 
@@ -105,8 +105,8 @@ public class PluginRemoting {
 	    String fileReference = hpiRemoteUrl.replaceAll("jar:", "").replaceAll("!/name.hpi", "");
     	    return retrievePomContentFromInputStream(FileUtils.openInputStream(new File(fileReference)));
 	} catch (IOException e) {
-	    System.err.println("Error : " + e.getMessage());
-          throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
+	    LOGGER.log(Level.WARNING, "Failed to retrieve POM content from HPI file reference", e);
+          throw new PluginSourcesUnavailableException("Failed to retrieve POM content from HPI file reference", e);
 	}
     }
 
@@ -126,8 +126,8 @@ public class PluginRemoting {
 
             return sb.toString();
         } catch (Exception e) {
-            System.err.println("Error : " + e.getMessage());
-            throw new PluginSourcesUnavailableException("Problem while retrieving pom content in hpi !", e);
+            LOGGER.log(Level.WARNING, "Failed to retrieve POM content from input stream", e);
+            throw new PluginSourcesUnavailableException("Failed to retrieve POM content from input stream", e);
         }
     }
 
@@ -135,8 +135,8 @@ public class PluginRemoting {
         try {
             return Files.readString(pomFile.toPath(), StandardCharsets.UTF_8);
         } catch(Exception e) {
-            System.err.println("Error : " + e.getMessage());
-            throw new PluginSourcesUnavailableException(String.format("Problem while retrieving pom content from file %s", pomFile), e);
+            LOGGER.log(Level.WARNING, String.format("Failed to retrieve POM content from XML file '%s'", pomFile), e);
+            throw new PluginSourcesUnavailableException(String.format("Failed to retrieve POM content from XML file '%s'", pomFile), e);
         }
     }
 	
@@ -170,24 +170,20 @@ public class PluginRemoting {
 
             String parentNode = xpath.evaluate("/project/parent", doc);
             if (parentNode != null && !parentNode.isBlank()) {
-                LOGGER.log(Level.INFO, parentNode);
+                LOGGER.log(Level.FINE, "Parent POM: {0}", parentNode);
                 parent = new MavenCoordinates(
                         getValueOrFail(doc, xpath, "/project/parent/groupId"),
                         getValueOrFail(doc, xpath, "/project/parent/artifactId"),
                         getValueOrFail(doc, xpath, "/project/parent/version"));
             } else {
-                LOGGER.log(Level.WARNING, "No parent POM reference for artifact {0}, " +
-                                "likely a plugin with Incrementals support is used (Jenkins JEP-305). " +
-                                "Will try to ignore it (FTR https://issues.jenkins-ci.org/browse/JENKINS-55169). " +
-                                "hpiRemoteUrl={1}, pomFile={2}",
-                        new Object[] {artifactId, hpiRemoteUrl, pomFile});
+                LOGGER.log(Level.FINE, "No parent POM for {0}", artifactId);
             }
 		} catch (ParserConfigurationException | SAXException | IOException e) {
-			System.err.println("Error : " + e.getMessage());
-			throw new PluginSourcesUnavailableException("Problem during pom.xml parsing", e);
+			LOGGER.log(Level.WARNING, "Failed to parse pom.xml", e);
+			throw new PluginSourcesUnavailableException("Failed to parse pom.xml", e);
 		} catch (XPathExpressionException e) {
-			System.err.println("Error : " + e.getMessage());
-			throw new PluginSourcesUnavailableException("Problem while retrieving plugin's scm connection", e);
+			LOGGER.log(Level.WARNING, "Failed to retrieve SCM connection", e);
+			throw new PluginSourcesUnavailableException("Failed to retrieve SCM connection", e);
 		}
 		
 		PomData pomData = new PomData(artifactId, packaging, scmConnection, scmTag, parent, groupId);

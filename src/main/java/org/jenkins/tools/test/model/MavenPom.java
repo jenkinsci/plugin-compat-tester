@@ -351,7 +351,7 @@ public class MavenPom {
             if (group != null && !group.isEmpty()) {
                 dependency.addElement(GROUP_ID_ELEMENT).addText(group);
             } else {
-                System.err.println("WARNING: no known group ID for plugin " + dep.getKey());
+                LOGGER.log(Level.WARNING, "No known group ID for plugin {0}", dep.getKey());
                 dependency.addElement(GROUP_ID_ELEMENT).addText("org.jenkins-ci.plugins");
             }
             dependency.addElement(ARTIFACT_ID_ELEMENT).addText(dep.getKey());
