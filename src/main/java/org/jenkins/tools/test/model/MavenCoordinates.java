@@ -25,10 +25,8 @@
  */
 package org.jenkins.tools.test.model;
 
-import javax.annotation.Nonnull;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import java.util.Objects;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
 
 /**
@@ -47,7 +45,7 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
      *
      * @throws IllegalArgumentException one of the parameters is invalid.
      */
-    public MavenCoordinates(@Nonnull String groupId, @Nonnull String artifactId, @Nonnull String version){
+    public MavenCoordinates(@NonNull String groupId, @NonNull String artifactId, @NonNull String version){
         this.groupId = verifyInput( groupId, artifactId, version,"groupId", groupId);
         this.artifactId = verifyInput( groupId, artifactId, version,"artifactId", artifactId);
         this.version = verifyInput( groupId, artifactId, version,"version", version);
@@ -55,7 +53,7 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
 
     private static String verifyInput(String groupId, String artifactId, String version,
                                       String fieldName, String value) throws IllegalArgumentException {
-        if (value == null || StringUtils.isBlank(value)) {
+        if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(
                     String.format("Invalid parameter passed for %s:%s:%s: Field %s; %s",
                             groupId, artifactId, version, fieldName, value));
@@ -65,16 +63,19 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
 
     @Override
     public boolean equals(Object o){
-        if (!(o instanceof MavenCoordinates)) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         MavenCoordinates c2 = (MavenCoordinates)o;
-        return new EqualsBuilder().append(groupId, c2.groupId).append(artifactId, c2.artifactId).append(version, c2.version).isEquals();
+        return Objects.equals(groupId, c2.groupId) && Objects.equals(artifactId, c2.artifactId) && Objects.equals(version, c2.version);
     }
 
     @Override
     public int hashCode(){
-        return new HashCodeBuilder().append(groupId).append(artifactId).append(version).toHashCode();
+        return Objects.hash(groupId, artifactId, version);
     }
 
     @Override

@@ -5,8 +5,12 @@ import org.jenkins.tools.test.model.PomData;
 
 import java.io.File;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
+
+    private static final Logger LOGGER = Logger.getLogger(WarningsNGCheckoutHook.class.getName());
 
     @Override
     protected String getParentFolder() {
@@ -51,7 +55,7 @@ public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
         firstRun = false;
 
         // Change the "download"" directory; after download, it's simply used for reference
-        System.out.println("Child path for " + currentPlugin.getDisplayName() + " " + pluginDir);
+        LOGGER.log(Level.INFO, "Child path for {0}: {1}", new Object[]{currentPlugin.getDisplayName(), pluginDir.getPath()});
         moreInfo.put("checkoutDir", pluginDir);
         moreInfo.put("pluginDir", pluginDir);
     }

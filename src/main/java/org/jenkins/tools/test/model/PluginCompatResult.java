@@ -27,12 +27,9 @@ package org.jenkins.tools.test.model;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * POJO storing a plugin compatibility test result
@@ -76,16 +73,19 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
 
     @Override
     public boolean equals(Object o){
-        if (!(o instanceof PluginCompatResult)) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         PluginCompatResult res = (PluginCompatResult)o;
-        return new EqualsBuilder().append(coreCoordinates, res.coreCoordinates).isEquals();
+        return Objects.equals(coreCoordinates, res.coreCoordinates);
     }
 
     @Override
     public int hashCode(){
-        return new HashCodeBuilder().append(coreCoordinates).toHashCode();
+        return Objects.hash(coreCoordinates);
     }
 
     @Override

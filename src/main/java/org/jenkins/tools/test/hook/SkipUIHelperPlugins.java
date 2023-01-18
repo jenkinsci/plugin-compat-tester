@@ -1,6 +1,5 @@
 package org.jenkins.tools.test.hook;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +16,7 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
  * @see <a href="js-libs">https://github.com/jenkinsci/js-libs</a>
  */
 public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
-    private static List<String> allBundlePlugins = Arrays.asList(
+    private static List<String> allBundlePlugins = List.of(
         "ace-editor", "bootstrap", "handlebars", "jquery-detached",
         "js-module-base", "momentjs", "numeraljs");
 
@@ -35,7 +34,7 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) {
         moreInfo.put("executionResult", 
-            new TestExecutionResult(Collections.singletonList("Plugin unsupported at this time, skipping")));
+            new TestExecutionResult(List.of("Plugin unsupported at this time, skipping")));
         moreInfo.put("runCheckout", false);
         return moreInfo;
     }

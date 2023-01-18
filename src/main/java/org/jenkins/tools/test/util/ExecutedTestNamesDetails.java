@@ -50,10 +50,7 @@ public class ExecutedTestNamesDetails {
     }
     
     private void add(String key, String test) {
-        if (this.tests.get(key) == null) {
-            this.tests.put(key, new TreeSet<String>());
-        }
-        this.tests.get(key).add(test);
+        this.tests.computeIfAbsent(key, unused -> new TreeSet<>()).add(test);
     }
 
     public boolean hasBeenExecuted() {

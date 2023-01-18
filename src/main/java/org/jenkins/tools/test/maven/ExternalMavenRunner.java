@@ -1,5 +1,7 @@
 package org.jenkins.tools.test.maven;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,16 +11,15 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.annotation.CheckForNull;
 
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
@@ -27,6 +28,8 @@ import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
  * Runs external Maven executable.
  */
 public class ExternalMavenRunner implements MavenRunner {
+
+    private static final Logger LOGGER = Logger.getLogger(ExternalMavenRunner.class.getName());
 
     private static final String DISABLE_DOWNLOAD_LOGS = "-ntp";
 
@@ -66,8 +69,8 @@ public class ExternalMavenRunner implements MavenRunner {
             cmd.add("--define=" + entry);
         }
         cmd.addAll(config.mavenOptions);
-        cmd.addAll(Arrays.asList(goals));
-        System.out.println("running " + cmd + " in " + baseDirectory + " >> " + buildLogFile);
+        cmd.addAll(List.of(goals));
+        LOGGER.log(Level.INFO, "Running {0} in {1} >> {2}", new Object[]{String.join(" ", cmd), baseDirectory, buildLogFile});
         try {
             Process p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
             List<String> succeededPluginArtifactIds = new ArrayList<>();
@@ -98,8 +101,8 @@ public class ExternalMavenRunner implements MavenRunner {
                     }
                 }
                 w.flush();
-                System.out.println("succeeded artifactIds: " + succeededPluginArtifactIds);
-                System.out.println("executed classname tests: " + getExecutedTests());
+                LOGGER.log(Level.INFO, () -> "Succeeded artifact IDs: " + String.join(",", succeededPluginArtifactIds));
+                LOGGER.log(Level.INFO, "Executed tests: {0}", String.join(",", getExecutedTests()));
             }
             if (p.waitFor() != 0) {
                 throw new PomExecutionException(cmd + " failed in " + baseDirectory, succeededPluginArtifactIds,
@@ -107,10 +110,10 @@ public class ExternalMavenRunner implements MavenRunner {
                         new ExecutedTestNamesSolver().solve(getTypes(config), getExecutedTests(), baseDirectory));
             }
         } catch (PomExecutionException x) {
-            x.printStackTrace();
+            LOGGER.log(Level.WARNING, "Failed to run Maven", x);
             throw x;
         } catch (Exception x) {
-            x.printStackTrace();
+            LOGGER.log(Level.WARNING, "Failed to run Maven", x);
             throw new PomExecutionException(x);
         }
     }
@@ -122,9 +125,7 @@ public class ExternalMavenRunner implements MavenRunner {
             return result;
         }
         String types = config.userProperties.get("types");
-        for (String type : types.split(",")) {
-            result.add(type);
-        }
+        result.addAll(List.of(types.split(",")));
         return result;
     }
 

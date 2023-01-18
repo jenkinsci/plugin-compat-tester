@@ -25,6 +25,7 @@
  */
 package org.jenkins.tools.test.model;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.VersionNumber;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +43,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.plexus.util.FileUtils;
 import org.dom4j.Document;
@@ -119,7 +119,7 @@ public class MavenPom {
     /**
      * Removes the dependency if it exists.
      */
-    public void removeDependency(@Nonnull String groupId, @Nonnull String artifactId) throws IOException {
+    public void removeDependency(@NonNull String groupId, @NonNull String artifactId) throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -132,7 +132,7 @@ public class MavenPom {
             dependencies = doc.getRootElement().addElement("dependencies");
         }
 
-        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
+        for (Element mavenDependency : dependencies.elements("dependency")) {
             Element artifactIdElem = mavenDependency.element(ARTIFACT_ID_ELEMENT);
             if (artifactIdElem == null || !artifactId.equalsIgnoreCase(artifactIdElem.getText())) {
                 continue;
@@ -151,9 +151,7 @@ public class MavenPom {
     
     /**
      * Create/Update a plugin management section with a set of plugins 
-     * @param pluginsToAdd
      * @param includeGroupId - specify if we want to add the groupId or not 
-     * @throws IOException 
      */
     public void addPluginManagement(List<MavenCoordinates> pluginsToAdd, boolean includeGroupId) throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
@@ -195,8 +193,6 @@ public class MavenPom {
     
     /**
      * Create/Update the properties section adding/updating some of them
-     * @param propertiesToAdd
-     * @throws IOException
      */
     public void addProperties(Properties propertiesToAdd) throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
@@ -258,7 +254,7 @@ public class MavenPom {
             Map<String, VersionNumber> toAddTest, Map<String, VersionNumber> toReplaceTest,
             Map<String, String> pluginGroupIds, Document doc, Element dependencies, boolean addition) {
         Set<String> depsWithoutClassifier = new HashSet<>();
-        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
+        for (Element mavenDependency : dependencies.elements("dependency")) {
             Element artifactId = mavenDependency.element(ARTIFACT_ID_ELEMENT);
             if (mavenDependency.element(CLASSIFIER_ELEMENT) == null) {
                 depsWithoutClassifier.add(artifactId.getTextTrim());
@@ -268,7 +264,7 @@ public class MavenPom {
         Element properties = doc.getRootElement().element("properties");
         Map<String, VersionNumber> toReplaceUsed = new LinkedHashMap<>();
         Map<String, VersionNumber> toReplaceTestUsed = new LinkedHashMap<>();
-        for (Element mavenDependency : (List<Element>) dependencies.elements("dependency")) {
+        for (Element mavenDependency : dependencies.elements("dependency")) {
             Element artifactId = mavenDependency.element(ARTIFACT_ID_ELEMENT);
             Element groupId = mavenDependency.element(GROUP_ID_ELEMENT);
             if (artifactId == null || groupId == null) {
@@ -295,7 +291,7 @@ public class MavenPom {
                     // Search property and update its value
                     String property = version.getTextTrim().replace("${", "").replace("}", "");
                     Element propertyToUpdate = null;
-                    for (Element mavenProperty : (List<Element>) properties.elements()) {
+                    for (Element mavenProperty : properties.elements()) {
                         if (StringUtils.equals(property, mavenProperty.getQName().getName())) {
                             propertyToUpdate = mavenProperty;
                             break;
@@ -355,7 +351,7 @@ public class MavenPom {
             if (group != null && !group.isEmpty()) {
                 dependency.addElement(GROUP_ID_ELEMENT).addText(group);
             } else {
-                System.err.println("WARNING: no known group ID for plugin " + dep.getKey());
+                LOGGER.log(Level.WARNING, "No known group ID for plugin {0}", dep.getKey());
                 dependency.addElement(GROUP_ID_ELEMENT).addText("org.jenkins-ci.plugins");
             }
             dependency.addElement(ARTIFACT_ID_ELEMENT).addText(dep.getKey());

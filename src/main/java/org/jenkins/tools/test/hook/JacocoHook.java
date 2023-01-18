@@ -19,7 +19,7 @@ public class JacocoHook extends PluginCompatTesterHookBeforeExecution {
     }
 
     @Override
-    public Map<String, Object> action(Map<String, Object> info) throws Exception {
+    public Map<String, Object> action(Map<String, Object> info) {
         List<String> args = (List<String>) info.get("args");
 
         if (args != null) {

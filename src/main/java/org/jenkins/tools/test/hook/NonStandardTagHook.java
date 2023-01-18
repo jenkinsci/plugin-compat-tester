@@ -9,12 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.ScmTag;
-import org.apache.maven.scm.command.checkout.CheckOutScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.repository.ScmRepository;
-import org.jenkins.tools.test.SCMManagerFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
@@ -29,6 +25,8 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
  * {@link String#format(String, Object...)} passing the current version as the only parameter.
  */
 public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
+
+    private static final Logger LOGGER = Logger.getLogger(NonStandardTagHook.class.getName());
 
     private final Properties affectedPlugins;
     private final List<String> transformedPlugins = new LinkedList<>();
@@ -45,8 +43,7 @@ public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
                 }
             });
         } catch (IOException e) {
-            System.err.println("WARNING: NonStandardTagHook was not able to load affected plugins, the hook will do nothing");
-            e.printStackTrace();
+            LOGGER.log(Level.WARNING, "NonStandardTagHook was not able to load affected plugins; continuing", e);
         }
     }
 
@@ -69,7 +66,7 @@ public class NonStandardTagHook  extends PluginCompatTesterHookBeforeCheckout {
         boolean shouldExecuteHook = config.getLocalCheckoutDir() == null || !config.getLocalCheckoutDir().exists();
 
         if (shouldExecuteHook) {
-            System.out.println("Executing " + this.getClass().getSimpleName() + " for " + pomData.artifactId);
+            LOGGER.log(Level.INFO, "Executing {0} for {1}", new Object[]{this.getClass().getSimpleName(), pomData.artifactId});
 
             // Checkout to the parent directory. All other processes will be on the child directory
             File checkoutPath = new File(config.workDirectory.getAbsolutePath() + "/" + pomData.artifactId);

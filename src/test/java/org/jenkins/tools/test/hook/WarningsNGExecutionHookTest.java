@@ -1,10 +1,10 @@
 package org.jenkins.tools.test.hook;
 
-import com.google.common.collect.Lists;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PomData;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +37,11 @@ public class WarningsNGExecutionHookTest {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
         Map<String, Object> info = new HashMap<>();
-        info.put("args", Lists.newArrayList(
+        info.put("args", new ArrayList<>(List.of(
                 "--define=forkCount=1",
                 "hpi:resolve-test-dependencies",
                 "hpi:test-hpl",
-                "surefire:test"));
+                "surefire:test")));
         Map<String, Object> afterAction = hook.action(info);
         List<String> args = (List<String>) afterAction.get("args");
         assertThat(args.size(), is(5));
@@ -53,7 +53,7 @@ public class WarningsNGExecutionHookTest {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
         Map<String, Object> info = new HashMap<>();
-        info.put("types", Lists.newArrayList("surefire"));
+        info.put("types", new ArrayList<>(List.of("surefire")));
         Map<String, Object> afterAction = hook.action(info);
         List<String> types = (List<String>) afterAction.get("types");
         assertThat(types.size(), is(2));

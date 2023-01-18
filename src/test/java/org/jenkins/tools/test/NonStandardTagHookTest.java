@@ -84,7 +84,7 @@ public class NonStandardTagHookTest {
             PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                     new File("../reports/PluginCompatReport.xml"),
                     new ClassPathResource("m2-settings.xml").getFile());
-            config.setIncludePlugins(Collections.singletonList("electricflow"));
+            config.setIncludePlugins(List.of("electricflow"));
             config.setSkipTestCache(true);
             config.setCacheThresholdStatus(TestStatus.TEST_FAILURES);
             config.setTestCacheTimeout(345600000);
