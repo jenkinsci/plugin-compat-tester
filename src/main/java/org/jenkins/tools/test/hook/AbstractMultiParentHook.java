@@ -130,19 +130,22 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     }
 
     /**
-     * Returns the folder where the multi-module project parent will be checked out
+     * Return the folder where the multi-module project will be checked out. This should be the name
+     * of the plugin's Git repository.
      */
     protected abstract String getParentFolder();
 
     /**
-     * Returns the parent project name. This will be used to form the checkout tag with the format
-     * {@code parentProjectName-version}.
+     * Return the prefix to the SCM tag (usually the artifact ID of the base module). This will be
+     * used to form the checkout tag with the format {@code parentProjectName-version} in the (highly
+     * unlikely, and impossible for incrementalified plugins) event that the SCM tag is missing from
+     * the plugin's POM.
      */
     protected abstract String getParentProjectName();
 
     /**
      * Returns the plugin folder name. By default it will be the plugin name, but it can be
-     * overridden to support plugins (like {@code structs}) that are not located in a folder with
+     * overridden to support plugins (like {@code workflow-cps}) that are not located in a folder with
      * the same name as the plugin itself.
      */
     protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
