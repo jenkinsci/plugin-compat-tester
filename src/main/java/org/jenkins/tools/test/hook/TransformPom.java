@@ -21,7 +21,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
     private static final String NEW_PLUGINS_PARENT_VERSION_KEY = "newPluginsParentPom";
 
     public TransformPom() {
-        System.out.println("Loaded TransformPom");
+        LOGGER.log(Level.INFO, "Loaded TransformPom");
     }
 
     /**
@@ -47,8 +47,7 @@ public class TransformPom extends PluginCompatTesterHookBeforeExecution {
             parentUnder233 = parentV2 && parent.compareVersionTo(PLUGINS_PARENT_POM_FOR_CORE_WITHOUT_WAR_TEST) < 0;
         } else {
             //TODO(oleg_nenashev): all these assumptions are unreliable at best (JENKINS-55169)
-            LOGGER.log(Level.WARNING, "Parent POM is missing for {0}. " +
-                    "Likely it is Incrementals Plugin, hence assuming it's not a CloudBees one and that the version is above 3.4 (JENKINS-55169)", pomData.artifactId);
+            LOGGER.log(Level.FINE, "No parent POM for {0}", pomData.artifactId);
             isCB = false;
             parentV2 = true;
             parentUnder233 = false;

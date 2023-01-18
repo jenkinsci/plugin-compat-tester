@@ -23,15 +23,9 @@ public class MinaSshdApi extends AbstractMultiParentHook {
 
     @Override
     public boolean check(Map<String, Object> info) {
-        return isMinaSshdApiPlugin(info);
-    }
-
-    private boolean isMinaSshdApiPlugin(Map<String, Object> moreInfo) {
-        PomData data = (PomData) moreInfo.get("pomData");
-        return isMinaSshdApiPlugin(data);
-    }
-
-    private boolean isMinaSshdApiPlugin(PomData data) {
-        return data.groupId.equals("io.jenkins.plugins.mina-sshd-api");
+        PomData data = (PomData) info.get("pomData");
+        return "io.jenkins.plugins.mina-sshd-api".equals(data.groupId)
+                && data.artifactId.startsWith("mina-sshd-api")
+                && "hpi".equals(data.getPackaging());
     }
 }

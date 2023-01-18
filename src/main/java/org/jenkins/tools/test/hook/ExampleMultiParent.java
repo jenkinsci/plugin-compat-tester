@@ -2,10 +2,11 @@ package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite.Plugin;
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
@@ -14,12 +15,14 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
  * each plugin is in its own repository, these plugins automatically fail since they are "not
  * found".
  *
- * <p>This is an example of what needs to change to handle multimodule parents.
+ * <p>This is an example of what needs to change to handle multi-module parents.
  */
 public class ExampleMultiParent { //extends PluginCompatTesterHookBeforeCheckout {
+    private static final Logger LOGGER = Logger.getLogger(ExampleMultiParent.class.getName());
+
     private String parentUrl = "scm:git:git@github.com:jenkinsci/parent_repo.git";
     private String parentName = "parent_repo";
-    private List<String> allBundlePlugins = Arrays.asList("possible", "plugins");
+    private List<String> allBundlePlugins = List.of("possible", "plugins");
     boolean firstRun = true;
 
     public ExampleMultiParent() {}
@@ -45,7 +48,7 @@ public class ExampleMultiParent { //extends PluginCompatTesterHookBeforeCheckout
 
         // Determine if we need to run the download; only run for first identified plugin in the series
         if(firstRun){
-            System.out.println("Preparing for Multimodule checkout.");
+            LOGGER.log(Level.INFO, "Preparing for multi-module checkout");
 
             // Checkout to the parent directory. All other processes will be on the child directory
             File parentPath = new File(config.workDirectory.getAbsolutePath()+"/"+parentName);

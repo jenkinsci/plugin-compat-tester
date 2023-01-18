@@ -38,7 +38,6 @@ import org.jenkins.tools.test.model.PCTPlugin;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -64,8 +63,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.jvnet.hudson.test.Issue;
 import org.springframework.core.io.ClassPathResource;
-
-import com.google.common.collect.ImmutableList;
 
 import hudson.util.VersionNumber;
 
@@ -95,7 +92,7 @@ public class PluginCompatTesterTest {
     @Ignore("TODO broken by https://github.com/jenkinsci/active-directory-plugin/releases/tag/active-directory-2.17; figure out how to pin a version")
     @Test
     public void testWithUrl() throws Throwable {
-        PluginCompatTesterConfig config = getConfig(ImmutableList.of("active-directory"));
+        PluginCompatTesterConfig config = getConfig(List.of("active-directory"));
         config.setStoreAll(true); 
 
         PluginCompatTester tester = new PluginCompatTester(config);
@@ -136,7 +133,7 @@ public class PluginCompatTesterTest {
     @Ignore("TODO broken by https://github.com/jenkinsci/active-directory-plugin/releases/tag/active-directory-2.17; figure out how to pin a version")
     @Test
     public void testWithIsolatedTest() throws Throwable {
-        PluginCompatTesterConfig config = getConfig(ImmutableList.of("active-directory"));
+        PluginCompatTesterConfig config = getConfig(List.of("active-directory"));
         config.setStoreAll(true); 
         Map<String, String> mavenProperties = new HashMap<>();
         mavenProperties.put("test","ActiveDirectoryAuthenticationProviderTest#testEscape");
@@ -162,7 +159,7 @@ public class PluginCompatTesterTest {
     
     @Test
     public void testStoreOnlyFailedTests() throws Throwable {
-        PluginCompatTesterConfig config = getConfig(ImmutableList.of("analysis-collector"));
+        PluginCompatTesterConfig config = getConfig(List.of("analysis-collector"));
         config.setStoreAll(false);
 
         PluginCompatTester tester = new PluginCompatTester(config);
@@ -184,7 +181,7 @@ public class PluginCompatTesterTest {
 
     @Test
     public void testBom() throws IOException, PomExecutionException, XmlPullParserException {
-        PluginCompatTesterConfig config = getConfig(ImmutableList.of("workflow-api", // From BOM
+        PluginCompatTesterConfig config = getConfig(List.of("workflow-api", // From BOM
                 "accurev" // From Update Center
         ));
 
@@ -197,11 +194,11 @@ public class PluginCompatTesterTest {
     
     @Test
     public void testWithCasCProperties() throws Throwable {
-        PluginCompatTesterConfig config = getConfig(ImmutableList.of("ec2"));
+        PluginCompatTesterConfig config = getConfig(List.of("ec2"));
         Map<String, String> mavenProperties = new HashMap<>();
         mavenProperties.put("test","ConfigurationAsCodeTest#testConfigAsCodeExport");
         config.setMavenProperties(mavenProperties);
-        List<PCTPlugin> overridenPlugins = Arrays.asList(new PCTPlugin("configuration-as-code", "io.jenkins", new VersionNumber("1.38")));
+        List<PCTPlugin> overridenPlugins = List.of(new PCTPlugin("configuration-as-code", "io.jenkins", new VersionNumber("1.38")));
         config.setOverridenPlugins(overridenPlugins);
 
         PluginCompatTester tester = new PluginCompatTester(config);
@@ -211,7 +208,7 @@ public class PluginCompatTesterTest {
     @Test
     public void testWithInvalidExclusionList() throws Throwable {
         File exclusionList = new ClassPathResource("bad-surefire-exclusion-list").getFile();
-        PluginCompatTesterConfig config = getConfig(ImmutableList.of("active-directory"));
+        PluginCompatTesterConfig config = getConfig(List.of("active-directory"));
         Map<String, String> mavenProperties = new HashMap<>();
         mavenProperties.put("surefire.excludesFile", exclusionList.getAbsolutePath());
         config.setMavenProperties(mavenProperties);
@@ -264,7 +261,7 @@ public class PluginCompatTesterTest {
         MavenCoordinates mavenCoordinates = new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.54");
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(), new File(REPORT_FILE),
                 getSettingsFile());
-        config.setIncludePlugins(ImmutableList.of(pluginName));
+        config.setIncludePlugins(List.of(pluginName));
 
         PluginCompatTester pct = new PluginCompatTester(config);
         PomData pomData = new PomData(pluginName, "hpi", nonWorkingConnectionURL, pluginName + "-" + version,
@@ -274,7 +271,7 @@ public class PluginCompatTesterTest {
     }
 
     @Ignore("TODO broken by GH protocol changes. Requesting user data access via https on local execution")
-    @Test(expected = Test.None.class)
+    @Test
     public void testWithAlternativeUrl() throws Throwable {
         String pluginName = "workflow-api";
         String version = "2.39";
@@ -282,7 +279,7 @@ public class PluginCompatTesterTest {
         MavenCoordinates mavenCoordinates = new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.54");
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(), new File(REPORT_FILE),
                 getSettingsFile());
-        config.setIncludePlugins(ImmutableList.of(pluginName));
+        config.setIncludePlugins(List.of(pluginName));
         config.setFallbackGitHubOrganization("jenkinsci");
 
         PluginCompatTester pct = new PluginCompatTester(config);

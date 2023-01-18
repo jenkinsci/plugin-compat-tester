@@ -26,7 +26,7 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
-    <logbackVersion>1.4.5</logbackVersion>
+    <slf4j.version>2.0.6</slf4j.version>
     <spotbugs.effort>Max</spotbugs.effort>
   </properties>
 
@@ -40,36 +40,26 @@
       <dependency>
         <groupId>net.java.dev.jna</groupId>
         <artifactId>jna</artifactId>
-        <version>5.12.1</version>
+        <version>5.13.0</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>2.0.6</version>
+        <version>${slf4j.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
     <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-access</artifactId>
-      <version>${logbackVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logbackVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-      <version>${logbackVersion}</version>
-    </dependency>
-    <dependency>
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
       <version>1.82</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jenkins.lib</groupId>
+      <artifactId>support-log-formatter</artifactId>
+      <version>1.2</version>
     </dependency>
     <dependency>
       <groupId>jakarta.servlet</groupId>
@@ -115,6 +105,10 @@
           <artifactId>commons-jelly-tags-xml</artifactId>
         </exclusion>
         <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>io.jenkins.stapler</groupId>
           <artifactId>jenkins-stapler-support</artifactId>
         </exclusion>
@@ -141,6 +135,10 @@
         <exclusion>
           <groupId>org.antlr</groupId>
           <artifactId>antlr4-runtime</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.ant</groupId>
+          <artifactId>ant</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.apache.commons</groupId>
@@ -236,6 +234,17 @@
       <groupId>org.reflections</groupId>
       <artifactId>reflections</artifactId>
       <version>0.10.2</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -269,7 +278,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.3.0</version>
+        <!-- Version specified in parent POM -->
         <configuration>
           <archive>
             <manifestEntries>
@@ -315,6 +324,17 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <!-- Version specified in parent POM -->
+        <configuration>
+          <systemPropertyVariables>
+            <java.util.logging.config.class>org.jenkins.tools.test.logging.LoggingConfiguration</java.util.logging.config.class>
+          </systemPropertyVariables>
+          <runOrder>alphabetical</runOrder>
+        </configuration>
       </plugin>
     </plugins>
   </build>
