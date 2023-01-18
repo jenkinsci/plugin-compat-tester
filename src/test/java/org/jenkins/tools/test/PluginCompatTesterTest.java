@@ -73,8 +73,6 @@ import hudson.util.VersionNumber;
  */
 public class PluginCompatTesterTest {
 
-    private static final String MAVEN_INSTALLATION_WINDOWS = "C:\\Jenkins\\tools\\hudson.tasks.Maven_MavenInstallation\\mvn\\bin\\mvn.cmd";
-
     private static final String REPORT_FILE = String.format("%s%sreports%sPluginCompatReport.xml",
             System.getProperty("java.io.tmpdir"), File.separator, File.separator);
 
@@ -242,12 +240,6 @@ public class PluginCompatTesterTest {
         config.setParentVersion("1.410");
         config.setGenerateHtmlReport(true);
         config.setHookPrefixes(Collections.emptyList());
-
-        File ciJenkinsIoWinMvn = Paths.get(MAVEN_INSTALLATION_WINDOWS).toFile();
-        if (ciJenkinsIoWinMvn.exists()) {
-            System.out.println(String.format("Using mvn: %s", MAVEN_INSTALLATION_WINDOWS));
-            config.setExternalMaven(ciJenkinsIoWinMvn);
-        }
 
         return config;
     }

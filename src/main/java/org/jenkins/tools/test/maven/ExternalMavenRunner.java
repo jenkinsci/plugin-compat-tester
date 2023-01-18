@@ -1,7 +1,7 @@
 package org.jenkins.tools.test.maven;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-
+import hudson.Functions;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -57,7 +57,11 @@ public class ExternalMavenRunner implements MavenRunner {
     public void run(Config config, File baseDirectory, File buildLogFile, String... goals)
             throws PomExecutionException {
         List<String> cmd = new ArrayList<>();
-        cmd.add(mvn != null ? mvn.getAbsolutePath() : "mvn");
+        if (mvn != null) {
+            cmd.add(mvn.getAbsolutePath());
+        } else {
+            cmd.add(Functions.isWindows() ? "mvn.cmd" : "mvn");
+        }
         cmd.add("--show-version");
         cmd.add("--batch-mode");
         cmd.add("--errors");
