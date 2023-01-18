@@ -101,7 +101,7 @@ public class ExternalMavenRunner implements MavenRunner {
                     }
                 }
                 w.flush();
-                                LOGGER.log(Level.INFO, () -> "Succeeded artifact IDs: " + String.join(",", succeededPluginArtifactIds));
+                LOGGER.log(Level.INFO, () -> "Succeeded artifact IDs: " + String.join(",", succeededPluginArtifactIds));
                 LOGGER.log(Level.INFO, "Executed tests: {0}", String.join(",", getExecutedTests()));
             }
             if (p.waitFor() != 0) {
