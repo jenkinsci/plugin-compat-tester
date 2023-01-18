@@ -27,9 +27,9 @@ package org.jenkins.tools.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
 import org.junit.Test;
 
@@ -40,7 +40,7 @@ import org.junit.Test;
  */
 public class VersionComparatorTest {
 
-    private static final ImmutableMap<String, Integer> OPERAND_CONVERSION = ImmutableMap.of(
+    private static final Map<String, Integer> OPERAND_CONVERSION = Map.of(
             "<", -1,
             "=", 0,
             ">", 1

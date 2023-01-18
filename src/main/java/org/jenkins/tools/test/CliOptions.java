@@ -29,8 +29,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.CheckForNull;
-
 import org.jenkins.tools.test.model.PCTPlugin;
 import org.jenkins.tools.test.model.TestStatus;
 
@@ -39,9 +37,11 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
+
 import hudson.util.VersionNumber;
 import java.util.Collections;
-import javax.annotation.Nonnull;
 
 /**
  * POJO containing CLI arguments &amp; help.
@@ -232,7 +232,7 @@ public class CliOptions {
         return mavenPropertiesFile;
     }
 
-    @Nonnull
+    @NonNull
     public List<String> getMavenOptions() {
         return mavenOptions != null ? Collections.unmodifiableList(mavenOptions) : Collections.emptyList();
     }

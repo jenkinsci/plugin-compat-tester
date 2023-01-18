@@ -25,8 +25,8 @@
  */
 package org.jenkins.tools.test.model;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import java.util.Objects;
 
 /**
  * POJO describing a versioned plugin
@@ -46,16 +46,19 @@ public class PluginInfos implements Comparable<PluginInfos> {
 
     @Override
     public boolean equals(Object o){
-        if (!(o instanceof PluginInfos)) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         PluginInfos infos = (PluginInfos)o;
-        return new EqualsBuilder().append(pluginName, infos.pluginName).append(pluginVersion, infos.pluginVersion).isEquals();
+        return Objects.equals(pluginName, infos.pluginName) && Objects.equals(pluginVersion, infos.pluginVersion);
     }
 
     @Override
     public int hashCode(){
-        return new HashCodeBuilder().append(pluginName).append(pluginVersion).toHashCode();
+        return Objects.hash(pluginName, pluginVersion);
     }
 
     @Override

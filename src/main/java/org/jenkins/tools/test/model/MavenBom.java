@@ -3,7 +3,6 @@ package org.jenkins.tools.test.model;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -47,8 +46,6 @@ public class MavenBom {
         try (FileOutputStream out = new FileOutputStream(fullDepPom)) {
             writer.write(out, modified);
             return fullDepPom;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,8 +53,7 @@ public class MavenBom {
     }
 
     public boolean containsDep(Dependency toCheck, Model model) {
-        return model.getDependencies().stream().filter(dep -> getDepDescription(dep).equals(getDepDescription(toCheck)))
-                .count() > 0;
+        return model.getDependencies().stream().anyMatch(dep -> getDepDescription(dep).equals(getDepDescription(toCheck)));
     }
 
     private String getDepDescription(Dependency toCheck) {
