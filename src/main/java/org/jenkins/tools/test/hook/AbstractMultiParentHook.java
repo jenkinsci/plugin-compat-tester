@@ -3,22 +3,14 @@ package org.jenkins.tools.test.hook;
 import hudson.model.UpdateSite;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.ScmTag;
-import org.apache.maven.scm.command.checkout.CheckOutScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.repository.ScmRepository;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.PluginCompatTester;
-import org.jenkins.tools.test.SCMManagerFactory;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
@@ -84,7 +76,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     }
 
     private void cloneFromSCM(UpdateSite.Plugin currentPlugin, File parentPath, String scmTag, String url, String fallbackGitHubOrganization)
-            throws ComponentLookupException, ScmException, IOException {
+            throws IOException {
         
         List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(url);
@@ -92,31 +84,24 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             connectionURLs = PluginCompatTester.getFallbackConnectionURL(connectionURLs, url, fallbackGitHubOrganization);
         }
         
-        boolean repositoryCloned = false;
-        String errorMessage = "";
-        ScmRepository repository;
-        ScmManager scmManager = SCMManagerFactory.getInstance().createScmManager();
+        IOException lastException = null;
         for (String connectionURL: connectionURLs){
             if (connectionURL != null) {
                 connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
             }
-            LOGGER.log(Level.INFO, "Checking out from SCM connection URL {0}: {1} ({2}-{3}) at tag {4}", new Object[]{connectionURL, getParentProjectName(), currentPlugin.version, scmTag});
-            if (parentPath.isDirectory()) {
-                FileUtils.deleteDirectory(parentPath);
-            }
-            repository = scmManager.makeScmRepository(connectionURL);
-            CheckOutScmResult result = scmManager.checkOut(repository, new ScmFileSet(parentPath), new ScmTag(scmTag));
-            if(result.isSuccess()){
-                repositoryCloned = true;
+            try {
+                PluginCompatTester.clone(connectionURL, scmTag, parentPath);
                 break;
-            } else {
-                errorMessage = result.getProviderMessage() + " || " + result.getCommandOutput();
+            } catch (IOException e) {
+                if (lastException != null) {
+                    e.addSuppressed(lastException);
+                }
+                lastException = e;
             }
         }
         
-        if (!repositoryCloned) {
-            // Throw an exception if there are any download errors.
-            throw new RuntimeException(errorMessage);
+        if (lastException != null) {
+            throw new UncheckedIOException(lastException);
         }
     }
 

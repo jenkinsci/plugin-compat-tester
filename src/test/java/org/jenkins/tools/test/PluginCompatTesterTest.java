@@ -47,7 +47,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.model.MavenCoordinates;
@@ -57,7 +56,6 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PluginInfos;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.TestStatus;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -83,16 +81,10 @@ public class PluginCompatTesterTest {
 
     @Before
     public void setUp() throws Exception {
-        SCMManagerFactory.getInstance().start();
         File file = Paths.get(REPORT_FILE).toFile();
         if (file.exists()) {
             FileUtils.deleteQuietly(file);
         }
-    }
-
-    @After
-    public void tearDown() {
-        SCMManagerFactory.getInstance().stop();
     }
 
     @Ignore("TODO broken by https://github.com/jenkinsci/active-directory-plugin/releases/tag/active-directory-2.17; figure out how to pin a version")
@@ -186,7 +178,7 @@ public class PluginCompatTesterTest {
     } 
 
     @Test
-    public void testBom() throws IOException, PlexusContainerException, PomExecutionException, XmlPullParserException {
+    public void testBom() throws IOException, PomExecutionException, XmlPullParserException {
         PluginCompatTesterConfig config = getConfig(List.of("workflow-api", // From BOM
                 "accurev" // From Update Center
         ));

@@ -34,7 +34,6 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.codehaus.plexus.PlexusContainerException;
 import org.jenkins.tools.test.logging.LoggingConfiguration;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.exception.PomExecutionException;
@@ -60,7 +59,7 @@ public class PluginCompatTesterCli {
             value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
             justification =
                     "We're already checking for null in each relevant instance, so why does SpotBugs complain?")
-    public static void main(String[] args) throws IOException, PlexusContainerException, PomExecutionException, XmlPullParserException { 
+    public static void main(String[] args) throws IOException, PomExecutionException, XmlPullParserException { 
         CliOptions options = new CliOptions();
         JCommander jcommander = null;
         try {
