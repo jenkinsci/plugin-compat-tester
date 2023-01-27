@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 
 import hudson.model.UpdateSite;
 import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ public class NonStandardTagHookTest {
         pluginData.put("version", "1.1.8");
         pluginData.put("url", "example.com");
         pluginData.put("dependencies", new JSONArray());
-        UpdateSite.Plugin plugin = new UpdateSite("fake", "fake").new Plugin("NO Source", pluginData);
+        UpdateSite.Plugin plugin = new UpdateSite.Plugin("NO Source", pluginData);
         info.put("plugin", plugin);
         try {
             assertTrue("Check should be true", hook.check(info));
@@ -66,7 +65,7 @@ public class NonStandardTagHookTest {
         pluginData.put("version", "1.1.7");
         pluginData.put("url", "example.com");
         pluginData.put("dependencies", new JSONArray());
-        UpdateSite.Plugin plugin = new UpdateSite("fake", "fake").new Plugin("NO Source", pluginData);
+        UpdateSite.Plugin plugin = new UpdateSite.Plugin("NO Source", pluginData);
         info.put("plugin", plugin);
         try {
             assertFalse("Check should be false", hook.check(info));
@@ -97,7 +96,7 @@ public class NonStandardTagHookTest {
             pluginData.put("version", "1.1.8");
             pluginData.put("url", "example.com");
             pluginData.put("dependencies", new JSONArray());
-            UpdateSite.Plugin plugin = new UpdateSite("fake", "fake").new Plugin("NO Source", pluginData);
+            UpdateSite.Plugin plugin = new UpdateSite.Plugin("NO Source", pluginData);
             info.put("plugin", plugin);
             info.put("config", config);
 
