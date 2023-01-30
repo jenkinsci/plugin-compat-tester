@@ -93,7 +93,6 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
 import org.jenkins.tools.test.util.StreamGobbler;
-import org.springframework.core.io.ClassPathResource;
 import org.jenkins.tools.test.exception.PomTransformationException;
 
 /**
@@ -150,7 +149,7 @@ public class PluginCompatTester {
             if(config.isProvideXslReport()){
                 Files.createDirectories(Paths.get(PluginCompatReport.getBaseFilepath(config.reportFile)));
                 File xslFilePath = PluginCompatReport.getXslFilepath(config.reportFile);
-                try (InputStream is = getXslTransformerResource().getInputStream()) {
+                try (InputStream is = getXslTransformerResource()) {
                     Files.copy(is, xslFilePath.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 }
             }
@@ -376,7 +375,7 @@ public class PluginCompatTester {
         }
 
         Source xmlSource = new StreamSource(config.reportFile);
-        try(InputStream xsltStream = getXslTransformerResource().getInputStream()) {
+        try(InputStream xsltStream = getXslTransformerResource()) {
             Source xsltSource = new StreamSource(xsltStream);
             Result result = new StreamResult(PluginCompatReport.getHtmlFilepath(config.reportFile));
 
@@ -391,8 +390,8 @@ public class PluginCompatTester {
         }
     }
 
-    private static ClassPathResource getXslTransformerResource(){
-        return new ClassPathResource("resultToReport.xsl");
+    private static InputStream getXslTransformerResource(){
+        return PluginCompatTester.class.getResourceAsStream("resultToReport.xsl");
     }
 
     private static File createBuildLogFile(File reportFile, String pluginName, String pluginVersion, MavenCoordinates coreCoords){

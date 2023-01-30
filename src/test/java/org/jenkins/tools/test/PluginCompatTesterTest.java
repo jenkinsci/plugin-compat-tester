@@ -37,6 +37,7 @@ import java.io.File;
 import org.jenkins.tools.test.model.PCTPlugin;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,7 +63,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.jvnet.hudson.test.Issue;
-import org.springframework.core.io.ClassPathResource;
 
 import hudson.util.VersionNumber;
 
@@ -178,12 +178,12 @@ public class PluginCompatTesterTest {
     } 
 
     @Test
-    public void testBom() throws IOException, PomExecutionException, XmlPullParserException {
+    public void testBom() throws IOException, PomExecutionException, XmlPullParserException, URISyntaxException {
         PluginCompatTesterConfig config = getConfig(List.of("workflow-api", // From BOM
                 "accurev" // From Update Center
         ));
 
-        File bomFile = new ClassPathResource("jenkins-bom.xml").getFile();
+        File bomFile = new File(getClass().getResource("jenkins-bom.xml").toURI());
         config.setBom(bomFile);
 
         PluginCompatTester tester = new PluginCompatTester(config);
@@ -203,7 +203,7 @@ public class PluginCompatTesterTest {
         tester.testPlugins();
     }
 
-    private PluginCompatTesterConfig getConfig(List<String> includedPlugins) throws IOException {
+    private PluginCompatTesterConfig getConfig(List<String> includedPlugins) throws URISyntaxException {
         PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                 new File(REPORT_FILE), getSettingsFile());      
 
@@ -378,7 +378,7 @@ public class PluginCompatTesterTest {
         assertThat("Invalid group", m.group(1), is("2.329-rc31964.3b_29e9d46_038_"));
     }
 
-    private static File getSettingsFile() throws IOException {
+    private static File getSettingsFile() throws URISyntaxException {
         // Check whether we run in ci.jenkins.io with Azure settings
         File ciJenkinsIOSettings = new File(new File("settings-azure.xml").getAbsolutePath()
                 .replace("/plugins-compat-tester/settings-azure.xml", "@tmp/settings-azure.xml"));
@@ -389,7 +389,7 @@ public class PluginCompatTesterTest {
             return ciJenkinsIOSettings;
         }
         // Default fallback for local runs
-        return new ClassPathResource("m2-settings.xml").getFile();
+        return new File(PluginCompatTesterTest.class.getResource("m2-settings.xml").toURI());
     }
 
 }
