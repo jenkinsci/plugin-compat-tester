@@ -65,7 +65,6 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.ExecutedTestNamesSolverException;
@@ -109,7 +108,7 @@ public class PluginCompatTester {
     }
 
 	public PluginCompatReport testPlugins()
-            throws IOException, PomExecutionException, XmlPullParserException {
+            throws IOException, PomExecutionException {
         PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(config.getHookPrefixes(), config.getExternalHooksJars(), config.getExcludeHooks());
         // Providing XSL Stylesheet along xml report file
         if(config.reportFile != null){
