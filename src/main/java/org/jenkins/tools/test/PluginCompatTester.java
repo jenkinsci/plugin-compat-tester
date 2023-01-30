@@ -28,13 +28,10 @@ package org.jenkins.tools.test;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.UpdateSite;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -48,7 +45,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -69,15 +65,11 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.exception.ExecutedTestNamesSolverException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
-import org.jenkins.tools.test.model.MavenBom;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.MavenPom;
@@ -116,31 +108,6 @@ public class PluginCompatTester {
         runner = new ExternalMavenRunner(config.getExternalMaven());
     }
 
-    private SortedSet<MavenCoordinates> generateCoreCoordinatesToTest(UpdateSite.Data data, PluginCompatReport previousReport){
-        SortedSet<MavenCoordinates> coreCoordinatesToTest;
-        // If parent GroupId/Artifact are not null, this will be fast : we will only test
-        // against 1 core coordinate
-        if(config.getParentGroupId() != null && config.getParentArtifactId() != null){
-            coreCoordinatesToTest = new TreeSet<>();
-
-            // If coreVersion is not provided in PluginCompatTesterConfig, let's use latest core
-            // version used in update center
-            String coreVersion = config.getParentVersion()==null?data.core.version:config.getParentVersion();
-
-            MavenCoordinates coreArtifact = new MavenCoordinates(config.getParentGroupId(), config.getParentArtifactId(), coreVersion);
-            coreCoordinatesToTest.add(coreArtifact);
-        // If parent groupId/artifactId are null, we'll test against every already recorded
-        // cores
-        } else if(config.getParentGroupId() == null && config.getParentArtifactId() == null){
-            coreCoordinatesToTest = previousReport.getTestedCoreCoordinates();
-        } else {
-            throw new IllegalStateException("config.parentGroupId and config.parentArtifactId should either be both null or both filled\n" +
-                    "config.parentGroupId=" + config.getParentGroupId() + ", config.parentArtifactId=" + config.getParentArtifactId());
-        }
-
-        return coreCoordinatesToTest;
-    }
-
 	public PluginCompatReport testPlugins()
             throws IOException, PomExecutionException, XmlPullParserException {
         PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(config.getHookPrefixes(), config.getExternalHooksJars(), config.getExcludeHooks());
@@ -156,61 +123,37 @@ public class PluginCompatTester {
         }
 
         // Determine the plugin data
-        HashMap<String,String> pluginGroupIds = new HashMap<>();  // Used to track real plugin groupIds from WARs
+        Map<String, String> pluginGroupIds = new HashMap<>();  // Used to track real plugin groupIds from WARs
 
         // Scan bundled plugins
         // If there is any bundled plugin, only these plugins will be taken under the consideration for the PCT run
-        UpdateSite.Data data;
-        if (config.getBom() != null) {
-            data = scanBom(pluginGroupIds, "([^/.]+)[.][hj]pi");
-        } else {
-            data = config.getWar() == null ? extractUpdateCenterData(pluginGroupIds) : scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
-        }
+        UpdateSite.Data data = scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
         if (!data.plugins.isEmpty()) {
             // Scan detached plugins to recover proper Group IDs for them
             // At the moment, we are considering that bomfile contains the info about the detached ones
-            UpdateSite.Data detachedData = config.getBom() != null ? null : config.getWar() != null ? scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi") : extractUpdateCenterData(pluginGroupIds);
+            UpdateSite.Data detachedData = scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
 
             // Add detached if and only if no added as normal one
-            UpdateSite.Data finalData = data;
             if (detachedData != null) {
                 detachedData.plugins.forEach((key, value) -> {
-                    if (!finalData.plugins.containsKey(key)) {
-                        finalData.plugins.put(key, value);
+                    if (!data.plugins.containsKey(key)) {
+                        data.plugins.put(key, value);
                     }
                 });
             }
         }
 
-        final Map<String, UpdateSite.Plugin> pluginsToCheck;
-        final List<String> pluginsToInclude = config.getIncludePlugins();
-        if (data.plugins.isEmpty() && pluginsToInclude != null && !pluginsToInclude.isEmpty()) {
-            // Update Center returns empty info OR the "-war" option is specified for WAR without bundled plugins
-            LOGGER.log(Level.INFO, "WAR file does not contain plugin info; will try to extract it from UC for included plugins");
-            pluginsToCheck = new HashMap<>(pluginsToInclude.size());
-            UpdateSite.Data ucData = extractUpdateCenterData(pluginGroupIds);
-            for (String plugin : pluginsToInclude) {
-                UpdateSite.Plugin pluginData = ucData.plugins.get(plugin);
-                if (pluginData != null) {
-                    LOGGER.log(Level.INFO, "Adding {0} to the test scope", plugin);
-                    pluginsToCheck.put(plugin, pluginData);
-                }
-            }
-        } else {
-            pluginsToCheck = data.plugins;
-        }
-
-        if (pluginsToCheck.isEmpty()) {
+        if (data.plugins.isEmpty()) {
             throw new IOException("List of plugins to check is empty, it is not possible to run PCT");
         }
 
-        // if there is only one plugin and it's not already resolved (not in the war, not in a bom and not in an update center)
+        // if there is only one plugin and it's not already resolved (not in the war)
         // and there is a local checkout available then it needs to be added to the plugins to check
-        if (onlyOnePluginIncluded() && localCheckoutProvided() && !pluginsToCheck.containsKey(config.getIncludePlugins().get(0))) {
+        if (onlyOnePluginIncluded() && localCheckoutProvided() && !data.plugins.containsKey(config.getIncludePlugins().get(0))) {
             String artifactId = config.getIncludePlugins().get(0);
             try {
                 UpdateSite.Plugin extracted = extractFromLocalCheckout();
-                pluginsToCheck.put(artifactId, extracted);
+                data.plugins.put(artifactId, extracted);
             } catch (PluginSourcesUnavailableException e) {
                 LOGGER.log(Level.SEVERE, "Cannot test {0} because plugin sources are not available despite a local checkout being provided", artifactId);
             }
@@ -219,7 +162,7 @@ public class PluginCompatTester {
 
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
-        SortedSet<MavenCoordinates> testedCores = config.getWar() == null ? generateCoreCoordinatesToTest(data, report) : coreVersionFromWAR(data);
+        MavenCoordinates coreCoordinates = new MavenCoordinates("org.jenkins-ci.main", "jenkins-war", data.core.version);
 
         MavenRunner.Config mconfig = new MavenRunner.Config(config);
         // TODO REMOVE
@@ -227,9 +170,8 @@ public class PluginCompatTester {
         report.setTestJavaVersion(config.getTestJavaVersion());
 
         boolean failed = false;
-        ROOT_CYCLE: for(MavenCoordinates coreCoordinates : testedCores){
             LOGGER.log(Level.INFO, "Starting plugin tests on core coordinates {0}", coreCoordinates);
-            for (UpdateSite.Plugin plugin : pluginsToCheck.values()) {
+            for (UpdateSite.Plugin plugin : data.plugins.values()) {
                 if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
                     PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
 
@@ -241,7 +183,6 @@ public class PluginCompatTester {
                     String errorMessage = null;
                     TestStatus status = null;
 
-                    MavenCoordinates actualCoreCoordinates = coreCoordinates;
                     PluginRemoting remote;
                     if (localCheckoutProvided() && onlyOnePluginIncluded()) {
                         // Only one plugin and checkout directory provided
@@ -271,7 +212,7 @@ public class PluginCompatTester {
                         pomData = null;
                     }
 
-                    if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, actualCoreCoordinates, config.getTestCacheTimeout(), config.getCacheThresholdStatus())){
+                    if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, coreCoordinates, config.getTestCacheTimeout(), config.getCacheThresholdStatus())){
                         LOGGER.log(Level.INFO, "Cache activated for plugin {0} => test skipped", pluginInfos.pluginName);
                         continue; // Don't do anything : we are in the cached interval ! :-)
                     }
@@ -280,7 +221,7 @@ public class PluginCompatTester {
                     Set<String> testDetails = new TreeSet<>();
                     if (errorMessage == null) {
                     try {
-                        TestExecutionResult result = testPluginAgainst(actualCoreCoordinates, plugin, mconfig, pomData, pcth);
+                        TestExecutionResult result = testPluginAgainst(coreCoordinates, plugin, mconfig, pomData, pcth);
                         if (result.getTestDetails().isSuccess()) {
                             status = TestStatus.SUCCESS;
                         } else {
@@ -313,17 +254,13 @@ public class PluginCompatTester {
                     }
 
 
-                    File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, actualCoreCoordinates);
+                    File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
                     String buildLogFilePath = "";
                     if(buildLogFile.exists()){
-                        buildLogFilePath = createBuildLogFilePathFor(pluginInfos.pluginName, pluginInfos.pluginVersion, actualCoreCoordinates);
+                        buildLogFilePath = createBuildLogFilePathFor(pluginInfos.pluginName, pluginInfos.pluginVersion, coreCoordinates);
                     }
 
-                    if(config.getBom() != null) {
-                    	actualCoreCoordinates = new MavenCoordinates(actualCoreCoordinates.groupId, actualCoreCoordinates.artifactId, solveVersionFromModel(new MavenBom(config.getBom()).getModel()));
-                    }
-
-                    PluginCompatResult result = new PluginCompatResult(actualCoreCoordinates, status, errorMessage, warningMessages, testDetails, buildLogFilePath);
+                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, status, errorMessage, warningMessages, testDetails, buildLogFilePath);
                     report.add(pluginInfos, result);
 
                     if(config.reportFile != null){
@@ -336,14 +273,13 @@ public class PluginCompatTester {
                     if (status != TestStatus.SUCCESS) {
                         failed = true;
                         if (config.isFailOnError()) {
-                            break ROOT_CYCLE;
+                            break;
                         }
                     }
                 } else {
                     LOGGER.log(Level.FINE, "Plugin {0} not in included plugins; skipping", plugin.name);
                 }
             }
-        }
 
         // Generating HTML report only if needed, if the file does not exist is because no test has been executed
         if(config.isGenerateHtmlReport() && config.reportFile != null && config.reportFile.exists()) {
@@ -708,165 +644,6 @@ public class PluginCompatTester {
     }
 
     /**
-     * Extracts Update Site data from the update center.
-     * @param groupIDs Target storage for Group IDs. The existing values won't be overridden
-     * @return Update site Data
-     */
-    private UpdateSite.Data extractUpdateCenterData(Map<String, String> groupIDs){
-        URL url;
-        try {
-            url = new URL(config.updateCenterUrl);
-        } catch (MalformedURLException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        String jsonp;
-        try (InputStream is = url.openStream()) {
-            jsonp = new String(is.readAllBytes(), Charset.defaultCharset());
-        }catch(IOException e){
-            throw new UncheckedIOException("Invalid Update Center URL: " + config.updateCenterUrl, e);
-        }
-
-        String json = jsonp.substring(jsonp.indexOf('(')+1,jsonp.lastIndexOf(')'));
-
-        JSONObject jsonObj = JSONObject.fromObject(json);
-        UpdateSite.Data site = new UpdateSite.Data(jsonObj);
-
-        // UpdateSite.Plugin does not contain gav object, so we process the JSON object on our own here
-        for(Map.Entry<String,JSONObject> e : (Set<Map.Entry<String,JSONObject>>)jsonObj.getJSONObject("plugins").entrySet()) {
-            String gav = e.getValue().getString("gav");
-            String groupId = gav.split(":")[0];
-            groupIDs.putIfAbsent(e.getKey(), groupId);
-        }
-
-        return site;
-    }
-
-    private UpdateSite.Data scanBom(HashMap<String, String> pluginGroupIds, String pluginRegExp) throws IOException, PomExecutionException, XmlPullParserException {
-
-    	JSONObject top = new JSONObject();
-    	top.put("id", DEFAULT_SOURCE_ID);
-    	JSONObject plugins = new JSONObject();
-
-    	for (File entry : getBomEntries()) {
-    		String name = entry.getName();
-    		Matcher m = Pattern.compile(pluginRegExp).matcher(name);
-    		try (InputStream is = new FileInputStream(entry); JarInputStream jis = new JarInputStream(is)) {
-    		    Manifest manifest = jis.getManifest();
-    		    if (manifest == null || manifest.getMainAttributes() == null) {
-    		        // Skip this entry, is not a plugin and/or contains a malformed manifest so is not parseable
-    		        LOGGER.log(Level.INFO, "Entry {0} defined in the BOM looks unparseable; continuing", name);
-    		        continue;
-    		    }
-    		    String jenkinsVersion = manifest.getMainAttributes().getValue("Jenkins-Version");
-    		    String shortName = manifest.getMainAttributes().getValue("Short-Name");
-    		    String groupId = manifest.getMainAttributes().getValue("Group-Id");
-    		    String version = manifest.getMainAttributes().getValue("Plugin-Version");
-    		    String dependencies = manifest.getMainAttributes().getValue("Plugin-Dependencies");
-    		    // I expect BOMs to not specify hpi as type, which results in getting the jar artifact
-    		    if (m.matches() || (jenkinsVersion != null && version != null)) { // I need a plugin version
-    		        JSONObject plugin = new JSONObject().accumulate("url", "");
-    		        if (shortName == null) {
-    		            shortName = manifest.getMainAttributes().getValue("Extension-Name");
-    		            if (shortName == null) {
-    		                shortName = m.group(1);
-    		            }
-    		        }
-
-    		        // If hpi is registered, avoid to override it by its jar entry
-    		        if(plugins.containsKey(shortName) && entry.getPath().endsWith(".jar")) {
-    		            continue;
-    		        }
-
-    		        plugin.put("name", shortName);
-    		        pluginGroupIds.put(shortName, groupId);
-    		        // Remove extra build information from the version number
-    		        final Matcher matcher = Pattern.compile("^(.+-SNAPSHOT)(.+)$").matcher(version);
-    		        if (matcher.matches()) {
-    		            version = matcher.group(1);
-    		        }
-    		        plugin.put("version", version);
-    		        plugin.put("url", "jar:" + entry.toURI().getPath() + "!/name.hpi");
-    		        JSONArray dependenciesA = new JSONArray();
-    		        if (dependencies != null) {
-    		            // e.g. matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
-    		            for (String pair : dependencies.split(",")) {
-    		                boolean optional = pair.endsWith("resolution:=optional");
-    		                String[] nameVer = pair.replace(";resolution:=optional", "").split(":");
-    		                assert nameVer.length == 2;
-    		                dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1]).accumulate("optional", String.valueOf(optional)));
-    		            }
-    		        }
-    		        plugin.accumulate("dependencies", dependenciesA);
-    		        plugins.put(shortName, plugin);
-    		    }
-    		}
-    	}
-
-    	top.put("plugins", plugins);
-    	if (!top.has("core")) {
-    		// Not all boms have the jenkins core dependency explicit, so, assume the bom version matches the jenkins version
-    		String core = solveCoreVersionFromBom();
-    		if (core == null || core.isEmpty()) {
-    			throw new IllegalStateException("Unable to retrieve any version for the core");
-    		}
-    		top.put("core", new JSONObject().accumulate("name", "core").accumulate("version",core).accumulate("url", "https://foobar"));
-    	}
-        LOGGER.log(Level.INFO, "Read contents of {0}: {1}", new Object[]{config.getBom(), top});
-        return new UpdateSite.Data(top);
-    }
-
-    private List<File> getBomEntries() throws IOException, XmlPullParserException, PomExecutionException {
-        File fullDepPom = new MavenBom(config.getBom()).writeFullDepPom(config.workDirectory);
-
-        MavenRunner.Config mconfig = new MavenRunner.Config(config);
-    	LOGGER.log(Level.INFO, "User settings file: {0}", mconfig.userSettingsFile);
-
-    	File buildLogFile = new File(config.workDirectory
-    			+ File.separator + "bom-download.log");
-    	FileUtils.touch(buildLogFile); // Creating log file
-
-    	runner.run(mconfig, fullDepPom.getParentFile(), buildLogFile, "dependency:copy-dependencies", "-P consume-incrementals", "-N");
-    	return org.codehaus.plexus.util.FileUtils.getFiles(new File(config.workDirectory, "bom" + File.separator + "target" + File.separator + "dependency"),null, null);
-    }
-
-    /**
-     * @return Provides the core version from the bomfile and in case it is not found, the bom version, if bom version does not exist, it provides from its parent
-     */
-    private String solveCoreVersionFromBom() throws IOException, XmlPullParserException {
-    	Model model = new MavenBom(config.getBom()).getModel();
-    	for (Dependency dependency : model.getDependencies()) {
-		if(dependency.getArtifactId().equals("jenkins-core")) {
-			return getProperty(model, dependency.getVersion());
-		}
-	}
-    	return solveVersionFromModel(model);
-    }
-
-    private String solveVersionFromModel(Model model) {
-	String version = model.getVersion();
-	Parent parent = model.getParent();
-	return version != null ? version : parent != null ? parent.getVersion() : "";
-    }
-
-    /**
-     * Given a value and a model, it checks if it is an interpolated value. In negative case it returns the same
-     * value. In affirmative case, it retrieves its value from the properties of the Maven model.
-     * @return the effective value of an specific value in a model
-     */
-    private String getProperty(Model model, String value) {
-    	if (!value.contains("$")) {
-    		return value;
-    	}
-
-    	String key = value.replaceAll("\\$", "")
-    			.replaceAll("\\{", "")
-    			.replaceAll("\\}", "");
-
-    	return getProperty(model, model.getProperties().getProperty(key));
-    }
-
-    /**
      * Scans through a WAR file, accumulating plugin information
      * @param war WAR to scan
      * @param pluginGroupIds Map pluginName to groupId if set in the manifest, MUTATED IN THE EXECUTION
@@ -905,6 +682,10 @@ public class PluginCompatTester {
                                 shortName = m.group(1);
                             }
                         }
+                        String longName = manifest.getMainAttributes().getValue("Long-Name");
+                        if (longName != null) {
+                            plugin.put("title", longName);
+                        }
                         plugin.put("name", shortName);
                         pluginGroupIds.put(shortName, manifest.getMainAttributes().getValue("Group-Id"));
                         String version = manifest.getMainAttributes().getValue("Plugin-Version");
@@ -938,12 +719,6 @@ public class PluginCompatTester {
         }
         LOGGER.log(Level.INFO, "Scanned contents of {0} with {1} plugins", new Object[]{war, plugins.size()});
         return new UpdateSite.Data(top);
-    }
-
-    private SortedSet<MavenCoordinates> coreVersionFromWAR(UpdateSite.Data data) {
-        SortedSet<MavenCoordinates> result = new TreeSet<>();
-        result.add(new MavenCoordinates(PluginCompatTesterConfig.DEFAULT_PARENT_GROUP, PluginCompatTesterConfig.DEFAULT_PARENT_ARTIFACT, data.core.version));
-        return result;
     }
 
     /**

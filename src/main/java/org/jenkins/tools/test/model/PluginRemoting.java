@@ -118,13 +118,7 @@ public class PluginRemoting {
                 zipEntry = zin.getNextEntry();
             }
 
-            StringBuilder sb = new StringBuilder();
-            byte[] buf = new byte[1024];
-            int n;
-            while ((n = zin.read(buf, 0, 1024)) > -1)
-                sb.append(new String(buf, 0, n, Charset.defaultCharset()));
-
-            return sb.toString();
+            return new String(zin.readAllBytes(), StandardCharsets.UTF_8);
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Failed to retrieve POM content from input stream", e);
             throw new PluginSourcesUnavailableException("Failed to retrieve POM content from input stream", e);

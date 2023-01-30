@@ -17,11 +17,6 @@ public class MinaSshdApi extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getPluginFolderName(UpdateSite.Plugin currentPlugin){
-        return currentPlugin.getDisplayName();
-    }
-
-    @Override
     public boolean check(Map<String, Object> info) {
         PomData data = (PomData) info.get("pomData");
         return "io.jenkins.plugins.mina-sshd-api".equals(data.groupId)

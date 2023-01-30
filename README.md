@@ -149,33 +149,6 @@ Currently Java 17 and Java 11 are bundled (JDK_VERSION= {17, 11}).
 
 Full list of options be found [here](./Makefile).
 
-### Running PCT with different version of dependencies
-
-IMPORTANT: At this moment, the replacement of a dependency will not update the transitive dependencies.
-Because of this, you might have to provide on the same parameter the new versions of the transitive dependencies.
-
-Plugin Compat Tester supports overriding the plugin dependency version. 
-For example, we might want to validate that a newer version of a plugin is not breaking the latest version of the plugin we want to test.
-
-To do that, the option `overridenPlugins` can be passed to PCT CLI.
-The format of the value **must** be `PLUGIN_GROUP:PLUGIN_NAME=PLUGIN_VERSION`.
-
-So, running
-
-```
-java -jar target/plugins-compat-tester-cli.jar \
-  [...]
-  -overridenPlugins org.jenkins-ci.plugins:display-url-api=2.3.0
-  -includePlugins mailer
-```
-
-will run the PCT on the `mailer` plugin, but replacing the `display-url-api` dependency of Mailer (which is `1.0`) with the version `2.3.0`.
-
-For compatibility reasons, the `PLUGIN_GROUP:` part may be omitted,
-but only if the group ID could be inferred by other means:
-either that plugin being included in the `-war`,
-or no `-war` being passed but the plugin being present on the update center.
-
 ## Developer Info
 
 ### Debugging PCT in Docker
@@ -198,7 +171,7 @@ and then to properly setup the environment.
 
 ```batch
    set JAVA_HOME=...
-   make demo PLUGIN_NAME=artifact-manager-s3 WAR_PATH=test-wars/mywar.war MVN_EXECUTABLE="C:\ProgramData\chocolatey\bin\mvn.exe" EXTRA_OPTS="-overridenPlugins 'io.jenkins:configuration-as-code=1.20'"
+   make demo PLUGIN_NAME=artifact-manager-s3 WAR_PATH=test-wars/mywar.war MVN_EXECUTABLE="C:\ProgramData\chocolatey\bin\mvn.exe"
 ```
 
 ## Useful links

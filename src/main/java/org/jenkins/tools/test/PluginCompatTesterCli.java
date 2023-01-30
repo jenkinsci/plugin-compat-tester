@@ -92,37 +92,12 @@ public class PluginCompatTesterCli {
             }
         }
 
-        String updateCenterUrl = options.getUpdateCenterUrl();
-        String parentCoordinates = options.getParentCoord();
-        File war = options.getWar();
-        if (war != null) {
-            if (updateCenterUrl != null || parentCoordinates != null) {
-                throw new IllegalStateException("Cannot specify -war together with either -updateCenterUrl or -parentCoordinates");
-            }
-        }
-
         PluginCompatTesterConfig config = new PluginCompatTesterConfig();
 
-        if (updateCenterUrl != null) {
-            config.setUpdateCenterUrl(updateCenterUrl);
-        }
         config.setWorkDirectory(options.getWorkDirectory());
         config.setReportFile(reportFile);
         config.setM2SettingsFile(options.getM2SettingsFile());
-
-        if (parentCoordinates != null && !parentCoordinates.isEmpty()) {
-            String[] gavChunks = parentCoordinates.split(":");
-            assert gavChunks.length == 3 || gavChunks.length == 2;
-            config.setParentGroupId(gavChunks[0]);
-            config.setParentArtifactId(gavChunks[1]);
-            if (gavChunks.length == 3 && !"".equals(gavChunks[2])) {
-                config.setParentVersion(gavChunks[2]);
-            }
-        }
-
-        config.setWar(war);
-        config.setBom(options.getBOM());
-
+        config.setWar(options.getWar());
         config.setExternalMaven(options.getExternalMaven());
 
         if(options.getIncludePlugins() != null && !options.getIncludePlugins().isEmpty()){
@@ -170,10 +145,6 @@ public class PluginCompatTesterCli {
             config.setStoreAll(options.isStoreAll().booleanValue());
         } else {
             config.setStoreAll(false);
-        }
-
-        if(options.getOverridenPlugins() != null && !options.getOverridenPlugins().isEmpty()) {
-            config.setOverridenPlugins(options.getOverridenPlugins());
         }
 
         // Handle properties

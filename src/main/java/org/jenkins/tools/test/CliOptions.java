@@ -29,7 +29,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jenkins.tools.test.model.PCTPlugin;
 import org.jenkins.tools.test.model.TestStatus;
 
 import com.beust.jcommander.IParameterValidator;
@@ -40,7 +39,6 @@ import com.beust.jcommander.ParameterException;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
-import hudson.util.VersionNumber;
 import java.util.Collections;
 
 /**
@@ -49,18 +47,9 @@ import java.util.Collections;
  * @author Frederic Camblor
  */
 public class CliOptions {
-    @Parameter(names = "-updateCenterUrl",
-            description = "Update center JSON file URL")
-    private String updateCenterUrl = null;
-
-    @Parameter(names = "-parentCoordinates",
-            description = "Parent pom GAV in the form groupId:artifactId[:version].\n" +
-                    "If null/empty, every core coordinates located in report XML files will be tested.")
-    private String parentCoord = null;
-
-    @Parameter(names = "-war",
+    @Parameter(names = "-war", required = true,
             description = "A WAR file to scan for plugins rather than looking in the update center.")
-    private File war = null;
+    private File war;
 
     @CheckForNull
     @Parameter(names = "-testJDKHome",
@@ -153,10 +142,6 @@ public class CliOptions {
     @Parameter(names="-help", description = "Print this help message", help = true)
     private boolean printHelp;
 
-    @Parameter(names = "-overridenPlugins", description = "List of plugins to use to test a plugin in place of the normal dependencies." +
-          "Format: '[GROUP_ID:]PLUGIN_NAME=PLUGIN_VERSION", converter = PluginConverter.class, validateWith = PluginValidator.class)
-    private List<PCTPlugin> overridenPlugins;
-
     @Parameter(names = "-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
     private boolean failOnError;
     
@@ -166,17 +151,6 @@ public class CliOptions {
                     "Disabled by default because it may bloat reports for plugins which thousands of tests."
     )
     private Boolean storeAll = null;
-
-    @Parameter(names = "-bom", description = "BOM file to be used for plugin versions rather than an Update Center or War file")
-    private File bom;
-
-    public String getUpdateCenterUrl() {
-        return updateCenterUrl;
-    }
-
-    public String getParentCoord() {
-        return parentCoord;
-    }
 
     public File getWar() {
         return war;
@@ -267,16 +241,6 @@ public class CliOptions {
         return testJavaArgs;
     }
 
-    @CheckForNull
-    public List<PCTPlugin> getOverridenPlugins() {
-        return overridenPlugins != null ? Collections.unmodifiableList(overridenPlugins) : null;
-    }
-
-    @CheckForNull
-    public File getBOM() {
-        return this.bom;
-    }
-
     public boolean isFailOnError() {
         return failOnError;
     }
@@ -285,16 +249,6 @@ public class CliOptions {
         return storeAll;
     }
 
-    public static class PluginConverter implements IStringConverter<PCTPlugin> {
-        @Override
-        public PCTPlugin convert(String s) {
-            String[] details = s.split("=");
-            String name = details[0];
-            int colon = name.indexOf(':');
-            return new PCTPlugin(colon == -1 ? name : name.substring(colon + 1), colon == -1 ? null : name.substring(0, colon), new VersionNumber(details[1]));
-        }
-    }
-    
     public static class FileListConverter implements IStringConverter<List<File>> {
         @Override
         public List<File> convert(String files) {
@@ -314,18 +268,6 @@ public class CliOptions {
                 File jar = new File(path);
                 if (!jar.exists() || !jar.isFile()) {
                     throw new ParameterException(path + " must exists and be a normal file (not a directory)");
-                }
-            }
-        }
-    }
-
-    public static class PluginValidator implements IParameterValidator {
-        @Override
-        public void validate(String name, String value) throws ParameterException {
-            for (String s : value.split(",")) {
-                final String[] split = s.split("=");
-                if (split.length != 2) {
-                    throw new ParameterException(name + " must be formatted as NAME=VERSION");
                 }
             }
         }
