@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -44,7 +45,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.plexus.util.FileUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -83,7 +83,7 @@ public class MavenPom {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         File backupPom = new File(rootDir.getAbsolutePath() + "/" + pomFileName + ".backup");
         try {
-            FileUtils.rename(pom, backupPom);
+            Files.move(pom.toPath(), backupPom.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
             Document doc;
             try {

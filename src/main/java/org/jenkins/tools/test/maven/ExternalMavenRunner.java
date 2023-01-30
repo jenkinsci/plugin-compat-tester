@@ -1,7 +1,6 @@
 package org.jenkins.tools.test.maven;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import hudson.Functions;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,6 +20,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.SystemUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
 
@@ -60,7 +60,7 @@ public class ExternalMavenRunner implements MavenRunner {
         if (mvn != null) {
             cmd.add(mvn.getAbsolutePath());
         } else {
-            cmd.add(Functions.isWindows() ? "mvn.cmd" : "mvn");
+            cmd.add(SystemUtils.IS_OS_WINDOWS ? "mvn.cmd" : "mvn");
         }
         cmd.add("--show-version");
         cmd.add("--batch-mode");
