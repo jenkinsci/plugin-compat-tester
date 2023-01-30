@@ -21,7 +21,6 @@ import org.jenkins.tools.test.model.TestStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.springframework.core.io.ClassPathResource;
 
 public class NonStandardTagHookTest {
 
@@ -80,7 +79,7 @@ public class NonStandardTagHookTest {
         try {
             PluginCompatTesterConfig config = new PluginCompatTesterConfig(testFolder.getRoot(),
                     new File("../reports/PluginCompatReport.xml"),
-                    new ClassPathResource("m2-settings.xml").getFile());
+                    new File(getClass().getResource("m2-settings.xml").toURI()));
             config.setIncludePlugins(List.of("electricflow"));
             config.setSkipTestCache(true);
             config.setCacheThresholdStatus(TestStatus.TEST_FAILURES);
