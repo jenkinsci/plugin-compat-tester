@@ -11,7 +11,6 @@ public class ConfigurationAsCodeHook extends AbstractMultiParentHook {
         return "configuration-as-code-plugin";
     }
 
-
     @Override
     protected String getParentProjectName() {
         return "configuration-as-code";

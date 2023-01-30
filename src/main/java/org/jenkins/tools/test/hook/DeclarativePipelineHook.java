@@ -20,7 +20,6 @@ public class DeclarativePipelineHook extends AbstractMultiParentHook {
         return "pipeline-model-definition-plugin";
     }
 
-
     @Override
     protected String getParentProjectName() {
         return "pipeline-model-definition";

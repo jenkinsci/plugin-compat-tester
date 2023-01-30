@@ -1,11 +1,10 @@
 package org.jenkins.tools.test.hook;
 
-import org.jenkins.tools.test.model.PomData;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
+import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
 /**
  * Workaround for JaCoCo plugin since it needs execute the jacoco:prepare-agent goal before execution.

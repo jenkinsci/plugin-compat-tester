@@ -23,6 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.jenkins.tools.test.model;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
@@ -113,10 +114,10 @@ public class PluginCompatTesterConfig {
     private String mavenPropertiesFile;
 
     private List<String> mavenOptions = Collections.emptyList();
- 
+
     // Classpath prefixes of the extra hooks
     private List<String> hookPrefixes = new ArrayList<>(List.of("org.jenkins"));
-    
+
     // External hooks jar files path locations
     private List<File> externalHooksJars = new ArrayList<>();
 
@@ -409,7 +410,7 @@ public class PluginCompatTesterConfig {
     public List<String> getHookPrefixes() {
         return hookPrefixes;
     }
-    
+
     public List<File> getExternalHooksJars() {
         return externalHooksJars;
     }
@@ -418,7 +419,7 @@ public class PluginCompatTesterConfig {
         // Want to also process the default
         this.hookPrefixes.addAll(hookPrefixes);
     }
-    
+
     public void setExternalHooksJars(List<File> externalHooksJars) {
         this.externalHooksJars = externalHooksJars;
     }
@@ -455,7 +456,7 @@ public class PluginCompatTesterConfig {
     public void setStoreAll(boolean storeAll) {
         this.storeAll = storeAll;
     }
-    
+
     public boolean isStoreAll() {
         return storeAll;
     }

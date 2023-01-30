@@ -23,6 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.jenkins.tools.test.exception;
 
 import java.io.PrintWriter;
@@ -77,7 +78,7 @@ public class PomExecutionException extends Exception {
     public List<String> getPomWarningMessages() {
         return pomWarningMessages;
     }
-    
+
     public ExecutedTestNamesDetails getTestDetails() {
         return testDetails;
     }

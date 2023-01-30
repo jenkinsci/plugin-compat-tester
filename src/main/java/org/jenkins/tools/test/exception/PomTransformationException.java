@@ -23,6 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.jenkins.tools.test.exception;
 
 /**
@@ -32,7 +33,7 @@ package org.jenkins.tools.test.exception;
  */
 public class PomTransformationException extends Exception {
 
-	public PomTransformationException(String message, Throwable cause){
-		super(message, cause);
-	}
+    public PomTransformationException(String message, Throwable cause){
+        super(message, cause);
+    }
 }

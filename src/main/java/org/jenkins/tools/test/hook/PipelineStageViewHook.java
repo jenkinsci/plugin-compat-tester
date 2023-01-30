@@ -3,7 +3,6 @@ package org.jenkins.tools.test.hook;
 import hudson.model.UpdateSite;
 import java.util.Map;
 import java.util.Set;
-
 import org.jenkins.tools.test.model.PomData;
 
 public class PipelineStageViewHook extends AbstractMultiParentHook {
@@ -16,7 +15,6 @@ public class PipelineStageViewHook extends AbstractMultiParentHook {
     protected String getParentFolder() {
         return "pipeline-stage-view-plugin";
     }
-
 
     @Override
     protected String getParentProjectName() {

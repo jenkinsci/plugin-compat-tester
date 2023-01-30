@@ -23,23 +23,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.jenkins.tools.test;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.jenkins.tools.test.model.TestStatus;
 
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
-
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import org.jenkins.tools.test.model.TestStatus;
 
 /**
  * POJO containing CLI arguments &amp; help.
@@ -132,7 +129,7 @@ public class CliOptions {
 
     @Parameter(names="-hookPrefixes", description = "Prefixes of the extra hooks' classes")
     private String hookPrefixes;
-    
+
     @Parameter(names="-externalHooksJars", description = "Comma-separated list of external hooks jar file locations", listConverter = FileListConverter.class, validateWith = FileValidator.class)
     private List<File> externalHooksJars;
 
@@ -144,10 +141,10 @@ public class CliOptions {
 
     @Parameter(names = "-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
     private boolean failOnError;
-    
-    @Parameter(names = "-storeAll", 
-            description = "By default only failed tests are stored in PCT report file. \n" + 
-                    "If set, the PCT will store ALL executed test names for each plugin in report file. \n" + 
+
+    @Parameter(names = "-storeAll",
+            description = "By default only failed tests are stored in PCT report file. \n" +
+                    "If set, the PCT will store ALL executed test names for each plugin in report file. \n" +
                     "Disabled by default because it may bloat reports for plugins which thousands of tests."
     )
     private Boolean storeAll = null;
@@ -218,7 +215,7 @@ public class CliOptions {
     public String getHookPrefixes() {
         return hookPrefixes;
     }
-    
+
     public List<File> getExternalHooksJars() {
         return externalHooksJars != null ? Collections.unmodifiableList(externalHooksJars) : null;
     }
@@ -244,7 +241,7 @@ public class CliOptions {
     public boolean isFailOnError() {
         return failOnError;
     }
-    
+
     public Boolean isStoreAll() {
         return storeAll;
     }
@@ -260,7 +257,7 @@ public class CliOptions {
             return fileList;
         }
     }
-    
+
     public static class FileValidator implements IParameterValidator {
         @Override
         public void validate(String name, String value) throws ParameterException {

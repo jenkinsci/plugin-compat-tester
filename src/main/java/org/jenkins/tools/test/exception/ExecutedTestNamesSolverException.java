@@ -19,4 +19,4 @@ public class ExecutedTestNamesSolverException  extends Exception {
     public ExecutedTestNamesSolverException(Exception e) {
             super(e);
     }
-} 
+}

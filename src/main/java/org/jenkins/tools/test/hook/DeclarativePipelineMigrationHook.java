@@ -1,10 +1,9 @@
 package org.jenkins.tools.test.hook;
 
-import org.jenkins.tools.test.model.PomData;
 import hudson.model.UpdateSite;
-
 import java.util.Map;
 import java.util.Set;
+import org.jenkins.tools.test.model.PomData;
 
 /**
  * Workaround for the Declarative Pipeline Migration Assistant plugins since they are
@@ -20,7 +19,6 @@ public class DeclarativePipelineMigrationHook extends AbstractMultiParentHook {
     protected String getParentFolder() {
         return "declarative-pipeline-migration-assistant-plugin";
     }
-
 
     @Override
     protected String getParentProjectName() {

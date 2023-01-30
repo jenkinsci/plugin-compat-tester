@@ -33,7 +33,7 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
      */
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) {
-        moreInfo.put("executionResult", 
+        moreInfo.put("executionResult",
             new TestExecutionResult(List.of("Plugin unsupported at this time, skipping")));
         moreInfo.put("runCheckout", false);
         return moreInfo;

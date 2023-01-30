@@ -11,7 +11,6 @@ public class SwarmHook extends AbstractMultiParentHook {
         return "swarm-plugin";
     }
 
-
     @Override
     protected String getParentProjectName() {
         return "swarm-plugin";

@@ -43,6 +43,7 @@ public class PluginCompatTesterHooks {
     public PluginCompatTesterHooks() {
         this(new ArrayList<>());
     }
+
     public PluginCompatTesterHooks(List<String> extraPrefixes) {
         setupPrefixes(extraPrefixes);
         setupHooksByType();
@@ -66,6 +67,7 @@ public class PluginCompatTesterHooks {
             hooksByType.put(stage, findHooks(stage));
         }
     }
+
     private void setupPrefixes(List<String> extraPrefixes) {
         if(extraPrefixes != null) {
             hookPrefixes.addAll(extraPrefixes);
@@ -80,6 +82,7 @@ public class PluginCompatTesterHooks {
             classLoaders.add(new URLClassLoader(new URL[] { jar.toURI().toURL() }, PluginCompatTesterHooks.class.getClassLoader()));
         }
     }
+
     public Map<String, Object> runBeforeCheckout(Map<String, Object> elements) {
         return runHooks("checkout", elements);
     }
@@ -87,7 +90,7 @@ public class PluginCompatTesterHooks {
     public Map<String, Object> runBeforeCompilation(Map<String, Object> elements) {
         return runHooks("compilation", elements);
     }
-    
+
     public Map<String, Object> runBeforeExecution(Map<String, Object> elements) {
         return runHooks("execution", elements);
     }
@@ -101,7 +104,7 @@ public class PluginCompatTesterHooks {
      */
     private Map<String, Object> runHooks(String stage, Map<String, Object> elements) throws RuntimeException {
         Queue<PluginCompatTesterHook> beforeHooks = getHooksFromStage(stage, elements);
-        
+
         // Loop through hooks in a series run in no particular order
         // Modifications build on each other, pertinent checks should be handled in the hook
         for(PluginCompatTesterHook hook : beforeHooks) {
@@ -122,7 +125,7 @@ public class PluginCompatTesterHooks {
         }
         return elements;
     }
-    
+
     public static Queue<PluginCompatTesterHook> getHooksFromStage(String stage, Map<String, Object> elements) {
         // List of hooks to execute for the given plugin
         Queue<PluginCompatTesterHook> hooks = new LinkedList<>();
@@ -155,20 +158,20 @@ public class PluginCompatTesterHooks {
 
         // Find all steps for a given stage. Long due to casting
         switch(stage) {
-        case "compilation" : 
-            Set<Class<? extends PluginCompatTesterHookBeforeCompile>> compSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCompile.class); 
+        case "compilation" :
+            Set<Class<? extends PluginCompatTesterHookBeforeCompile>> compSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCompile.class);
             subTypes = compSteps.stream()
                     .map(this::casting)
                     .collect(Collectors.toSet());
             break;
-        case "execution" : 
-            Set<Class<? extends PluginCompatTesterHookBeforeExecution>> exeSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeExecution.class); 
+        case "execution" :
+            Set<Class<? extends PluginCompatTesterHookBeforeExecution>> exeSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeExecution.class);
             subTypes = exeSteps.stream()
                     .map(this::casting)
                     .collect(Collectors.toSet());
             break;
-        case "checkout" : 
-            Set<Class<? extends PluginCompatTesterHookBeforeCheckout>> checkSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCheckout.class); 
+        case "checkout" :
+            Set<Class<? extends PluginCompatTesterHookBeforeCheckout>> checkSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCheckout.class);
             subTypes = checkSteps.stream()
                     .map(this::casting)
                     .collect(Collectors.toSet());
@@ -199,7 +202,7 @@ public class PluginCompatTesterHooks {
                 }
             }
         }
-            
+
         return sortedHooks;
     }
 
