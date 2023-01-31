@@ -1,6 +1,5 @@
 package org.jenkins.tools.test.hook;
 
-import hudson.model.UpdateSite;
 import java.util.Map;
 import java.util.Set;
 import org.jenkins.tools.test.model.PomData;
