@@ -25,7 +25,7 @@ public class PipelineStageViewHook extends AbstractMultiParentHook {
 
     @Override
     protected String getPluginFolderName(UpdateSite.Plugin currentPlugin){
-        return currentPlugin.getDisplayName().equals("pipeline-rest-api") ? "rest-api" : "ui";
+        return currentPlugin.name.equals("pipeline-rest-api") ? "rest-api" : "ui";
     }
 
     @Override
