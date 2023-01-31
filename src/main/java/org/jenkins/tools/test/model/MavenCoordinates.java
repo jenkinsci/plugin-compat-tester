@@ -83,15 +83,6 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
         return "MavenCoordinates[groupId="+groupId+", artifactId="+artifactId+", version="+version+"]";
     }
 
-    public String toGAV(){
-        return groupId+":"+artifactId+":"+version;
-    }
-
-    public static MavenCoordinates fromGAV(String gav){
-        String[] chunks = gav.split(":");
-        return new MavenCoordinates(chunks[0], chunks[1], chunks[2]);
-    }
-
     @Override
     public int compareTo(MavenCoordinates o) {
         if((groupId+":"+artifactId).equals(o.groupId+":"+o.artifactId)){

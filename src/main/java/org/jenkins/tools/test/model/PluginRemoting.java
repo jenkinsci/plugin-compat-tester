@@ -224,7 +224,7 @@ public class PluginRemoting {
         if(transformedConnectionUrl.isEmpty()){
             transformedConnectionUrl = "scm:git:git://github.com/jenkinsci/"+pomData.artifactId.replaceAll("jenkins", "")+"-plugin.git";
             if(!oldUrl.equals(transformedConnectionUrl)){
-                pomData.getWarningMessages().add("project.scm.connectionUrl is not present in plugin's pom .. isn't it residing somewhere on a parent pom ?");
+                LOGGER.log(Level.WARNING, "project.scm.connectionUrl is not present in plugin's pom .. isn't it residing somewhere on a parent pom ?");
             }
         }
 
@@ -232,7 +232,7 @@ public class PluginRemoting {
         oldUrl = transformedConnectionUrl;
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("(svn|hudson)\\.dev\\.java\\.net/svn/hudson/", "svn.java.net/svn/hudson~svn/");
         if(!oldUrl.equals(transformedConnectionUrl)){
-            pomData.getWarningMessages().add("project.scm.connectionUrl is pointing to svn.dev.java.net/svn/hudson/ instead of svn.java.net/svn/hudson~svn/");
+            LOGGER.log(Level.WARNING, "project.scm.connectionUrl is pointing to svn.dev.java.net/svn/hudson/ instead of svn.java.net/svn/hudson~svn/");
         }
 
         // ${project.artifactId}
@@ -244,7 +244,7 @@ public class PluginRemoting {
         oldUrl = transformedConnectionUrl;
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("(http(s)?://)?[^@:]+@github\\.com", "git://github.com");
         if(!oldUrl.equals(transformedConnectionUrl)){
-            pomData.getWarningMessages().add("project.scm.connectionUrl is using a github account instead of a read-only url git://github.com/...");
+            LOGGER.log(Level.WARNING, "project.scm.connectionUrl is using a github account instead of a read-only url git://github.com/...");
         }
         */
 
@@ -252,19 +252,19 @@ public class PluginRemoting {
         oldUrl = transformedConnectionUrl;
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("scm:git:git://git@github\\.com:jenkinsci", "scm:git:git://github.com/jenkinsci");
         if(!oldUrl.equals(transformedConnectionUrl)){
-            pomData.getWarningMessages().add("project.scm.connectionUrl should should be accessed in read-only mode (with git:// protocol)");
+            LOGGER.log(Level.WARNING, "project.scm.connectionUrl should should be accessed in read-only mode (with git:// protocol)");
         }
 
         oldUrl = transformedConnectionUrl;
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github\\.com[^/]", "://github.com/");
         if(!oldUrl.equals(transformedConnectionUrl)){
-            pomData.getWarningMessages().add("project.scm.connectionUrl should have a '/' after the github.com url");
+            LOGGER.log(Level.WARNING, "project.scm.connectionUrl should have a '/' after the github.com url");
         }
 
         oldUrl = transformedConnectionUrl;
         transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github\\.com/hudson/", "://github.com/jenkinsci/");
         if(!oldUrl.equals(transformedConnectionUrl)){
-            pomData.getWarningMessages().add("project.scm.connectionUrl should not reference hudson project anymore (no plugin repository there))");
+            LOGGER.log(Level.WARNING, "project.scm.connectionUrl should not reference hudson project anymore (no plugin repository there))");
         }
 
 		// Just fixing some scm-sync-configuration issues...
@@ -274,7 +274,7 @@ public class PluginRemoting {
 			transformedConnectionUrl = transformedConnectionUrl.substring(0, transformedConnectionUrl.length()-4)+"-plugin.git";
         }
         if(!oldUrl.equals(transformedConnectionUrl)){
-            pomData.getWarningMessages().add("project.scm.connectionUrl should be ending with '-plugin.git'");
+            LOGGER.log(Level.WARNING, "project.scm.connectionUrl should be ending with '-plugin.git'");
         }
 
         pomData.setConnectionUrl(transformedConnectionUrl);

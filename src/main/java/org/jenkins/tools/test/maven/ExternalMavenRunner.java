@@ -110,7 +110,7 @@ public class ExternalMavenRunner implements MavenRunner {
             }
             if (p.waitFor() != 0) {
                 throw new PomExecutionException(cmd + " failed in " + baseDirectory, succeededPluginArtifactIds,
-                        /* TODO */Collections.emptyList(), Collections.emptyList(),
+                        /* TODO */Collections.emptyList(),
                         new ExecutedTestNamesSolver().solve(getTypes(config), getExecutedTests(), baseDirectory));
             }
         } catch (PomExecutionException x) {
