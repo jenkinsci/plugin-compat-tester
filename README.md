@@ -101,7 +101,6 @@ java -jar target/plugins-compat-tester-cli.jar \
   -workDirectory $(pwd)/tmp/work \
   -includePlugins ${PLUGIN_ARTIFACT_ID} \
   -war jenkins.war -localCheckoutDir ${PLUGIN_SRC} \
-  -skipTestCache true \
   -failOnError \
   -mvn ${PATH_TO_MAVEN}
 ```
@@ -120,7 +119,6 @@ java -jar target/plugins-compat-tester-cli.jar \
   -workDirectory $(pwd)/tmp/work \
   -includePlugins ${PLUGIN_ARTIFACT_ID} \
   -bom ${BOM_FILE_LOCATION} \
-  -skipTestCache true \
   -failOnError \
   -mvn ${PATH_TO_MAVEN}
 ```

@@ -49,7 +49,6 @@ demo: target/plugins-compat-tester-cli.jar $(WAR_PATH) print-java-home
 	     -reportFile $(CURDIR)/out/pct-report.xml \
 	     -failOnError \
 	     -workDirectory $(CURDIR)/work \
-	     -skipTestCache true \
 	     -mvn $(MVN_EXECUTABLE) \
 	     -war $(CURDIR)/$(WAR_PATH) \
 	     -testJDKHome "$(TEST_JDK_HOME)" \

@@ -271,11 +271,6 @@ public class PluginCompatTester {
                         pomData = null;
                     }
 
-                    if(!config.isSkipTestCache() && report.isCompatTestResultAlreadyInCache(pluginInfos, actualCoreCoordinates, config.getTestCacheTimeout(), config.getCacheThresholdStatus())){
-                        LOGGER.log(Level.INFO, "Cache activated for plugin {0} => test skipped", pluginInfos.pluginName);
-                        continue; // Don't do anything : we are in the cached interval ! :-)
-                    }
-
                     List<String> warningMessages = new ArrayList<>();
                     Set<String> testDetails = new TreeSet<>();
                     if (errorMessage == null) {
