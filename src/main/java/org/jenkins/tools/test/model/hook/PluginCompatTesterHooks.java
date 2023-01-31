@@ -9,7 +9,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,7 @@ import org.reflections.util.ConfigurationBuilder;
 public class PluginCompatTesterHooks {
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTesterHooks.class.getName());
 
-    private Set<ClassLoader> classLoaders = new HashSet<>(List.of(PluginCompatTesterHooks.class.getClassLoader()));
+    private ClassLoader classLoader = PluginCompatTesterHooks.class.getClassLoader();
     private List<String> hookPrefixes = new ArrayList<>();
     private static Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
     private List<String> excludeHooks = new ArrayList<>();
@@ -76,9 +75,11 @@ public class PluginCompatTesterHooks {
         if (externalJars == null) {
             return;
         }
+        List<URL> urls = new ArrayList<>();
         for (File jar : externalJars) {
-            classLoaders.add(new URLClassLoader(new URL[] { jar.toURI().toURL() }, PluginCompatTesterHooks.class.getClassLoader()));
+            urls.add(jar.toURI().toURL());
         }
+        classLoader = new URLClassLoader(urls.toArray(new URL[0]), classLoader);
     }
     public Map<String, Object> runBeforeCheckout(Map<String, Object> elements) {
         return runHooks("checkout", elements);
@@ -145,10 +146,9 @@ public class PluginCompatTesterHooks {
 
         // Search for all hooks defined within the given classpath prefix
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-        ClassLoader[] loaders = classLoaders.toArray(new ClassLoader[0]);
-        configurationBuilder.addClassLoaders(loaders);
+        configurationBuilder.addClassLoaders(classLoader);
         for (String hookPrefix : hookPrefixes) {
-            configurationBuilder.forPackage(hookPrefix, loaders);
+            configurationBuilder.forPackage(hookPrefix, classLoader);
         }
         Reflections reflections = new Reflections(configurationBuilder);
         Set<Class<? extends PluginCompatTesterHook>> subTypes;
