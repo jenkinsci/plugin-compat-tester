@@ -201,7 +201,7 @@
               <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
               <sortDependencies>scope,groupId,artifactId</sortDependencies>
               <sortDependencyExclusions>groupId,artifactId</sortDependencyExclusions>
-              <sortPlugins>scope,groupId,artifactId</sortPlugins>
+              <sortPlugins>groupId,artifactId</sortPlugins>
               <sortModules>true</sortModules>
               <sortExecutions>true</sortExecutions>
             </sortPom>
