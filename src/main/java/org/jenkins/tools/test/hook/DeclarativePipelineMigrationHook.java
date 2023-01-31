@@ -26,11 +26,6 @@ public class DeclarativePipelineMigrationHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getPluginFolderName(UpdateSite.Plugin currentPlugin){
-        return currentPlugin.getDisplayName();
-    }
-
-    @Override
     public boolean check(Map<String, Object> info) {
         PomData data = (PomData) info.get("pomData");
         return "org.jenkins-ci.plugins.to-declarative".equals(data.groupId)
