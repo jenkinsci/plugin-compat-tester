@@ -210,9 +210,6 @@ public class PluginCompatTesterTest {
         config.setIncludePlugins(includedPlugins);
         config.setExcludePlugins(Collections.emptyList());
         config.setExcludeHooks(Collections.emptyList());
-        config.setSkipTestCache(true);
-        config.setCacheThresholdStatus(TestStatus.TEST_FAILURES);
-        config.setTestCacheTimeout(345600000);
         config.setParentVersion("1.410");
         config.setGenerateHtmlReport(true);
         config.setHookPrefixes(Collections.emptyList());

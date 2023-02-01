@@ -170,7 +170,6 @@ echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -jar /pct/pct-cli.jar \
   -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml \
   -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} \
-  -skipTestCache true \
   ${FAIL_ON_ERROR_ARG}\
   ${LOCAL_CHECKOUT_ARG} \
   -includePlugins "${ARTIFACT_ID}" \

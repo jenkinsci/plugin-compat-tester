@@ -106,16 +106,6 @@ public class PluginCompatTesterConfig {
     // organtizations, like your own fork
     private String fallbackGitHubOrganization = null;
 
-    // Allows to skip a plugin test if this plugin test has already been performed
-    // within testCacheTimeout ms
-    private long testCacheTimeout = 1000L * 60 * 60 * 24 * 100;
-    // Skips test cache : plugin will be tested, no matter the test cache is
-    private boolean skipTestCache = false;
-    // Allows to define a minimal cache threshold for TestStatus
-    // That is to say, every results lower than this threshold won't be put
-    // into the cache
-    private TestStatus cacheThresholdStatus = TestStatus.COMPILATION_ERROR;
-
     // Allows to provide XSL report file near XML report file
     // Only if reportFile is not null
     private boolean provideXslReport = true;
@@ -203,22 +193,6 @@ public class PluginCompatTesterConfig {
 
     public File getM2SettingsFile() {
         return m2SettingsFile;
-    }
-
-    public long getTestCacheTimeout() {
-        return testCacheTimeout;
-    }
-
-    public void setTestCacheTimeout(long testCacheTimeout) {
-        this.testCacheTimeout = testCacheTimeout;
-    }
-
-    public boolean isSkipTestCache() {
-        return skipTestCache;
-    }
-
-    public void setSkipTestCache(boolean skipTestCache) {
-        this.skipTestCache = skipTestCache;
     }
 
     public boolean isProvideXslReport() {
@@ -436,14 +410,6 @@ public class PluginCompatTesterConfig {
         return javaVersionOutput2.
                 replace(" full version ", " ").
                 replaceAll("\"", "");
-    }
-
-    public TestStatus getCacheThresholdStatus() {
-        return cacheThresholdStatus;
-    }
-
-    public void setCacheThresholdStatus(TestStatus cacheThresholdStatus) {
-        this.cacheThresholdStatus = cacheThresholdStatus;
     }
 
     public File getWar() {
