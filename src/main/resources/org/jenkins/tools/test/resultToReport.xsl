@@ -156,14 +156,6 @@
 		</xsl:choose>
                 </xsl:otherwise>
             </xsl:choose>
-            <xsl:if test="count($compatResult/warningMessages//string) &gt; 0">
-                <xsl:call-template name="display-img">
-                    <xsl:with-param name="id"><xsl:value-of select="$cellId"/>-warns</xsl:with-param>
-                    <xsl:with-param name="title">Warnings !</xsl:with-param>
-                    <xsl:with-param name="img">document.png</xsl:with-param>
-                    <xsl:with-param name="error"><xsl:value-of select="$compatResult/warningMessages//string" /></xsl:with-param>
-                </xsl:call-template>
-            </xsl:if>
             <xsl:if test="$compatResult/buildLogPath != ''">
                 <xsl:element name="a">
                     <xsl:attribute name="href"><xsl:value-of select="$compatResult/buildLogPath" /></xsl:attribute>
