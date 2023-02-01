@@ -35,9 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.jenkins.tools.test.logging.LoggingConfiguration;
-import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.model.TestStatus;
+import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
 /**
  * Plugin compatibility tester frontend for the CLI
@@ -107,15 +106,6 @@ public class PluginCompatTesterCli {
         }
         if(options.getExcludeHooks() != null && !options.getExcludeHooks().isEmpty()){
             config.setExcludeHooks(List.of(options.getExcludeHooks().split(",")));
-        }
-        if(options.getSkipTestCache() != null){
-            config.setSkipTestCache(Boolean.parseBoolean(options.getSkipTestCache()));
-        }
-        if(options.getTestCacheTimeout() != null){
-            config.setTestCacheTimeout(options.getTestCacheTimeout());
-        }
-        if(options.getCacheThresholdStatus() != null){
-            config.setCacheThresholdStatus(TestStatus.valueOf(options.getCacheThresholdStatus()));
         }
         if(options.getHookPrefixes() != null && !options.getHookPrefixes().isEmpty()){
             config.setHookPrefixes(List.of(options.getHookPrefixes().split(",")));

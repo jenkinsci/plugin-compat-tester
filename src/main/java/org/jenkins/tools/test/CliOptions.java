@@ -29,8 +29,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jenkins.tools.test.model.TestStatus;
-
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
@@ -100,24 +98,6 @@ public class CliOptions {
     @CheckForNull
     private File externalMaven;
 
-    @Parameter(names = "-skipTestCache",
-            description = "Allows to skip compatibility test cache (by default, to 100 days)\n" +
-                    "If set to true, every plugin will be tested, no matter the cache is.")
-    private String skipTestCache = null;
-
-    @Parameter(names = "-testCacheTimeout",
-            description = "Allows to override the test cache timeout.\n" +
-                    "Test cache timeout allows to not perform compatibility test over\n" +
-                    "some plugins if compatibility test was performed recently.\n" +
-                    "Cache timeout is given in milliseconds")
-    private Long testCacheTimeout = null;
-
-    @Parameter(names = "-cacheThresholdStatus",
-            description = "Allows to define a minimal cache threshold for test status.\n" +
-                    "That is to say, every results lower than this threshold won't be considered\n" +
-                    "as part of the cache")
-    private String cacheThresholdStatus = TestStatus.COMPILATION_ERROR.toString();
-
     @Parameter(names="-mavenProperties", description = "Define extra properties to be passed to the build." +
           "Format: 'KEY1=VALUE1:KEY2=VALUE2'. These options will be used a la -D.\n" +
             "If your property values contain ':' you must use the 'mavenPropertiesFile' option instead.")
@@ -176,14 +156,6 @@ public class CliOptions {
         return externalMaven;
     }
 
-    public String getSkipTestCache() {
-        return skipTestCache;
-    }
-
-    public Long getTestCacheTimeout() {
-        return testCacheTimeout;
-    }
-
     public String getExcludePlugins() {
         return excludePlugins;
     }
@@ -209,10 +181,6 @@ public class CliOptions {
     @NonNull
     public List<String> getMavenOptions() {
         return mavenOptions != null ? Collections.unmodifiableList(mavenOptions) : Collections.emptyList();
-    }
-
-    public String getCacheThresholdStatus() {
-        return cacheThresholdStatus;
     }
 
     public String getHookPrefixes() {
