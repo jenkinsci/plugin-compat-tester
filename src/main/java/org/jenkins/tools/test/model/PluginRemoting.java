@@ -28,12 +28,12 @@ package org.jenkins.tools.test.model;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.net.MalformedURLException;
+import java.io.UncheckedIOException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.logging.Level;
@@ -48,7 +48,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.w3c.dom.Document;
@@ -73,71 +72,34 @@ public class PluginRemoting {
     public PluginRemoting(File pomFile){
         this.pomFile = pomFile;
     }
-	
-    private String retrievePomContent() throws PluginSourcesUnavailableException{
-        if (hpiRemoteUrl != null) {
-            return retrievePomContentFromHpi();
-        } else {
-            return retrievePomContentFromXmlFile();
-        }
-    }
 
-    private String retrievePomContentFromHpi() throws PluginSourcesUnavailableException {
+    private String retrievePomContent() {
         try {
-	    return retrievePomContentFromHpiRemoteUrl(new URL(hpiRemoteUrl));
-	} catch (MalformedURLException e) {
-	    LOGGER.log(Level.WARNING, "HPI reference {0} is not a remote URL", hpiRemoteUrl);
-	    return retrievePomContentFromHpiFileReference();
-	}
-    }
-
-    private String retrievePomContentFromHpiRemoteUrl(URL url) throws PluginSourcesUnavailableException {
-    	try {
-    	    return retrievePomContentFromInputStream(url.openStream());
-	} catch (IOException e) {
-	    LOGGER.log(Level.WARNING, "Failed to retrieve POM content from HPI remote URL", e);
-          throw new PluginSourcesUnavailableException("Failed to retrieve POM content from HPI remote URL", e);
-	}
-    }
-
-    private String retrievePomContentFromHpiFileReference() throws PluginSourcesUnavailableException {
-    	try {
-	    String fileReference = hpiRemoteUrl.replaceAll("jar:", "").replaceAll("!/name.hpi", "");
-    	    return retrievePomContentFromInputStream(FileUtils.openInputStream(new File(fileReference)));
-	} catch (IOException e) {
-	    LOGGER.log(Level.WARNING, "Failed to retrieve POM content from HPI file reference", e);
-          throw new PluginSourcesUnavailableException("Failed to retrieve POM content from HPI file reference", e);
-	}
-    }
-
-    private String retrievePomContentFromInputStream(InputStream pluginUrlStream) throws PluginSourcesUnavailableException {
-    	try (ZipInputStream zin = new ZipInputStream(pluginUrlStream)) {
-            ZipEntry zipEntry = zin.getNextEntry();
-            while(!zipEntry.getName().startsWith("META-INF/maven") || !zipEntry.getName().endsWith("pom.xml")){
-                zin.closeEntry();
-                zipEntry = zin.getNextEntry();
+            if (hpiRemoteUrl != null) {
+                return retrievePomContentFromHpi();
+            } else {
+                return retrievePomContentFromXmlFile();
             }
-
-            StringBuilder sb = new StringBuilder();
-            byte[] buf = new byte[1024];
-            int n;
-            while ((n = zin.read(buf, 0, 1024)) > -1)
-                sb.append(new String(buf, 0, n, Charset.defaultCharset()));
-
-            return sb.toString();
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Failed to retrieve POM content from input stream", e);
-            throw new PluginSourcesUnavailableException("Failed to retrieve POM content from input stream", e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    private String retrievePomContentFromXmlFile() throws PluginSourcesUnavailableException{
-        try {
-            return Files.readString(pomFile.toPath(), StandardCharsets.UTF_8);
-        } catch(Exception e) {
-            LOGGER.log(Level.WARNING, String.format("Failed to retrieve POM content from XML file '%s'", pomFile), e);
-            throw new PluginSourcesUnavailableException(String.format("Failed to retrieve POM content from XML file '%s'", pomFile), e);
+    private String retrievePomContentFromHpi() throws IOException {
+        URL url = new URL(hpiRemoteUrl);
+        try (InputStream is = url.openStream(); ZipInputStream zis = new ZipInputStream(is)) {
+            ZipEntry ze;
+            while ((ze = zis.getNextEntry()) != null) {
+                if (ze.getName().startsWith("META-INF/maven/") && ze.getName().endsWith("/pom.xml")) {
+                    return new String(zis.readAllBytes(), StandardCharsets.UTF_8);
+                }
+            }
         }
+        throw new FileNotFoundException("Failed to retrieve POM content from HPI: " + hpiRemoteUrl);
+    }
+
+    private String retrievePomContentFromXmlFile() throws IOException {
+        return Files.readString(pomFile.toPath(), StandardCharsets.UTF_8);
     }
 	
 	public PomData retrievePomData() throws PluginSourcesUnavailableException {
