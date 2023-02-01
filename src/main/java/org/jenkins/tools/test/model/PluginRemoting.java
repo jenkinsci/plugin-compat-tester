@@ -90,7 +90,7 @@ public class PluginRemoting {
         try (InputStream is = url.openStream(); ZipInputStream zis = new ZipInputStream(is)) {
             ZipEntry ze;
             while ((ze = zis.getNextEntry()) != null) {
-                if (ze.getName().startsWith("META-INF/maven") && ze.getName().endsWith("pom.xml")) {
+                if (ze.getName().startsWith("META-INF/maven/") && ze.getName().endsWith("/pom.xml")) {
                     return new String(zis.readAllBytes(), StandardCharsets.UTF_8);
                 }
             }
