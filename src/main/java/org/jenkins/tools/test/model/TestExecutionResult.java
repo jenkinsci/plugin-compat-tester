@@ -39,14 +39,7 @@ public class TestExecutionResult {
 
     private final ExecutedTestNamesDetails testDetails;
 
-    public final List<String> pomWarningMessages;
-
-    public TestExecutionResult(List<String> pomWarningMessages){
-        this(pomWarningMessages, new ExecutedTestNamesDetails());
-    }
-
-    public TestExecutionResult(List<String> pomWarningMessages, ExecutedTestNamesDetails testDetails){
-        this.pomWarningMessages = Collections.unmodifiableList(pomWarningMessages);
+    public TestExecutionResult(ExecutedTestNamesDetails testDetails){
         this.testDetails = testDetails;
     }
 

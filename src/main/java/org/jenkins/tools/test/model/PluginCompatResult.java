@@ -43,27 +43,25 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
     public final Date compatTestExecutedOn;
 
     public final String errorMessage;
-    public final List<String> warningMessages;
 
     private final Set<String> testDetails;
 
     private String buildLogPath = "";
 
     public PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
-                              String errorMessage, List<String> warningMessages, Set<String> testDetails,
+                              String errorMessage, Set<String> testDetails,
                               String buildLogPath){
         // Create new result with current date
-        this(coreCoordinates, status, errorMessage, warningMessages, testDetails, buildLogPath, new Date());
+        this(coreCoordinates, status, errorMessage, testDetails, buildLogPath, new Date());
     }
     private PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
-                              String errorMessage, List<String> warningMessages, Set<String> testDetails,
+                              String errorMessage, Set<String> testDetails,
                               String buildLogPath, Date compatTestExecutedOn){
         this.coreCoordinates = coreCoordinates;
 
         this.status = status;
 
         this.errorMessage = errorMessage;
-        this.warningMessages = warningMessages;
 
         this.testDetails = testDetails;
         this.buildLogPath = buildLogPath;

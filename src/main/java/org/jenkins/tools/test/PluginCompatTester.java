@@ -276,7 +276,6 @@ public class PluginCompatTester {
                         continue; // Don't do anything : we are in the cached interval ! :-)
                     }
 
-                    List<String> warningMessages = new ArrayList<>();
                     Set<String> testDetails = new TreeSet<>();
                     if (errorMessage == null) {
                     try {
@@ -286,7 +285,6 @@ public class PluginCompatTester {
                         } else {
                             status = TestStatus.TEST_FAILURES;
                         }
-                        warningMessages.addAll(result.pomWarningMessages);
                         testDetails.addAll(config.isStoreAll() ? result.getTestDetails().getAll() : result.getTestDetails().hasFailures() ? result.getTestDetails().getFailed() : Collections.emptySet());
                     } catch (PomExecutionException e) {
                         if(!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")){
@@ -299,7 +297,6 @@ public class PluginCompatTester {
                             status = TestStatus.INTERNAL_ERROR;
                         }
                         errorMessage = e.getErrorMessage();
-                        warningMessages.addAll(e.getPomWarningMessages());
                         testDetails.addAll(config.isStoreAll() ? e.getTestDetails().getAll() : e.getTestDetails().hasFailures() ? e.getTestDetails().getFailed() : Collections.emptySet());
                     } catch (Error e){
                         // Rethrow the error ... something is wrong !
@@ -323,7 +320,7 @@ public class PluginCompatTester {
                     	actualCoreCoordinates = new MavenCoordinates(actualCoreCoordinates.groupId, actualCoreCoordinates.artifactId, solveVersionFromModel(new MavenBom(config.getBom()).getModel()));
                     }
 
-                    PluginCompatResult result = new PluginCompatResult(actualCoreCoordinates, status, errorMessage, warningMessages, testDetails, buildLogFilePath);
+                    PluginCompatResult result = new PluginCompatResult(actualCoreCoordinates, status, errorMessage, testDetails, buildLogFilePath);
                     report.add(pluginInfos, result);
 
                     if(config.reportFile != null){
@@ -525,11 +522,10 @@ public class PluginCompatTester {
 
             // Execute with tests
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[0]));
-            return new TestExecutionResult(((PomData)forExecutionHooks.get("pomData")).getWarningMessages(), new ExecutedTestNamesSolver().solve(types, runner.getExecutedTests(), pluginCheckoutDir));
+            return new TestExecutionResult(new ExecutedTestNamesSolver().solve(types, runner.getExecutedTests(), pluginCheckoutDir));
         } catch (ExecutedTestNamesSolverException e) {
             throw new PomExecutionException(e);
         } catch (PomExecutionException e){
-            e.getPomWarningMessages().addAll(pomData.getWarningMessages());
             if (ranCompile) {
                 // So the status cannot be considered COMPILATION_ERROR
                 e.succeededPluginArtifactIds.add("maven-compiler-plugin");
