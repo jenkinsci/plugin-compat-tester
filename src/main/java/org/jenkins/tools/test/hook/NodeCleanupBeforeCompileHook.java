@@ -1,14 +1,13 @@
 package org.jenkins.tools.test.hook;
 
-import org.apache.commons.io.FileUtils;
-import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
+import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 
 public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCompile {
 

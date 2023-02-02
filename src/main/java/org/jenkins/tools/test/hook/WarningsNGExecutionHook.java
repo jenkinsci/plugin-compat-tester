@@ -1,8 +1,7 @@
 package org.jenkins.tools.test.hook;
 
-import org.jenkins.tools.test.model.PomData;
-
 import java.util.Map;
+import org.jenkins.tools.test.model.PomData;
 
 /**
  * Workaround for Warnings NG plugin since it needs execute integration tests.

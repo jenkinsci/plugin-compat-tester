@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
@@ -23,14 +22,13 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     private static final Logger LOGGER = Logger.getLogger(AbstractMultiParentHook.class.getName());
 
     protected boolean firstRun = true;
-    
+
     private PomData pomData;
 
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         PluginCompatTesterConfig config = (PluginCompatTesterConfig)moreInfo.get("config");
         UpdateSite.Plugin currentPlugin = (UpdateSite.Plugin)moreInfo.get("plugin");
-
 
         // We should not execute the hook if using localCheckoutDir
         boolean shouldExecuteHook = config.getLocalCheckoutDir() == null || !config.getLocalCheckoutDir().exists();
@@ -77,13 +75,13 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
 
     private void cloneFromSCM(UpdateSite.Plugin currentPlugin, File parentPath, String scmTag, String url, String fallbackGitHubOrganization)
             throws IOException {
-        
+
         List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(url);
         if(fallbackGitHubOrganization != null){
             connectionURLs = PluginCompatTester.getFallbackConnectionURL(connectionURLs, url, fallbackGitHubOrganization);
         }
-        
+
         IOException lastException = null;
         for (String connectionURL: connectionURLs){
             if (connectionURL != null) {
@@ -99,7 +97,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 lastException = e;
             }
         }
-        
+
         if (lastException != null) {
             throw new UncheckedIOException(lastException);
         }

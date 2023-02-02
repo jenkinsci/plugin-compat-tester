@@ -1,5 +1,7 @@
 package org.jenkins.tools.test.model;
 
+import static org.junit.Assert.assertEquals;
+
 import hudson.util.VersionNumber;
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import static org.junit.Assert.assertEquals;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;

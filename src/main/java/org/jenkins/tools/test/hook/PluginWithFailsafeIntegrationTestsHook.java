@@ -17,5 +17,5 @@ public class PluginWithFailsafeIntegrationTestsHook extends PluginWithIntegratio
     public Collection<String> getTestTypes() {
         return List.of("failsafe");
     }
-    
+
 }

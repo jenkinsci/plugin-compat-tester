@@ -23,6 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.jenkins.tools.test.model;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
@@ -101,31 +102,31 @@ public class PluginRemoting {
     private String retrievePomContentFromXmlFile() throws IOException {
         return Files.readString(pomFile.toPath(), StandardCharsets.UTF_8);
     }
-	
-	public PomData retrievePomData() throws PluginSourcesUnavailableException {
-		String scmConnection;
+
+    public PomData retrievePomData() throws PluginSourcesUnavailableException {
+        String scmConnection;
         String scmTag;
         String artifactId;
         String groupId;
         String packaging;
-		String pomContent = this.retrievePomContent();
+        String pomContent = this.retrievePomContent();
         @CheckForNull MavenCoordinates parent = null;
-		
-		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-		try {
-			DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
-			Document doc = builder.parse(new InputSource(new StringReader(pomContent)));
-			
-			XPathFactory xpathFactory = XPathFactory.newInstance();
+
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(pomContent)));
+
+            XPathFactory xpathFactory = XPathFactory.newInstance();
             XPath xpath = xpathFactory.newXPath();
-			XPathExpression scmConnectionXPath = xpath.compile("/project/scm/connection/text()");
+            XPathExpression scmConnectionXPath = xpath.compile("/project/scm/connection/text()");
             XPathExpression artifactIdXPath = xpath.compile("/project/artifactId/text()");
             XPathExpression groupIdXPath = xpath.compile("/project/groupId/text()");
             XPathExpression packagingXPath = xpath.compile("/project/packaging/text()");
             XPathExpression scmTagXPath = xpath.compile("/project/scm/tag/text()");
 
-			scmConnection = (String)scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
-			scmTag = StringUtils.trimToNull((String) scmTagXPath.evaluate(doc, XPathConstants.STRING));
+            scmConnection = (String)scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
+            scmTag = StringUtils.trimToNull((String) scmTagXPath.evaluate(doc, XPathConstants.STRING));
             artifactId = (String)artifactIdXPath.evaluate(doc, XPathConstants.STRING);
             groupId = (String)groupIdXPath.evaluate(doc, XPathConstants.STRING);
             packaging = StringUtils.trimToNull((String)packagingXPath.evaluate(doc, XPathConstants.STRING));
@@ -140,29 +141,29 @@ public class PluginRemoting {
             } else {
                 LOGGER.log(Level.FINE, "No parent POM for {0}", artifactId);
             }
-		} catch (ParserConfigurationException | SAXException | IOException e) {
-			LOGGER.log(Level.WARNING, "Failed to parse pom.xml", e);
-			throw new PluginSourcesUnavailableException("Failed to parse pom.xml", e);
-		} catch (XPathExpressionException e) {
-			LOGGER.log(Level.WARNING, "Failed to retrieve SCM connection", e);
-			throw new PluginSourcesUnavailableException("Failed to retrieve SCM connection", e);
-		}
-		
-		PomData pomData = new PomData(artifactId, packaging, scmConnection, scmTag, parent, groupId);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            LOGGER.log(Level.WARNING, "Failed to parse pom.xml", e);
+            throw new PluginSourcesUnavailableException("Failed to parse pom.xml", e);
+        } catch (XPathExpressionException e) {
+            LOGGER.log(Level.WARNING, "Failed to retrieve SCM connection", e);
+            throw new PluginSourcesUnavailableException("Failed to retrieve SCM connection", e);
+        }
+
+        PomData pomData = new PomData(artifactId, packaging, scmConnection, scmTag, parent, groupId);
         computeScmConnection(pomData);
         return pomData;
-	}
+    }
 
     /**
      * Retrieves a field value by XPath. The value must exist and be non-empty.
      *
      * @throws IOException parsing error
      */
-	@NonNull
-	private static String getValueOrFail(Document doc, XPath xpath, String field) throws IOException {
+    @NonNull
+    private static String getValueOrFail(Document doc, XPath xpath, String field) throws IOException {
         String res;
-	    try {
-	        res = xpath.evaluate(field + "/text()", doc);
+        try {
+            res = xpath.evaluate(field + "/text()", doc);
         } catch (XPathExpressionException e) {
             throw new IOException("Expression failed for the field " + field, e);
         }
@@ -229,11 +230,11 @@ public class PluginRemoting {
             LOGGER.log(Level.WARNING, "project.scm.connectionUrl should not reference hudson project anymore (no plugin repository there))");
         }
 
-		// Just fixing some scm-sync-configuration issues...
-		// TODO: remove this when fixed !
+        // Just fixing some scm-sync-configuration issues...
+        // TODO: remove this when fixed !
         oldUrl = transformedConnectionUrl;
-		if("scm-sync-configuration".equals(pomData.artifactId)){
-			transformedConnectionUrl = transformedConnectionUrl.substring(0, transformedConnectionUrl.length()-4)+"-plugin.git";
+        if("scm-sync-configuration".equals(pomData.artifactId)){
+            transformedConnectionUrl = transformedConnectionUrl.substring(0, transformedConnectionUrl.length()-4)+"-plugin.git";
         }
         if(!oldUrl.equals(transformedConnectionUrl)){
             LOGGER.log(Level.WARNING, "project.scm.connectionUrl should be ending with '-plugin.git'");

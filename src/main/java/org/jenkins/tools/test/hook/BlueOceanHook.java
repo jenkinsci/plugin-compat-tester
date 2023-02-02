@@ -14,7 +14,6 @@ public class BlueOceanHook extends AbstractMultiParentHook {
         return "blueocean-plugin";
     }
 
-
     @Override
     protected String getParentProjectName() {
         return "blueocean-parent";

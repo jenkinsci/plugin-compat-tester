@@ -23,6 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.jenkins.tools.test.exception;
 
 /**
@@ -33,7 +34,7 @@ package org.jenkins.tools.test.exception;
  */
 public class PluginSourcesUnavailableException extends Exception {
 
-	public PluginSourcesUnavailableException(String message, Throwable cause){
-		super(message, cause);
-	}
+    public PluginSourcesUnavailableException(String message, Throwable cause){
+        super(message, cause);
+    }
 }

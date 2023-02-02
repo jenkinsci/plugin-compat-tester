@@ -1,12 +1,11 @@
 package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
-import org.jenkins.tools.test.model.PomData;
-
 import java.io.File;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jenkins.tools.test.model.PomData;
 
 public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
 
@@ -16,7 +15,6 @@ public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
     protected String getParentFolder() {
         return "warnings-ng-plugin";
     }
-
 
     @Override
     protected String getParentProjectName() {

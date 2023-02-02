@@ -23,6 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.jenkins.tools.test;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -65,9 +66,10 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jenkins.tools.test.exception.ExecutedTestNamesSolverException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.exception.ExecutedTestNamesSolverException;
+import org.jenkins.tools.test.exception.PomTransformationException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.MavenCoordinates;
@@ -84,7 +86,6 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
 import org.jenkins.tools.test.util.StreamGobbler;
-import org.jenkins.tools.test.exception.PomTransformationException;
 
 /**
  * Frontend for plugin compatibility tests
@@ -107,7 +108,7 @@ public class PluginCompatTester {
         runner = new ExternalMavenRunner(config.getExternalMaven());
     }
 
-	public PluginCompatReport testPlugins()
+    public PluginCompatReport testPlugins()
             throws IOException, PomExecutionException {
         PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(config.getHookPrefixes(), config.getExternalHooksJars(), config.getExcludeHooks());
         // Providing XSL Stylesheet along xml report file
@@ -157,7 +158,6 @@ public class PluginCompatTester {
                 LOGGER.log(Level.SEVERE, "Cannot test {0} because plugin sources are not available despite a local checkout being provided", artifactId);
             }
         }
-
 
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
@@ -226,8 +226,8 @@ public class PluginCompatTester {
                             status = TestStatus.COMPILATION_ERROR;
                         } else if (!e.getTestDetails().hasBeenExecuted()) { // testing was not able to start properly (i.e: invalid exclusion list file format)
                             status = TestStatus.INTERNAL_ERROR;
-                        } else if (e.getTestDetails().hasFailures()) { 
-                            status = TestStatus.TEST_FAILURES;                            
+                        } else if (e.getTestDetails().hasFailures()) {
+                            status = TestStatus.TEST_FAILURES;
                         } else { // ???
                             status = TestStatus.INTERNAL_ERROR;
                         }
@@ -243,7 +243,6 @@ public class PluginCompatTester {
                         errorMessage = t.getMessage();
                     }
                     }
-
 
                     File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
                     String buildLogFilePath = "";
@@ -465,7 +464,7 @@ public class PluginCompatTester {
     }
 
     public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag) throws IOException {
-	String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
+        String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
         List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(connectionURLPomData);
@@ -712,7 +711,7 @@ public class PluginCompatTester {
     }
 
     /**
-     * Provides the Maven module used for a plugin on a {@code mvn [...] -pl} operation in the parent path 
+     * Provides the Maven module used for a plugin on a {@code mvn [...] -pl} operation in the parent path
      */
     public static String getMavenModule(String plugin, File pluginPath, MavenRunner runner, MavenRunner.Config mavenConfig) throws PomExecutionException, IOException {
         String absolutePath = pluginPath.getAbsolutePath();

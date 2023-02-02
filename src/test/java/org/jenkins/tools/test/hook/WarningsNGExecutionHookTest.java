@@ -1,18 +1,17 @@
 package org.jenkins.tools.test.hook;
 
-import org.jenkins.tools.test.model.MavenCoordinates;
-import org.jenkins.tools.test.model.PomData;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.jenkins.tools.test.model.MavenCoordinates;
+import org.jenkins.tools.test.model.PomData;
+import org.junit.Test;
 
 public class WarningsNGExecutionHookTest {
 
@@ -47,7 +46,7 @@ public class WarningsNGExecutionHookTest {
         assertThat(args.size(), is(5));
         assertTrue(args.contains("failsafe:integration-test"));
     }
-    
+
     @Test
     public void testType() throws Exception {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
@@ -59,6 +58,4 @@ public class WarningsNGExecutionHookTest {
         assertThat(types.size(), is(2));
         assertTrue(types.contains("failsafe"));
     }
-    
-    
 }

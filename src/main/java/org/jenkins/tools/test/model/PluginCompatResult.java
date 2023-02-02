@@ -23,6 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.jenkins.tools.test.model;
 
 import java.util.Collections;
@@ -53,6 +54,7 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
         // Create new result with current date
         this(coreCoordinates, status, errorMessage, testDetails, buildLogPath, new Date());
     }
+
     private PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
                               String errorMessage, Set<String> testDetails,
                               String buildLogPath, Date compatTestExecutedOn){

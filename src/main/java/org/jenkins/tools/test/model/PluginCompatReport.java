@@ -23,6 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.jenkins.tools.test.model;
 
 import com.thoughtworks.xstream.XStream;
@@ -163,7 +164,6 @@ public class PluginCompatReport {
     public SortedSet<MavenCoordinates> getTestedCoreCoordinates() {
         return new TreeSet<>(testedCoreCoordinates);
     }
-
 
     public void setTestJavaVersion(String testJavaVersion) {
         this.testJavaVersion = testJavaVersion;

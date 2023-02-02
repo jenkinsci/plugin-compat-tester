@@ -19,7 +19,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang.SystemUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
@@ -40,7 +39,7 @@ public class ExternalMavenRunner implements MavenRunner {
 
     /**
      * Constructor.
-     * 
+     *
      * @param mvn Path to Maven. If {@code null}, a default Maven executable from
      *            {@code PATH} will be used
      */

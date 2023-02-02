@@ -23,6 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package org.jenkins.tools.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -118,7 +119,6 @@ public class ScmConnectionSpecialCasesTest {
                 "scm:git:git://github.com/jenkinsci/hudson-clearcase-plugin.git"
         );
     }
-
 
     @Test
     public void shouldScmConnectionBeTrimmed() {

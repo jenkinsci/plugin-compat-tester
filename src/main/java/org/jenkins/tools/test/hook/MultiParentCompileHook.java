@@ -1,10 +1,6 @@
 package org.jenkins.tools.test.hook;
 
-import static org.jenkins.tools.test.PluginCompatTester.getMavenModule;
-import static org.jenkins.tools.test.model.hook.PluginCompatTesterHooks.getHooksFromStage;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -16,15 +12,16 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHook;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 
 public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
 
@@ -38,7 +35,6 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     public MultiParentCompileHook() {
         LOGGER.log(Level.INFO, "Loaded multi-parent compile hook");
     }
-
 
     @Override
     @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "silly rule")
@@ -93,7 +89,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
     @Override
     public boolean check(Map<String, Object> info) {
-        for (PluginCompatTesterHook hook : getHooksFromStage("checkout", info)) {
+        for (PluginCompatTesterHook hook : PluginCompatTesterHooks.getHooksFromStage("checkout", info)) {
             if (hook instanceof AbstractMultiParentHook && hook.check(info)) {
                 return true;
             }
@@ -124,7 +120,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         if (isSnapshotMultiParentPlugin(parentFolder, path, localCheckoutDir)) {
             // "process-test-classes" not working properly on multi-module plugin. See https://issues.jenkins.io/browse/JENKINS-62658
             // installs dependencies into local repository
-            String mavenModule = getMavenModule(pluginName, path, runner, mavenConfig);
+            String mavenModule = PluginCompatTester.getMavenModule(pluginName, path, runner, mavenConfig);
             if (mavenModule == null || mavenModule.isBlank()) {
                 throw new IOException(String.format("Unable to retrieve the Maven module for plugin %s on %s", pluginName, path));
             }
@@ -135,8 +131,8 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     }
 
     /**
-     * Checks if a plugin is a multiparent plugin with a SNAPSHOT project.version and 
-     * without local checkout directory overriden. 
+     * Checks if a plugin is a multiparent plugin with a SNAPSHOT project.version and
+     * without local checkout directory overriden.
      */
     private boolean isSnapshotMultiParentPlugin(String parentFolder, File path, File localCheckoutDir) throws PomExecutionException, IOException {
         if (localCheckoutDir != null) {
@@ -154,13 +150,12 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             LOGGER.log(Level.WARNING, "{0} is not the parent folder of {1}", new Object[]{parentFolder, path.getAbsolutePath()});
             return false;
         }
-        
+
         File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "version.log");
         runner.run(mavenConfig, parentFile, log, "-Dexpression=project.version", "-q", "-DforceStdout", "help:evaluate");
         List<String> output = Files.readAllLines(log.toPath(), Charset.defaultCharset());
         return output.get(output.size() - 1).endsWith("-SNAPSHOT");
     }
-
 
     private File setupCompileResources(File path) throws IOException {
         LOGGER.log(Level.INFO, "Cleaning up node modules if necessary");
