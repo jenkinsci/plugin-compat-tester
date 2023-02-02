@@ -27,8 +27,6 @@ package org.jenkins.tools.test.model;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * POJO containing important data residing in plugin's POM

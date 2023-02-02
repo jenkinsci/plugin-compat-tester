@@ -49,12 +49,6 @@ public class PluginCompatTesterConfig {
 
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTesterConfig.class.getName());
 
-    public static final String DEFAULT_PARENT_GROUP = "org.jenkins-ci.plugins";
-    public static final String DEFAULT_PARENT_ARTIFACT = "plugin";
-
-    // Update center used to retrieve plugins informations
-    public String updateCenterUrl = "https://updates.jenkins.io/current/update-center.json";
-
     // A working directory where the tested plugin's sources will be checked out
     public File workDirectory;
 
@@ -66,17 +60,8 @@ public class PluginCompatTesterConfig {
     // download jenkins-core artifact (and dependencies)
     private File m2SettingsFile;
 
-    // GroupId which will be used to replace tested plugin's parent groupId
-    // If null, every recorded core coordinates (in report xml) will be played
-    private String parentGroupId = DEFAULT_PARENT_GROUP;
-    // ArtifactId which will be used to replace tested plugin's parent artifactId
-    // If null, every recorded core coordinates (in report xml) will be played
-    private String parentArtifactId = DEFAULT_PARENT_ARTIFACT;
-    // Version which will be used to replace tested plugin's parent version
-    // If null, latest core version (retrieved via the update center) will be used
-    private String parentVersion = null;
-
-    private File war = null;
+    // The megawar
+    private File war;
 
     /**
      * A Java HOME to be used for running tests in plugins.
@@ -128,13 +113,8 @@ public class PluginCompatTesterConfig {
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
     private File localCheckoutDir;
 
-    private List<PCTPlugin> overridenPlugins = new ArrayList<>();
-
     // Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code
     private boolean failOnError;
-
-    // Path to a BOM file to get plugin data
-    private File bom;
 
     // Flag to indicate if we want to store all the tests names or only failed ones on PCT report files
     private boolean storeAll;
@@ -151,10 +131,6 @@ public class PluginCompatTesterConfig {
 
     public PluginCompatTesterConfig() {}
 
-    public void setUpdateCenterUrl(String updateCenterUrl) {
-        this.updateCenterUrl = updateCenterUrl;
-    }
-
     public void setWorkDirectory(File workDirectory) {
         this.workDirectory = workDirectory;
     }
@@ -165,22 +141,6 @@ public class PluginCompatTesterConfig {
 
     public void setM2SettingsFile(File m2SettingsFile) {
         this.m2SettingsFile = m2SettingsFile;
-    }
-
-    public void setParentGroupId(String parentGroupId) {
-        this.parentGroupId = parentGroupId;
-    }
-
-    public void setParentArtifactId(String parentArtifactId) {
-        this.parentArtifactId = parentArtifactId;
-    }
-
-    public String getParentVersion() {
-        return parentVersion;
-    }
-
-    public void setParentVersion(String parentVersion) {
-        this.parentVersion = parentVersion;
     }
 
     public List<String> getIncludePlugins() {
@@ -211,10 +171,6 @@ public class PluginCompatTesterConfig {
         this.generateHtmlReport = generateHtmlReport;
     }
 
-    public String getParentGroupId() {
-        return parentGroupId;
-    }
-
     @CheckForNull
     public File getTestJDKHome() {
         return testJDKHome;
@@ -223,10 +179,6 @@ public class PluginCompatTesterConfig {
     @CheckForNull
     public String getTestJavaArgs() {
         return testJavaArgs;
-    }
-
-    public String getParentArtifactId() {
-        return parentArtifactId;
     }
 
     public List<String> getExcludePlugins() {
@@ -280,15 +232,6 @@ public class PluginCompatTesterConfig {
 
     public void setMavenOptions(List<String> mavenOptions) {
         this.mavenOptions = mavenOptions;
-    }
-
-    @CheckForNull
-    public File getBom() {
-        return bom;
-    }
-
-    public void setBom(File bom) {
-        this.bom = bom;
     }
 
     /**
@@ -465,14 +408,6 @@ public class PluginCompatTesterConfig {
 
     public void setLocalCheckoutDir(String localCheckoutDir) {
         this.localCheckoutDir = new File(localCheckoutDir);
-    }
-
-    public void setOverridenPlugins(List<PCTPlugin> overridenPlugins) {
-        this.overridenPlugins = overridenPlugins;
-    }
-
-    public List<PCTPlugin> getOverridenPlugins() {
-        return overridenPlugins;
     }
 
     public boolean isFailOnError() {
