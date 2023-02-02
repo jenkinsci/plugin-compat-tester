@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
@@ -26,14 +27,16 @@ public class ExecutedTestNamesSolver {
     private static final String TEST_PLACEHOLDER = "TEST-%s.xml";
 
     /*
-        Element names for failure and error as declared at
-        https://maven.apache.org/surefire/maven-failsafe-plugin/xsd/failsafe-test-report-3.0.xsd and
-        https://gitbox.apache.org/repos/asf?p=maven-surefire.git;a=blob;f=maven-surefire-plugin/src/site/resources/xsd/surefire-test-report-3.0.xsd
+     * Element names for failure and error as declared at
+     * https://maven.apache.org/surefire/maven-failsafe-plugin/xsd/failsafe-test-report-3.0.xsd and
+     * https://gitbox.apache.org/repos/asf?p=maven-surefire.git;a=blob;f=maven-surefire-plugin/src/site/resources/xsd/surefire-test-report-3.0.xsd
      */
     private static final String FAILURE_ELEMENT = "failure";
     private static final String ERROR_ELEMENT = "error";
 
-    public ExecutedTestNamesDetails solve(Set<String> types, Set<String> executedTests, File baseDirectory) throws ExecutedTestNamesSolverException {
+    public ExecutedTestNamesDetails solve(
+            Set<String> types, Set<String> executedTests, File baseDirectory)
+            throws ExecutedTestNamesSolverException {
 
         System.out.println("[INFO] -------------------------------------------------------");
         System.out.println("[INFO] Solving test names");
@@ -69,14 +72,20 @@ public class ExecutedTestNamesSolver {
 
                     Document document = builder.parse(testReport);
                     Node testsuite = document.getChildNodes().item(0);
-                    String nodeValue = testsuite.getAttributes().getNamedItem("tests").getNodeValue();
+                    String nodeValue =
+                            testsuite.getAttributes().getNamedItem("tests").getNodeValue();
                     Integer testCount = Integer.valueOf(nodeValue);
                     int found = 0;
                     for (int i = 0; i < testsuite.getChildNodes().getLength(); i++) {
                         Node testcase = testsuite.getChildNodes().item(i);
-                        if (testcase.getAttributes() != null && testcase.getAttributes().getNamedItem("classname") != null) {
-                            String clazzName = testcase.getAttributes().getNamedItem("classname").getNodeValue();
-                            String test = testcase.getAttributes().getNamedItem("name").getNodeValue();
+                        if (testcase.getAttributes() != null
+                                && testcase.getAttributes().getNamedItem("classname") != null) {
+                            String clazzName =
+                                    testcase.getAttributes()
+                                            .getNamedItem("classname")
+                                            .getNodeValue();
+                            String test =
+                                    testcase.getAttributes().getNamedItem("name").getNodeValue();
                             found++;
                             String testCaseName = String.format("%s.%s", clazzName, test);
                             if (containsFailure(testcase.getChildNodes())) {
@@ -88,9 +97,15 @@ public class ExecutedTestNamesSolver {
                     }
 
                     if (testCount.intValue() != found) {
-                        System.out.println(String.format("[WARNING] Extracted: %s, Expected: %s from %s", found, testCount, testReportPath));
+                        System.out.println(
+                                String.format(
+                                        "[WARNING] Extracted: %s, Expected: %s from %s",
+                                        found, testCount, testReportPath));
                     } else {
-                        System.out.println(String.format("[INFO] Extracted %s testnames from %s", testCount, testReportPath));
+                        System.out.println(
+                                String.format(
+                                        "[INFO] Extracted %s testnames from %s",
+                                        testCount, testReportPath));
                     }
                 }
 
@@ -117,16 +132,18 @@ public class ExecutedTestNamesSolver {
         }
     }
 
-    private List<String> getReportsDirectoryPaths(Set<String> types, File baseDirectory) throws ExecutedTestNamesSolverException {
+    private List<String> getReportsDirectoryPaths(Set<String> types, File baseDirectory)
+            throws ExecutedTestNamesSolverException {
         List<String> paths = new LinkedList<>();
         if (types == null) {
             return paths;
         }
         for (String type : types) {
             try (Stream<Path> walk = Files.walk(Paths.get(baseDirectory.getAbsolutePath()))) {
-                List<Path> result = walk.filter(Files::isDirectory)
-                        .filter(file -> file.getFileName().toString().endsWith(String.format("%s-reports", type)))
-                        .collect(Collectors.toList());
+                List<Path> result =
+                        walk.filter(Files::isDirectory)
+                                .filter(isReport(type))
+                                .collect(Collectors.toList());
                 for (Path path : result) {
                     paths.add(path.toString());
                 }
@@ -137,16 +154,18 @@ public class ExecutedTestNamesSolver {
         return paths;
     }
 
+    private static Predicate<Path> isReport(String type) {
+        return file -> file.getFileName().toString().endsWith(String.format("%s-reports", type));
+    }
+
     private boolean containsFailure(NodeList nodeList) {
         for (int j = 0; j < nodeList.getLength(); j++) {
             String elementName = nodeList.item(j).getNodeName();
-            if (elementName.equals(FAILURE_ELEMENT)
-                    || elementName.equals(ERROR_ELEMENT)) {
+            if (elementName.equals(FAILURE_ELEMENT) || elementName.equals(ERROR_ELEMENT)) {
                 return true;
             }
         }
 
         return false;
     }
-
 }

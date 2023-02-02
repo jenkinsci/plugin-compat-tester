@@ -38,34 +38,35 @@ public class PluginInfos implements Comparable<PluginInfos> {
     public final String pluginVersion;
     public final String pluginUrl;
 
-    public PluginInfos(String pluginName, String pluginVersion, String pluginUrl){
+    public PluginInfos(String pluginName, String pluginVersion, String pluginUrl) {
         this.pluginName = pluginName;
         this.pluginVersion = pluginVersion;
         this.pluginUrl = pluginUrl;
     }
 
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PluginInfos infos = (PluginInfos)o;
-        return Objects.equals(pluginName, infos.pluginName) && Objects.equals(pluginVersion, infos.pluginVersion);
+        PluginInfos infos = (PluginInfos) o;
+        return Objects.equals(pluginName, infos.pluginName)
+                && Objects.equals(pluginVersion, infos.pluginVersion);
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return Objects.hash(pluginName, pluginVersion);
     }
 
     @Override
     public int compareTo(PluginInfos o) {
-        if(pluginName.equals(o.pluginName)){
+        if (pluginName.equals(o.pluginName)) {
             return pluginVersion.compareTo(o.pluginVersion);
-        }else{
+        } else {
             return pluginName.compareToIgnoreCase(o.pluginName);
         }
     }

@@ -4,7 +4,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Workaround for those plugins with integration tests since they need execute the failsafe:integration-test goal before execution.
+ * Workaround for those plugins with integration tests since they need execute the
+ * failsafe:integration-test goal before execution.
  */
 public class PluginWithFailsafeIntegrationTestsHook extends PluginWithIntegrationTestsHook {
 
@@ -17,5 +18,4 @@ public class PluginWithFailsafeIntegrationTestsHook extends PluginWithIntegratio
     public Collection<String> getTestTypes() {
         return List.of("failsafe");
     }
-
 }

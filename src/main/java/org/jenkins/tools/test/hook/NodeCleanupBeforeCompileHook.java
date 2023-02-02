@@ -11,12 +11,15 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 
 public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCompile {
 
-    private static final Logger LOGGER = Logger.getLogger(NodeCleanupBeforeCompileHook.class.getName());
+    private static final Logger LOGGER =
+            Logger.getLogger(NodeCleanupBeforeCompileHook.class.getName());
 
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
         PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
-        boolean shouldExecuteHook = config.getIncludePlugins().contains("sse-gateway") || config.getIncludePlugins().contains("workflow-cps");
+        boolean shouldExecuteHook =
+                config.getIncludePlugins().contains("sse-gateway")
+                        || config.getIncludePlugins().contains("workflow-cps");
 
         if (shouldExecuteHook) {
             File pluginDir = (File) moreInfo.get("pluginDir");
@@ -35,8 +38,7 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
     }
 
     @Override
-    public void validate(Map<String, Object> toCheck) {
-    }
+    public void validate(Map<String, Object> toCheck) {}
 
     private void compile(File path) throws IOException {
         LOGGER.log(Level.INFO, "Calling removeNodeFolders");
@@ -53,5 +55,4 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
             FileUtils.deleteDirectory(nodeModulesFolder);
         }
     }
-
 }

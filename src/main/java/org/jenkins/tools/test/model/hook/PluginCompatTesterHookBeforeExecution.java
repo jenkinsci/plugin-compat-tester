@@ -16,11 +16,10 @@ public abstract class PluginCompatTesterHookBeforeExecution implements PluginCom
      */
     @Override
     public void validate(Map<String, Object> toCheck) {
-        if((toCheck.get("args") != null &&
-            toCheck.get("args") instanceof String) &&
-            (toCheck.get("pomData") != null &&
-            toCheck.get("pomData") instanceof PomData) ) {
-                throw new IllegalArgumentException("A hook modified a required parameter for plugin test execution.");
+        if ((toCheck.get("args") != null && toCheck.get("args") instanceof String)
+                && (toCheck.get("pomData") != null && toCheck.get("pomData") instanceof PomData)) {
+            throw new IllegalArgumentException(
+                    "A hook modified a required parameter for plugin test execution.");
         }
     }
 }

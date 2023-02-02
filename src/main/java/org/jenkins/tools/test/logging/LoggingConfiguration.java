@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.MissingResourceException;
+import java.util.function.BiFunction;
 import java.util.logging.LogManager;
 
 /**
@@ -14,16 +15,26 @@ import java.util.logging.LogManager;
 public class LoggingConfiguration {
 
     public LoggingConfiguration() {
-        try (InputStream is = LoggingConfiguration.class.getResourceAsStream("logging.properties")) {
+        try (InputStream is =
+                LoggingConfiguration.class.getResourceAsStream("logging.properties")) {
             if (is == null) {
-                throw new MissingResourceException("Failed to load logging.properties", LoggingConfiguration.class.getName(), "logging.properties");
+                throw new MissingResourceException(
+                        "Failed to load logging.properties",
+                        LoggingConfiguration.class.getName(),
+                        "logging.properties");
             }
 
             // Prefer new non-null values over old values.
-            LogManager.getLogManager().updateConfiguration(is, property ->
-                    ((oldValue, newValue) -> oldValue == null && newValue == null ? null : (newValue == null ? oldValue : newValue)));
+            LogManager.getLogManager().updateConfiguration(is, property -> updateConfiguration());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static BiFunction<String, String, String> updateConfiguration() {
+        return (oldValue, newValue) ->
+                oldValue == null && newValue == null
+                        ? null
+                        : (newValue == null ? oldValue : newValue);
     }
 }

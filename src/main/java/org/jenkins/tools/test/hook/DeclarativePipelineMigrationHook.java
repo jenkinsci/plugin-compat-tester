@@ -5,14 +5,15 @@ import java.util.Set;
 import org.jenkins.tools.test.model.PomData;
 
 /**
- * Workaround for the Declarative Pipeline Migration Assistant plugins since they are
- * stored in a central repository.
+ * Workaround for the Declarative Pipeline Migration Assistant plugins since they are stored in a
+ * central repository.
  */
 public class DeclarativePipelineMigrationHook extends AbstractMultiParentHook {
 
-    private static final Set<String> ARTIFACT_IDS = Set.of(
-            "declarative-pipeline-migration-assistant",
-            "declarative-pipeline-migration-assistant-api");
+    private static final Set<String> ARTIFACT_IDS =
+            Set.of(
+                    "declarative-pipeline-migration-assistant",
+                    "declarative-pipeline-migration-assistant-api");
 
     @Override
     protected String getParentFolder() {

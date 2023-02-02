@@ -42,10 +42,12 @@ public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected void configureLocalCheckOut(UpdateSite.Plugin currentPlugin, File localCheckoutDir, Map<String, Object> moreInfo) {
+    protected void configureLocalCheckOut(
+            UpdateSite.Plugin currentPlugin, File localCheckoutDir, Map<String, Object> moreInfo) {
         File pluginDir = new File(localCheckoutDir, getPluginFolderName(currentPlugin));
         if (!pluginDir.exists() && !pluginDir.isDirectory()) {
-            throw new RuntimeException("Invalid localCheckoutDir for " + currentPlugin.getDisplayName());
+            throw new RuntimeException(
+                    "Invalid localCheckoutDir for " + currentPlugin.getDisplayName());
         }
 
         // Checkout already happened, don't run through again
@@ -53,7 +55,10 @@ public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
         firstRun = false;
 
         // Change the "download"" directory; after download, it's simply used for reference
-        LOGGER.log(Level.INFO, "Child path for {0}: {1}", new Object[]{currentPlugin.getDisplayName(), pluginDir.getPath()});
+        LOGGER.log(
+                Level.INFO,
+                "Child path for {0}: {1}",
+                new Object[] {currentPlugin.getDisplayName(), pluginDir.getPath()});
         moreInfo.put("checkoutDir", pluginDir);
         moreInfo.put("pluginDir", pluginDir);
     }

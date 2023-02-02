@@ -43,91 +43,138 @@ import java.util.List;
  * @author Frederic Camblor
  */
 public class CliOptions {
-    @Parameter(names = "-war", required = true,
-            description = "A WAR file to scan for plugins rather than looking in the update center.")
+    @Parameter(
+            names = "-war",
+            required = true,
+            description =
+                    "A WAR file to scan for plugins rather than looking in the update center.")
     private File war;
 
     @CheckForNull
-    @Parameter(names = "-testJDKHome",
+    @Parameter(
+            names = "-testJDKHome",
             description = "A path to JDK HOME to be used for running tests in plugins.")
     private File testJDKHome = null;
 
     @CheckForNull
-    @Parameter(names = "-testJavaArgs",
+    @Parameter(
+            names = "-testJavaArgs",
             description = "Java test arguments to be used for test runs.")
     private String testJavaArgs = null;
 
-    @Parameter(names = "-workDirectory", required = true,
+    @Parameter(
+            names = "-workDirectory",
+            required = true,
             description = "Work directory where plugin sources will be checked out")
     private File workDirectory;
 
-    @Parameter(names = "-reportFile", required = true,
-            description = "Output report xml file path. This path must contain a directory, e.g. 'out/pct-report.xml'")
+    @Parameter(
+            names = "-reportFile",
+            required = true,
+            description =
+                    "Output report xml file path. This path must contain a directory, e.g."
+                            + " 'out/pct-report.xml'")
     private File reportFile;
 
-    @Parameter(names = "-includePlugins",
-            description = "Comma separated list of plugins' artifactId to test.\n" +
-                    "If not set, every plugin will be tested.")
+    @Parameter(
+            names = "-includePlugins",
+            description =
+                    "Comma separated list of plugins' artifactId to test.\n"
+                            + "If not set, every plugin will be tested.")
     private String includePlugins = null;
 
-    @Parameter(names = "-excludePlugins",
-            description = "Comma separated list of plugins' artifactId to NOT test.\n" +
-                    "If not set, see includePlugins behaviour.")
+    @Parameter(
+            names = "-excludePlugins",
+            description =
+                    "Comma separated list of plugins' artifactId to NOT test.\n"
+                            + "If not set, see includePlugins behaviour.")
     private String excludePlugins = null;
 
-    @Parameter(names = "-excludeHooks",
-            description = "Comma separated list of hooks to NOT execute.\n" +
-                    "If not set, all hooks will be executed.")
+    @Parameter(
+            names = "-excludeHooks",
+            description =
+                    "Comma separated list of hooks to NOT execute.\n"
+                            + "If not set, all hooks will be executed.")
     private String excludeHooks = null;
 
-    @Parameter(names = "-fallbackGitHubOrganization",
-            description = "Include an alternative organization to use as a fallback to download the plugin.\n" +
-                    "It is useful to use your own fork releases for an specific plugin if the " +
-                    "version is not found in the official repository.\n" +
-                    "If set, The PCT will try to use the fallback if a plugin tag is not found in the regular URL.")
+    @Parameter(
+            names = "-fallbackGitHubOrganization",
+            description =
+                    "Include an alternative organization to use as a fallback to download the"
+                            + " plugin.\n"
+                            + "It is useful to use your own fork releases for an specific plugin if the"
+                            + " version is not found in the official repository.\n"
+                            + "If set, The PCT will try to use the fallback if a plugin tag is not"
+                            + " found in the regular URL.")
     private String fallbackGitHubOrganization = null;
 
-    @Parameter(names = "-m2SettingsFile",
+    @Parameter(
+            names = "-m2SettingsFile",
             description = "Maven settings file used while executing maven")
     private File m2SettingsFile;
 
-    @Parameter(names = "-mvn",
-            description = "External Maven executable")
+    @Parameter(names = "-mvn", description = "External Maven executable")
     @CheckForNull
     private File externalMaven;
 
-    @Parameter(names="-mavenProperties", description = "Define extra properties to be passed to the build." +
-          "Format: 'KEY1=VALUE1:KEY2=VALUE2'. These options will be used a la -D.\n" +
-            "If your property values contain ':' you must use the 'mavenPropertiesFile' option instead.")
+    @Parameter(
+            names = "-mavenProperties",
+            description =
+                    "Define extra properties to be passed to the build. Format:"
+                            + " 'KEY1=VALUE1:KEY2=VALUE2'. These options will be used a la -D.\n"
+                            + "If your property values contain ':' you must use the"
+                            + " 'mavenPropertiesFile' option instead.")
     private String mavenProperties;
 
-    @Parameter(names="-mavenPropertiesFile", description = "Allow loading some maven properties from a file using the standard java.util.Properties file format. " +
-            "These options will be used a la -D")
+    @Parameter(
+            names = "-mavenPropertiesFile",
+            description =
+                    "Allow loading some maven properties from a file using the standard"
+                            + " java.util.Properties file format. These options will be used a la -D")
     private String mavenPropertiesFile;
 
-    @Parameter(names="-mavenOptions", description = "Options to pass to Maven (like -Pxxx; not to be confused with Java options, nor Maven properties).")
+    @Parameter(
+            names = "-mavenOptions",
+            description =
+                    "Options to pass to Maven (like -Pxxx; not to be confused with Java options,"
+                            + " nor Maven properties).")
     private List<String> mavenOptions;
 
-    @Parameter(names="-hookPrefixes", description = "Prefixes of the extra hooks' classes")
+    @Parameter(names = "-hookPrefixes", description = "Prefixes of the extra hooks' classes")
     private String hookPrefixes;
 
-    @Parameter(names="-externalHooksJars", description = "Comma-separated list of external hooks jar file locations", listConverter = FileListConverter.class, validateWith = FileValidator.class)
+    @Parameter(
+            names = "-externalHooksJars",
+            description = "Comma-separated list of external hooks jar file locations",
+            listConverter = FileListConverter.class,
+            validateWith = FileValidator.class)
     private List<File> externalHooksJars;
 
-    @Parameter(names="-localCheckoutDir", description = "Folder containing either a local (possibly modified) clone of a plugin repository or a set of local clone of different plugins")
+    @Parameter(
+            names = "-localCheckoutDir",
+            description =
+                    "Folder containing either a local (possibly modified) clone of a plugin"
+                            + " repository or a set of local clone of different plugins")
     private String localCheckoutDir;
 
-    @Parameter(names="-help", description = "Print this help message", help = true)
+    @Parameter(names = "-help", description = "Print this help message", help = true)
     private boolean printHelp;
 
-    @Parameter(names = "-failOnError", description = "Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code")
+    @Parameter(
+            names = "-failOnError",
+            description =
+                    "Immediately if the PCT run fails for a plugin. Error status will be also"
+                            + " reported as a return code")
     private boolean failOnError;
 
-    @Parameter(names = "-storeAll",
-            description = "By default only failed tests are stored in PCT report file. \n" +
-                    "If set, the PCT will store ALL executed test names for each plugin in report file. \n" +
-                    "Disabled by default because it may bloat reports for plugins which thousands of tests."
-    )
+    @Parameter(
+            names = "-storeAll",
+            description =
+                    "By default only failed tests are stored in PCT report file. \n"
+                            + "If set, the PCT will store ALL executed test names for each plugin in"
+                            + " report file. \n"
+                            + "Disabled by default because it may bloat reports for plugins which"
+                            + " thousands of tests.")
     private Boolean storeAll = null;
 
     public File getWar() {
@@ -178,7 +225,9 @@ public class CliOptions {
 
     @NonNull
     public List<String> getMavenOptions() {
-        return mavenOptions != null ? Collections.unmodifiableList(mavenOptions) : Collections.emptyList();
+        return mavenOptions != null
+                ? Collections.unmodifiableList(mavenOptions)
+                : Collections.emptyList();
     }
 
     public String getHookPrefixes() {
@@ -218,9 +267,9 @@ public class CliOptions {
     public static class FileListConverter implements IStringConverter<List<File>> {
         @Override
         public List<File> convert(String files) {
-            String [] paths = files.split(",");
+            String[] paths = files.split(",");
             List<File> fileList = new ArrayList<>();
-            for(String path : paths){
+            for (String path : paths) {
                 fileList.add(new File(path));
             }
             return fileList;
@@ -233,7 +282,8 @@ public class CliOptions {
             for (String path : value.split(",")) {
                 File jar = new File(path);
                 if (!jar.exists() || !jar.isFile()) {
-                    throw new ParameterException(path + " must exists and be a normal file (not a directory)");
+                    throw new ParameterException(
+                            path + " must exists and be a normal file (not a directory)");
                 }
             }
         }

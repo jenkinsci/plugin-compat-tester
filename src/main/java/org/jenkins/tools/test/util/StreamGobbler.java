@@ -25,7 +25,8 @@ public class StreamGobbler extends Thread {
 
     @Override
     public void run() {
-        try (Reader r = new InputStreamReader(is, Charset.defaultCharset()); BufferedReader br = new BufferedReader(r)) {
+        try (Reader r = new InputStreamReader(is, Charset.defaultCharset());
+                BufferedReader br = new BufferedReader(r)) {
             String line;
             while ((line = br.readLine()) != null) {
                 output.append(line);

@@ -37,7 +37,7 @@ public class TestExecutionResult {
 
     private final ExecutedTestNamesDetails testDetails;
 
-    public TestExecutionResult(ExecutedTestNamesDetails testDetails){
+    public TestExecutionResult(ExecutedTestNamesDetails testDetails) {
         this.testDetails = testDetails;
     }
 

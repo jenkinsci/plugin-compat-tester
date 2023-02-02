@@ -38,15 +38,19 @@ public class PomData {
     public final String artifactId;
     public final String groupId;
 
-    @NonNull
-    private final String packaging;
+    @NonNull private final String packaging;
 
-    @CheckForNull
-    public final MavenCoordinates parent;
+    @CheckForNull public final MavenCoordinates parent;
     private String connectionUrl;
     private String scmTag;
 
-    public PomData(String artifactId, @CheckForNull String packaging, String connectionUrl, String scmTag, @CheckForNull MavenCoordinates parent, String groupId){
+    public PomData(
+            String artifactId,
+            @CheckForNull String packaging,
+            String connectionUrl,
+            String scmTag,
+            @CheckForNull MavenCoordinates parent,
+            String groupId) {
         this.artifactId = artifactId;
         this.groupId = groupId;
         this.packaging = packaging != null ? packaging : "jar";

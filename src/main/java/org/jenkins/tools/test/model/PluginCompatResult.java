@@ -48,16 +48,23 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
 
     private String buildLogPath = "";
 
-    public PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
-                              String errorMessage, Set<String> testDetails,
-                              String buildLogPath){
+    public PluginCompatResult(
+            MavenCoordinates coreCoordinates,
+            TestStatus status,
+            String errorMessage,
+            Set<String> testDetails,
+            String buildLogPath) {
         // Create new result with current date
         this(coreCoordinates, status, errorMessage, testDetails, buildLogPath, new Date());
     }
 
-    private PluginCompatResult(MavenCoordinates coreCoordinates, TestStatus status,
-                              String errorMessage, Set<String> testDetails,
-                              String buildLogPath, Date compatTestExecutedOn){
+    private PluginCompatResult(
+            MavenCoordinates coreCoordinates,
+            TestStatus status,
+            String errorMessage,
+            Set<String> testDetails,
+            String buildLogPath,
+            Date compatTestExecutedOn) {
         this.coreCoordinates = coreCoordinates;
 
         this.status = status;
@@ -71,19 +78,19 @@ public class PluginCompatResult implements Comparable<PluginCompatResult> {
     }
 
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PluginCompatResult res = (PluginCompatResult)o;
+        PluginCompatResult res = (PluginCompatResult) o;
         return Objects.equals(coreCoordinates, res.coreCoordinates);
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return Objects.hash(coreCoordinates);
     }
 
