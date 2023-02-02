@@ -43,22 +43,20 @@ import org.jenkins.tools.test.util.ExecutedTestNamesDetails;
 public class PomExecutionException extends Exception {
     private final List<Throwable> exceptionsThrown;
     public final List<String> succeededPluginArtifactIds;
-    private final List<String> pomWarningMessages;
     private final ExecutedTestNamesDetails testDetails;
 
     public PomExecutionException(Throwable cause) {
-        this(cause.toString(), Collections.emptyList(), List.of(cause), Collections.emptyList(), new ExecutedTestNamesDetails());
+        this(cause.toString(), Collections.emptyList(), List.of(cause), new ExecutedTestNamesDetails());
     }
 
     public PomExecutionException(PomExecutionException exceptionToCopy){
-        this(exceptionToCopy.getMessage(), exceptionToCopy.succeededPluginArtifactIds, exceptionToCopy.exceptionsThrown, exceptionToCopy.pomWarningMessages, exceptionToCopy.testDetails);
+        this(exceptionToCopy.getMessage(), exceptionToCopy.succeededPluginArtifactIds, exceptionToCopy.exceptionsThrown, exceptionToCopy.testDetails);
     }
 
-    public PomExecutionException(String message, List<String> succeededPluginArtifactIds, List<Throwable> exceptionsThrown, List<String> pomWarningMessages, ExecutedTestNamesDetails testDetails){
+    public PomExecutionException(String message, List<String> succeededPluginArtifactIds, List<Throwable> exceptionsThrown, ExecutedTestNamesDetails testDetails){
         super(message, exceptionsThrown.isEmpty() ? null : exceptionsThrown.iterator().next());
         this.exceptionsThrown = new ArrayList<>(exceptionsThrown);
         this.succeededPluginArtifactIds = new ArrayList<>(succeededPluginArtifactIds);
-        this.pomWarningMessages = new ArrayList<>(pomWarningMessages);
         this.testDetails = testDetails;
     }
 
@@ -73,10 +71,6 @@ public class PomExecutionException extends Exception {
             strBldr.append(String.format("%s %n %n", writer.toString()));
         }
         return strBldr.toString();
-    }
-
-    public List<String> getPomWarningMessages() {
-        return pomWarningMessages;
     }
 
     public ExecutedTestNamesDetails getTestDetails() {

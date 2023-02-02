@@ -28,8 +28,6 @@ package org.jenkins.tools.test.model;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * POJO containing important data residing in plugin's POM
@@ -47,7 +45,6 @@ public class PomData {
     public final MavenCoordinates parent;
     private String connectionUrl;
     private String scmTag;
-    private List<String> warningMessages = new ArrayList<>();
 
     public PomData(String artifactId, @CheckForNull String packaging, String connectionUrl, String scmTag, @CheckForNull MavenCoordinates parent, String groupId){
         this.artifactId = artifactId;
@@ -66,10 +63,6 @@ public class PomData {
         this.connectionUrl = connectionUrl;
     }
 
-    public List<String> getWarningMessages() {
-        return warningMessages;
-    }
-
     @NonNull
     public String getPackaging() {
         return packaging;
@@ -77,13 +70,5 @@ public class PomData {
 
     public String getScmTag() {
         return scmTag;
-    }
-
-    public boolean isPluginPOM() {
-        if (parent != null) {
-            return parent.matches("org.jenkins-ci.plugins", "plugin");
-        } else { // Interpolate by packaging
-            return "hpi".equalsIgnoreCase(packaging);
-        }
     }
 }

@@ -39,7 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -120,36 +119,6 @@ public class PluginCompatReport {
 
     public static String getBaseFilename(File reportPath){
         return reportPath.getName().split("\\.")[0];
-    }
-
-    public boolean isCompatTestResultAlreadyInCache(PluginInfos pluginInfos, MavenCoordinates coreCoord, long cacheTimeout, TestStatus cacheThresholdStatus){
-        // Retrieving plugin compatibility results corresponding to pluginsInfos + coreCoord
-        if(!pluginCompatTests.containsKey(pluginInfos)){
-            // No data for this plugin version ? => no cache !
-            return false;
-        }
-
-        List<PluginCompatResult> results = pluginCompatTests.get(pluginInfos);
-        PluginCompatResult resultCorrespondingToGivenCoreCoords = null;
-        for(PluginCompatResult r : results){
-            if(r.coreCoordinates.equals(coreCoord)){
-                resultCorrespondingToGivenCoreCoords = r;
-                break;
-            }
-        }
-        if(resultCorrespondingToGivenCoreCoords == null){
-            // No data for this core coordinates ? => no cache !
-            return false;
-        }
-
-        // Is the latest execution on this plugin compliant with the given cache timeout ?
-        // If so, then cache will be activated !
-        if(new Date().before(new Date(resultCorrespondingToGivenCoreCoords.compatTestExecutedOn.getTime() + cacheTimeout))){
-            return true;
-        }
-
-        // Status was lower than cacheThresholdStatus ? => no cache !
-        return (!resultCorrespondingToGivenCoreCoords.status.isLowerThan(cacheThresholdStatus));
     }
 
     /**
