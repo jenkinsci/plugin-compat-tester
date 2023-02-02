@@ -17,5 +17,4 @@ package org.jenkins.tools.test.model.hook;
 public abstract class PluginCompatTesterHookBeforeCompile implements PluginCompatTesterHook {
 
     public static final String OVERRIDE_DEFAULT_COMPILE = "ranCompile";
-
 }

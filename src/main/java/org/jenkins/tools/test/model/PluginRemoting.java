@@ -66,11 +66,11 @@ public class PluginRemoting {
     private String hpiRemoteUrl;
     private File pomFile;
 
-    public PluginRemoting(String hpiRemoteUrl){
+    public PluginRemoting(String hpiRemoteUrl) {
         this.hpiRemoteUrl = hpiRemoteUrl;
     }
 
-    public PluginRemoting(File pomFile){
+    public PluginRemoting(File pomFile) {
         this.pomFile = pomFile;
     }
 
@@ -88,10 +88,12 @@ public class PluginRemoting {
 
     private String retrievePomContentFromHpi() throws IOException {
         URL url = new URL(hpiRemoteUrl);
-        try (InputStream is = url.openStream(); ZipInputStream zis = new ZipInputStream(is)) {
+        try (InputStream is = url.openStream();
+                ZipInputStream zis = new ZipInputStream(is)) {
             ZipEntry ze;
             while ((ze = zis.getNextEntry()) != null) {
-                if (ze.getName().startsWith("META-INF/maven/") && ze.getName().endsWith("/pom.xml")) {
+                if (ze.getName().startsWith("META-INF/maven/")
+                        && ze.getName().endsWith("/pom.xml")) {
                     return new String(zis.readAllBytes(), StandardCharsets.UTF_8);
                 }
             }
@@ -125,19 +127,24 @@ public class PluginRemoting {
             XPathExpression packagingXPath = xpath.compile("/project/packaging/text()");
             XPathExpression scmTagXPath = xpath.compile("/project/scm/tag/text()");
 
-            scmConnection = (String)scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
-            scmTag = StringUtils.trimToNull((String) scmTagXPath.evaluate(doc, XPathConstants.STRING));
-            artifactId = (String)artifactIdXPath.evaluate(doc, XPathConstants.STRING);
-            groupId = (String)groupIdXPath.evaluate(doc, XPathConstants.STRING);
-            packaging = StringUtils.trimToNull((String)packagingXPath.evaluate(doc, XPathConstants.STRING));
+            scmConnection = (String) scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
+            scmTag =
+                    StringUtils.trimToNull(
+                            (String) scmTagXPath.evaluate(doc, XPathConstants.STRING));
+            artifactId = (String) artifactIdXPath.evaluate(doc, XPathConstants.STRING);
+            groupId = (String) groupIdXPath.evaluate(doc, XPathConstants.STRING);
+            packaging =
+                    StringUtils.trimToNull(
+                            (String) packagingXPath.evaluate(doc, XPathConstants.STRING));
 
             String parentNode = xpath.evaluate("/project/parent", doc);
             if (parentNode != null && !parentNode.isBlank()) {
                 LOGGER.log(Level.FINE, "Parent POM: {0}", parentNode);
-                parent = new MavenCoordinates(
-                        getValueOrFail(doc, xpath, "/project/parent/groupId"),
-                        getValueOrFail(doc, xpath, "/project/parent/artifactId"),
-                        getValueOrFail(doc, xpath, "/project/parent/version"));
+                parent =
+                        new MavenCoordinates(
+                                getValueOrFail(doc, xpath, "/project/parent/groupId"),
+                                getValueOrFail(doc, xpath, "/project/parent/artifactId"),
+                                getValueOrFail(doc, xpath, "/project/parent/version"));
             } else {
                 LOGGER.log(Level.FINE, "No parent POM for {0}", artifactId);
             }
@@ -149,7 +156,8 @@ public class PluginRemoting {
             throw new PluginSourcesUnavailableException("Failed to retrieve SCM connection", e);
         }
 
-        PomData pomData = new PomData(artifactId, packaging, scmConnection, scmTag, parent, groupId);
+        PomData pomData =
+                new PomData(artifactId, packaging, scmConnection, scmTag, parent, groupId);
         computeScmConnection(pomData);
         return pomData;
     }
@@ -160,7 +168,8 @@ public class PluginRemoting {
      * @throws IOException parsing error
      */
     @NonNull
-    private static String getValueOrFail(Document doc, XPath xpath, String field) throws IOException {
+    private static String getValueOrFail(Document doc, XPath xpath, String field)
+            throws IOException {
         String res;
         try {
             res = xpath.evaluate(field + "/text()", doc);
@@ -181,25 +190,39 @@ public class PluginRemoting {
         transformedConnectionUrl = transformedConnectionUrl.trim();
 
         // Generally, when connectionUrl is empty, is implies it is declared in a parent pom
-        // => Only possibility is to deduct github repository from artifactId (crossing fingers it is not
-        // a bizarre repository url...)
+        // => Only possibility is to deduct github repository from artifactId (crossing fingers it
+        // is not a bizarre repository url...)
         String oldUrl = transformedConnectionUrl;
-        if(transformedConnectionUrl.isEmpty()){
-            transformedConnectionUrl = "scm:git:git://github.com/jenkinsci/"+pomData.artifactId.replaceAll("jenkins", "")+"-plugin.git";
-            if(!oldUrl.equals(transformedConnectionUrl)){
-                LOGGER.log(Level.WARNING, "project.scm.connectionUrl is not present in plugin's pom .. isn't it residing somewhere on a parent pom ?");
+        if (transformedConnectionUrl.isEmpty()) {
+            transformedConnectionUrl =
+                    "scm:git:git://github.com/jenkinsci/"
+                            + pomData.artifactId.replaceAll("jenkins", "")
+                            + "-plugin.git";
+            if (!oldUrl.equals(transformedConnectionUrl)) {
+                LOGGER.log(
+                        Level.WARNING,
+                        "project.scm.connectionUrl is not present in plugin's pom .. isn't it"
+                                + " residing somewhere on a parent pom ?");
             }
         }
 
         // Java.net SVN migration
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("(svn|hudson)\\.dev\\.java\\.net/svn/hudson/", "svn.java.net/svn/hudson~svn/");
-        if(!oldUrl.equals(transformedConnectionUrl)){
-            LOGGER.log(Level.WARNING, "project.scm.connectionUrl is pointing to svn.dev.java.net/svn/hudson/ instead of svn.java.net/svn/hudson~svn/");
+        transformedConnectionUrl =
+                transformedConnectionUrl.replaceAll(
+                        "(svn|hudson)\\.dev\\.java\\.net/svn/hudson/",
+                        "svn.java.net/svn/hudson~svn/");
+        if (!oldUrl.equals(transformedConnectionUrl)) {
+            LOGGER.log(
+                    Level.WARNING,
+                    "project.scm.connectionUrl is pointing to svn.dev.java.net/svn/hudson/ instead"
+                            + " of svn.java.net/svn/hudson~svn/");
         }
 
         // ${project.artifactId}
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("\\$\\{project\\.artifactId\\}", pomData.artifactId);
+        transformedConnectionUrl =
+                transformedConnectionUrl.replaceAll(
+                        "\\$\\{project\\.artifactId\\}", pomData.artifactId);
 
         // github url like [https://]<username>@github.com/...
         // => Replaced by git://github.com/...
@@ -211,33 +234,51 @@ public class PluginRemoting {
         }
         */
 
-        //Convert things like scm:git:git://git@github.com:jenkinsci/dockerhub-notification-plugin.git
+        // Convert things like
+        // scm:git:git://git@github.com:jenkinsci/dockerhub-notification-plugin.git
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("scm:git:git://git@github\\.com:jenkinsci", "scm:git:git://github.com/jenkinsci");
-        if(!oldUrl.equals(transformedConnectionUrl)){
-            LOGGER.log(Level.WARNING, "project.scm.connectionUrl should should be accessed in read-only mode (with git:// protocol)");
+        transformedConnectionUrl =
+                transformedConnectionUrl.replaceAll(
+                        "scm:git:git://git@github\\.com:jenkinsci",
+                        "scm:git:git://github.com/jenkinsci");
+        if (!oldUrl.equals(transformedConnectionUrl)) {
+            LOGGER.log(
+                    Level.WARNING,
+                    "project.scm.connectionUrl should should be accessed in read-only mode (with"
+                            + " git:// protocol)");
         }
 
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github\\.com[^/]", "://github.com/");
-        if(!oldUrl.equals(transformedConnectionUrl)){
-            LOGGER.log(Level.WARNING, "project.scm.connectionUrl should have a '/' after the github.com url");
+        transformedConnectionUrl =
+                transformedConnectionUrl.replaceAll("://github\\.com[^/]", "://github.com/");
+        if (!oldUrl.equals(transformedConnectionUrl)) {
+            LOGGER.log(
+                    Level.WARNING,
+                    "project.scm.connectionUrl should have a '/' after the github.com url");
         }
 
         oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("://github\\.com/hudson/", "://github.com/jenkinsci/");
-        if(!oldUrl.equals(transformedConnectionUrl)){
-            LOGGER.log(Level.WARNING, "project.scm.connectionUrl should not reference hudson project anymore (no plugin repository there))");
+        transformedConnectionUrl =
+                transformedConnectionUrl.replaceAll(
+                        "://github\\.com/hudson/", "://github.com/jenkinsci/");
+        if (!oldUrl.equals(transformedConnectionUrl)) {
+            LOGGER.log(
+                    Level.WARNING,
+                    "project.scm.connectionUrl should not reference hudson project anymore (no"
+                            + " plugin repository there))");
         }
 
         // Just fixing some scm-sync-configuration issues...
         // TODO: remove this when fixed !
         oldUrl = transformedConnectionUrl;
-        if("scm-sync-configuration".equals(pomData.artifactId)){
-            transformedConnectionUrl = transformedConnectionUrl.substring(0, transformedConnectionUrl.length()-4)+"-plugin.git";
+        if ("scm-sync-configuration".equals(pomData.artifactId)) {
+            transformedConnectionUrl =
+                    transformedConnectionUrl.substring(0, transformedConnectionUrl.length() - 4)
+                            + "-plugin.git";
         }
-        if(!oldUrl.equals(transformedConnectionUrl)){
-            LOGGER.log(Level.WARNING, "project.scm.connectionUrl should be ending with '-plugin.git'");
+        if (!oldUrl.equals(transformedConnectionUrl)) {
+            LOGGER.log(
+                    Level.WARNING, "project.scm.connectionUrl should be ending with '-plugin.git'");
         }
 
         pomData.setConnectionUrl(transformedConnectionUrl);

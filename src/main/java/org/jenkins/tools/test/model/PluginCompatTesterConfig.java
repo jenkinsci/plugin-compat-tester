@@ -64,17 +64,12 @@ public class PluginCompatTesterConfig {
     // The megawar
     private File war;
 
-    /**
-     * A Java HOME to be used for running tests in plugins.
-     */
-    @CheckForNull
-    private File testJDKHome = null;
+    /** A Java HOME to be used for running tests in plugins. */
+    @CheckForNull private File testJDKHome = null;
 
-    @CheckForNull
-    private String testJavaArgs = null;
+    @CheckForNull private String testJavaArgs = null;
 
-    @CheckForNull
-    private File externalMaven = null;
+    @CheckForNull private File externalMaven = null;
 
     // List of plugin artifact ids on which tests will be performed
     // If null, tests will be performed on every plugins retrieved from update center
@@ -114,17 +109,20 @@ public class PluginCompatTesterConfig {
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
     private File localCheckoutDir;
 
-    // Immediately if the PCT run fails for a plugin. Error status will be also reported as a return code
+    // Immediately if the PCT run fails for a plugin. Error status will be also reported as a return
+    // code
     private boolean failOnError;
 
-    // Flag to indicate if we want to store all the tests names or only failed ones on PCT report files
+    // Flag to indicate if we want to store all the tests names or only failed ones on PCT report
+    // files
     private boolean storeAll;
 
     /**
-     * @deprecated just for tests; use {@link #PluginCompatTesterConfig()} and call whatever setters are actually required
+     * @deprecated just for tests; use {@link #PluginCompatTesterConfig()} and call whatever setters
+     *     are actually required
      */
     @Deprecated
-    public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile){
+    public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile) {
         setWorkDirectory(workDirectory);
         setReportFile(reportFile);
         setM2SettingsFile(m2SettingsFile);
@@ -223,7 +221,7 @@ public class PluginCompatTesterConfig {
         return mavenPropertiesFile;
     }
 
-    public void setMavenPropertiesFiles( String mavenPropertiesFile ) {
+    public void setMavenPropertiesFiles(String mavenPropertiesFile) {
         this.mavenPropertiesFile = mavenPropertiesFile;
     }
 
@@ -247,17 +245,20 @@ public class PluginCompatTesterConfig {
 
         // Read properties from File
         if (mavenPropertiesFile != null && !mavenPropertiesFile.isBlank()) {
-            File file = new File (mavenPropertiesFile);
+            File file = new File(mavenPropertiesFile);
             if (file.exists() && file.isFile()) {
-                try(FileInputStream fileInputStream = new FileInputStream(file)) {
-                    Properties properties = new Properties(  );
-                    properties.load( fileInputStream  );
-                    for (Map.Entry<Object,Object> entry : properties.entrySet()) {
+                try (FileInputStream fileInputStream = new FileInputStream(file)) {
+                    Properties properties = new Properties();
+                    properties.load(fileInputStream);
+                    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                         res.put((String) entry.getKey(), (String) entry.getValue());
                     }
                 }
             } else {
-                throw new IOException("Extra Maven Properties File " + mavenPropertiesFile + " does not exist or not a File" );
+                throw new IOException(
+                        "Extra Maven Properties File "
+                                + mavenPropertiesFile
+                                + " does not exist or not a File");
             }
         }
 
@@ -270,9 +271,13 @@ public class PluginCompatTesterConfig {
             }
 
             if (res.containsKey("jvm")) {
-                LOGGER.log(Level.WARNING, "Maven properties already contain the 'jvm' argument; " +
-                        "overriding the previous test JDK home value '" + res.get("jvm") +
-                        "' by the explicit argument: " + testJDKHome);
+                LOGGER.log(
+                        Level.WARNING,
+                        "Maven properties already contain the 'jvm' argument; "
+                                + "overriding the previous test JDK home value '"
+                                + res.get("jvm")
+                                + "' by the explicit argument: "
+                                + testJDKHome);
             } else {
                 LOGGER.log(Level.INFO, "Using custom test JDK home: {0}", testJDKHome);
             }
@@ -283,8 +288,10 @@ public class PluginCompatTesterConfig {
         // Merge test Java args if needed
         if (testJavaArgs != null && !testJavaArgs.isBlank()) {
             if (res.containsKey("argLine")) {
-                LOGGER.log(Level.WARNING, "Maven properties already contain the 'argLine' argument; " +
-                        "merging value from properties and from the command line");
+                LOGGER.log(
+                        Level.WARNING,
+                        "Maven properties already contain the 'argLine' argument; "
+                                + "merging value from properties and from the command line");
                 res.put("argLine", res.get("argLine") + " " + testJavaArgs);
             } else {
                 res.put("argLine", testJavaArgs);
@@ -294,9 +301,9 @@ public class PluginCompatTesterConfig {
         return res;
     }
 
-        @CheckForNull
+    @CheckForNull
     private String getTestJavaCommandPath() {
-        if(testJDKHome==null) {
+        if (testJDKHome == null) {
             return null;
         }
         return new File(testJDKHome, "bin/java").getAbsolutePath();
@@ -314,36 +321,52 @@ public class PluginCompatTesterConfig {
             LOGGER.log(Level.INFO, "Test JDK home unset; using Java from PATH");
             javaCmdAbsolutePath = "java";
         }
-        final Process process = new ProcessBuilder().command(javaCmdAbsolutePath, "-XshowSettings:properties", "-version").redirectErrorStream(true).start();
+        final Process process =
+                new ProcessBuilder()
+                        .command(javaCmdAbsolutePath, "-XshowSettings:properties", "-version")
+                        .redirectErrorStream(true)
+                        .start();
         StreamGobbler gobbler = new StreamGobbler(process.getInputStream());
         gobbler.start();
         try {
             int exitStatus = process.waitFor();
             gobbler.join();
             if (exitStatus != 0) {
-                throw new IOException("java -XshowSettings:properties -version failed with exit status " + exitStatus + ": " + gobbler.getOutput().trim());
+                throw new IOException(
+                        "java -XshowSettings:properties -version failed with exit status "
+                                + exitStatus
+                                + ": "
+                                + gobbler.getOutput().trim());
             }
         } catch (InterruptedException e) {
             throw new IOException("interrupted while getting Java version", e);
         }
         final String javaVersionOutput = gobbler.getOutput().trim();
         final String[] lines = javaVersionOutput.split("[\\r\\n]+");
-        for (String line: lines) {
+        for (String line : lines) {
             String trimmed = line.trim();
             if (trimmed.contains("java.specification.version")) {
-                //java.specification.version = version
+                // java.specification.version = version
                 return trimmed.split("=")[1].trim();
             }
         }
         // Default to fullversion output as before
-        final Process process2 = new ProcessBuilder().command(javaCmdAbsolutePath, "-fullversion").redirectErrorStream(true).start();
+        final Process process2 =
+                new ProcessBuilder()
+                        .command(javaCmdAbsolutePath, "-fullversion")
+                        .redirectErrorStream(true)
+                        .start();
         StreamGobbler gobbler2 = new StreamGobbler(process2.getInputStream());
         gobbler2.start();
         try {
             int exitStatus2 = process2.waitFor();
             gobbler2.join();
             if (exitStatus2 != 0) {
-                throw new IOException("java -fullversion failed with exit status " + exitStatus2 + ": " + gobbler2.getOutput().trim());
+                throw new IOException(
+                        "java -fullversion failed with exit status "
+                                + exitStatus2
+                                + ": "
+                                + gobbler2.getOutput().trim());
             }
         } catch (InterruptedException e) {
             throw new IOException("interrupted while getting full Java version", e);
@@ -351,9 +374,7 @@ public class PluginCompatTesterConfig {
         final String javaVersionOutput2 = gobbler2.getOutput().trim();
         // Expected format is something like openjdk full version "1.8.0_181-8u181-b13-2~deb9u1-b13"
         // We shorten it by removing the "full version" in the middle
-        return javaVersionOutput2.
-                replace(" full version ", " ").
-                replaceAll("\"", "");
+        return javaVersionOutput2.replace(" full version ", " ").replaceAll("\"", "");
     }
 
     public File getWar() {

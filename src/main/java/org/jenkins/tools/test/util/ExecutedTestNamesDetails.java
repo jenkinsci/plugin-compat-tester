@@ -46,7 +46,9 @@ public class ExecutedTestNamesDetails {
     }
 
     private Set<String> get(String key) {
-        return this.tests.containsKey(key) ? Collections.unmodifiableSet(new TreeSet<>(this.tests.get(key))) : null;
+        return this.tests.containsKey(key)
+                ? Collections.unmodifiableSet(new TreeSet<>(this.tests.get(key)))
+                : null;
     }
 
     private void add(String key, String test) {

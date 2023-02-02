@@ -7,9 +7,8 @@ import org.jenkins.tools.test.model.PomData;
 
 public class PipelineStageViewHook extends AbstractMultiParentHook {
 
-    private static final Set<String> ARTIFACT_IDS = Set.of(
-            "pipeline-rest-api",
-            "pipeline-stage-view");
+    private static final Set<String> ARTIFACT_IDS =
+            Set.of("pipeline-rest-api", "pipeline-stage-view");
 
     @Override
     protected String getParentFolder() {
@@ -22,7 +21,7 @@ public class PipelineStageViewHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getPluginFolderName(UpdateSite.Plugin currentPlugin){
+    protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
         return currentPlugin.name.equals("pipeline-rest-api") ? "rest-api" : "ui";
     }
 

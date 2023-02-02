@@ -52,10 +52,11 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             File localCheckoutDir = config.getLocalCheckoutDir();
             if (localCheckoutDir != null) {
                 Path pluginSourcesDir = localCheckoutDir.toPath();
-                boolean isMultipleLocalPlugins = config.getIncludePlugins() != null && config.getIncludePlugins().size() > 1;
-                // We are running for local changes, let's copy the .eslintrc file if we can
-                // If we are using localCheckoutDir with multiple plugins the .eslintrc must be located at the top level
-                // If not it must be located on the parent of the localCheckoutDir
+                boolean isMultipleLocalPlugins =
+                        config.getIncludePlugins() != null && config.getIncludePlugins().size() > 1;
+                // We are running for local changes, let's copy the .eslintrc file if we can. If we
+                // are using localCheckoutDir with multiple plugins the .eslintrc must be located at
+                // the top level. If not it must be located on the parent of the localCheckoutDir.
                 if (!isMultipleLocalPlugins) {
                     pluginSourcesDir = pluginSourcesDir.getParent();
                 }
@@ -67,9 +68,16 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
             // We need to compile before generating effective pom overriding jenkins.version
             // only if the plugin is not already compiled
-            boolean ranCompile = moreInfo.containsKey(OVERRIDE_DEFAULT_COMPILE) && (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE);
+            boolean ranCompile =
+                    moreInfo.containsKey(OVERRIDE_DEFAULT_COMPILE)
+                            && (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE);
             if (!ranCompile) {
-                compile(mavenConfig, pluginDir, localCheckoutDir, (String) moreInfo.get("parentFolder"), (String) moreInfo.get("pluginName"));
+                compile(
+                        mavenConfig,
+                        pluginDir,
+                        localCheckoutDir,
+                        (String) moreInfo.get("parentFolder"),
+                        (String) moreInfo.get("pluginName"));
                 moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
             }
 
@@ -83,13 +91,12 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     }
 
     @Override
-    public void validate(Map<String, Object> toCheck) {
-
-    }
+    public void validate(Map<String, Object> toCheck) {}
 
     @Override
     public boolean check(Map<String, Object> info) {
-        for (PluginCompatTesterHook hook : PluginCompatTesterHooks.getHooksFromStage("checkout", info)) {
+        for (PluginCompatTesterHook hook :
+                PluginCompatTesterHooks.getHooksFromStage("checkout", info)) {
             if (hook instanceof AbstractMultiParentHook && hook.check(info)) {
                 return true;
             }
@@ -103,7 +110,10 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
     private void copy(Path eslintrc, File pluginFolder) {
         try {
-            Files.copy(eslintrc, new File(pluginFolder.getParent(), ESLINTRC).toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(
+                    eslintrc,
+                    new File(pluginFolder.getParent(), ESLINTRC).toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException("Unable to copy eslintrc file", e);
         }
@@ -116,25 +126,56 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         return mconfig;
     }
 
-    private void compile(MavenRunner.Config mavenConfig, File path, File localCheckoutDir, String parentFolder, String pluginName) throws PomExecutionException, IOException {
+    private void compile(
+            MavenRunner.Config mavenConfig,
+            File path,
+            File localCheckoutDir,
+            String parentFolder,
+            String pluginName)
+            throws PomExecutionException, IOException {
         if (isSnapshotMultiParentPlugin(parentFolder, path, localCheckoutDir)) {
-            // "process-test-classes" not working properly on multi-module plugin. See https://issues.jenkins.io/browse/JENKINS-62658
+            // "process-test-classes" not working properly on multi-module plugin.
+            // See https://issues.jenkins.io/browse/JENKINS-62658
             // installs dependencies into local repository
-            String mavenModule = PluginCompatTester.getMavenModule(pluginName, path, runner, mavenConfig);
+            String mavenModule =
+                    PluginCompatTester.getMavenModule(pluginName, path, runner, mavenConfig);
             if (mavenModule == null || mavenModule.isBlank()) {
-                throw new IOException(String.format("Unable to retrieve the Maven module for plugin %s on %s", pluginName, path));
+                throw new IOException(
+                        String.format(
+                                "Unable to retrieve the Maven module for plugin %s on %s",
+                                pluginName, path));
             }
-            runner.run(mavenConfig, path.getParentFile(), setupCompileResources(path.getParentFile()), "clean", "install", "-DskipTests", "-Dinvoker.skip", "-Denforcer.skip", "-Dmaven.javadoc.skip", "-am", "-pl", mavenModule);
+            runner.run(
+                    mavenConfig,
+                    path.getParentFile(),
+                    setupCompileResources(path.getParentFile()),
+                    "clean",
+                    "install",
+                    "-DskipTests",
+                    "-Dinvoker.skip",
+                    "-Denforcer.skip",
+                    "-Dmaven.javadoc.skip",
+                    "-am",
+                    "-pl",
+                    mavenModule);
         } else {
-            runner.run(mavenConfig, path, setupCompileResources(path), "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+            runner.run(
+                    mavenConfig,
+                    path,
+                    setupCompileResources(path),
+                    "clean",
+                    "process-test-classes",
+                    "-Dmaven.javadoc.skip");
         }
     }
 
     /**
-     * Checks if a plugin is a multiparent plugin with a SNAPSHOT project.version and
-     * without local checkout directory overriden.
+     * Checks if a plugin is a multiparent plugin with a SNAPSHOT project.version and without local
+     * checkout directory overriden.
      */
-    private boolean isSnapshotMultiParentPlugin(String parentFolder, File path, File localCheckoutDir) throws PomExecutionException, IOException {
+    private boolean isSnapshotMultiParentPlugin(
+            String parentFolder, File path, File localCheckoutDir)
+            throws PomExecutionException, IOException {
         if (localCheckoutDir != null) {
             return false;
         }
@@ -142,17 +183,30 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             return false;
         }
         if (!path.getAbsolutePath().contains(parentFolder)) {
-            LOGGER.log(Level.WARNING, "Parent folder {0} not present in path {1}", new Object[]{parentFolder, path.getAbsolutePath()});
+            LOGGER.log(
+                    Level.WARNING,
+                    "Parent folder {0} not present in path {1}",
+                    new Object[] {parentFolder, path.getAbsolutePath()});
             return false;
         }
         File parentFile = path.getParentFile();
         if (!StringUtils.equals(parentFolder, parentFile.getName())) {
-            LOGGER.log(Level.WARNING, "{0} is not the parent folder of {1}", new Object[]{parentFolder, path.getAbsolutePath()});
+            LOGGER.log(
+                    Level.WARNING,
+                    "{0} is not the parent folder of {1}",
+                    new Object[] {parentFolder, path.getAbsolutePath()});
             return false;
         }
 
         File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "version.log");
-        runner.run(mavenConfig, parentFile, log, "-Dexpression=project.version", "-q", "-DforceStdout", "help:evaluate");
+        runner.run(
+                mavenConfig,
+                parentFile,
+                log,
+                "-Dexpression=project.version",
+                "-q",
+                "-DforceStdout",
+                "help:evaluate");
         List<String> output = Files.readAllLines(log.toPath(), Charset.defaultCharset());
         return output.get(output.size() - 1).endsWith("-SNAPSHOT");
     }

@@ -57,20 +57,19 @@ public class PluginCompatTesterCli {
     @SuppressFBWarnings(
             value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
             justification =
-                    "We're already checking for null in each relevant instance, so why does SpotBugs complain?")
+                    "We're already checking for null in each relevant instance, so why does"
+                            + " SpotBugs complain?")
     public static void main(String[] args) throws IOException, PomExecutionException {
         CliOptions options = new CliOptions();
         JCommander jcommander = null;
         try {
-            jcommander = JCommander.newBuilder()
-                    .addObject(options)
-                    .build();
+            jcommander = JCommander.newBuilder().addObject(options).build();
             jcommander.parse(args);
             if (options.isPrintHelp()) {
                 jcommander.usage();
                 System.exit(0);
             }
-        }catch(ParameterException e){
+        } catch (ParameterException e) {
             System.err.println(e.getMessage());
             jcommander.usage();
             System.exit(1);
@@ -79,15 +78,18 @@ public class PluginCompatTesterCli {
         Files.createDirectories(options.getWorkDirectory().toPath());
 
         File reportFile = null;
-        if(!"NOREPORT".equals(options.getReportFile().getName())){
+        if (!"NOREPORT".equals(options.getReportFile().getName())) {
             reportFile = options.getReportFile();
         }
         if (reportFile != null) {
             // Check the format requirement
             File parentFile = reportFile.getParentFile();
             if (parentFile == null) {
-                throw new IllegalArgumentException("The -reportFile value '" + reportFile + "' does not have a directory specification. " +
-                        "A path should be something like 'out/pct-report.xml'");
+                throw new IllegalArgumentException(
+                        "The -reportFile value '"
+                                + reportFile
+                                + "' does not have a directory specification. "
+                                + "A path should be something like 'out/pct-report.xml'");
             }
         }
 
@@ -99,35 +101,35 @@ public class PluginCompatTesterCli {
         config.setWar(options.getWar());
         config.setExternalMaven(options.getExternalMaven());
 
-        if(options.getIncludePlugins() != null && !options.getIncludePlugins().isEmpty()){
+        if (options.getIncludePlugins() != null && !options.getIncludePlugins().isEmpty()) {
             config.setIncludePlugins(List.of(options.getIncludePlugins().toLowerCase().split(",")));
         }
-        if(options.getExcludePlugins() != null && !options.getExcludePlugins().isEmpty()){
+        if (options.getExcludePlugins() != null && !options.getExcludePlugins().isEmpty()) {
             config.setExcludePlugins(List.of(options.getExcludePlugins().toLowerCase().split(",")));
         }
-        if(options.getExcludeHooks() != null && !options.getExcludeHooks().isEmpty()){
+        if (options.getExcludeHooks() != null && !options.getExcludeHooks().isEmpty()) {
             config.setExcludeHooks(List.of(options.getExcludeHooks().split(",")));
         }
-        if(options.getHookPrefixes() != null && !options.getHookPrefixes().isEmpty()){
+        if (options.getHookPrefixes() != null && !options.getHookPrefixes().isEmpty()) {
             config.setHookPrefixes(List.of(options.getHookPrefixes().split(",")));
         }
-        if(options.getExternalHooksJars() != null && !options.getExternalHooksJars().isEmpty()){
+        if (options.getExternalHooksJars() != null && !options.getExternalHooksJars().isEmpty()) {
             config.setExternalHooksJars(options.getExternalHooksJars());
         }
-        if(options.getLocalCheckoutDir() != null && !options.getLocalCheckoutDir().isEmpty()){
+        if (options.getLocalCheckoutDir() != null && !options.getLocalCheckoutDir().isEmpty()) {
             config.setLocalCheckoutDir(options.getLocalCheckoutDir());
         }
-        if(options.getTestJDKHome() != null) {
+        if (options.getTestJDKHome() != null) {
             config.setTestJDKHome(options.getTestJDKHome());
         }
         if (options.getTestJavaArgs() != null && !options.getTestJavaArgs().isEmpty()) {
             config.setTestJavaArgs(options.getTestJavaArgs());
         }
-        if (options.getFallbackGitHubOrganization() != null){
+        if (options.getFallbackGitHubOrganization() != null) {
             config.setFallbackGitHubOrganization(options.getFallbackGitHubOrganization());
         }
         if (options.isFailOnError()) {
-            //TODO: also interpolate it for the case when a single plugin passed?
+            // TODO: also interpolate it for the case when a single plugin passed?
             config.setFailOnError(true);
         }
 
@@ -149,8 +151,9 @@ public class PluginCompatTesterCli {
             }
             config.setMavenProperties(mavenProps);
         }
-        //TODO: Read property file here as well? No sense to do it letter unless PCT Hooks modify file
-        if(options.getMavenPropertiesFile() != null) {
+        // TODO: Read property file here as well? No sense to do it letter unless PCT Hooks modify
+        // file
+        if (options.getMavenPropertiesFile() != null) {
             config.setMavenPropertiesFiles(options.getMavenPropertiesFile());
         }
 

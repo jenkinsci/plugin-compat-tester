@@ -63,10 +63,10 @@ public class MavenPom {
 
     private static final Logger LOGGER = Logger.getLogger(MavenPom.class.getName());
 
-    private final static String GROUP_ID_ELEMENT = "groupId";
-    private final static String ARTIFACT_ID_ELEMENT = "artifactId";
-    private final static String VERSION_ELEMENT = "version";
-    private final static String CLASSIFIER_ELEMENT = "classifier";
+    private static final String GROUP_ID_ELEMENT = "groupId";
+    private static final String ARTIFACT_ID_ELEMENT = "artifactId";
+    private static final String VERSION_ELEMENT = "version";
+    private static final String CLASSIFIER_ELEMENT = "classifier";
 
     private File rootDir;
     private String pomFileName;
@@ -113,14 +113,14 @@ public class MavenPom {
 
             writeDocument(pom, doc);
         } catch (Exception e) {
-            throw new PomTransformationException("Error while transforming pom : " + pom.getAbsolutePath(), e);
+            throw new PomTransformationException(
+                    "Error while transforming pom : " + pom.getAbsolutePath(), e);
         }
     }
 
-    /**
-     * Removes the dependency if it exists.
-     */
-    public void removeDependency(@NonNull String groupId, @NonNull String artifactId) throws IOException {
+    /** Removes the dependency if it exists. */
+    public void removeDependency(@NonNull String groupId, @NonNull String artifactId)
+            throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -141,8 +141,10 @@ public class MavenPom {
 
             Element groupIdElem = mavenDependency.element(GROUP_ID_ELEMENT);
             if (groupIdElem != null && groupId.equalsIgnoreCase(groupIdElem.getText())) {
-                LOGGER.log(Level.WARNING, "Removing dependency on {0}:{1}",
-                        new Object[]{groupId, artifactId});
+                LOGGER.log(
+                        Level.WARNING,
+                        "Removing dependency on {0}:{1}",
+                        new Object[] {groupId, artifactId});
                 dependencies.remove(mavenDependency);
             }
         }
@@ -152,9 +154,11 @@ public class MavenPom {
 
     /**
      * Create/Update a plugin management section with a set of plugins
+     *
      * @param includeGroupId - specify if we want to add the groupId or not
      */
-    public void addPluginManagement(List<MavenCoordinates> pluginsToAdd, boolean includeGroupId) throws IOException {
+    public void addPluginManagement(List<MavenCoordinates> pluginsToAdd, boolean includeGroupId)
+            throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
@@ -192,9 +196,7 @@ public class MavenPom {
         writeDocument(pom, doc);
     }
 
-    /**
-     * Create/Update the properties section adding/updating some of them
-     */
+    /** Create/Update the properties section adding/updating some of them */
     public void addProperties(Properties propertiesToAdd) throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
@@ -210,17 +212,23 @@ public class MavenPom {
         }
 
         for (Entry<Object, Object> property : propertiesToAdd.entrySet()) {
-            String key = (String)property.getKey();
+            String key = (String) property.getKey();
             Element entry = properties.element(key);
             if (entry == null) {
                 entry = properties.addElement(key);
             }
-            entry.setText((String)property.getValue());
+            entry.setText((String) property.getValue());
         }
         writeDocument(pom, doc);
     }
 
-    public void addDependencies(Map<String, VersionNumber> toAdd, Map<String, VersionNumber> toReplace, Map<String, VersionNumber> toAddTest, Map<String, VersionNumber> toReplaceTest, Map<String, String> pluginGroupIds, List<String> toConvert)
+    public void addDependencies(
+            Map<String, VersionNumber> toAdd,
+            Map<String, VersionNumber> toReplace,
+            Map<String, VersionNumber> toAddTest,
+            Map<String, VersionNumber> toReplaceTest,
+            Map<String, String> pluginGroupIds,
+            List<String> toConvert)
             throws IOException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
@@ -234,26 +242,48 @@ public class MavenPom {
             dependencies = doc.getRootElement().addElement("dependencies");
         }
 
-        manageDependencies(toAdd, toReplace, toAddTest, toReplaceTest, pluginGroupIds, doc, dependencies, true);
+        manageDependencies(
+                toAdd,
+                toReplace,
+                toAddTest,
+                toReplaceTest,
+                pluginGroupIds,
+                doc,
+                dependencies,
+                true);
         Element profiles = doc.getRootElement().element("profiles");
         if (profiles != null) {
             Map<String, VersionNumber> empty = new HashMap<>();
             Iterator<Element> elementIterator = profiles.elementIterator("profile");
-            while(elementIterator.hasNext()) {
+            while (elementIterator.hasNext()) {
                 Element e = elementIterator.next();
                 Element profileDependencies = e.element("dependencies");
                 if (profileDependencies == null) {
                     continue;
                 }
-                manageDependencies(empty, toReplace, empty, toReplaceTest, pluginGroupIds, doc, profileDependencies, false);
+                manageDependencies(
+                        empty,
+                        toReplace,
+                        empty,
+                        toReplaceTest,
+                        pluginGroupIds,
+                        doc,
+                        profileDependencies,
+                        false);
             }
         }
         writeDocument(pom, doc);
     }
 
-    private void manageDependencies(Map<String, VersionNumber> toAdd, Map<String, VersionNumber> toReplace,
-            Map<String, VersionNumber> toAddTest, Map<String, VersionNumber> toReplaceTest,
-            Map<String, String> pluginGroupIds, Document doc, Element dependencies, boolean addition) {
+    private void manageDependencies(
+            Map<String, VersionNumber> toAdd,
+            Map<String, VersionNumber> toReplace,
+            Map<String, VersionNumber> toAddTest,
+            Map<String, VersionNumber> toReplaceTest,
+            Map<String, String> pluginGroupIds,
+            Document doc,
+            Element dependencies,
+            boolean addition) {
         Set<String> depsWithoutClassifier = new HashSet<>();
         for (Element mavenDependency : dependencies.elements("dependency")) {
             Element artifactId = mavenDependency.element(ARTIFACT_ID_ELEMENT);
@@ -314,12 +344,16 @@ public class MavenPom {
             Element scope = mavenDependency.element("scope");
             if (scope != null && scope.getTextTrim().equals("test")) {
                 toReplaceTestUsed.put(trimmedArtifactId, replacement);
-                if (toReplaceTest.containsKey(trimmedArtifactId) && !depsWithoutClassifier.contains(trimmedArtifactId)) { // https://github.com/jenkinsci/bom/pull/301#issuecomment-694518923
+                if (toReplaceTest.containsKey(trimmedArtifactId)
+                        && !depsWithoutClassifier.contains(trimmedArtifactId)) {
+                    // https://github.com/jenkinsci/bom/pull/301#issuecomment-694518923
                     Element mainDep = mavenDependency.createCopy();
                     Element classifier = mainDep.element(CLASSIFIER_ELEMENT);
                     if (classifier != null) {
                         mainDep.remove(classifier);
-                        dependencies.add(mainDep); // would prefer to insert just before mavenDependency but API does not seem to support this
+                        // would prefer to insert just before mavenDependency but API does not seem
+                        // to support this
+                        dependencies.add(mainDep);
                     }
                 }
             } else {
@@ -328,7 +362,8 @@ public class MavenPom {
         }
 
         if (addition) {
-            // If the replacement dependencies weren't explicitly present in the pom, add them directly now
+            // If the replacement dependencies weren't explicitly present in the pom, add them
+            // directly now
             toReplace.entrySet().removeAll(toReplaceUsed.entrySet());
             toReplaceTest.entrySet().removeAll(toReplaceTestUsed.entrySet());
             toAdd.putAll(toReplace);
@@ -340,10 +375,12 @@ public class MavenPom {
         }
     }
 
-    /**
-     * Add the given new plugins to the pom file.
-     */
-    private void addPlugins(Map<String, VersionNumber> adding, Map<String, String> pluginGroupIds, Element dependencies, String scope) {
+    /** Add the given new plugins to the pom file. */
+    private void addPlugins(
+            Map<String, VersionNumber> adding,
+            Map<String, String> pluginGroupIds,
+            Element dependencies,
+            String scope) {
         for (Map.Entry<String, VersionNumber> dep : adding.entrySet()) {
             Element dependency = dependencies.addElement("dependency");
             String group = pluginGroupIds.get(dep.getKey());
@@ -384,5 +421,4 @@ public class MavenPom {
             return Charset.defaultCharset();
         }
     }
-
 }

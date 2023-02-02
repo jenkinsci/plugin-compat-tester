@@ -10,30 +10,23 @@ import net.sf.json.JSONObject;
 
 public final class UpdateSite {
 
-    /**
-     * In-memory representation of the update center data.
-     */
+    /** In-memory representation of the update center data. */
     public static final class Data {
-        /**
-         * The {@link UpdateSite} ID.
-         */
+        /** The {@link UpdateSite} ID. */
         @NonNull public final String sourceId;
 
-        /**
-         * The latest jenkins.war.
-         */
+        /** The latest jenkins.war. */
         @NonNull public final Entry core;
 
-        /**
-         * Plugins in the repository, keyed by their artifact IDs.
-         */
+        /** Plugins in the repository, keyed by their artifact IDs. */
         @NonNull
         public final Map<String, Plugin> plugins = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
         public Data(JSONObject o) {
             this.sourceId = o.getString("id");
             this.core = new Entry(sourceId, o.getJSONObject("core"));
-            for (Map.Entry<String, JSONObject> e : (Set<Map.Entry<String, JSONObject>>) o.getJSONObject("plugins").entrySet()) {
+            for (Map.Entry<String, JSONObject> e :
+                    (Set<Map.Entry<String, JSONObject>>) o.getJSONObject("plugins").entrySet()) {
                 Plugin p = new Plugin(sourceId, e.getValue());
                 plugins.put(e.getKey(), p);
             }
@@ -41,24 +34,16 @@ public final class UpdateSite {
     }
 
     public static class Entry {
-        /**
-         * {@link UpdateSite} ID.
-         */
+        /** {@link UpdateSite} ID. */
         @NonNull public final String sourceId;
 
-        /**
-         * Artifact ID.
-         */
+        /** Artifact ID. */
         @NonNull public final String name;
 
-        /**
-         * The version.
-         */
+        /** The version. */
         @NonNull public final String version;
 
-        /**
-         * Download URL.
-         */
+        /** Download URL. */
         @NonNull public final String url;
 
         public Entry(String sourceId, JSONObject o) {
@@ -70,19 +55,13 @@ public final class UpdateSite {
     }
 
     public static class Plugin extends Entry {
-        /**
-         * Human readable title of the plugin.
-         */
+        /** Human readable title of the plugin. */
         @CheckForNull public final String title;
 
-        /**
-         * Dependencies of this plugin, a name -&gt; version mapping.
-         */
+        /** Dependencies of this plugin, a name -&gt; version mapping. */
         @NonNull public final Map<String, String> dependencies = new HashMap<>();
 
-        /**
-         * Optional dependencies of this plugin.
-         */
+        /** Optional dependencies of this plugin. */
         @NonNull public final Map<String, String> optionalDependencies = new HashMap<>();
 
         public Plugin(String sourceId, JSONObject o) {

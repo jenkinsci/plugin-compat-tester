@@ -56,13 +56,13 @@ public class PluginCompatReport {
     private SortedSet<MavenCoordinates> testedCoreCoordinates;
     private String testJavaVersion;
 
-    public PluginCompatReport(){
+    public PluginCompatReport() {
         this.pluginCompatTests = new TreeMap<>();
         this.testedCoreCoordinates = new TreeSet<>();
     }
 
-    public void add(PluginInfos infos, PluginCompatResult result){
-        if(!this.pluginCompatTests.containsKey(infos)){
+    public void add(PluginInfos infos, PluginCompatResult result) {
+        if (!this.pluginCompatTests.containsKey(infos)) {
             this.pluginCompatTests.put(infos, new ArrayList<>());
         }
 
@@ -77,7 +77,7 @@ public class PluginCompatReport {
 
     public void save(File reportPath) throws IOException {
         // Ensuring every PluginCompatResult list is sorted
-        for(List<PluginCompatResult> results : this.pluginCompatTests.values()){
+        for (List<PluginCompatResult> results : this.pluginCompatTests.values()) {
             Collections.sort(results);
         }
 
@@ -86,7 +86,11 @@ public class PluginCompatReport {
         try (Writer out =
                 Files.newBufferedWriter(tempReportPath.toPath(), Charset.defaultCharset())) {
             out.write(String.format("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>%n"));
-            out.write(String.format("<?xml-stylesheet href=\"" + getXslFilename(reportPath) + "\" type=\"text/xsl\"?>%n"));
+            out.write(
+                    String.format(
+                            "<?xml-stylesheet href=\""
+                                    + getXslFilename(reportPath)
+                                    + "\" type=\"text/xsl\"?>%n"));
             XStream xstream = createXStream();
             xstream.toXML(this, out);
             out.flush();
@@ -96,28 +100,31 @@ public class PluginCompatReport {
         Files.move(tempReportPath.toPath(), reportPath.toPath(), StandardCopyOption.ATOMIC_MOVE);
     }
 
-    public static String getXslFilename(@NonNull File reportPath){
-        return getBaseFilename(reportPath)+".xsl";
+    public static String getXslFilename(@NonNull File reportPath) {
+        return getBaseFilename(reportPath) + ".xsl";
     }
 
-    public static File getXslFilepath(@NonNull File reportPath){
-        return new File(getBaseFilepath(reportPath)+".xsl");
+    public static File getXslFilepath(@NonNull File reportPath) {
+        return new File(getBaseFilepath(reportPath) + ".xsl");
     }
 
-    public static File getHtmlFilepath(@NonNull File reportPath){
-        return new File(getBaseFilepath(reportPath)+".html");
+    public static File getHtmlFilepath(@NonNull File reportPath) {
+        return new File(getBaseFilepath(reportPath) + ".html");
     }
 
-    public static String getBaseFilepath(@NonNull File reportPath){
+    public static String getBaseFilepath(@NonNull File reportPath) {
         File parentFile = reportPath.getParentFile();
         if (parentFile == null) {
-            throw new IllegalArgumentException("The report path " + reportPath + " does not have a directory specification. " +
-                    "A correct path should be something like 'out/pct-report.xml'");
+            throw new IllegalArgumentException(
+                    "The report path "
+                            + reportPath
+                            + " does not have a directory specification. "
+                            + "A correct path should be something like 'out/pct-report.xml'");
         }
-        return parentFile.getAbsolutePath()+"/"+getBaseFilename(reportPath);
+        return parentFile.getAbsolutePath() + "/" + getBaseFilename(reportPath);
     }
 
-    public static String getBaseFilename(File reportPath){
+    public static String getBaseFilename(File reportPath) {
         return reportPath.getName().split("\\.")[0];
     }
 
@@ -134,25 +141,31 @@ public class PluginCompatReport {
 
         // Reading report file from reportPath
         XStream xstream = createXStream();
-        try(FileInputStream istream = new FileInputStream(reportPath)) {
-            report = (PluginCompatReport)xstream.fromXML(istream);
+        try (FileInputStream istream = new FileInputStream(reportPath)) {
+            report = (PluginCompatReport) xstream.fromXML(istream);
         } catch (FileNotFoundException e) {
             // Path doesn't exist => create a new report object
             report = new PluginCompatReport();
         }
 
         // Ensuring we are using a TreeMap for pluginCompatTests
-        if(!(report.pluginCompatTests instanceof SortedMap)){
+        if (!(report.pluginCompatTests instanceof SortedMap)) {
             report.pluginCompatTests = new TreeMap<>(report.pluginCompatTests);
         }
 
         return report;
     }
 
-    private static XStream createXStream(){
+    private static XStream createXStream() {
         XStream xstream = new XStream(new MXParserDomDriver());
         xstream.setMode(XStream.NO_REFERENCES);
-        xstream.allowTypes(new Class[] {MavenCoordinates.class, PluginCompatReport.class, PluginCompatResult.class, PluginInfos.class});
+        xstream.allowTypes(
+                new Class[] {
+                    MavenCoordinates.class,
+                    PluginCompatReport.class,
+                    PluginCompatResult.class,
+                    PluginInfos.class
+                });
         xstream.alias("pluginInfos", PluginInfos.class);
         xstream.alias("coord", MavenCoordinates.class);
         xstream.alias("compatResult", PluginCompatResult.class);
@@ -173,7 +186,7 @@ public class PluginCompatReport {
         return testJavaVersion;
     }
 
-    public Map<PluginInfos, List<PluginCompatResult>> getPluginCompatTests(){
+    public Map<PluginInfos, List<PluginCompatResult>> getPluginCompatTests() {
         return new TreeMap<>(pluginCompatTests);
     }
 }

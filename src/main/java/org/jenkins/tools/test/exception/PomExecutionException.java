@@ -46,25 +46,39 @@ public class PomExecutionException extends Exception {
     private final ExecutedTestNamesDetails testDetails;
 
     public PomExecutionException(Throwable cause) {
-        this(cause.toString(), Collections.emptyList(), List.of(cause), new ExecutedTestNamesDetails());
+        this(
+                cause.toString(),
+                Collections.emptyList(),
+                List.of(cause),
+                new ExecutedTestNamesDetails());
     }
 
-    public PomExecutionException(PomExecutionException exceptionToCopy){
-        this(exceptionToCopy.getMessage(), exceptionToCopy.succeededPluginArtifactIds, exceptionToCopy.exceptionsThrown, exceptionToCopy.testDetails);
+    public PomExecutionException(PomExecutionException exceptionToCopy) {
+        this(
+                exceptionToCopy.getMessage(),
+                exceptionToCopy.succeededPluginArtifactIds,
+                exceptionToCopy.exceptionsThrown,
+                exceptionToCopy.testDetails);
     }
 
-    public PomExecutionException(String message, List<String> succeededPluginArtifactIds, List<Throwable> exceptionsThrown, ExecutedTestNamesDetails testDetails){
+    public PomExecutionException(
+            String message,
+            List<String> succeededPluginArtifactIds,
+            List<Throwable> exceptionsThrown,
+            ExecutedTestNamesDetails testDetails) {
         super(message, exceptionsThrown.isEmpty() ? null : exceptionsThrown.iterator().next());
         this.exceptionsThrown = new ArrayList<>(exceptionsThrown);
         this.succeededPluginArtifactIds = new ArrayList<>(succeededPluginArtifactIds);
         this.testDetails = testDetails;
     }
 
-    public String getErrorMessage(){
+    public String getErrorMessage() {
         StringBuilder strBldr = new StringBuilder();
-        strBldr.append(String.format("Message : %s %n %nExecuted plugins : %s %n %nStacktraces :%n",
-                this.getMessage(), Arrays.toString(succeededPluginArtifactIds.toArray())));
-        for(Throwable t : exceptionsThrown){
+        strBldr.append(
+                String.format(
+                        "Message : %s %n %nExecuted plugins : %s %n %nStacktraces :%n",
+                        this.getMessage(), Arrays.toString(succeededPluginArtifactIds.toArray())));
+        for (Throwable t : exceptionsThrown) {
             Writer writer = new StringWriter();
             PrintWriter printWriter = new PrintWriter(writer);
             t.printStackTrace(printWriter);

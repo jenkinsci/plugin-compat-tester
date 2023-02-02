@@ -18,14 +18,29 @@ public class JacocoHookTest {
     @Test
     public void testCheckMethod() {
         final JacocoHook hook = new JacocoHook();
-        final MavenCoordinates parent = new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.57");
+        final MavenCoordinates parent =
+                new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.57");
 
-        PomData pomData = new PomData("jacoco", "hpi", "it-does-not-matter", "whatever", parent, "org.jenkins-ci.plugins");
+        PomData pomData =
+                new PomData(
+                        "jacoco",
+                        "hpi",
+                        "it-does-not-matter",
+                        "whatever",
+                        parent,
+                        "org.jenkins-ci.plugins");
         Map<String, Object> info = new HashMap<>();
         info.put("pomData", pomData);
         assertTrue(hook.check(info));
 
-        pomData = new PomData("other-plugin", "hpi", "it-does-not-matter", "whatever", parent, "org.jenkins-ci.plugins");
+        pomData =
+                new PomData(
+                        "other-plugin",
+                        "hpi",
+                        "it-does-not-matter",
+                        "whatever",
+                        parent,
+                        "org.jenkins-ci.plugins");
         info = new HashMap<>();
         info.put("pomData", pomData);
         assertFalse(hook.check(info));
@@ -36,32 +51,34 @@ public class JacocoHookTest {
         final JacocoHook hook = new JacocoHook();
 
         Map<String, Object> info = new HashMap<>();
-        info.put("args", new ArrayList<>(List.of(
-                "--define=forkCount=1",
-                "hpi:resolve-test-dependencies",
-                "hpi:test-hpl",
-                "surefire:test")));
+        info.put(
+                "args",
+                new ArrayList<>(
+                        List.of(
+                                "--define=forkCount=1",
+                                "hpi:resolve-test-dependencies",
+                                "hpi:test-hpl",
+                                "surefire:test")));
         Map<String, Object> afterAction = hook.action(info);
         List<String> args = (List<String>) afterAction.get("args");
         assertThat(args.size(), is(5));
         assertThat(args.get(1), is("jacoco:prepare-agent"));
 
         info = new HashMap<>();
-        info.put("args", new ArrayList<>(List.of(
-                "--define=forkCount=1",
-                "other-plugin:other-goal",
-                "surefire:test")));
+        info.put(
+                "args",
+                new ArrayList<>(
+                        List.of(
+                                "--define=forkCount=1",
+                                "other-plugin:other-goal",
+                                "surefire:test")));
         afterAction = hook.action(info);
         args = (List<String>) afterAction.get("args");
         assertThat(args.size(), is(4));
         assertThat(args.get(2), is("jacoco:prepare-agent"));
 
         info = new HashMap<>();
-        info.put("args", new ArrayList<>(List.of(
-                "element1",
-                "element2",
-                "element3",
-                "element4")));
+        info.put("args", new ArrayList<>(List.of("element1", "element2", "element3", "element4")));
         afterAction = hook.action(info);
         args = (List<String>) afterAction.get("args");
         assertThat(args.size(), is(4));

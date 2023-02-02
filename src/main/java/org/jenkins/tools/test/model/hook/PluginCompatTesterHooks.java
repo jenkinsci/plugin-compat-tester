@@ -33,12 +33,11 @@ public class PluginCompatTesterHooks {
 
     private ClassLoader classLoader = PluginCompatTesterHooks.class.getClassLoader();
     private List<String> hookPrefixes = new ArrayList<>();
-    private static Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType = new HashMap<>();
+    private static Map<String, Map<String, Queue<PluginCompatTesterHook>>> hooksByType =
+            new HashMap<>();
     private List<String> excludeHooks = new ArrayList<>();
 
-    /**
-     * Create and prepopulate the various hooks for this run of Plugin Compatibility Tester.
-     */
+    /** Create and prepopulate the various hooks for this run of Plugin Compatibility Tester. */
     public PluginCompatTesterHooks() {
         this(new ArrayList<>());
     }
@@ -48,11 +47,14 @@ public class PluginCompatTesterHooks {
         setupHooksByType();
     }
 
-    public PluginCompatTesterHooks(List<String> extraPrefixes, List<File> externalJars) throws MalformedURLException {
+    public PluginCompatTesterHooks(List<String> extraPrefixes, List<File> externalJars)
+            throws MalformedURLException {
         this(extraPrefixes, externalJars, Collections.emptyList());
     }
 
-    public PluginCompatTesterHooks(List<String> extraPrefixes, List<File> externalJars, List<String> excludeHooks) throws MalformedURLException {
+    public PluginCompatTesterHooks(
+            List<String> extraPrefixes, List<File> externalJars, List<String> excludeHooks)
+            throws MalformedURLException {
         setupPrefixes(extraPrefixes);
         setupExternalClassLoaders(externalJars);
         setupHooksByType();
@@ -68,7 +70,7 @@ public class PluginCompatTesterHooks {
     }
 
     private void setupPrefixes(List<String> extraPrefixes) {
-        if(extraPrefixes != null) {
+        if (extraPrefixes != null) {
             hookPrefixes.addAll(extraPrefixes);
         }
     }
@@ -103,14 +105,15 @@ public class PluginCompatTesterHooks {
      * @param stage stage in which to run the hooks
      * @param elements relevant information to hooks at various stages.
      */
-    private Map<String, Object> runHooks(String stage, Map<String, Object> elements) throws RuntimeException {
+    private Map<String, Object> runHooks(String stage, Map<String, Object> elements)
+            throws RuntimeException {
         Queue<PluginCompatTesterHook> beforeHooks = getHooksFromStage(stage, elements);
 
         // Loop through hooks in a series run in no particular order
         // Modifications build on each other, pertinent checks should be handled in the hook
-        for(PluginCompatTesterHook hook : beforeHooks) {
+        for (PluginCompatTesterHook hook : beforeHooks) {
             try {
-                if(!excludeHooks.contains(hook.getClass().getName()) && hook.check(elements)) {
+                if (!excludeHooks.contains(hook.getClass().getName()) && hook.check(elements)) {
                     LOGGER.log(Level.INFO, "Running hook: {0}", hook.getClass().getName());
                     elements = hook.action(elements);
                     hook.validate(elements);
@@ -118,7 +121,7 @@ public class PluginCompatTesterHooks {
                     LOGGER.log(Level.FINE, "Skipping hook: {0}", hook.getClass().getName());
                 }
             } catch (RuntimeException re) {
-                //this type of exception should stop processing the plugins. Throw it up the chain
+                // this type of exception should stop processing the plugins. Throw it up the chain
                 throw re;
             } catch (Exception ex) {
                 LOGGER.log(Level.WARNING, "Failed to run hook; continuing", ex);
@@ -127,18 +130,19 @@ public class PluginCompatTesterHooks {
         return elements;
     }
 
-    public static Queue<PluginCompatTesterHook> getHooksFromStage(String stage, Map<String, Object> elements) {
+    public static Queue<PluginCompatTesterHook> getHooksFromStage(
+            String stage, Map<String, Object> elements) {
         // List of hooks to execute for the given plugin
         Queue<PluginCompatTesterHook> hooks = new LinkedList<>();
 
         // Add any hooks that apply for all plugins
-        if(hooksByType.get(stage).get("all") != null) {
+        if (hooksByType.get(stage).get("all") != null) {
             hooks.addAll(hooksByType.get(stage).get("all"));
         }
 
         // Add hooks that applied to this concrete plugin
-        String pluginName = (String)elements.get("pluginName");
-        if(hooksByType.get(stage).get(pluginName) != null) {
+        String pluginName = (String) elements.get("pluginName");
+        if (hooksByType.get(stage).get(pluginName) != null) {
             hooks.addAll(hooksByType.get(stage).get(pluginName));
         }
         return hooks;
@@ -157,36 +161,34 @@ public class PluginCompatTesterHooks {
         Set<Class<? extends PluginCompatTesterHook>> subTypes;
 
         // Find all steps for a given stage. Long due to casting
-        switch(stage) {
-        case "compilation" :
-            Set<Class<? extends PluginCompatTesterHookBeforeCompile>> compSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCompile.class);
-            subTypes = compSteps.stream()
-                    .map(this::casting)
-                    .collect(Collectors.toSet());
-            break;
-        case "execution" :
-            Set<Class<? extends PluginCompatTesterHookBeforeExecution>> exeSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeExecution.class);
-            subTypes = exeSteps.stream()
-                    .map(this::casting)
-                    .collect(Collectors.toSet());
-            break;
-        case "checkout" :
-            Set<Class<? extends PluginCompatTesterHookBeforeCheckout>> checkSteps = reflections.getSubTypesOf(PluginCompatTesterHookBeforeCheckout.class);
-            subTypes = checkSteps.stream()
-                    .map(this::casting)
-                    .collect(Collectors.toSet());
-            break;
-        default: // Not valid; nothing will get executed
-            return new HashMap<>();
+        switch (stage) {
+            case "compilation":
+                Set<Class<? extends PluginCompatTesterHookBeforeCompile>> compSteps =
+                        reflections.getSubTypesOf(PluginCompatTesterHookBeforeCompile.class);
+                subTypes = compSteps.stream().map(this::casting).collect(Collectors.toSet());
+                break;
+            case "execution":
+                Set<Class<? extends PluginCompatTesterHookBeforeExecution>> exeSteps =
+                        reflections.getSubTypesOf(PluginCompatTesterHookBeforeExecution.class);
+                subTypes = exeSteps.stream().map(this::casting).collect(Collectors.toSet());
+                break;
+            case "checkout":
+                Set<Class<? extends PluginCompatTesterHookBeforeCheckout>> checkSteps =
+                        reflections.getSubTypesOf(PluginCompatTesterHookBeforeCheckout.class);
+                subTypes = checkSteps.stream().map(this::casting).collect(Collectors.toSet());
+                break;
+            default: // Not valid; nothing will get executed
+                return new HashMap<>();
         }
 
-        for(Class<?> c : subTypes) {
+        for (Class<?> c : subTypes) {
             // Ignore abstract hooks
             if (!Modifier.isAbstract(c.getModifiers())) {
                 try {
                     LOGGER.log(Level.FINE, "Loading hook: {0}", c.getName());
                     Constructor<?> constructor = c.getConstructor();
-                    PluginCompatTesterHook hook = (PluginCompatTesterHook) constructor.newInstance();
+                    PluginCompatTesterHook hook =
+                            (PluginCompatTesterHook) constructor.newInstance();
 
                     List<String> plugins = hook.transformedPlugins();
                     for (String plugin : plugins) {
@@ -198,7 +200,10 @@ public class PluginCompatTesterHooks {
                         sortedHooks.put(plugin, allForType);
                     }
                 } catch (Exception ex) {
-                    LOGGER.log(Level.WARNING, "Error when loading " + c.getName() + "; continuing", ex);
+                    LOGGER.log(
+                            Level.WARNING,
+                            "Error when loading " + c.getName() + "; continuing",
+                            ex);
                 }
             }
         }
@@ -211,7 +216,8 @@ public class PluginCompatTesterHooks {
      * Set}s. Gets around a generics error: {@code incompatible types: inference variable T has
      * incompatible bounds}.
      */
-    private Class<? extends PluginCompatTesterHook> casting(Class<? extends PluginCompatTesterHook> c) {
+    private Class<? extends PluginCompatTesterHook> casting(
+            Class<? extends PluginCompatTesterHook> c) {
         return c;
     }
 }

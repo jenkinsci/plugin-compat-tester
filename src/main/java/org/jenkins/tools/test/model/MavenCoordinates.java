@@ -46,50 +46,61 @@ public class MavenCoordinates implements Comparable<MavenCoordinates> {
      *
      * @throws IllegalArgumentException one of the parameters is invalid.
      */
-    public MavenCoordinates(@NonNull String groupId, @NonNull String artifactId, @NonNull String version){
-        this.groupId = verifyInput( groupId, artifactId, version,"groupId", groupId);
-        this.artifactId = verifyInput( groupId, artifactId, version,"artifactId", artifactId);
-        this.version = verifyInput( groupId, artifactId, version,"version", version);
+    public MavenCoordinates(
+            @NonNull String groupId, @NonNull String artifactId, @NonNull String version) {
+        this.groupId = verifyInput(groupId, artifactId, version, "groupId", groupId);
+        this.artifactId = verifyInput(groupId, artifactId, version, "artifactId", artifactId);
+        this.version = verifyInput(groupId, artifactId, version, "version", version);
     }
 
-    private static String verifyInput(String groupId, String artifactId, String version,
-                                      String fieldName, String value) throws IllegalArgumentException {
+    private static String verifyInput(
+            String groupId, String artifactId, String version, String fieldName, String value)
+            throws IllegalArgumentException {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(
-                    String.format("Invalid parameter passed for %s:%s:%s: Field %s; %s",
+                    String.format(
+                            "Invalid parameter passed for %s:%s:%s: Field %s; %s",
                             groupId, artifactId, version, fieldName, value));
         }
         return value.trim();
     }
 
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MavenCoordinates c2 = (MavenCoordinates)o;
-        return Objects.equals(groupId, c2.groupId) && Objects.equals(artifactId, c2.artifactId) && Objects.equals(version, c2.version);
+        MavenCoordinates c2 = (MavenCoordinates) o;
+        return Objects.equals(groupId, c2.groupId)
+                && Objects.equals(artifactId, c2.artifactId)
+                && Objects.equals(version, c2.version);
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return Objects.hash(groupId, artifactId, version);
     }
 
     @Override
-    public String toString(){
-        return "MavenCoordinates[groupId="+groupId+", artifactId="+artifactId+", version="+version+"]";
+    public String toString() {
+        return "MavenCoordinates[groupId="
+                + groupId
+                + ", artifactId="
+                + artifactId
+                + ", version="
+                + version
+                + "]";
     }
 
     @Override
     public int compareTo(MavenCoordinates o) {
-        if((groupId+":"+artifactId).equals(o.groupId+":"+o.artifactId)){
+        if ((groupId + ":" + artifactId).equals(o.groupId + ":" + o.artifactId)) {
             return compareVersionTo(o.version);
         } else {
-            return (groupId+":"+artifactId).compareTo(o.groupId+":"+o.artifactId);
+            return (groupId + ":" + artifactId).compareTo(o.groupId + ":" + o.artifactId);
         }
     }
 

@@ -9,11 +9,12 @@ import org.jenkins.tools.test.model.PomData;
  */
 public class DeclarativePipelineHook extends AbstractMultiParentHook {
 
-    private static final Set<String> ARTIFACT_IDS = Set.of(
-            "pipeline-model-api",
-            "pipeline-model-definition",
-            "pipeline-model-extensions",
-            "pipeline-stage-tags-metadata");
+    private static final Set<String> ARTIFACT_IDS =
+            Set.of(
+                    "pipeline-model-api",
+                    "pipeline-model-definition",
+                    "pipeline-model-extensions",
+                    "pipeline-stage-tags-metadata");
 
     @Override
     protected String getParentFolder() {

@@ -49,11 +49,12 @@ import org.jvnet.hudson.test.Issue;
  */
 public class PluginCompatTesterTest {
 
-    private static final String REPORT_FILE = String.format("%s%sreports%sPluginCompatReport.xml",
-            System.getProperty("java.io.tmpdir"), File.separator, File.separator);
+    private static final String REPORT_FILE =
+            String.format(
+                    "%s%sreports%sPluginCompatReport.xml",
+                    System.getProperty("java.io.tmpdir"), File.separator, File.separator);
 
-    @Rule
-    public TemporaryFolder testFolder = new TemporaryFolder();
+    @Rule public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
@@ -166,11 +167,13 @@ public class PluginCompatTesterTest {
     @Issue("JENKINS-50454")
     public void testCustomWarPackagerVersions() {
         // TODO: needs more filtering
-        String fileName = "WEB-INF/lib/jenkins-core-256.0-my-branch-2090468d82e49345519a2457f1d1e7426f01540b-SNAPSHOT.jar";
+        String fileName =
+                "WEB-INF/lib/jenkins-core-256.0-my-branch-2090468d82e49345519a2457f1d1e7426f01540b-SNAPSHOT.jar";
         Matcher m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
         assertTrue("No matches", m.matches());
 
-        fileName = "WEB-INF/lib/jenkins-core-256.0-2090468d82e49345519a2457f1d1e7426f01540b-2090468d82e49345519a2457f1d1e7426f01540b-SNAPSHOT.jar";
+        fileName =
+                "WEB-INF/lib/jenkins-core-256.0-2090468d82e49345519a2457f1d1e7426f01540b-2090468d82e49345519a2457f1d1e7426f01540b-SNAPSHOT.jar";
         m = Pattern.compile(PluginCompatTester.JENKINS_CORE_FILE_REGEX).matcher(fileName);
         assertTrue("No matches", m.matches());
     }

@@ -10,13 +10,14 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
 public interface MavenRunner {
 
-    void run(Config config, File baseDirectory, File buildLogFile, String... goals) throws PomExecutionException;
+    void run(Config config, File baseDirectory, File buildLogFile, String... goals)
+            throws PomExecutionException;
 
     class Config {
 
         public final File userSettingsFile;
 
-        public final Map<String,String> userProperties = new TreeMap<>();
+        public final Map<String, String> userProperties = new TreeMap<>();
 
         public final List<String> mavenOptions;
 
@@ -25,7 +26,5 @@ public interface MavenRunner {
             userProperties.putAll(pctConfig.retrieveMavenProperties());
             mavenOptions = pctConfig.getMavenOptions();
         }
-
     }
-
 }

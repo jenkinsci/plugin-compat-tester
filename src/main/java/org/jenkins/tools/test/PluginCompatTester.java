@@ -98,23 +98,28 @@ public class PluginCompatTester {
     private static final String DEFAULT_SOURCE_ID = "default";
 
     /** First version with new parent POM. */
-    public static final String JENKINS_CORE_FILE_REGEX = "WEB-INF/lib/jenkins-core-([0-9.]+(?:-[0-9a-f.]+)*(?:-(?i)([a-z]+)(-)?([0-9a-f.]+)?)?(?:-(?i)([a-z]+)(-)?([0-9a-f_.]+)?)?(?:-SNAPSHOT)?)[.]jar";
+    public static final String JENKINS_CORE_FILE_REGEX =
+            "WEB-INF/lib/jenkins-core-([0-9.]+(?:-[0-9a-f.]+)*(?:-(?i)([a-z]+)(-)?([0-9a-f.]+)?)?(?:-(?i)([a-z]+)(-)?([0-9a-f_.]+)?)?(?:-SNAPSHOT)?)[.]jar";
 
     private PluginCompatTesterConfig config;
     private final ExternalMavenRunner runner;
 
-    public PluginCompatTester(PluginCompatTesterConfig config){
+    public PluginCompatTester(PluginCompatTesterConfig config) {
         this.config = config;
         runner = new ExternalMavenRunner(config.getExternalMaven());
     }
 
-    public PluginCompatReport testPlugins()
-            throws IOException, PomExecutionException {
-        PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(config.getHookPrefixes(), config.getExternalHooksJars(), config.getExcludeHooks());
+    public PluginCompatReport testPlugins() throws IOException, PomExecutionException {
+        PluginCompatTesterHooks pcth =
+                new PluginCompatTesterHooks(
+                        config.getHookPrefixes(),
+                        config.getExternalHooksJars(),
+                        config.getExcludeHooks());
         // Providing XSL Stylesheet along xml report file
-        if(config.reportFile != null){
-            if(config.isProvideXslReport()){
-                Files.createDirectories(Paths.get(PluginCompatReport.getBaseFilepath(config.reportFile)));
+        if (config.reportFile != null) {
+            if (config.isProvideXslReport()) {
+                Files.createDirectories(
+                        Paths.get(PluginCompatReport.getBaseFilepath(config.reportFile)));
                 File xslFilePath = PluginCompatReport.getXslFilepath(config.reportFile);
                 try (InputStream is = getXslTransformerResource()) {
                     Files.copy(is, xslFilePath.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -123,108 +128,149 @@ public class PluginCompatTester {
         }
 
         // Determine the plugin data
-        Map<String, String> pluginGroupIds = new HashMap<>();  // Used to track real plugin groupIds from WARs
+        // Used to track real plugin groupIds from WARs
+        Map<String, String> pluginGroupIds = new HashMap<>();
 
-        // Scan bundled plugins
-        // If there is any bundled plugin, only these plugins will be taken under the consideration for the PCT run
-        UpdateSite.Data data = scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
+        // Scan bundled plugins. If there is any bundled plugin, only these plugins will be taken
+        // under the consideration for the PCT run.
+        UpdateSite.Data data =
+                scanWAR(
+                        config.getWar(),
+                        pluginGroupIds,
+                        "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
         if (!data.plugins.isEmpty()) {
-            // Scan detached plugins to recover proper Group IDs for them
-            // At the moment, we are considering that bomfile contains the info about the detached ones
-            UpdateSite.Data detachedData = scanWAR(config.getWar(), pluginGroupIds, "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
+            // Scan detached plugins to recover proper Group IDs for them. At the moment, we are
+            // considering that bomfile contains the info about the detached ones.
+            UpdateSite.Data detachedData =
+                    scanWAR(
+                            config.getWar(),
+                            pluginGroupIds,
+                            "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
 
             // Add detached if and only if no added as normal one
             if (detachedData != null) {
-                detachedData.plugins.forEach((key, value) -> {
-                    if (!data.plugins.containsKey(key)) {
-                        data.plugins.put(key, value);
-                    }
-                });
+                detachedData.plugins.forEach(
+                        (key, value) -> {
+                            if (!data.plugins.containsKey(key)) {
+                                data.plugins.put(key, value);
+                            }
+                        });
             }
         }
 
         if (data.plugins.isEmpty()) {
-            throw new IOException("List of plugins to check is empty, it is not possible to run PCT");
+            throw new IOException(
+                    "List of plugins to check is empty, it is not possible to run PCT");
         }
 
-        // if there is only one plugin and it's not already resolved (not in the war)
-        // and there is a local checkout available then it needs to be added to the plugins to check
-        if (onlyOnePluginIncluded() && localCheckoutProvided() && !data.plugins.containsKey(config.getIncludePlugins().get(0))) {
+        // if there is only one plugin and it's not already resolved (not in the war) and there is a
+        // local checkout available then it needs to be added to the plugins to check
+        if (onlyOnePluginIncluded()
+                && localCheckoutProvided()
+                && !data.plugins.containsKey(config.getIncludePlugins().get(0))) {
             String artifactId = config.getIncludePlugins().get(0);
             try {
                 UpdateSite.Plugin extracted = extractFromLocalCheckout();
                 data.plugins.put(artifactId, extracted);
             } catch (PluginSourcesUnavailableException e) {
-                LOGGER.log(Level.SEVERE, "Cannot test {0} because plugin sources are not available despite a local checkout being provided", artifactId);
+                LOGGER.log(
+                        Level.SEVERE,
+                        "Cannot test {0} because plugin sources are not available despite a local"
+                                + " checkout being provided",
+                        artifactId);
             }
         }
 
         PluginCompatReport report = PluginCompatReport.fromXml(config.reportFile);
 
-        MavenCoordinates coreCoordinates = new MavenCoordinates("org.jenkins-ci.main", "jenkins-war", data.core.version);
+        MavenCoordinates coreCoordinates =
+                new MavenCoordinates("org.jenkins-ci.main", "jenkins-war", data.core.version);
 
         MavenRunner.Config mconfig = new MavenRunner.Config(config);
         // TODO REMOVE
-        mconfig.userProperties.put( "failIfNoTests", "false" );
+        mconfig.userProperties.put("failIfNoTests", "false");
         report.setTestJavaVersion(config.getTestJavaVersion());
 
         boolean failed = false;
-            LOGGER.log(Level.INFO, "Starting plugin tests on core coordinates {0}", coreCoordinates);
-            for (UpdateSite.Plugin plugin : data.plugins.values()) {
-                if(config.getIncludePlugins()==null || config.getIncludePlugins().contains(plugin.name.toLowerCase())){
-                    PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
+        LOGGER.log(Level.INFO, "Starting plugin tests on core coordinates {0}", coreCoordinates);
+        for (UpdateSite.Plugin plugin : data.plugins.values()) {
+            if (config.getIncludePlugins() == null
+                    || config.getIncludePlugins().contains(plugin.name.toLowerCase())) {
+                PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
 
-                    if(config.getExcludePlugins()!=null && config.getExcludePlugins().contains(plugin.name.toLowerCase())){
-                        LOGGER.log(Level.INFO, "Plugin {0} is in excluded plugins => test skipped", plugin.name);
-                        continue;
-                    }
+                if (config.getExcludePlugins() != null
+                        && config.getExcludePlugins().contains(plugin.name.toLowerCase())) {
+                    LOGGER.log(
+                            Level.INFO,
+                            "Plugin {0} is in excluded plugins => test skipped",
+                            plugin.name);
+                    continue;
+                }
 
-                    String errorMessage = null;
-                    TestStatus status = null;
+                String errorMessage = null;
+                TestStatus status = null;
 
-                    PluginRemoting remote;
-                    if (localCheckoutProvided() && onlyOnePluginIncluded()) {
-                        // Only one plugin and checkout directory provided
-                        remote = new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"));
-                    } else if(localCheckoutProvided()) {
-                        // local directory provided for more than one plugin, so each plugin is allocated in localCheckoutDir/plugin-name
-                        // If there is no subdirectory for the plugin, it will be cloned from scm
-                        File pomFile = new File(new File(config.getLocalCheckoutDir(), plugin.name), "pom.xml");
-                        if (pomFile.exists()) {
-                            remote = new PluginRemoting(pomFile);
-                        } else {
-                            remote = new PluginRemoting(plugin.url);
-                        }
+                PluginRemoting remote;
+                if (localCheckoutProvided() && onlyOnePluginIncluded()) {
+                    // Only one plugin and checkout directory provided
+                    remote = new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"));
+                } else if (localCheckoutProvided()) {
+                    // Local directory provided for more than one plugin, so each plugin is
+                    // allocated in localCheckoutDir/plugin-name. If there is no subdirectory for
+                    // the plugin, it will be cloned from SCM.
+                    File pomFile =
+                            new File(
+                                    new File(config.getLocalCheckoutDir(), plugin.name), "pom.xml");
+                    if (pomFile.exists()) {
+                        remote = new PluginRemoting(pomFile);
                     } else {
-                        // Only one plugin but checkout directory not provided or
-                        // more than a plugin and no local checkout directory provided
                         remote = new PluginRemoting(plugin.url);
                     }
-                    PomData pomData;
-                    try {
-                        pomData = remote.retrievePomData();
-                    } catch (Throwable t) {
-                        status = TestStatus.INTERNAL_ERROR;
-                        LOGGER.log(Level.SEVERE, String.format("Internal error while executing a test for core %s and plugin %s %s. Please submit a bug to plugin-compat-tester",
-                                coreCoordinates.version, plugin.getDisplayName(), plugin.version), t);
-                        errorMessage = t.getMessage();
-                        pomData = null;
-                    }
+                } else {
+                    // Only one plugin but checkout directory not provided or more than a plugin and
+                    // no local checkout directory provided
+                    remote = new PluginRemoting(plugin.url);
+                }
+                PomData pomData;
+                try {
+                    pomData = remote.retrievePomData();
+                } catch (Throwable t) {
+                    status = TestStatus.INTERNAL_ERROR;
+                    LOGGER.log(
+                            Level.SEVERE,
+                            String.format(
+                                    "Internal error while executing a test for core %s and plugin"
+                                            + " %s %s. Please submit a bug to plugin-compat-tester",
+                                    coreCoordinates.version,
+                                    plugin.getDisplayName(),
+                                    plugin.version),
+                            t);
+                    errorMessage = t.getMessage();
+                    pomData = null;
+                }
 
-                    Set<String> testDetails = new TreeSet<>();
-                    if (errorMessage == null) {
+                Set<String> testDetails = new TreeSet<>();
+                if (errorMessage == null) {
                     try {
-                        TestExecutionResult result = testPluginAgainst(coreCoordinates, plugin, mconfig, pomData, pcth);
+                        TestExecutionResult result =
+                                testPluginAgainst(coreCoordinates, plugin, mconfig, pomData, pcth);
                         if (result.getTestDetails().isSuccess()) {
                             status = TestStatus.SUCCESS;
                         } else {
                             status = TestStatus.TEST_FAILURES;
                         }
-                        testDetails.addAll(config.isStoreAll() ? result.getTestDetails().getAll() : result.getTestDetails().hasFailures() ? result.getTestDetails().getFailed() : Collections.emptySet());
+                        testDetails.addAll(
+                                config.isStoreAll()
+                                        ? result.getTestDetails().getAll()
+                                        : result.getTestDetails().hasFailures()
+                                                ? result.getTestDetails().getFailed()
+                                                : Collections.emptySet());
                     } catch (PomExecutionException e) {
-                        if(!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")){
+                        if (!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")) {
                             status = TestStatus.COMPILATION_ERROR;
-                        } else if (!e.getTestDetails().hasBeenExecuted()) { // testing was not able to start properly (i.e: invalid exclusion list file format)
+                        } else if (!e.getTestDetails().hasBeenExecuted()) {
+                            // testing was not able to start properly (i.e: invalid exclusion list
+                            // file format)
                             status = TestStatus.INTERNAL_ERROR;
                         } else if (e.getTestDetails().hasFailures()) {
                             status = TestStatus.TEST_FAILURES;
@@ -232,61 +278,96 @@ public class PluginCompatTester {
                             status = TestStatus.INTERNAL_ERROR;
                         }
                         errorMessage = e.getErrorMessage();
-                        testDetails.addAll(config.isStoreAll() ? e.getTestDetails().getAll() : e.getTestDetails().hasFailures() ? e.getTestDetails().getFailed() : Collections.emptySet());
-                    } catch (Error e){
+                        testDetails.addAll(
+                                config.isStoreAll()
+                                        ? e.getTestDetails().getAll()
+                                        : e.getTestDetails().hasFailures()
+                                                ? e.getTestDetails().getFailed()
+                                                : Collections.emptySet());
+                    } catch (Error e) {
                         // Rethrow the error ... something is wrong !
                         throw e;
-                    } catch (Throwable t){
+                    } catch (Throwable t) {
                         status = TestStatus.INTERNAL_ERROR;
-                        LOGGER.log(Level.SEVERE, String.format("Internal error while executing a test for core %s and plugin %s %s. Please submit a bug to plugin-compat-tester",
-                                coreCoordinates.version, plugin.getDisplayName(), plugin.version), t);
+                        LOGGER.log(
+                                Level.SEVERE,
+                                String.format(
+                                        "Internal error while executing a test for core %s and"
+                                                + " plugin %s %s. Please submit a bug to"
+                                                + " plugin-compat-tester",
+                                        coreCoordinates.version,
+                                        plugin.getDisplayName(),
+                                        plugin.version),
+                                t);
                         errorMessage = t.getMessage();
                     }
-                    }
-
-                    File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
-                    String buildLogFilePath = "";
-                    if(buildLogFile.exists()){
-                        buildLogFilePath = createBuildLogFilePathFor(pluginInfos.pluginName, pluginInfos.pluginVersion, coreCoordinates);
-                    }
-
-                    PluginCompatResult result = new PluginCompatResult(coreCoordinates, status, errorMessage, testDetails, buildLogFilePath);
-                    report.add(pluginInfos, result);
-
-                    if(config.reportFile != null){
-                        if(!config.reportFile.exists()){
-                            FileUtils.touch(config.reportFile);
-                        }
-                        report.save(config.reportFile);
-                    }
-
-                    if (status != TestStatus.SUCCESS) {
-                        failed = true;
-                        if (config.isFailOnError()) {
-                            break;
-                        }
-                    }
-                } else {
-                    LOGGER.log(Level.FINE, "Plugin {0} not in included plugins; skipping", plugin.name);
                 }
-            }
 
-        // Generating HTML report only if needed, if the file does not exist is because no test has been executed
-        if(config.isGenerateHtmlReport() && config.reportFile != null && config.reportFile.exists()) {
+                File buildLogFile =
+                        createBuildLogFile(
+                                config.reportFile, plugin.name, plugin.version, coreCoordinates);
+                String buildLogFilePath = "";
+                if (buildLogFile.exists()) {
+                    buildLogFilePath =
+                            createBuildLogFilePathFor(
+                                    pluginInfos.pluginName,
+                                    pluginInfos.pluginVersion,
+                                    coreCoordinates);
+                }
+
+                PluginCompatResult result =
+                        new PluginCompatResult(
+                                coreCoordinates,
+                                status,
+                                errorMessage,
+                                testDetails,
+                                buildLogFilePath);
+                report.add(pluginInfos, result);
+
+                if (config.reportFile != null) {
+                    if (!config.reportFile.exists()) {
+                        FileUtils.touch(config.reportFile);
+                    }
+                    report.save(config.reportFile);
+                }
+
+                if (status != TestStatus.SUCCESS) {
+                    failed = true;
+                    if (config.isFailOnError()) {
+                        break;
+                    }
+                }
+            } else {
+                LOGGER.log(Level.FINE, "Plugin {0} not in included plugins; skipping", plugin.name);
+            }
+        }
+
+        // Generating HTML report only if needed, if the file does not exist is because no test has
+        // been executed
+        if (config.isGenerateHtmlReport()
+                && config.reportFile != null
+                && config.reportFile.exists()) {
             generateHtmlReportFile();
         } else {
-            LOGGER.log(Level.INFO, "No HTML report has been generated, either because report generation has been disabled or because no tests have been executed");
+            LOGGER.log(
+                    Level.INFO,
+                    "No HTML report has been generated, either because report generation has been"
+                            + " disabled or because no tests have been executed");
         }
 
         if (failed && config.isFailOnError()) {
-            throw new RuntimeException("Execution was aborted due to the failure in a plugin test (-failOnError is set)");
+            throw new RuntimeException(
+                    "Execution was aborted due to the failure in a plugin test (-failOnError is"
+                            + " set)");
         }
 
         return report;
     }
 
     private UpdateSite.Plugin extractFromLocalCheckout() throws PluginSourcesUnavailableException {
-        PomData data = new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml")).retrievePomData();
+        PomData data =
+                new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"))
+                        .retrievePomData();
         JSONObject o = new JSONObject();
         o.put("name", data.artifactId);
         o.put("version", ""); // version is not required
@@ -297,11 +378,12 @@ public class PluginCompatTester {
 
     protected void generateHtmlReportFile() throws IOException {
         if (!config.reportFile.exists() || !config.reportFile.isFile()) {
-            throw new FileNotFoundException("Cannot find the XML report file: " + config.reportFile);
+            throw new FileNotFoundException(
+                    "Cannot find the XML report file: " + config.reportFile);
         }
 
         Source xmlSource = new StreamSource(config.reportFile);
-        try(InputStream xsltStream = getXslTransformerResource()) {
+        try (InputStream xsltStream = getXslTransformerResource()) {
             Source xsltSource = new StreamSource(xsltStream);
             Result result = new StreamResult(PluginCompatReport.getHtmlFilepath(config.reportFile));
 
@@ -316,24 +398,55 @@ public class PluginCompatTester {
         }
     }
 
-    private static InputStream getXslTransformerResource(){
+    private static InputStream getXslTransformerResource() {
         return PluginCompatTester.class.getResourceAsStream("resultToReport.xsl");
     }
 
-    private static File createBuildLogFile(File reportFile, String pluginName, String pluginVersion, MavenCoordinates coreCoords){
-        return new File(reportFile.getParentFile().getAbsolutePath()
-                            + File.separator + createBuildLogFilePathFor(pluginName, pluginVersion, coreCoords));
+    private static File createBuildLogFile(
+            File reportFile, String pluginName, String pluginVersion, MavenCoordinates coreCoords) {
+        return new File(
+                reportFile.getParentFile().getAbsolutePath()
+                        + File.separator
+                        + createBuildLogFilePathFor(pluginName, pluginVersion, coreCoords));
     }
 
-    private static String createBuildLogFilePathFor(String pluginName, String pluginVersion, MavenCoordinates coreCoords){
-        return String.format("logs/%s/v%s_against_%s_%s_%s.log", pluginName, pluginVersion, coreCoords.groupId, coreCoords.artifactId, coreCoords.version);
+    private static String createBuildLogFilePathFor(
+            String pluginName, String pluginVersion, MavenCoordinates coreCoords) {
+        return String.format(
+                "logs/%s/v%s_against_%s_%s_%s.log",
+                pluginName,
+                pluginVersion,
+                coreCoords.groupId,
+                coreCoords.artifactId,
+                coreCoords.version);
     }
 
-    private TestExecutionResult testPluginAgainst(MavenCoordinates coreCoordinates, UpdateSite.Plugin plugin, MavenRunner.Config mconfig, PomData pomData, PluginCompatTesterHooks pcth)
-            throws PluginSourcesUnavailableException, PomExecutionException, IOException, PomTransformationException {
-        LOGGER.log(Level.INFO, "\n\n\n\n\n\n#############################################\n#############################################\n##\n## Starting to test {0} {1} against {2}\n##\n#############################################\n#############################################\n\n\n\n\n", new Object[]{plugin.name, plugin.version, coreCoordinates});
+    private TestExecutionResult testPluginAgainst(
+            MavenCoordinates coreCoordinates,
+            UpdateSite.Plugin plugin,
+            MavenRunner.Config mconfig,
+            PomData pomData,
+            PluginCompatTesterHooks pcth)
+            throws PluginSourcesUnavailableException, PomExecutionException, IOException,
+                    PomTransformationException {
+        LOGGER.log(
+                Level.INFO,
+                "\n\n\n\n\n\n"
+                        + "#############################################\n"
+                        + "#############################################\n"
+                        + "##\n"
+                        + "## Starting to test {0} {1} against {2}\n"
+                        + "##\n"
+                        + "#############################################\n"
+                        + "#############################################\n\n\n\n\n",
+                new Object[] {plugin.name, plugin.version, coreCoordinates});
 
-        File pluginCheckoutDir = new File(config.workDirectory.getAbsolutePath() + File.separator + plugin.name + File.separator);
+        File pluginCheckoutDir =
+                new File(
+                        config.workDirectory.getAbsolutePath()
+                                + File.separator
+                                + plugin.name
+                                + File.separator);
         String parentFolder = "";
 
         try {
@@ -346,57 +459,82 @@ public class PluginCompatTester {
             beforeCheckout.put("runCheckout", true);
             beforeCheckout = pcth.runBeforeCheckout(beforeCheckout);
 
-            if(beforeCheckout.get("executionResult") != null) { // Check if the hook returned a result
-                return (TestExecutionResult)beforeCheckout.get("executionResult");
-            } else if((boolean)beforeCheckout.get("runCheckout")) {
-                if(beforeCheckout.get("checkoutDir") != null){
-                    pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
+            if (beforeCheckout.get("executionResult") != null) {
+                // Check if the hook returned a result
+                return (TestExecutionResult) beforeCheckout.get("executionResult");
+            } else if ((boolean) beforeCheckout.get("runCheckout")) {
+                if (beforeCheckout.get("checkoutDir") != null) {
+                    pluginCheckoutDir = (File) beforeCheckout.get("checkoutDir");
                 }
                 if (Files.isDirectory(pluginCheckoutDir.toPath())) {
-                    LOGGER.log(Level.INFO, "Deleting working directory {0}", pluginCheckoutDir.getAbsolutePath());
+                    LOGGER.log(
+                            Level.INFO,
+                            "Deleting working directory {0}",
+                            pluginCheckoutDir.getAbsolutePath());
                     FileUtils.deleteDirectory(pluginCheckoutDir);
                 }
 
                 Files.createDirectory(pluginCheckoutDir.toPath());
-                LOGGER.log(Level.INFO, "Created plugin checkout directory {0}", pluginCheckoutDir.getAbsolutePath());
+                LOGGER.log(
+                        Level.INFO,
+                        "Created plugin checkout directory {0}",
+                        pluginCheckoutDir.getAbsolutePath());
 
                 if (localCheckoutProvided()) {
                     if (!onlyOnePluginIncluded()) {
-                        File localCheckoutPluginDir = new File(config.getLocalCheckoutDir(), plugin.name);
-                        File pomLocalCheckoutPluginDir = new File(localCheckoutPluginDir, "pom.xml");
-                        if(pomLocalCheckoutPluginDir.exists()) {
-                            LOGGER.log(Level.INFO, "Copying plugin directory from {0}", localCheckoutPluginDir.getAbsolutePath());
-                            org.codehaus.plexus.util.FileUtils.copyDirectoryStructure(localCheckoutPluginDir, pluginCheckoutDir);
+                        File localCheckoutPluginDir =
+                                new File(config.getLocalCheckoutDir(), plugin.name);
+                        File pomLocalCheckoutPluginDir =
+                                new File(localCheckoutPluginDir, "pom.xml");
+                        if (pomLocalCheckoutPluginDir.exists()) {
+                            LOGGER.log(
+                                    Level.INFO,
+                                    "Copying plugin directory from {0}",
+                                    localCheckoutPluginDir.getAbsolutePath());
+                            org.codehaus.plexus.util.FileUtils.copyDirectoryStructure(
+                                    localCheckoutPluginDir, pluginCheckoutDir);
                         } else {
-                            cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "");
+                            cloneFromSCM(
+                                    pomData, plugin.name, plugin.version, pluginCheckoutDir, "");
                         }
                     } else {
-                        // TODO this fails when it encounters symlinks (e.g. work/jobs/…/builds/lastUnstableBuild),
-                        // and even up-to-date versions of org.apache.commons.io.FileUtils seem to not handle links,
-                        // so may need to use something like http://docs.oracle.com/javase/tutorial/displayCode.html?code=http://docs.oracle.com/javase/tutorial/essential/io/examples/Copy.java
-                        LOGGER.log(Level.INFO, "Copy plugin directory from {0}", config.getLocalCheckoutDir().getAbsolutePath());
-                        org.codehaus.plexus.util.FileUtils.copyDirectoryStructure(config.getLocalCheckoutDir(), pluginCheckoutDir);
+                        // TODO this fails when it encounters symlinks (e.g.
+                        // work/jobs/…/builds/lastUnstableBuild), and even up-to-date versions of
+                        // org.apache.commons.io.FileUtils seem to not handle links, so may need to
+                        // use something like
+                        // http://docs.oracle.com/javase/tutorial/displayCode.html?code=http://docs.oracle.com/javase/tutorial/essential/io/examples/Copy.java
+                        LOGGER.log(
+                                Level.INFO,
+                                "Copy plugin directory from {0}",
+                                config.getLocalCheckoutDir().getAbsolutePath());
+                        org.codehaus.plexus.util.FileUtils.copyDirectoryStructure(
+                                config.getLocalCheckoutDir(), pluginCheckoutDir);
                     }
                 } else {
-                    // These hooks could redirect the SCM, skip checkout (if multiple plugins use the same preloaded repo)
+                    // These hooks could redirect the SCM, skip checkout (if multiple plugins use
+                    // the same preloaded repo)
                     cloneFromSCM(pomData, plugin.name, plugin.version, pluginCheckoutDir, "");
                 }
             } else {
                 // If the plugin exists in a different directory (multi-module plugins)
                 if (beforeCheckout.get("pluginDir") != null) {
-                    pluginCheckoutDir = (File)beforeCheckout.get("checkoutDir");
+                    pluginCheckoutDir = (File) beforeCheckout.get("checkoutDir");
                 }
                 if (beforeCheckout.get("parentFolder") != null) {
                     parentFolder = (String) beforeCheckout.get("parentFolder");
                 }
-                LOGGER.log(Level.INFO, "The plugin has already been checked out, likely due to a multi-module situation; continuing");
+                LOGGER.log(
+                        Level.INFO,
+                        "The plugin has already been checked out, likely due to a multi-module"
+                                + " situation; continuing");
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to check out plugin sources", e);
             throw new PluginSourcesUnavailableException("Failed to check out plugin sources", e);
         }
 
-        File buildLogFile = createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
+        File buildLogFile =
+                createBuildLogFile(config.reportFile, plugin.name, plugin.version, coreCoordinates);
         FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
         FileUtils.touch(buildLogFile); // Creating log file
 
@@ -413,20 +551,34 @@ public class PluginCompatTester {
         }
         Map<String, Object> hookInfo = pcth.runBeforeCompilation(beforeCompile);
 
-        boolean ranCompile = hookInfo.containsKey(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE) && (boolean) hookInfo.get(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE);
+        boolean ranCompile =
+                hookInfo.containsKey(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE)
+                        && (boolean)
+                                hookInfo.get(
+                                        PluginCompatTesterHookBeforeCompile
+                                                .OVERRIDE_DEFAULT_COMPILE);
         try {
-            // First build against the original POM.
-            // This defends against source incompatibilities (which we do not care about for this purpose);
-            // and ensures that we are testing a plugin binary as close as possible to what was actually released.
-            // We also skip potential javadoc execution to avoid general test failure.
+            // First build against the original POM. This defends against source incompatibilities
+            // (which we do not care about for this purpose); and ensures that we are testing a
+            // plugin binary as close as possible to what was actually released. We also skip
+            // potential javadoc execution to avoid general test failure.
             if (!ranCompile) {
-                runner.run(mconfig, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes", "-Dmaven.javadoc.skip");
+                runner.run(
+                        mconfig,
+                        pluginCheckoutDir,
+                        buildLogFile,
+                        "clean",
+                        "process-test-classes",
+                        "-Dmaven.javadoc.skip");
             }
             ranCompile = true;
 
             List<String> args = new ArrayList<>();
             Map<String, String> userProperties = mconfig.userProperties;
-            args.add(String.format("--define=forkCount=%s", userProperties.getOrDefault("forkCount", "1")));
+            args.add(
+                    String.format(
+                            "--define=forkCount=%s",
+                            userProperties.getOrDefault("forkCount", "1")));
             args.add("hpi:resolve-test-dependencies");
             args.add("hpi:test-hpl");
             args.add("surefire:test");
@@ -445,16 +597,18 @@ public class PluginCompatTester {
             forExecutionHooks.put("pluginDir", pluginCheckoutDir);
             forExecutionHooks.put("types", testTypes);
             pcth.runBeforeExecution(forExecutionHooks);
-            args = (List<String>)forExecutionHooks.get("args");
+            args = (List<String>) forExecutionHooks.get("args");
             Set<String> types = new HashSet<>((List<String>) forExecutionHooks.get("types"));
             userProperties.put("types", String.join(",", types));
 
             // Execute with tests
             runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[0]));
-            return new TestExecutionResult(new ExecutedTestNamesSolver().solve(types, runner.getExecutedTests(), pluginCheckoutDir));
+            return new TestExecutionResult(
+                    new ExecutedTestNamesSolver()
+                            .solve(types, runner.getExecutedTests(), pluginCheckoutDir));
         } catch (ExecutedTestNamesSolverException e) {
             throw new PomExecutionException(e);
-        } catch (PomExecutionException e){
+        } catch (PomExecutionException e) {
             if (ranCompile) {
                 // So the status cannot be considered COMPILATION_ERROR
                 e.succeededPluginArtifactIds.add("maven-compiler-plugin");
@@ -463,19 +617,26 @@ public class PluginCompatTester {
         }
     }
 
-    public void cloneFromSCM(PomData pomData, String name, String version, File checkoutDirectory, String tag) throws IOException {
+    public void cloneFromSCM(
+            PomData pomData, String name, String version, File checkoutDirectory, String tag)
+            throws IOException {
         String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
         List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(connectionURLPomData);
-        if(config.getFallbackGitHubOrganization() != null){
-            connectionURLs = getFallbackConnectionURL(connectionURLs, connectionURLPomData, config.getFallbackGitHubOrganization());
+        if (config.getFallbackGitHubOrganization() != null) {
+            connectionURLs =
+                    getFallbackConnectionURL(
+                            connectionURLs,
+                            connectionURLPomData,
+                            config.getFallbackGitHubOrganization());
         }
 
         IOException lastException = null;
-        for (String connectionURL: connectionURLs){
+        for (String connectionURL : connectionURLs) {
             if (connectionURL != null) {
-                connectionURL = connectionURL.replace("git://", "https://"); // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
+                // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
+                connectionURL = connectionURL.replace("git://", "https://");
             }
             try {
                 clone(connectionURL, scmTag, checkoutDirectory);
@@ -513,7 +674,10 @@ public class PluginCompatTester {
      */
     public static void clone(String connectionURL, String scmTag, File checkoutDirectory)
             throws IOException {
-        LOGGER.log(Level.INFO, "Checking out from SCM connection URL {0} at {1}", new Object[]{connectionURL, scmTag});
+        LOGGER.log(
+                Level.INFO,
+                "Checking out from SCM connection URL {0} at {1}",
+                new Object[] {connectionURL, scmTag});
 
         /*
          * We previously used the Maven SCM API to clone the repository, which ran the following
@@ -537,11 +701,12 @@ public class PluginCompatTester {
         Files.createDirectories(checkoutDirectory.toPath());
 
         // git init
-        Process p = new ProcessBuilder()
-                .directory(checkoutDirectory)
-                .command("git", "init")
-                .redirectErrorStream(true)
-                .start();
+        Process p =
+                new ProcessBuilder()
+                        .directory(checkoutDirectory)
+                        .command("git", "init")
+                        .redirectErrorStream(true)
+                        .start();
         StreamGobbler gobbler = new StreamGobbler(p.getInputStream());
         gobbler.start();
         try {
@@ -549,7 +714,8 @@ public class PluginCompatTester {
             gobbler.join();
             String output = gobbler.getOutput().trim();
             if (exitStatus != 0) {
-                throw new IOException("git init failed with exit status " + exitStatus + ": " + output);
+                throw new IOException(
+                        "git init failed with exit status " + exitStatus + ": " + output);
             }
         } catch (InterruptedException e) {
             throw new IOException("git init was interrupted", e);
@@ -562,11 +728,12 @@ public class PluginCompatTester {
         } else {
             gitUrl = connectionURL;
         }
-        p = new ProcessBuilder()
-                .directory(checkoutDirectory)
-                .command("git", "fetch", gitUrl, scmTag)
-                .redirectErrorStream(true)
-                .start();
+        p =
+                new ProcessBuilder()
+                        .directory(checkoutDirectory)
+                        .command("git", "fetch", gitUrl, scmTag)
+                        .redirectErrorStream(true)
+                        .start();
         gobbler = new StreamGobbler(p.getInputStream());
         gobbler.start();
         try {
@@ -574,18 +741,20 @@ public class PluginCompatTester {
             gobbler.join();
             String output = gobbler.getOutput().trim();
             if (exitStatus != 0) {
-                throw new IOException("git fetch origin failed with exit status " + exitStatus + ": " + output);
+                throw new IOException(
+                        "git fetch origin failed with exit status " + exitStatus + ": " + output);
             }
         } catch (InterruptedException e) {
             throw new IOException("git fetch origin was interrupted", e);
         }
 
         // git checkout FETCH_HEAD
-        p = new ProcessBuilder()
-                .directory(checkoutDirectory)
-                .command("git", "checkout", "FETCH_HEAD")
-                .redirectErrorStream(true)
-                .start();
+        p =
+                new ProcessBuilder()
+                        .directory(checkoutDirectory)
+                        .command("git", "checkout", "FETCH_HEAD")
+                        .redirectErrorStream(true)
+                        .start();
         gobbler = new StreamGobbler(p.getInputStream());
         gobbler.start();
         try {
@@ -593,14 +762,18 @@ public class PluginCompatTester {
             gobbler.join();
             String output = gobbler.getOutput().trim();
             if (exitStatus != 0) {
-                throw new IOException("git checkout FETCH_HEAD failed with exit status " + exitStatus + ": " + output);
+                throw new IOException(
+                        "git checkout FETCH_HEAD failed with exit status "
+                                + exitStatus
+                                + ": "
+                                + output);
             }
         } catch (InterruptedException e) {
             throw new IOException("git checkout FETCH_HEAD was interrupted", e);
         }
     }
 
-    private String getScmTag(PomData pomData, String name, String version){
+    private String getScmTag(PomData pomData, String name, String version) {
         String scmTag;
         if (pomData.getScmTag() != null) {
             scmTag = pomData.getScmTag();
@@ -612,11 +785,16 @@ public class PluginCompatTester {
         return scmTag;
     }
 
-    public static List<String> getFallbackConnectionURL(List<String> connectionURLs,String connectionURLPomData, String fallbackGitHubOrganization){
+    public static List<String> getFallbackConnectionURL(
+            List<String> connectionURLs,
+            String connectionURLPomData,
+            String fallbackGitHubOrganization) {
         Pattern pattern = Pattern.compile("(.*github.com[:|/])([^/]*)(.*)");
         Matcher matcher = pattern.matcher(connectionURLPomData);
         matcher.find();
-        connectionURLs.add(matcher.replaceFirst("scm:git:git@github.com:" + fallbackGitHubOrganization + "$3"));
+        connectionURLs.add(
+                matcher.replaceFirst(
+                        "scm:git:git@github.com:" + fallbackGitHubOrganization + "$3"));
         pattern = Pattern.compile("(.*github.com[:|/])([^/]*)(.*)");
         matcher = pattern.matcher(connectionURLPomData);
         matcher.find();
@@ -634,13 +812,17 @@ public class PluginCompatTester {
 
     /**
      * Scans through a WAR file, accumulating plugin information
+     *
      * @param war WAR to scan
-     * @param pluginGroupIds Map pluginName to groupId if set in the manifest, MUTATED IN THE EXECUTION
-     * @param pluginRegExp The plugin regexp to use, can be used to differentiate between detached or "normal" plugins
-     *                     in the war file
+     * @param pluginGroupIds Map pluginName to groupId if set in the manifest, MUTATED IN THE
+     *     EXECUTION
+     * @param pluginRegExp The plugin regexp to use, can be used to differentiate between detached
+     *     or "normal" plugins in the war file
      * @return Update center data
      */
-    private UpdateSite.Data scanWAR(File war, @NonNull Map<String, String> pluginGroupIds, String pluginRegExp) throws IOException {
+    private UpdateSite.Data scanWAR(
+            File war, @NonNull Map<String, String> pluginGroupIds, String pluginRegExp)
+            throws IOException {
         JSONObject top = new JSONObject();
         top.put("id", DEFAULT_SOURCE_ID);
         JSONObject plugins = new JSONObject();
@@ -654,15 +836,22 @@ public class PluginCompatTester {
                     if (top.has("core")) {
                         throw new IOException(">1 jenkins-core.jar in " + war);
                     }
-                    // http://foobar is used to workaround the check in https://github.com/jenkinsci/jenkins/commit/f8daafd0327081186c06555f225e84c420261b4c
+                    // http://foobar is used to workaround the check in
+                    // https://github.com/jenkinsci/jenkins/commit/f8daafd0327081186c06555f225e84c420261b4c
                     // We do not really care about the value
-                    top.put("core", new JSONObject().accumulate("name", "core").accumulate("version", m.group(1)).accumulate("url", "https://foobar"));
+                    top.put(
+                            "core",
+                            new JSONObject()
+                                    .accumulate("name", "core")
+                                    .accumulate("version", m.group(1))
+                                    .accumulate("url", "https://foobar"));
                 }
 
                 m = Pattern.compile(pluginRegExp).matcher(name);
                 if (m.matches()) {
                     JSONObject plugin = new JSONObject().accumulate("url", "");
-                    try (InputStream is = jf.getInputStream(entry); JarInputStream jis = new JarInputStream(is)) {
+                    try (InputStream is = jf.getInputStream(entry);
+                            JarInputStream jis = new JarInputStream(is)) {
                         Manifest manifest = jis.getManifest();
                         String shortName = manifest.getMainAttributes().getValue("Short-Name");
                         if (shortName == null) {
@@ -676,24 +865,33 @@ public class PluginCompatTester {
                             plugin.put("title", longName);
                         }
                         plugin.put("name", shortName);
-                        pluginGroupIds.put(shortName, manifest.getMainAttributes().getValue("Group-Id"));
+                        pluginGroupIds.put(
+                                shortName, manifest.getMainAttributes().getValue("Group-Id"));
                         String version = manifest.getMainAttributes().getValue("Plugin-Version");
                         // Remove extra build information from the version number
-                        final Matcher matcher = Pattern.compile("^(.+-SNAPSHOT)(.+)$").matcher(version);
+                        final Matcher matcher =
+                                Pattern.compile("^(.+-SNAPSHOT)(.+)$").matcher(version);
                         if (matcher.matches()) {
                             version = matcher.group(1);
                         }
                         plugin.put("version", version);
                         plugin.put("url", "jar:" + war.toURI() + "!/" + name);
                         JSONArray dependenciesA = new JSONArray();
-                        String dependencies = manifest.getMainAttributes().getValue("Plugin-Dependencies");
+                        String dependencies =
+                                manifest.getMainAttributes().getValue("Plugin-Dependencies");
                         if (dependencies != null) {
-                            // e.g. matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
+                            // e.g.
+                            // matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
                             for (String pair : dependencies.split(",")) {
                                 boolean optional = pair.endsWith("resolution:=optional");
-                                String[] nameVer = pair.replace(";resolution:=optional", "").split(":");
+                                String[] nameVer =
+                                        pair.replace(";resolution:=optional", "").split(":");
                                 assert nameVer.length == 2;
-                                dependenciesA.add(new JSONObject().accumulate("name", nameVer[0]).accumulate("version", nameVer[1]).accumulate("optional", String.valueOf(optional)));
+                                dependenciesA.add(
+                                        new JSONObject()
+                                                .accumulate("name", nameVer[0])
+                                                .accumulate("version", nameVer[1])
+                                                .accumulate("optional", String.valueOf(optional)));
                             }
                         }
                         plugin.accumulate("dependencies", dependenciesA);
@@ -706,14 +904,20 @@ public class PluginCompatTester {
         if (!top.has("core")) {
             throw new IOException("no jenkins-core.jar in " + war);
         }
-        LOGGER.log(Level.INFO, "Scanned contents of {0} with {1} plugins", new Object[]{war, plugins.size()});
+        LOGGER.log(
+                Level.INFO,
+                "Scanned contents of {0} with {1} plugins",
+                new Object[] {war, plugins.size()});
         return new UpdateSite.Data(top);
     }
 
     /**
-     * Provides the Maven module used for a plugin on a {@code mvn [...] -pl} operation in the parent path
+     * Provides the Maven module used for a plugin on a {@code mvn [...] -pl} operation in the
+     * parent path
      */
-    public static String getMavenModule(String plugin, File pluginPath, MavenRunner runner, MavenRunner.Config mavenConfig) throws PomExecutionException, IOException {
+    public static String getMavenModule(
+            String plugin, File pluginPath, MavenRunner runner, MavenRunner.Config mavenConfig)
+            throws PomExecutionException, IOException {
         String absolutePath = pluginPath.getAbsolutePath();
         if (absolutePath.endsWith(plugin)) {
             return plugin;
@@ -724,7 +928,14 @@ public class PluginCompatTester {
             return null;
         }
         File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "modules.log");
-        runner.run(mavenConfig, parentFile, log, "-Dexpression=project.modules", "-q", "-DforceStdout", "help:evaluate");
+        runner.run(
+                mavenConfig,
+                parentFile,
+                log,
+                "-Dexpression=project.modules",
+                "-q",
+                "-DforceStdout",
+                "help:evaluate");
         for (String line : Files.readAllLines(log.toPath(), Charset.defaultCharset())) {
             if (!StringUtils.startsWith(line.trim(), "<string>")) {
                 continue;

@@ -41,33 +41,33 @@ import org.junit.Test;
  */
 public class VersionComparatorTest {
 
-    private static final Map<String, Integer> OPERAND_CONVERSION = Map.of(
-            "<", -1,
-            "=", 0,
-            ">", 1
-    );
+    private static final Map<String, Integer> OPERAND_CONVERSION =
+            Map.of(
+                    "<", -1,
+                    "=", 0,
+                    ">", 1);
 
-    private void test(String v1, String operator, String v2){
+    private void test(String v1, String operator, String v2) {
         test(v1, OPERAND_CONVERSION.get(operator), v2);
     }
 
-    private void test(String v1, int compResult, String v2){
+    private void test(String v1, int compResult, String v2) {
         assertThat(new VersionComparator().compare(v1, v2), is(equalTo(compResult)));
     }
 
-    private void testAndCommutate(String v1, String operand, String v2){
+    private void testAndCommutate(String v1, String operand, String v2) {
         test(v1, OPERAND_CONVERSION.get(operand), v2);
         test(v2, OPERAND_CONVERSION.get(operand) * -1, v1);
     }
 
     @Test
-    public void shouldBasicEqualComparisonTestBeOk(){
+    public void shouldBasicEqualComparisonTestBeOk() {
         test("1.2.3", "=", "1.2.3");
         test("1", "=", "1");
     }
 
     @Test
-    public void shouldBasicNonEqualComparisonTestBeOk(){
+    public void shouldBasicNonEqualComparisonTestBeOk() {
         testAndCommutate("1", "<", "2");
         testAndCommutate("10", ">", "2");
         testAndCommutate("1.2", "<", "2.1");
@@ -77,7 +77,7 @@ public class VersionComparatorTest {
     }
 
     @Test
-    public void shouldSpecialCasesBeHandledCorrectly(){
+    public void shouldSpecialCasesBeHandledCorrectly() {
         test("1", "<", "1.2.1");
         test("1.2", "<", "1.2.1");
         test("1.1-beta", ">", "1.1-alpha");

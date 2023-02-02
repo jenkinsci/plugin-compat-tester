@@ -6,18 +6,16 @@ import java.util.List;
 import java.util.Map;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
-/**
- * Hook for plugins with integration tests that need to be executed
- */
+/** Hook for plugins with integration tests that need to be executed */
 public abstract class PluginWithIntegrationTestsHook extends PluginCompatTesterHookBeforeExecution {
 
     /** Inform about goals to execute integration tests */
     @NonNull
-    abstract public Collection<String> getGoals();
+    public abstract Collection<String> getGoals();
 
     /** Inform about test type suite to execute integration test */
     @NonNull
-    abstract public Collection<String> getTestTypes();
+    public abstract Collection<String> getTestTypes();
 
     @SuppressWarnings("unchecked")
     @Override
@@ -34,5 +32,4 @@ public abstract class PluginWithIntegrationTestsHook extends PluginCompatTesterH
         }
         return info;
     }
-
 }

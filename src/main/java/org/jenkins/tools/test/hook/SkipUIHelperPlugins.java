@@ -22,9 +22,15 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
 
     private static final Logger LOGGER = Logger.getLogger(SkipUIHelperPlugins.class.getName());
 
-    private static List<String> allBundlePlugins = List.of(
-        "ace-editor", "bootstrap", "handlebars", "jquery-detached",
-        "js-module-base", "momentjs", "numeraljs");
+    private static List<String> allBundlePlugins =
+            List.of(
+                    "ace-editor",
+                    "bootstrap",
+                    "handlebars",
+                    "jquery-detached",
+                    "js-module-base",
+                    "momentjs",
+                    "numeraljs");
 
     public SkipUIHelperPlugins() {}
 
@@ -34,14 +40,14 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
     }
 
     /**
-     * The plugin was identified as something that should be skipped. Create a {@link TestExecutionResult}
-     * preventing forward movement. Also, indicates that we should skip the checkout completely.
+     * The plugin was identified as something that should be skipped. Create a {@link
+     * TestExecutionResult} preventing forward movement. Also, indicates that we should skip the
+     * checkout completely.
      */
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) {
         LOGGER.log(Level.WARNING, "Plugin unsupported at this time, skipping");
-        moreInfo.put("executionResult",
-            new TestExecutionResult(new ExecutedTestNamesDetails()));
+        moreInfo.put("executionResult", new TestExecutionResult(new ExecutedTestNamesDetails()));
         moreInfo.put("runCheckout", false);
         return moreInfo;
     }

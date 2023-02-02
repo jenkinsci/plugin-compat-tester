@@ -41,36 +41,41 @@ public class VersionComparator implements Comparator<String>, Serializable {
         String[] splitO1Version = o1.split("\\.|-");
         String[] splitO2Version = o2.split("\\.|-");
 
-        for(int i=0; i<splitO1Version.length; i++){
-            if(i >= splitO2Version.length){
+        for (int i = 0; i < splitO1Version.length; i++) {
+            if (i >= splitO2Version.length) {
                 return 1;
             }
 
             Comparable chunk1;
             try {
                 chunk1 = Integer.valueOf(splitO1Version[i]);
-            }catch(NumberFormatException e){
+            } catch (NumberFormatException e) {
                 chunk1 = splitO1Version[i];
             }
 
             Comparable chunk2;
             try {
                 chunk2 = Integer.valueOf(splitO2Version[i]);
-            }catch(NumberFormatException e){
+            } catch (NumberFormatException e) {
                 chunk2 = splitO2Version[i];
             }
 
             if (chunk1.getClass() != chunk2.getClass()) {
-                throw new IllegalArgumentException("Comparing different types in chunk " + i +
-                        ". Version 1 = " + o1 + ", version 2 = " + o2);
+                throw new IllegalArgumentException(
+                        "Comparing different types in chunk "
+                                + i
+                                + ". Version 1 = "
+                                + o1
+                                + ", version 2 = "
+                                + o2);
             }
 
-            if(!splitO1Version[i].equals(splitO2Version[i])){
+            if (!splitO1Version[i].equals(splitO2Version[i])) {
                 return chunk1.compareTo(chunk2);
             }
         }
 
-        if(splitO1Version.length == splitO2Version.length){
+        if (splitO1Version.length == splitO2Version.length) {
             return 0;
         } else {
             return -1;
