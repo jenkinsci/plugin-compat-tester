@@ -414,7 +414,7 @@ public class MavenPom {
         }
     }
 
-    private Charset getSafeCharset(final Document doc) {
+    private static Charset getSafeCharset(final Document doc) {
         try {
             return Charset.forName(doc.getXMLEncoding());
         } catch (Exception ex) {

@@ -137,7 +137,7 @@ public class ExternalMavenRunner implements MavenRunner {
         }
     }
 
-    private Set<String> getTypes(Config config) {
+    private static Set<String> getTypes(Config config) {
         Set<String> result = new HashSet<>();
         if (config == null
                 || config.userProperties == null

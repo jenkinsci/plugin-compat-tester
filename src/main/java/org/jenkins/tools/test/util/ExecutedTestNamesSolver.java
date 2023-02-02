@@ -158,7 +158,7 @@ public class ExecutedTestNamesSolver {
         return file -> file.getFileName().toString().endsWith(String.format("%s-reports", type));
     }
 
-    private boolean containsFailure(NodeList nodeList) {
+    private static boolean containsFailure(NodeList nodeList) {
         for (int j = 0; j < nodeList.getLength(); j++) {
             String elementName = nodeList.item(j).getNodeName();
             if (elementName.equals(FAILURE_ELEMENT) || elementName.equals(ERROR_ELEMENT)) {

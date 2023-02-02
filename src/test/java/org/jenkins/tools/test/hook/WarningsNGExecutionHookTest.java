@@ -47,7 +47,7 @@ public class WarningsNGExecutionHookTest {
     }
 
     @Test
-    public void testAction() throws Exception {
+    public void testAction() {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
         Map<String, Object> info = new HashMap<>();
@@ -66,7 +66,7 @@ public class WarningsNGExecutionHookTest {
     }
 
     @Test
-    public void testType() throws Exception {
+    public void testType() {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
         Map<String, Object> info = new HashMap<>();
