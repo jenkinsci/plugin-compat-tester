@@ -193,46 +193,96 @@ public class PluginCompatTester {
         boolean failed = false;
         LOGGER.log(Level.INFO, "Starting plugin tests on core coordinates {0}", coreCoordinates);
         for (UpdateSite.Plugin plugin : data.plugins.values()) {
-            if (config.getIncludePlugins() == null
-                    || config.getIncludePlugins().contains(plugin.name.toLowerCase())) {
-                PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
+            if (config.getIncludePlugins() != null
+                    && !config.getIncludePlugins().contains(plugin.name.toLowerCase())) {
+                LOGGER.log(Level.FINE, "Plugin {0} not in included plugins; skipping", plugin.name);
+                continue;
+            }
 
-                if (config.getExcludePlugins() != null
-                        && config.getExcludePlugins().contains(plugin.name.toLowerCase())) {
-                    LOGGER.log(
-                            Level.INFO,
-                            "Plugin {0} is in excluded plugins => test skipped",
-                            plugin.name);
-                    continue;
-                }
+            if (config.getExcludePlugins() != null
+                    && config.getExcludePlugins().contains(plugin.name.toLowerCase())) {
+                LOGGER.log(Level.INFO, "Plugin {0} in excluded plugins; skipping", plugin.name);
+                continue;
+            }
 
-                String errorMessage = null;
-                TestStatus status = null;
-
-                PluginRemoting remote;
-                if (localCheckoutProvided() && onlyOnePluginIncluded()) {
-                    // Only one plugin and checkout directory provided
-                    remote = new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"));
-                } else if (localCheckoutProvided()) {
-                    // Local directory provided for more than one plugin, so each plugin is
-                    // allocated in localCheckoutDir/plugin-name. If there is no subdirectory for
-                    // the plugin, it will be cloned from SCM.
-                    File pomFile =
-                            new File(
-                                    new File(config.getLocalCheckoutDir(), plugin.name), "pom.xml");
-                    if (pomFile.exists()) {
-                        remote = new PluginRemoting(pomFile);
-                    } else {
-                        remote = new PluginRemoting(plugin.url);
-                    }
+            PluginRemoting remote;
+            if (localCheckoutProvided() && onlyOnePluginIncluded()) {
+                // Only one plugin and checkout directory provided
+                remote = new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"));
+            } else if (localCheckoutProvided()) {
+                // Local directory provided for more than one plugin, so each plugin is allocated in
+                // localCheckoutDir/plugin-name. If there is no subdirectory for the plugin, it will
+                // be cloned from SCM.
+                File pomFile =
+                        new File(new File(config.getLocalCheckoutDir(), plugin.name), "pom.xml");
+                if (pomFile.exists()) {
+                    remote = new PluginRemoting(pomFile);
                 } else {
-                    // Only one plugin but checkout directory not provided or more than a plugin and
-                    // no local checkout directory provided
                     remote = new PluginRemoting(plugin.url);
                 }
-                PomData pomData;
+            } else {
+                // Only one plugin but checkout directory not provided or more than a plugin and no
+                // local checkout directory provided
+                remote = new PluginRemoting(plugin.url);
+            }
+
+            String errorMessage = null;
+            TestStatus status = null;
+
+            PomData pomData;
+            try {
+                pomData = remote.retrievePomData();
+            } catch (Throwable t) {
+                status = TestStatus.INTERNAL_ERROR;
+                LOGGER.log(
+                        Level.SEVERE,
+                        String.format(
+                                "Internal error while executing a test for core %s and plugin %s"
+                                        + " %s. Please submit a bug to plugin-compat-tester",
+                                coreCoordinates.version, plugin.getDisplayName(), plugin.version),
+                        t);
+                errorMessage = t.getMessage();
+                pomData = null;
+            }
+
+            Set<String> testDetails = new TreeSet<>();
+            if (errorMessage == null) {
                 try {
-                    pomData = remote.retrievePomData();
+                    TestExecutionResult result =
+                            testPluginAgainst(coreCoordinates, plugin, mconfig, pomData, pcth);
+                    if (result.getTestDetails().isSuccess()) {
+                        status = TestStatus.SUCCESS;
+                    } else {
+                        status = TestStatus.TEST_FAILURES;
+                    }
+                    testDetails.addAll(
+                            config.isStoreAll()
+                                    ? result.getTestDetails().getAll()
+                                    : result.getTestDetails().hasFailures()
+                                            ? result.getTestDetails().getFailed()
+                                            : Collections.emptySet());
+                } catch (PomExecutionException e) {
+                    if (!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")) {
+                        status = TestStatus.COMPILATION_ERROR;
+                    } else if (!e.getTestDetails().hasBeenExecuted()) {
+                        // testing was not able to start properly (i.e: invalid exclusion list file
+                        // format)
+                        status = TestStatus.INTERNAL_ERROR;
+                    } else if (e.getTestDetails().hasFailures()) {
+                        status = TestStatus.TEST_FAILURES;
+                    } else { // ???
+                        status = TestStatus.INTERNAL_ERROR;
+                    }
+                    errorMessage = e.getErrorMessage();
+                    testDetails.addAll(
+                            config.isStoreAll()
+                                    ? e.getTestDetails().getAll()
+                                    : e.getTestDetails().hasFailures()
+                                            ? e.getTestDetails().getFailed()
+                                            : Collections.emptySet());
+                } catch (Error e) {
+                    // Rethrow the error ... something is wrong !
+                    throw e;
                 } catch (Throwable t) {
                     status = TestStatus.INTERNAL_ERROR;
                     LOGGER.log(
@@ -245,99 +295,36 @@ public class PluginCompatTester {
                                     plugin.version),
                             t);
                     errorMessage = t.getMessage();
-                    pomData = null;
                 }
+            }
 
-                Set<String> testDetails = new TreeSet<>();
-                if (errorMessage == null) {
-                    try {
-                        TestExecutionResult result =
-                                testPluginAgainst(coreCoordinates, plugin, mconfig, pomData, pcth);
-                        if (result.getTestDetails().isSuccess()) {
-                            status = TestStatus.SUCCESS;
-                        } else {
-                            status = TestStatus.TEST_FAILURES;
-                        }
-                        testDetails.addAll(
-                                config.isStoreAll()
-                                        ? result.getTestDetails().getAll()
-                                        : result.getTestDetails().hasFailures()
-                                                ? result.getTestDetails().getFailed()
-                                                : Collections.emptySet());
-                    } catch (PomExecutionException e) {
-                        if (!e.succeededPluginArtifactIds.contains("maven-compiler-plugin")) {
-                            status = TestStatus.COMPILATION_ERROR;
-                        } else if (!e.getTestDetails().hasBeenExecuted()) {
-                            // testing was not able to start properly (i.e: invalid exclusion list
-                            // file format)
-                            status = TestStatus.INTERNAL_ERROR;
-                        } else if (e.getTestDetails().hasFailures()) {
-                            status = TestStatus.TEST_FAILURES;
-                        } else { // ???
-                            status = TestStatus.INTERNAL_ERROR;
-                        }
-                        errorMessage = e.getErrorMessage();
-                        testDetails.addAll(
-                                config.isStoreAll()
-                                        ? e.getTestDetails().getAll()
-                                        : e.getTestDetails().hasFailures()
-                                                ? e.getTestDetails().getFailed()
-                                                : Collections.emptySet());
-                    } catch (Error e) {
-                        // Rethrow the error ... something is wrong !
-                        throw e;
-                    } catch (Throwable t) {
-                        status = TestStatus.INTERNAL_ERROR;
-                        LOGGER.log(
-                                Level.SEVERE,
-                                String.format(
-                                        "Internal error while executing a test for core %s and"
-                                                + " plugin %s %s. Please submit a bug to"
-                                                + " plugin-compat-tester",
-                                        coreCoordinates.version,
-                                        plugin.getDisplayName(),
-                                        plugin.version),
-                                t);
-                        errorMessage = t.getMessage();
-                    }
+            File buildLogFile =
+                    createBuildLogFile(
+                            config.reportFile, plugin.name, plugin.version, coreCoordinates);
+            String buildLogFilePath = "";
+            if (buildLogFile.exists()) {
+                buildLogFilePath =
+                        createBuildLogFilePathFor(plugin.name, plugin.version, coreCoordinates);
+            }
+
+            PluginCompatResult result =
+                    new PluginCompatResult(
+                            coreCoordinates, status, errorMessage, testDetails, buildLogFilePath);
+            PluginInfos pluginInfos = new PluginInfos(plugin.name, plugin.version, plugin.url);
+            report.add(pluginInfos, result);
+
+            if (config.reportFile != null) {
+                if (!config.reportFile.exists()) {
+                    FileUtils.touch(config.reportFile);
                 }
+                report.save(config.reportFile);
+            }
 
-                File buildLogFile =
-                        createBuildLogFile(
-                                config.reportFile, plugin.name, plugin.version, coreCoordinates);
-                String buildLogFilePath = "";
-                if (buildLogFile.exists()) {
-                    buildLogFilePath =
-                            createBuildLogFilePathFor(
-                                    pluginInfos.pluginName,
-                                    pluginInfos.pluginVersion,
-                                    coreCoordinates);
+            if (status != TestStatus.SUCCESS) {
+                failed = true;
+                if (config.isFailOnError()) {
+                    break;
                 }
-
-                PluginCompatResult result =
-                        new PluginCompatResult(
-                                coreCoordinates,
-                                status,
-                                errorMessage,
-                                testDetails,
-                                buildLogFilePath);
-                report.add(pluginInfos, result);
-
-                if (config.reportFile != null) {
-                    if (!config.reportFile.exists()) {
-                        FileUtils.touch(config.reportFile);
-                    }
-                    report.save(config.reportFile);
-                }
-
-                if (status != TestStatus.SUCCESS) {
-                    failed = true;
-                    if (config.isFailOnError()) {
-                        break;
-                    }
-                }
-            } else {
-                LOGGER.log(Level.FINE, "Plugin {0} not in included plugins; skipping", plugin.name);
             }
         }
 
