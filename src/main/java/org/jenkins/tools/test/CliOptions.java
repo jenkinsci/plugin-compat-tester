@@ -56,12 +56,6 @@ public class CliOptions {
             description = "A path to JDK HOME to be used for running tests in plugins.")
     private File testJDKHome = null;
 
-    @CheckForNull
-    @Parameter(
-            names = "-testJavaArgs",
-            description = "Java test arguments to be used for test runs.")
-    private String testJavaArgs = null;
-
     @Parameter(
             names = "-workDirectory",
             required = true,
@@ -249,11 +243,6 @@ public class CliOptions {
     @CheckForNull
     public File getTestJDKHome() {
         return testJDKHome;
-    }
-
-    @CheckForNull
-    public String getTestJavaArgs() {
-        return testJavaArgs;
     }
 
     public boolean isFailOnError() {
