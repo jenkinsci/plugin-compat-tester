@@ -31,15 +31,9 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.jvnet.hudson.test.Issue;
 
 /**
@@ -48,21 +42,6 @@ import org.jvnet.hudson.test.Issue;
  * @author Frederic Camblor
  */
 public class PluginCompatTesterTest {
-
-    private static final String REPORT_FILE =
-            String.format(
-                    "%s%sreports%sPluginCompatReport.xml",
-                    System.getProperty("java.io.tmpdir"), File.separator, File.separator);
-
-    @Rule public TemporaryFolder testFolder = new TemporaryFolder();
-
-    @Before
-    public void setUp() throws Exception {
-        File file = Paths.get(REPORT_FILE).toFile();
-        if (file.exists()) {
-            FileUtils.deleteQuietly(file);
-        }
-    }
 
     @Test
     public void testMatcher() {

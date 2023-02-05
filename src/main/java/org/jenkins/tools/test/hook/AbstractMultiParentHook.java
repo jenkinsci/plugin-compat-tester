@@ -24,7 +24,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     private PomData pomData;
 
     @Override
-    public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
+    public Map<String, Object> action(Map<String, Object> moreInfo) {
         PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
         UpdateSite.Plugin currentPlugin = (UpdateSite.Plugin) moreInfo.get("plugin");
 
@@ -57,12 +57,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                             scmTag);
                 }
                 // Like PluginCompatTester.cloneFromSCM but with subdirectories trimmed:
-                cloneFromSCM(
-                        currentPlugin,
-                        parentPath,
-                        scmTag,
-                        getUrl(),
-                        config.getFallbackGitHubOrganization());
+                cloneFromSCM(parentPath, scmTag, getUrl(), config.getFallbackGitHubOrganization());
             }
 
             // Checkout already happened, don't run through again
@@ -93,12 +88,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     }
 
     private void cloneFromSCM(
-            UpdateSite.Plugin currentPlugin,
-            File parentPath,
-            String scmTag,
-            String url,
-            String fallbackGitHubOrganization)
-            throws IOException {
+            File parentPath, String scmTag, String url, String fallbackGitHubOrganization) {
 
         List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(url);

@@ -35,7 +35,6 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.logging.LoggingConfiguration;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
@@ -59,7 +58,7 @@ public class PluginCompatTesterCli {
             justification =
                     "We're already checking for null in each relevant instance, so why does"
                             + " SpotBugs complain?")
-    public static void main(String[] args) throws IOException, PomExecutionException {
+    public static void main(String[] args) throws IOException {
         CliOptions options = new CliOptions();
         JCommander jcommander = null;
         try {
