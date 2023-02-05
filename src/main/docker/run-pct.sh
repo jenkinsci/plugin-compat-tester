@@ -26,16 +26,6 @@ fi
 
 CUSTOM_MAVEN_SETTINGS=${M2_SETTINGS_FILE:-"/pct/m2-settings.xml"}
 
-# Set failOnError by default unless env FAIL_ON_ERROR is false
-FAIL_ON_ERROR_ARG=""
-if [ -n "${FAIL_ON_ERROR}" ]; then
-    if [ "${FAIL_ON_ERROR}" != "false" ] ; then
-        FAIL_ON_ERROR_ARG="-failOnError"
-    fi
-else
-    FAIL_ON_ERROR_ARG="-failOnError"
-fi
-
 if [ -f "${CUSTOM_MAVEN_SETTINGS}" ] ; then
     echo "Using a custom Maven settings file"
     MVN_SETTINGS_FILE="${CUSTOM_MAVEN_SETTINGS}"
@@ -168,7 +158,6 @@ TEST_JAVA_ARGS="'${TEST_JAVA_ARGS:-} -Xmx768M -Djava.awt.headless=true -Djdk.net
 pctExitCode=0
 echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -jar /pct/pct-cli.jar \
-  -reportFile ${PCT_OUTPUT_DIR}/pct-report.xml \
   -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} \
   ${FAIL_ON_ERROR_ARG}\
   ${LOCAL_CHECKOUT_ARG} \

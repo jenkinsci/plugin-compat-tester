@@ -69,14 +69,6 @@ public class CliOptions {
     private File workDirectory;
 
     @Parameter(
-            names = "-reportFile",
-            required = true,
-            description =
-                    "Output report xml file path. This path must contain a directory, e.g."
-                            + " 'out/pct-report.xml'")
-    private File reportFile;
-
-    @Parameter(
             names = "-includePlugins",
             description =
                     "Comma separated list of plugins' artifactId to test.\n"
@@ -161,28 +153,14 @@ public class CliOptions {
     private boolean printHelp;
 
     @Parameter(
-            names = "-failOnError",
+            names = "-failFast",
             description =
-                    "Immediately if the PCT run fails for a plugin. Error status will be also"
-                            + " reported as a return code")
-    private boolean failOnError;
-
-    @Parameter(
-            names = "-storeAll",
-            description =
-                    "By default only failed tests are stored in PCT report file. \n"
-                            + "If set, the PCT will store ALL executed test names for each plugin in"
-                            + " report file. \n"
-                            + "Disabled by default because it may bloat reports for plugins which"
-                            + " thousands of tests.")
-    private Boolean storeAll;
+                    "If multiple plugins are specified, fail the overall run after the first plugin"
+                            + " failure occurs rather than continuing to test other plugins.")
+    private boolean failFast = true;
 
     public File getWar() {
         return war;
-    }
-
-    public File getReportFile() {
-        return reportFile;
     }
 
     public File getWorkDirectory() {
@@ -256,12 +234,8 @@ public class CliOptions {
         return testJavaArgs;
     }
 
-    public boolean isFailOnError() {
-        return failOnError;
-    }
-
-    public Boolean isStoreAll() {
-        return storeAll;
+    public boolean isFailFast() {
+        return failFast;
     }
 
     public static class FileListConverter implements IStringConverter<List<File>> {

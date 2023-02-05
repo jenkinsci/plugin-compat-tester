@@ -1,6 +1,7 @@
 package org.jenkins.tools.test.model.hook;
 
 import java.io.File;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -17,6 +18,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
 
@@ -53,8 +55,7 @@ public class PluginCompatTesterHooks {
     }
 
     public PluginCompatTesterHooks(
-            List<String> extraPrefixes, List<File> externalJars, List<String> excludeHooks)
-            throws MalformedURLException {
+            List<String> extraPrefixes, List<File> externalJars, List<String> excludeHooks) {
         setupPrefixes(extraPrefixes);
         setupExternalClassLoaders(externalJars);
         setupHooksByType();
@@ -75,26 +76,33 @@ public class PluginCompatTesterHooks {
         }
     }
 
-    private void setupExternalClassLoaders(List<File> externalJars) throws MalformedURLException {
+    private void setupExternalClassLoaders(List<File> externalJars) {
         if (externalJars == null) {
             return;
         }
         List<URL> urls = new ArrayList<>();
         for (File jar : externalJars) {
-            urls.add(jar.toURI().toURL());
+            try {
+                urls.add(jar.toURI().toURL());
+            } catch (MalformedURLException e) {
+                throw new UncheckedIOException(e);
+            }
         }
         classLoader = new URLClassLoader(urls.toArray(new URL[0]), classLoader);
     }
 
-    public Map<String, Object> runBeforeCheckout(Map<String, Object> elements) {
+    public Map<String, Object> runBeforeCheckout(Map<String, Object> elements)
+            throws PluginCompatibilityTesterException {
         return runHooks("checkout", elements);
     }
 
-    public Map<String, Object> runBeforeCompilation(Map<String, Object> elements) {
+    public Map<String, Object> runBeforeCompilation(Map<String, Object> elements)
+            throws PluginCompatibilityTesterException {
         return runHooks("compilation", elements);
     }
 
-    public Map<String, Object> runBeforeExecution(Map<String, Object> elements) {
+    public Map<String, Object> runBeforeExecution(Map<String, Object> elements)
+            throws PluginCompatibilityTesterException {
         return runHooks("execution", elements);
     }
 
@@ -106,25 +114,18 @@ public class PluginCompatTesterHooks {
      * @param elements relevant information to hooks at various stages.
      */
     private Map<String, Object> runHooks(String stage, Map<String, Object> elements)
-            throws RuntimeException {
+            throws PluginCompatibilityTesterException {
         Queue<PluginCompatTesterHook> beforeHooks = getHooksFromStage(stage, elements);
 
         // Loop through hooks in a series run in no particular order
         // Modifications build on each other, pertinent checks should be handled in the hook
         for (PluginCompatTesterHook hook : beforeHooks) {
-            try {
-                if (!excludeHooks.contains(hook.getClass().getName()) && hook.check(elements)) {
-                    LOGGER.log(Level.INFO, "Running hook: {0}", hook.getClass().getName());
-                    elements = hook.action(elements);
-                    hook.validate(elements);
-                } else {
-                    LOGGER.log(Level.FINE, "Skipping hook: {0}", hook.getClass().getName());
-                }
-            } catch (RuntimeException re) {
-                // this type of exception should stop processing the plugins. Throw it up the chain
-                throw re;
-            } catch (Exception ex) {
-                LOGGER.log(Level.WARNING, "Failed to run hook; continuing", ex);
+            if (!excludeHooks.contains(hook.getClass().getName()) && hook.check(elements)) {
+                LOGGER.log(Level.INFO, "Running hook: {0}", hook.getClass().getName());
+                elements = hook.action(elements);
+                hook.validate(elements);
+            } else {
+                LOGGER.log(Level.FINE, "Skipping hook: {0}", hook.getClass().getName());
             }
         }
         return elements;

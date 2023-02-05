@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jenkins.tools.test.model.TestExecutionResult;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
-import org.jenkins.tools.test.util.ExecutedTestNamesDetails;
 
 /**
  * Short circuit running any UI plugins that function as a helper methods. These are installed as
@@ -37,16 +35,10 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
         return Collections.unmodifiableList(allBundlePlugins);
     }
 
-    /**
-     * The plugin was identified as something that should be skipped. Create a {@link
-     * TestExecutionResult} preventing forward movement. Also, indicates that we should skip the
-     * checkout completely.
-     */
     @Override
     public Map<String, Object> action(Map<String, Object> moreInfo) {
         LOGGER.log(Level.WARNING, "Plugin unsupported at this time, skipping");
-        moreInfo.put("executionResult", new TestExecutionResult(new ExecutedTestNamesDetails()));
-        moreInfo.put("runCheckout", false);
+        moreInfo.put("skipPlugin", true);
         return moreInfo;
     }
 }
