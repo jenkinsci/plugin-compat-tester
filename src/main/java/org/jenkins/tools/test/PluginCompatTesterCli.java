@@ -108,9 +108,6 @@ public class PluginCompatTesterCli {
         if (options.getTestJDKHome() != null) {
             config.setTestJDKHome(options.getTestJDKHome());
         }
-        if (options.getTestJavaArgs() != null && !options.getTestJavaArgs().isEmpty()) {
-            config.setTestJavaArgs(options.getTestJavaArgs());
-        }
         if (options.getFallbackGitHubOrganization() != null) {
             config.setFallbackGitHubOrganization(options.getFallbackGitHubOrganization());
         }
