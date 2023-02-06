@@ -163,7 +163,6 @@ if [[ "${TEST_JDK_HOME}" == "/opt/java/openjdk" ]] && [[ -n "${JDK_VERSION}" ]] 
   export JAVA_HOME="${TEST_JDK_HOME}"
   export PATH="${JAVA_HOME}/bin:${PATH}"
 fi
-TEST_JAVA_ARGS="'${TEST_JAVA_ARGS:-} -Xmx768M -Djava.awt.headless=true -Djdk.net.URLClassPath.disableClassPathURLCheck=true'"
 
 pctExitCode=0
 echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
@@ -175,7 +174,6 @@ echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -includePlugins "${ARTIFACT_ID}" \
   -m2SettingsFile "${MVN_SETTINGS_FILE}" \
   -testJDKHome "${TEST_JDK_HOME}" \
-  -testJavaArgs ${TEST_JAVA_ARGS:-} \
   "$@" \
   "|| echo \$? > /pct/tmp/pct_exit_code" > /pct/tmp/pct_command
 chmod +x /pct/tmp/pct_command

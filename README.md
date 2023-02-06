@@ -132,8 +132,6 @@ For example, such mode can be used to run tests with JDK11 starting from Jenkins
 Two options can be passed to PCT CLI for such purpose:
 
 * `testJDKHome` - A path to JDK HOME to be used for running tests in plugins
-* `testJavaArgs` - Java test arguments to be used for test runs.
-                   This option may be used to pass custom classpath and, in Java 11, additional modules
 
 You can run the example by running the following command:
 

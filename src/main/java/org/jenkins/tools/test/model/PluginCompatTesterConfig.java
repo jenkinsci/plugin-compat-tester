@@ -68,8 +68,6 @@ public class PluginCompatTesterConfig {
     /** A Java HOME to be used for running tests in plugins. */
     @CheckForNull private File testJDKHome;
 
-    @CheckForNull private String testJavaArgs;
-
     @CheckForNull private File externalMaven;
 
     // List of plugin artifact ids on which tests will be performed
@@ -176,11 +174,6 @@ public class PluginCompatTesterConfig {
         return testJDKHome;
     }
 
-    @CheckForNull
-    public String getTestJavaArgs() {
-        return testJavaArgs;
-    }
-
     public List<String> getExcludePlugins() {
         return excludePlugins;
     }
@@ -284,19 +277,6 @@ public class PluginCompatTesterConfig {
             }
             final String javaCmdAbsolutePath = getTestJavaCommandPath();
             res.put("jvm", javaCmdAbsolutePath);
-        }
-
-        // Merge test Java args if needed
-        if (testJavaArgs != null && !testJavaArgs.isBlank()) {
-            if (res.containsKey("argLine")) {
-                LOGGER.log(
-                        Level.WARNING,
-                        "Maven properties already contain the 'argLine' argument; "
-                                + "merging value from properties and from the command line");
-                res.put("argLine", res.get("argLine") + " " + testJavaArgs);
-            } else {
-                res.put("argLine", testJavaArgs);
-            }
         }
 
         return res;
@@ -419,10 +399,6 @@ public class PluginCompatTesterConfig {
      */
     public void setTestJDKHome(@CheckForNull File testJDKHome) {
         this.testJDKHome = testJDKHome;
-    }
-
-    public void setTestJavaArgs(@CheckForNull String testJavaArgs) {
-        this.testJavaArgs = testJavaArgs;
     }
 
     public File getLocalCheckoutDir() {
