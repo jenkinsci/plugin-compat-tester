@@ -30,6 +30,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,25 +66,25 @@ public class PluginCompatTesterConfig {
     private File war;
 
     /** A Java HOME to be used for running tests in plugins. */
-    @CheckForNull private File testJDKHome = null;
+    @CheckForNull private File testJDKHome;
 
-    @CheckForNull private File externalMaven = null;
+    @CheckForNull private File externalMaven;
 
     // List of plugin artifact ids on which tests will be performed
     // If null, tests will be performed on every plugins retrieved from update center
-    private List<String> includePlugins = null;
+    private List<String> includePlugins;
 
     // List of plugin artifact ids on which tests will be not performed
     // If null, tests will be performed on every includePlugins found
-    private List<String> excludePlugins = null;
+    private List<String> excludePlugins;
 
     // List of hooks that will not be executed
     // If null, all hooks will be executed
-    private List<String> excludeHooks = null;
+    private List<String> excludeHooks;
 
     // URL to be used as an alternative to download plugin source from fallback
     // organtizations, like your own fork
-    private String fallbackGitHubOrganization = null;
+    private String fallbackGitHubOrganization;
 
     // Allows to provide XSL report file near XML report file
     // Only if reportFile is not null
@@ -248,7 +249,7 @@ public class PluginCompatTesterConfig {
                     }
                 }
             } else {
-                throw new IOException(
+                throw new FileNotFoundException(
                         "Extra Maven Properties File "
                                 + mavenPropertiesFile
                                 + " does not exist or not a File");

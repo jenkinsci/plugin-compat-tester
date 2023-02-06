@@ -69,7 +69,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.exception.ExecutedTestNamesSolverException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.exception.PomTransformationException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.MavenCoordinates;
@@ -109,7 +108,7 @@ public class PluginCompatTester {
         runner = new ExternalMavenRunner(config.getExternalMaven());
     }
 
-    public PluginCompatReport testPlugins() throws IOException, PomExecutionException {
+    public PluginCompatReport testPlugins() throws IOException {
         PluginCompatTesterHooks pcth =
                 new PluginCompatTesterHooks(
                         config.getHookPrefixes(),
@@ -414,8 +413,7 @@ public class PluginCompatTester {
             MavenRunner.Config mconfig,
             PomData pomData,
             PluginCompatTesterHooks pcth)
-            throws PluginSourcesUnavailableException, PomExecutionException, IOException,
-                    PomTransformationException {
+            throws PluginSourcesUnavailableException, PomExecutionException, IOException {
         LOGGER.log(
                 Level.INFO,
                 "\n\n\n\n\n\n"
@@ -605,9 +603,8 @@ public class PluginCompatTester {
     }
 
     public void cloneFromSCM(
-            PomData pomData, String name, String version, File checkoutDirectory, String tag)
-            throws IOException {
-        String scmTag = !(tag.equals("")) ? tag : getScmTag(pomData, name, version);
+            PomData pomData, String name, String version, File checkoutDirectory, String tag) {
+        String scmTag = StringUtils.isNotEmpty(tag) ? tag : getScmTag(pomData, name, version);
         String connectionURLPomData = pomData.getConnectionUrl();
         List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(connectionURLPomData);

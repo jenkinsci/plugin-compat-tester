@@ -54,7 +54,7 @@ public class CliOptions {
     @Parameter(
             names = "-testJDKHome",
             description = "A path to JDK HOME to be used for running tests in plugins.")
-    private File testJDKHome = null;
+    private File testJDKHome;
 
     @Parameter(
             names = "-workDirectory",
@@ -75,21 +75,21 @@ public class CliOptions {
             description =
                     "Comma separated list of plugins' artifactId to test.\n"
                             + "If not set, every plugin will be tested.")
-    private String includePlugins = null;
+    private String includePlugins;
 
     @Parameter(
             names = "-excludePlugins",
             description =
                     "Comma separated list of plugins' artifactId to NOT test.\n"
                             + "If not set, see includePlugins behaviour.")
-    private String excludePlugins = null;
+    private String excludePlugins;
 
     @Parameter(
             names = "-excludeHooks",
             description =
                     "Comma separated list of hooks to NOT execute.\n"
                             + "If not set, all hooks will be executed.")
-    private String excludeHooks = null;
+    private String excludeHooks;
 
     @Parameter(
             names = "-fallbackGitHubOrganization",
@@ -100,7 +100,7 @@ public class CliOptions {
                             + " version is not found in the official repository.\n"
                             + "If set, The PCT will try to use the fallback if a plugin tag is not"
                             + " found in the regular URL.")
-    private String fallbackGitHubOrganization = null;
+    private String fallbackGitHubOrganization;
 
     @Parameter(
             names = "-m2SettingsFile",
@@ -169,7 +169,7 @@ public class CliOptions {
                             + " report file. \n"
                             + "Disabled by default because it may bloat reports for plugins which"
                             + " thousands of tests.")
-    private Boolean storeAll = null;
+    private Boolean storeAll;
 
     public File getWar() {
         return war;

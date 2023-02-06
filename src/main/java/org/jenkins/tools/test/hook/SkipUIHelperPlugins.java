@@ -32,8 +32,6 @@ public class SkipUIHelperPlugins extends PluginCompatTesterHookBeforeCheckout {
                     "momentjs",
                     "numeraljs");
 
-    public SkipUIHelperPlugins() {}
-
     @Override
     public List<String> transformedPlugins() {
         return Collections.unmodifiableList(allBundlePlugins);
