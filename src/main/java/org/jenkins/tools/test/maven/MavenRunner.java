@@ -20,7 +20,7 @@ public interface MavenRunner {
 
         public final Map<String, String> userProperties = new TreeMap<>();
 
-        public final List<String> mavenOptions;
+        public final List<String> mavenArgs;
 
         public Config(PluginCompatTesterConfig pctConfig) {
             userSettingsFile = pctConfig.getM2SettingsFile();
@@ -29,7 +29,7 @@ public interface MavenRunner {
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-            mavenOptions = pctConfig.getMavenOptions();
+            mavenArgs = pctConfig.getMavenArgs();
         }
     }
 }

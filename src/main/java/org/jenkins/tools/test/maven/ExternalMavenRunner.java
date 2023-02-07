@@ -61,7 +61,7 @@ public class ExternalMavenRunner implements MavenRunner {
         for (Map.Entry<String, String> entry : config.userProperties.entrySet()) {
             cmd.add("--define=" + entry);
         }
-        cmd.addAll(config.mavenOptions);
+        cmd.addAll(config.mavenArgs);
         cmd.addAll(List.of(goals));
         LOGGER.log(
                 Level.INFO,
