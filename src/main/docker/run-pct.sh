@@ -162,7 +162,6 @@ echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   ${LOCAL_CHECKOUT_ARG} \
   -includePlugins "${ARTIFACT_ID}" \
   -m2SettingsFile "${MVN_SETTINGS_FILE}" \
-  -testJDKHome "${TEST_JDK_HOME}" \
   "$@" \
   "|| echo \$? > /pct/tmp/pct_exit_code" > /pct/tmp/pct_command
 chmod +x /pct/tmp/pct_command

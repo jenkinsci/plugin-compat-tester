@@ -38,9 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jenkins.tools.test.util.StreamGobbler;
 
 /**
  * POJO used to configure Plugin Compatibility Tester execution
@@ -60,9 +58,6 @@ public class PluginCompatTesterConfig {
 
     // The megawar
     private File war;
-
-    /** A Java HOME to be used for running tests in plugins. */
-    @CheckForNull private File testJDKHome;
 
     @CheckForNull private File externalMaven;
 
@@ -130,11 +125,6 @@ public class PluginCompatTesterConfig {
 
     public File getM2SettingsFile() {
         return m2SettingsFile;
-    }
-
-    @CheckForNull
-    public File getTestJDKHome() {
-        return testJDKHome;
     }
 
     public List<String> getExcludePlugins() {
@@ -219,106 +209,7 @@ public class PluginCompatTesterConfig {
             }
         }
 
-        // Read other explicit CLI arguments
-
-        // Override JDK if passed explicitly
-        if (testJDKHome != null) {
-            if (!testJDKHome.exists() || !testJDKHome.isDirectory()) {
-                throw new IOException("Wrong Test JDK Home passed as a parameter: " + testJDKHome);
-            }
-
-            if (res.containsKey("jvm")) {
-                LOGGER.log(
-                        Level.WARNING,
-                        "Maven properties already contain the 'jvm' argument; "
-                                + "overriding the previous test JDK home value '"
-                                + res.get("jvm")
-                                + "' by the explicit argument: "
-                                + testJDKHome);
-            } else {
-                LOGGER.log(Level.INFO, "Using custom test JDK home: {0}", testJDKHome);
-            }
-            final String javaCmdAbsolutePath = getTestJavaCommandPath();
-            res.put("jvm", javaCmdAbsolutePath);
-        }
-
         return res;
-    }
-
-    @CheckForNull
-    private String getTestJavaCommandPath() {
-        if (testJDKHome == null) {
-            return null;
-        }
-        return new File(testJDKHome, "bin/java").getAbsolutePath();
-    }
-
-    /**
-     * Gets the Java version used for testing, using the binary path to the <code>java</code>
-     * command.
-     *
-     * @return a string identifying the jvm in use
-     */
-    public String getTestJavaVersion() throws IOException {
-        String javaCmdAbsolutePath = getTestJavaCommandPath();
-        if (javaCmdAbsolutePath == null) {
-            LOGGER.log(Level.INFO, "Test JDK home unset; using Java from PATH");
-            javaCmdAbsolutePath = "java";
-        }
-        final Process process =
-                new ProcessBuilder()
-                        .command(javaCmdAbsolutePath, "-XshowSettings:properties", "-version")
-                        .redirectErrorStream(true)
-                        .start();
-        StreamGobbler gobbler = new StreamGobbler(process.getInputStream());
-        gobbler.start();
-        try {
-            int exitStatus = process.waitFor();
-            gobbler.join();
-            if (exitStatus != 0) {
-                throw new IOException(
-                        "java -XshowSettings:properties -version failed with exit status "
-                                + exitStatus
-                                + ": "
-                                + gobbler.getOutput().trim());
-            }
-        } catch (InterruptedException e) {
-            throw new IOException("interrupted while getting Java version", e);
-        }
-        final String javaVersionOutput = gobbler.getOutput().trim();
-        final String[] lines = javaVersionOutput.split("[\\r\\n]+");
-        for (String line : lines) {
-            String trimmed = line.trim();
-            if (trimmed.contains("java.specification.version")) {
-                // java.specification.version = version
-                return trimmed.split("=")[1].trim();
-            }
-        }
-        // Default to fullversion output as before
-        final Process process2 =
-                new ProcessBuilder()
-                        .command(javaCmdAbsolutePath, "-fullversion")
-                        .redirectErrorStream(true)
-                        .start();
-        StreamGobbler gobbler2 = new StreamGobbler(process2.getInputStream());
-        gobbler2.start();
-        try {
-            int exitStatus2 = process2.waitFor();
-            gobbler2.join();
-            if (exitStatus2 != 0) {
-                throw new IOException(
-                        "java -fullversion failed with exit status "
-                                + exitStatus2
-                                + ": "
-                                + gobbler2.getOutput().trim());
-            }
-        } catch (InterruptedException e) {
-            throw new IOException("interrupted while getting full Java version", e);
-        }
-        final String javaVersionOutput2 = gobbler2.getOutput().trim();
-        // Expected format is something like openjdk full version "1.8.0_181-8u181-b13-2~deb9u1-b13"
-        // We shorten it by removing the "full version" in the middle
-        return javaVersionOutput2.replace(" full version ", " ").replaceAll("\"", "");
     }
 
     public File getWar() {
@@ -353,15 +244,6 @@ public class PluginCompatTesterConfig {
 
     public void setExternalHooksJars(List<File> externalHooksJars) {
         this.externalHooksJars = externalHooksJars;
-    }
-
-    /**
-     * Sets JDK Home for tests
-     *
-     * @param testJDKHome JDK home to be used. {@code null} for using default system one.
-     */
-    public void setTestJDKHome(@CheckForNull File testJDKHome) {
-        this.testJDKHome = testJDKHome;
     }
 
     public File getLocalCheckoutDir() {

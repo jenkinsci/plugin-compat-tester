@@ -49,7 +49,6 @@ demo: target/plugins-compat-tester-cli.jar $(WAR_PATH) print-java-home
 	     -workDirectory $(CURDIR)/work \
 	     -mvn $(MVN_EXECUTABLE) \
 	     -war $(CURDIR)/$(WAR_PATH) \
-	     -testJDKHome "$(TEST_JDK_HOME)" \
 	     -includePlugins $(PLUGIN_NAME) \
 	     $(EXTRA_OPTS)
 

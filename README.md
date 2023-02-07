@@ -121,14 +121,6 @@ java -jar target/plugins-compat-tester-cli.jar \
 
 ### Running PCT with custom Java versions
 
-Plugin compat tester supports running Test Suites with a Java version different 
-from the one being used to run PCT and build the plugins.
-For example, such mode can be used to run tests with JDK11 starting from Jenkins 2.163.
-
-Two options can be passed to PCT CLI for such purpose:
-
-* `testJDKHome` - A path to JDK HOME to be used for running tests in plugins
-
 You can run the example by running the following command:
 
     make demo TEST_JDK_HOME=${YOUR_JDK_HOME} PLUGIN_NAME=git
