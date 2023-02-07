@@ -26,7 +26,6 @@
 
 package org.jenkins.tools.test;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.UpdateSite;
 import java.io.File;
 import java.io.IOException;
@@ -50,8 +49,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
@@ -76,7 +73,6 @@ import org.jenkins.tools.test.util.StreamGobbler;
 public class PluginCompatTester {
 
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTester.class.getName());
-    private static final String DEFAULT_SOURCE_ID = "default";
 
     /** First version with new parent POM. */
     public static final String JENKINS_CORE_FILE_REGEX =
@@ -97,24 +93,16 @@ public class PluginCompatTester {
                         config.getExternalHooksJars(),
                         config.getExcludeHooks());
         // Determine the plugin data
-        // Used to track real plugin groupIds from WARs
-        Map<String, String> pluginGroupIds = new HashMap<>();
 
         // Scan bundled plugins. If there is any bundled plugin, only these plugins will be taken
         // under the consideration for the PCT run.
         UpdateSite.Data data =
-                scanWAR(
-                        config.getWar(),
-                        pluginGroupIds,
-                        "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
+                scanWAR(config.getWar(), "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
         if (!data.plugins.isEmpty()) {
             // Scan detached plugins to recover proper Group IDs for them. At the moment, we are
             // considering that bomfile contains the info about the detached ones.
             UpdateSite.Data detachedData =
-                    scanWAR(
-                            config.getWar(),
-                            pluginGroupIds,
-                            "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
+                    scanWAR(config.getWar(), "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
 
             // Add detached if and only if no added as normal one
             if (detachedData != null) {
@@ -217,12 +205,8 @@ public class PluginCompatTester {
         PomData data =
                 new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"))
                         .retrievePomData();
-        JSONObject o = new JSONObject();
-        o.put("name", data.artifactId);
-        o.put("version", ""); // version is not required
-        o.put("url", data.getConnectionUrl());
-        o.put("dependencies", new JSONArray());
-        return new UpdateSite.Plugin(DEFAULT_SOURCE_ID, o);
+        return new UpdateSite.Plugin(
+                data.artifactId, "" /* version is not required */, data.getConnectionUrl(), null);
     }
 
     private static File createBuildLogFile(
@@ -643,17 +627,13 @@ public class PluginCompatTester {
      * Scans through a WAR file, accumulating plugin information
      *
      * @param war WAR to scan
-     * @param pluginGroupIds Map pluginName to groupId if set in the manifest, MUTATED IN THE
-     *     EXECUTION
      * @param pluginRegExp The plugin regexp to use, can be used to differentiate between detached
      *     or "normal" plugins in the war file
      * @return Update center data
      */
-    private UpdateSite.Data scanWAR(
-            File war, @NonNull Map<String, String> pluginGroupIds, String pluginRegExp) {
-        JSONObject top = new JSONObject();
-        top.put("id", DEFAULT_SOURCE_ID);
-        JSONObject plugins = new JSONObject();
+    private UpdateSite.Data scanWAR(File war, String pluginRegExp) {
+        UpdateSite.Entry core = null;
+        List<UpdateSite.Plugin> plugins = new ArrayList<>();
         try (JarFile jf = new JarFile(war)) {
             Enumeration<JarEntry> entries = jf.entries();
             while (entries.hasMoreElements()) {
@@ -661,23 +641,17 @@ public class PluginCompatTester {
                 String name = entry.getName();
                 Matcher m = Pattern.compile(JENKINS_CORE_FILE_REGEX).matcher(name);
                 if (m.matches()) {
-                    if (top.has("core")) {
+                    if (core != null) {
                         throw new IllegalStateException(">1 jenkins-core.jar in " + war);
                     }
                     // http://foobar is used to workaround the check in
                     // https://github.com/jenkinsci/jenkins/commit/f8daafd0327081186c06555f225e84c420261b4c
                     // We do not really care about the value
-                    top.put(
-                            "core",
-                            new JSONObject()
-                                    .accumulate("name", "core")
-                                    .accumulate("version", m.group(1))
-                                    .accumulate("url", "https://foobar"));
+                    core = new UpdateSite.Entry("core", m.group(1), "https://foobar");
                 }
 
                 m = Pattern.compile(pluginRegExp).matcher(name);
                 if (m.matches()) {
-                    JSONObject plugin = new JSONObject().accumulate("url", "");
                     try (InputStream is = jf.getInputStream(entry);
                             JarInputStream jis = new JarInputStream(is)) {
                         Manifest manifest = jis.getManifest();
@@ -689,12 +663,6 @@ public class PluginCompatTester {
                             }
                         }
                         String longName = manifest.getMainAttributes().getValue("Long-Name");
-                        if (longName != null) {
-                            plugin.put("title", longName);
-                        }
-                        plugin.put("name", shortName);
-                        pluginGroupIds.put(
-                                shortName, manifest.getMainAttributes().getValue("Group-Id"));
                         String version = manifest.getMainAttributes().getValue("Plugin-Version");
                         // Remove extra build information from the version number
                         final Matcher matcher =
@@ -702,43 +670,24 @@ public class PluginCompatTester {
                         if (matcher.matches()) {
                             version = matcher.group(1);
                         }
-                        plugin.put("version", version);
-                        plugin.put("url", "jar:" + war.toURI() + "!/" + name);
-                        JSONArray dependenciesA = new JSONArray();
-                        String dependencies =
-                                manifest.getMainAttributes().getValue("Plugin-Dependencies");
-                        if (dependencies != null) {
-                            // e.g.
-                            // matrix-auth:1.0.2;resolution:=optional,credentials:1.8.3;resolution:=optional
-                            for (String pair : dependencies.split(",")) {
-                                boolean optional = pair.endsWith("resolution:=optional");
-                                String[] nameVer =
-                                        pair.replace(";resolution:=optional", "").split(":");
-                                assert nameVer.length == 2;
-                                dependenciesA.add(
-                                        new JSONObject()
-                                                .accumulate("name", nameVer[0])
-                                                .accumulate("version", nameVer[1])
-                                                .accumulate("optional", String.valueOf(optional)));
-                            }
-                        }
-                        plugin.accumulate("dependencies", dependenciesA);
-                        plugins.put(shortName, plugin);
+                        String url = "jar:" + war.toURI() + "!/" + name;
+                        UpdateSite.Plugin plugin =
+                                new UpdateSite.Plugin(shortName, version, url, longName);
+                        plugins.add(plugin);
                     }
                 }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        top.put("plugins", plugins);
-        if (!top.has("core")) {
+        if (core == null) {
             throw new IllegalStateException("no jenkins-core.jar in " + war);
         }
         LOGGER.log(
                 Level.INFO,
                 "Scanned contents of {0} with {1} plugins",
                 new Object[] {war, plugins.size()});
-        return new UpdateSite.Data(top);
+        return new UpdateSite.Data(core, plugins);
     }
 
     /**
