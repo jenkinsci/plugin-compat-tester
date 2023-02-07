@@ -54,10 +54,6 @@ public class PluginCompatTesterConfig {
     // A working directory where the tested plugin's sources will be checked out
     public File workDirectory;
 
-    // A report file where will be generated testing report
-    // If the file already exist, testing report will be merged into it
-    public File reportFile;
-
     // Path for maven settings file where repository will be provided allowing to
     // download jenkins-core artifact (and dependencies)
     private File m2SettingsFile;
@@ -86,14 +82,6 @@ public class PluginCompatTesterConfig {
     // organtizations, like your own fork
     private String fallbackGitHubOrganization;
 
-    // Allows to provide XSL report file near XML report file
-    // Only if reportFile is not null
-    private boolean provideXslReport = true;
-
-    // Allows to generate HTML Report file
-    // Only if reportFile is not null
-    private boolean generateHtmlReport = true;
-
     private Map<String, String> mavenProperties = Collections.emptyMap();
     private String mavenPropertiesFile;
 
@@ -108,22 +96,17 @@ public class PluginCompatTesterConfig {
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
     private File localCheckoutDir;
 
-    // Immediately if the PCT run fails for a plugin. Error status will be also reported as a return
-    // code
-    private boolean failOnError;
-
-    // Flag to indicate if we want to store all the tests names or only failed ones on PCT report
-    // files
-    private boolean storeAll;
+    // If multiple plugins are specified, fail the overall run after the first plugin failure occurs
+    // rather than continuing to test other plugins.
+    private boolean failFast;
 
     /**
      * @deprecated just for tests; use {@link #PluginCompatTesterConfig()} and call whatever setters
      *     are actually required
      */
     @Deprecated
-    public PluginCompatTesterConfig(File workDirectory, File reportFile, File m2SettingsFile) {
+    public PluginCompatTesterConfig(File workDirectory, File m2SettingsFile) {
         setWorkDirectory(workDirectory);
-        setReportFile(reportFile);
         setM2SettingsFile(m2SettingsFile);
     }
 
@@ -131,10 +114,6 @@ public class PluginCompatTesterConfig {
 
     public void setWorkDirectory(File workDirectory) {
         this.workDirectory = workDirectory;
-    }
-
-    public void setReportFile(File reportFile) {
-        this.reportFile = reportFile;
     }
 
     public void setM2SettingsFile(File m2SettingsFile) {
@@ -151,22 +130,6 @@ public class PluginCompatTesterConfig {
 
     public File getM2SettingsFile() {
         return m2SettingsFile;
-    }
-
-    public boolean isProvideXslReport() {
-        return provideXslReport;
-    }
-
-    public void setProvideXslReport(boolean provideXslReport) {
-        this.provideXslReport = provideXslReport;
-    }
-
-    public boolean isGenerateHtmlReport() {
-        return generateHtmlReport;
-    }
-
-    public void setGenerateHtmlReport(boolean generateHtmlReport) {
-        this.generateHtmlReport = generateHtmlReport;
     }
 
     @CheckForNull
@@ -409,19 +372,11 @@ public class PluginCompatTesterConfig {
         this.localCheckoutDir = new File(localCheckoutDir);
     }
 
-    public boolean isFailOnError() {
-        return failOnError;
+    public boolean isFailFast() {
+        return failFast;
     }
 
-    public void setFailOnError(boolean failOnError) {
-        this.failOnError = failOnError;
-    }
-
-    public void setStoreAll(boolean storeAll) {
-        this.storeAll = storeAll;
-    }
-
-    public boolean isStoreAll() {
-        return storeAll;
+    public void setFailFast(boolean failFast) {
+        this.failFast = failFast;
     }
 }

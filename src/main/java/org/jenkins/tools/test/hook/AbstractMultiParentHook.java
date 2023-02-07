@@ -2,14 +2,11 @@ package org.jenkins.tools.test.hook;
 
 import hudson.model.UpdateSite;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkins.tools.test.PluginCompatTester;
+import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
@@ -24,7 +21,8 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     private PomData pomData;
 
     @Override
-    public Map<String, Object> action(Map<String, Object> moreInfo) {
+    public Map<String, Object> action(Map<String, Object> moreInfo)
+            throws PluginSourcesUnavailableException {
         PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
         UpdateSite.Plugin currentPlugin = (UpdateSite.Plugin) moreInfo.get("plugin");
 
@@ -45,19 +43,13 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                         new File(config.workDirectory.getAbsolutePath() + "/" + getParentFolder());
 
                 pomData = (PomData) moreInfo.get("pomData");
-                String scmTag;
-                if (pomData.getScmTag() != null) {
-                    scmTag = pomData.getScmTag();
-                    LOGGER.log(Level.INFO, "Using SCM tag {0} from POM", scmTag);
-                } else {
-                    scmTag = getParentProjectName() + "-" + currentPlugin.version;
-                    LOGGER.log(
-                            Level.INFO,
-                            "POM did not provide an SCM tag; inferring tag {0}",
-                            scmTag);
-                }
-                // Like PluginCompatTester.cloneFromSCM but with subdirectories trimmed:
-                cloneFromSCM(parentPath, scmTag, getUrl(), config.getFallbackGitHubOrganization());
+                // Like the call in PluginCompatTester#runHooks but with subdirectories trimmed:
+                PluginCompatTester.cloneFromScm(
+                        getUrl(),
+                        config.getFallbackGitHubOrganization(),
+                        PluginCompatTester.getScmTag(
+                                pomData, getParentProjectName(), currentPlugin.version),
+                        parentPath);
             }
 
             // Checkout already happened, don't run through again
@@ -85,39 +77,6 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
         }
 
         return moreInfo;
-    }
-
-    private void cloneFromSCM(
-            File parentPath, String scmTag, String url, String fallbackGitHubOrganization) {
-
-        List<String> connectionURLs = new ArrayList<>();
-        connectionURLs.add(url);
-        if (fallbackGitHubOrganization != null) {
-            connectionURLs =
-                    PluginCompatTester.getFallbackConnectionURL(
-                            connectionURLs, url, fallbackGitHubOrganization);
-        }
-
-        IOException lastException = null;
-        for (String connectionURL : connectionURLs) {
-            if (connectionURL != null) {
-                // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
-                connectionURL = connectionURL.replace("git://", "https://");
-            }
-            try {
-                PluginCompatTester.clone(connectionURL, scmTag, parentPath);
-                break;
-            } catch (IOException e) {
-                if (lastException != null) {
-                    e.addSuppressed(lastException);
-                }
-                lastException = e;
-            }
-        }
-
-        if (lastException != null) {
-            throw new UncheckedIOException(lastException);
-        }
     }
 
     public String getUrl() {

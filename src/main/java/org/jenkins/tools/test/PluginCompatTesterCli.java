@@ -29,12 +29,13 @@ package org.jenkins.tools.test;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.logging.LoggingConfiguration;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
@@ -58,15 +59,14 @@ public class PluginCompatTesterCli {
             justification =
                     "We're already checking for null in each relevant instance, so why does"
                             + " SpotBugs complain?")
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws PluginCompatibilityTesterException {
         CliOptions options = new CliOptions();
-        JCommander jcommander = null;
+        JCommander jcommander = JCommander.newBuilder().addObject(options).build();
         try {
-            jcommander = JCommander.newBuilder().addObject(options).build();
             jcommander.parse(args);
             if (options.isPrintHelp()) {
                 jcommander.usage();
-                System.exit(0);
+                return;
             }
         } catch (ParameterException e) {
             System.err.println(e.getMessage());
@@ -74,28 +74,15 @@ public class PluginCompatTesterCli {
             System.exit(1);
         }
 
-        Files.createDirectories(options.getWorkDirectory().toPath());
-
-        File reportFile = null;
-        if (!"NOREPORT".equals(options.getReportFile().getName())) {
-            reportFile = options.getReportFile();
-        }
-        if (reportFile != null) {
-            // Check the format requirement
-            File parentFile = reportFile.getParentFile();
-            if (parentFile == null) {
-                throw new IllegalArgumentException(
-                        "The -reportFile value '"
-                                + reportFile
-                                + "' does not have a directory specification. "
-                                + "A path should be something like 'out/pct-report.xml'");
-            }
+        try {
+            Files.createDirectories(options.getWorkDirectory().toPath());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
 
         PluginCompatTesterConfig config = new PluginCompatTesterConfig();
 
         config.setWorkDirectory(options.getWorkDirectory());
-        config.setReportFile(reportFile);
         config.setM2SettingsFile(options.getM2SettingsFile());
         config.setWar(options.getWar());
         config.setExternalMaven(options.getExternalMaven());
@@ -124,15 +111,8 @@ public class PluginCompatTesterCli {
         if (options.getFallbackGitHubOrganization() != null) {
             config.setFallbackGitHubOrganization(options.getFallbackGitHubOrganization());
         }
-        if (options.isFailOnError()) {
-            // TODO: also interpolate it for the case when a single plugin passed?
-            config.setFailOnError(true);
-        }
-
-        if (options.isStoreAll() != null) {
-            config.setStoreAll(options.isStoreAll().booleanValue());
-        } else {
-            config.setStoreAll(false);
+        if (options.isFailFast()) {
+            config.setFailFast(true);
         }
 
         // Handle properties

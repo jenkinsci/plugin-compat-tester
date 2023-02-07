@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 
 /**
  * The hook interface for creating custom hooks at different points in Plugin Compatibility Tester.
@@ -31,7 +32,8 @@ public interface PluginCompatTesterHook {
      *
      * <p>Certain implementations could throw exceptions.
      */
-    Map<String, Object> action(Map<String, Object> moreInfo) throws Exception;
+    Map<String, Object> action(Map<String, Object> moreInfo)
+            throws PluginCompatibilityTesterException;
 
     /**
      * List the plugins this hook affects. This can be a single plugin, a list of plugins, or simply

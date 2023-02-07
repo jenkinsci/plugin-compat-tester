@@ -46,8 +46,6 @@ print-java-home:
 .PHONY: demo
 demo: target/plugins-compat-tester-cli.jar $(WAR_PATH) print-java-home
 	java -jar target/plugins-compat-tester-cli.jar \
-	     -reportFile $(CURDIR)/out/pct-report.xml \
-	     -failOnError \
 	     -workDirectory $(CURDIR)/work \
 	     -mvn $(MVN_EXECUTABLE) \
 	     -war $(CURDIR)/$(WAR_PATH) \

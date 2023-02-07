@@ -1,27 +1,27 @@
 package org.jenkins.tools.test.maven;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.lang.SystemUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.util.ExecutedTestNamesSolver;
 
 /** Runs external Maven executable. */
 public class ExternalMavenRunner implements MavenRunner {
@@ -32,8 +32,6 @@ public class ExternalMavenRunner implements MavenRunner {
 
     @CheckForNull private File mvn;
 
-    private Set<String> executedTests;
-
     /**
      * Constructor.
      *
@@ -42,11 +40,6 @@ public class ExternalMavenRunner implements MavenRunner {
      */
     public ExternalMavenRunner(@CheckForNull File mvn) {
         this.mvn = mvn;
-        this.executedTests = new HashSet<>();
-    }
-
-    public Set<String> getExecutedTests() {
-        return Collections.unmodifiableSet(executedTests);
     }
 
     @Override
@@ -74,79 +67,54 @@ public class ExternalMavenRunner implements MavenRunner {
                 Level.INFO,
                 "Running {0} in {1} >> {2}",
                 new Object[] {String.join(" ", cmd), baseDirectory, buildLogFile});
+        Process p;
         try {
-            Process p =
-                    new ProcessBuilder(cmd)
-                            .directory(baseDirectory)
-                            .redirectErrorStream(true)
-                            .start();
-            List<String> succeededPluginArtifactIds = new ArrayList<>();
-            try (InputStream is = p.getInputStream();
-                    BufferedReader r =
-                            new BufferedReader(
-                                    new InputStreamReader(is, Charset.defaultCharset()));
-                    FileOutputStream os = new FileOutputStream(buildLogFile, true);
-                    PrintWriter w =
-                            new PrintWriter(new OutputStreamWriter(os, Charset.defaultCharset()))) {
-                String completed = null;
-                Pattern pattern = Pattern.compile("\\[INFO\\] --- (.+):.+:.+ [(].+[)] @ .+ ---");
-                String line;
-                boolean testPhase = false;
-                while ((line = r.readLine()) != null) {
-                    System.out.println(line);
-                    w.println(line);
-                    if (line.contains("T E S T S")) {
-                        testPhase = true;
-                    }
-                    Matcher m = pattern.matcher(line);
-                    if (m.matches()) {
-                        if (completed != null) {
-                            succeededPluginArtifactIds.add(completed);
-                        }
-                        completed = m.group(1);
-                    } else if (line.equals("[INFO] BUILD SUCCESS") && completed != null) {
-                        succeededPluginArtifactIds.add(completed);
-                    } else if (testPhase
-                            && line.startsWith("[INFO] Running")
-                            && !line.contains("InjectedTest")) {
-                        this.executedTests.add(line.split("Running")[1].trim());
-                    }
-                }
-                w.flush();
-                LOGGER.log(
-                        Level.INFO,
-                        () ->
-                                "Succeeded artifact IDs: "
-                                        + String.join(",", succeededPluginArtifactIds));
-                LOGGER.log(Level.INFO, "Executed tests: {0}", String.join(",", getExecutedTests()));
-            }
-            if (p.waitFor() != 0) {
-                throw new PomExecutionException(
-                        cmd + " failed in " + baseDirectory,
-                        succeededPluginArtifactIds,
-                        /* TODO */ Collections.emptyList(),
-                        new ExecutedTestNamesSolver()
-                                .solve(getTypes(config), getExecutedTests(), baseDirectory));
-            }
-        } catch (PomExecutionException x) {
-            LOGGER.log(Level.WARNING, "Failed to run Maven", x);
-            throw x;
-        } catch (Exception x) {
-            LOGGER.log(Level.WARNING, "Failed to run Maven", x);
-            throw new PomExecutionException(x);
+            p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        MavenGobbler gobbler = new MavenGobbler(p, buildLogFile);
+        gobbler.start();
+        int exitStatus;
+        try {
+            exitStatus = p.waitFor();
+            gobbler.join();
+        } catch (InterruptedException e) {
+            throw new PomExecutionException(cmd + " was interrupted", e);
+        }
+        if (exitStatus != 0) {
+            throw new PomExecutionException(
+                    cmd + " in " + baseDirectory + " failed with exit status " + exitStatus);
         }
     }
 
-    private static Set<String> getTypes(Config config) {
-        Set<String> result = new HashSet<>();
-        if (config == null
-                || config.userProperties == null
-                || !config.userProperties.containsKey("types")) {
-            result.add("surefire");
-            return result;
+    private static class MavenGobbler extends Thread {
+
+        @NonNull private final Process p;
+
+        @NonNull private final File buildLogFile;
+
+        public MavenGobbler(@NonNull Process p, @NonNull File buildLogFile) {
+            this.p = p;
+            this.buildLogFile = buildLogFile;
         }
-        String types = config.userProperties.get("types");
-        result.addAll(List.of(types.split(",")));
-        return result;
+
+        @Override
+        public void run() {
+            try (InputStream is = p.getInputStream();
+                    Reader isr = new InputStreamReader(is, Charset.defaultCharset());
+                    BufferedReader r = new BufferedReader(isr);
+                    OutputStream os = new FileOutputStream(buildLogFile, true);
+                    Writer osw = new OutputStreamWriter(os, Charset.defaultCharset());
+                    PrintWriter w = new PrintWriter(osw)) {
+                String line;
+                while ((line = r.readLine()) != null) {
+                    System.out.println(line);
+                    w.println(line);
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
     }
 }
