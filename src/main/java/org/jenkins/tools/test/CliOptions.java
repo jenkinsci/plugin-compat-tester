@@ -114,11 +114,10 @@ public class CliOptions {
     private String mavenPropertiesFile;
 
     @Parameter(
-            names = "-mavenOptions",
+            names = "-mavenArgs",
             description =
-                    "Options to pass to Maven (like -Pxxx; not to be confused with Java options,"
-                            + " nor Maven properties).")
-    private List<String> mavenOptions;
+                    "Arguments to pass to Maven (like -Pxxx; not to be confused with Java arguments or Maven properties).")
+    private List<String> mavenArgs;
 
     @Parameter(names = "-hookPrefixes", description = "Prefixes of the extra hooks' classes")
     private String hookPrefixes;
@@ -190,9 +189,9 @@ public class CliOptions {
     }
 
     @NonNull
-    public List<String> getMavenOptions() {
-        return mavenOptions != null
-                ? Collections.unmodifiableList(mavenOptions)
+    public List<String> getMavenArgs() {
+        return mavenArgs != null
+                ? Collections.unmodifiableList(mavenArgs)
                 : Collections.emptyList();
     }
 

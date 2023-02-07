@@ -130,7 +130,7 @@ public class PluginCompatTesterCli {
             config.setMavenPropertiesFiles(options.getMavenPropertiesFile());
         }
 
-        config.setMavenOptions(options.getMavenOptions());
+        config.setMavenArgs(options.getMavenArgs());
 
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
