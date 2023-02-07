@@ -2,6 +2,7 @@ package org.jenkins.tools.test.hook;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,7 +16,7 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
             Logger.getLogger(NodeCleanupBeforeCompileHook.class.getName());
 
     @Override
-    public Map<String, Object> action(Map<String, Object> moreInfo) throws Exception {
+    public Map<String, Object> action(Map<String, Object> moreInfo) {
         PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
         boolean shouldExecuteHook =
                 config.getIncludePlugins().contains("sse-gateway")
@@ -23,14 +24,9 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
 
         if (shouldExecuteHook) {
             File pluginDir = (File) moreInfo.get("pluginDir");
-            try {
-                LOGGER.log(Level.INFO, "Executing node and node_modules cleanup hook");
-                compile(pluginDir);
-                return moreInfo;
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "Exception executing hook", e);
-                throw e;
-            }
+            LOGGER.log(Level.INFO, "Executing node and node_modules cleanup hook");
+            compile(pluginDir);
+            return moreInfo;
         } else {
             LOGGER.log(Level.INFO, "Hook not triggered; continuing");
             return moreInfo;
@@ -40,19 +36,27 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
     @Override
     public void validate(Map<String, Object> toCheck) {}
 
-    private void compile(File path) throws IOException {
+    private void compile(File path) {
         LOGGER.log(Level.INFO, "Calling removeNodeFolders");
         removeNodeFolders(path);
     }
 
-    private void removeNodeFolders(File path) throws IOException {
+    private void removeNodeFolders(File path) {
         File nodeFolder = new File(path, "node");
         if (nodeFolder.isDirectory()) {
-            FileUtils.deleteDirectory(nodeFolder);
+            try {
+                FileUtils.deleteDirectory(nodeFolder);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
         File nodeModulesFolder = new File(path, "node_modules");
         if (nodeModulesFolder.isDirectory()) {
-            FileUtils.deleteDirectory(nodeModulesFolder);
+            try {
+                FileUtils.deleteDirectory(nodeFolder);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
     }
 }

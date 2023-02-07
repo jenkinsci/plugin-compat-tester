@@ -31,9 +31,16 @@ package org.jenkins.tools.test.exception;
  *
  * @author Frederic Camblor
  */
-public class PomTransformationException extends Exception {
+public class PomTransformationException extends PluginCompatibilityTesterException {
+    public PomTransformationException(String message) {
+        super(message);
+    }
 
     public PomTransformationException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public PomTransformationException(Throwable cause) {
+        super(cause);
     }
 }

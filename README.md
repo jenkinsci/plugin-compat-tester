@@ -97,11 +97,9 @@ PCT offers the CLI interface which can be used to run PCT locally.
 
 ```shell
 java -jar target/plugins-compat-tester-cli.jar \
-  -reportFile $(pwd)/out/report.xml \
   -workDirectory $(pwd)/tmp/work \
   -includePlugins ${PLUGIN_ARTIFACT_ID} \
   -war jenkins.war -localCheckoutDir ${PLUGIN_SRC} \
-  -failOnError \
   -mvn ${PATH_TO_MAVEN}
 ```
 
@@ -115,11 +113,9 @@ Plugin Compat Tester supports running test suites using a BOM file as source of 
 
 ```shell
 java -jar target/plugins-compat-tester-cli.jar \
-  -reportFile $(pwd)/out/report.xml \
   -workDirectory $(pwd)/tmp/work \
   -includePlugins ${PLUGIN_ARTIFACT_ID} \
   -bom ${BOM_FILE_LOCATION} \
-  -failOnError \
   -mvn ${PATH_TO_MAVEN}
 ```
 

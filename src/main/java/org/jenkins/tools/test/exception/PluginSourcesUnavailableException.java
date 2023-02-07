@@ -32,9 +32,16 @@ package org.jenkins.tools.test.exception;
  *
  * @author Frederic Camblor
  */
-public class PluginSourcesUnavailableException extends Exception {
+public class PluginSourcesUnavailableException extends PluginCompatibilityTesterException {
+    public PluginSourcesUnavailableException(String message) {
+        super(message);
+    }
 
     public PluginSourcesUnavailableException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public PluginSourcesUnavailableException(Throwable cause) {
+        super(cause);
     }
 }

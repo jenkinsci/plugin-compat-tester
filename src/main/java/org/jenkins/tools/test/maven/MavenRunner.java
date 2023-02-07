@@ -2,6 +2,7 @@ package org.jenkins.tools.test.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -21,9 +22,13 @@ public interface MavenRunner {
 
         public final List<String> mavenOptions;
 
-        public Config(PluginCompatTesterConfig pctConfig) throws IOException {
+        public Config(PluginCompatTesterConfig pctConfig) {
             userSettingsFile = pctConfig.getM2SettingsFile();
-            userProperties.putAll(pctConfig.retrieveMavenProperties());
+            try {
+                userProperties.putAll(pctConfig.retrieveMavenProperties());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
             mavenOptions = pctConfig.getMavenOptions();
         }
     }
