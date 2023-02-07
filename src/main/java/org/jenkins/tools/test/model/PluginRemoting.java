@@ -26,34 +26,22 @@
 
 package org.jenkins.tools.test.model;
 
-import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import org.apache.commons.lang.StringUtils;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * Utility class providing business for retrieving plugin POM data
@@ -62,7 +50,6 @@ import org.xml.sax.SAXException;
  */
 public class PluginRemoting {
 
-    private static final Logger LOGGER = Logger.getLogger(PluginRemoting.class.getName());
     private String hpiRemoteUrl;
     private File pomFile;
 
@@ -106,181 +93,34 @@ public class PluginRemoting {
     }
 
     public PomData retrievePomData() throws PluginSourcesUnavailableException {
-        String scmConnection;
-        String scmTag;
-        String artifactId;
-        String groupId;
-        String packaging;
         String pomContent = this.retrievePomContent();
-        @CheckForNull MavenCoordinates parent = null;
 
-        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-        try {
-            DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
-            Document doc = builder.parse(new InputSource(new StringReader(pomContent)));
-
-            XPathFactory xpathFactory = XPathFactory.newInstance();
-            XPath xpath = xpathFactory.newXPath();
-            XPathExpression scmConnectionXPath = xpath.compile("/project/scm/connection/text()");
-            XPathExpression artifactIdXPath = xpath.compile("/project/artifactId/text()");
-            XPathExpression groupIdXPath = xpath.compile("/project/groupId/text()");
-            XPathExpression packagingXPath = xpath.compile("/project/packaging/text()");
-            XPathExpression scmTagXPath = xpath.compile("/project/scm/tag/text()");
-
-            scmConnection = (String) scmConnectionXPath.evaluate(doc, XPathConstants.STRING);
-            scmTag =
-                    StringUtils.trimToNull(
-                            (String) scmTagXPath.evaluate(doc, XPathConstants.STRING));
-            artifactId = (String) artifactIdXPath.evaluate(doc, XPathConstants.STRING);
-            groupId = (String) groupIdXPath.evaluate(doc, XPathConstants.STRING);
-            packaging =
-                    StringUtils.trimToNull(
-                            (String) packagingXPath.evaluate(doc, XPathConstants.STRING));
-
-            String parentNode = xpath.evaluate("/project/parent", doc);
-            if (parentNode != null && !parentNode.isBlank()) {
-                LOGGER.log(Level.FINE, "Parent POM: {0}", parentNode);
-                parent =
-                        new MavenCoordinates(
-                                getValueOrFail(doc, xpath, "/project/parent/groupId"),
-                                getValueOrFail(doc, xpath, "/project/parent/artifactId"),
-                                getValueOrFail(doc, xpath, "/project/parent/version"));
-            } else {
-                LOGGER.log(Level.FINE, "No parent POM for {0}", artifactId);
-            }
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            LOGGER.log(Level.WARNING, "Failed to parse pom.xml", e);
+        Model model;
+        try (Reader r = new StringReader(pomContent)) {
+            MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
+            model = mavenXpp3Reader.read(r);
+        } catch (XmlPullParserException e) {
             throw new PluginSourcesUnavailableException("Failed to parse pom.xml", e);
-        } catch (XPathExpressionException e) {
-            LOGGER.log(Level.WARNING, "Failed to retrieve SCM connection", e);
-            throw new PluginSourcesUnavailableException("Failed to retrieve SCM connection", e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
 
-        PomData pomData =
-                new PomData(artifactId, packaging, scmConnection, scmTag, parent, groupId);
-        computeScmConnection(pomData);
-        return pomData;
-    }
-
-    /**
-     * Retrieves a field value by XPath. The value must exist and be non-empty.
-     *
-     * @throws IOException parsing error
-     */
-    @NonNull
-    private static String getValueOrFail(Document doc, XPath xpath, String field)
-            throws IOException {
-        String res;
-        try {
-            res = xpath.evaluate(field + "/text()", doc);
-        } catch (XPathExpressionException e) {
-            throw new IOException("Expression failed for the field " + field, e);
+        MavenCoordinates parent;
+        if (model.getParent() != null) {
+            parent =
+                    new MavenCoordinates(
+                            model.getParent().getGroupId(),
+                            model.getParent().getArtifactId(),
+                            model.getParent().getVersion());
+        } else {
+            parent = null;
         }
-
-        if (res == null || res.isBlank()) {
-            throw new IOException("Field is either null or blank: " + field);
-        }
-        return res;
-    }
-
-    public static void computeScmConnection(PomData pomData) {
-        String transformedConnectionUrl = pomData.getConnectionUrl();
-
-        // Trimming url
-        transformedConnectionUrl = transformedConnectionUrl.trim();
-
-        // Generally, when connectionUrl is empty, is implies it is declared in a parent pom
-        // => Only possibility is to deduct github repository from artifactId (crossing fingers it
-        // is not a bizarre repository url...)
-        String oldUrl = transformedConnectionUrl;
-        if (transformedConnectionUrl.isEmpty()) {
-            transformedConnectionUrl =
-                    "scm:git:git://github.com/jenkinsci/"
-                            + pomData.artifactId.replaceAll("jenkins", "")
-                            + "-plugin.git";
-            if (!oldUrl.equals(transformedConnectionUrl)) {
-                LOGGER.log(
-                        Level.WARNING,
-                        "project.scm.connectionUrl is not present in plugin's pom .. isn't it"
-                                + " residing somewhere on a parent pom ?");
-            }
-        }
-
-        // Java.net SVN migration
-        oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl =
-                transformedConnectionUrl.replaceAll(
-                        "(svn|hudson)\\.dev\\.java\\.net/svn/hudson/",
-                        "svn.java.net/svn/hudson~svn/");
-        if (!oldUrl.equals(transformedConnectionUrl)) {
-            LOGGER.log(
-                    Level.WARNING,
-                    "project.scm.connectionUrl is pointing to svn.dev.java.net/svn/hudson/ instead"
-                            + " of svn.java.net/svn/hudson~svn/");
-        }
-
-        // ${project.artifactId}
-        transformedConnectionUrl =
-                transformedConnectionUrl.replaceAll(
-                        "\\$\\{project\\.artifactId\\}", pomData.artifactId);
-
-        // github url like [https://]<username>@github.com/...
-        // => Replaced by git://github.com/...
-        /* Do not change this; it was actually correct if the repo was non-public.
-        oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl = transformedConnectionUrl.replaceAll("(http(s)?://)?[^@:]+@github\\.com", "git://github.com");
-        if(!oldUrl.equals(transformedConnectionUrl)){
-            LOGGER.log(Level.WARNING, "project.scm.connectionUrl is using a github account instead of a read-only url git://github.com/...");
-        }
-        */
-
-        // Convert things like
-        // scm:git:git://git@github.com:jenkinsci/dockerhub-notification-plugin.git
-        oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl =
-                transformedConnectionUrl.replaceAll(
-                        "scm:git:git://git@github\\.com:jenkinsci",
-                        "scm:git:git://github.com/jenkinsci");
-        if (!oldUrl.equals(transformedConnectionUrl)) {
-            LOGGER.log(
-                    Level.WARNING,
-                    "project.scm.connectionUrl should should be accessed in read-only mode (with"
-                            + " git:// protocol)");
-        }
-
-        oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl =
-                transformedConnectionUrl.replaceAll("://github\\.com[^/]", "://github.com/");
-        if (!oldUrl.equals(transformedConnectionUrl)) {
-            LOGGER.log(
-                    Level.WARNING,
-                    "project.scm.connectionUrl should have a '/' after the github.com url");
-        }
-
-        oldUrl = transformedConnectionUrl;
-        transformedConnectionUrl =
-                transformedConnectionUrl.replaceAll(
-                        "://github\\.com/hudson/", "://github.com/jenkinsci/");
-        if (!oldUrl.equals(transformedConnectionUrl)) {
-            LOGGER.log(
-                    Level.WARNING,
-                    "project.scm.connectionUrl should not reference hudson project anymore (no"
-                            + " plugin repository there))");
-        }
-
-        // Just fixing some scm-sync-configuration issues...
-        // TODO: remove this when fixed !
-        oldUrl = transformedConnectionUrl;
-        if ("scm-sync-configuration".equals(pomData.artifactId)) {
-            transformedConnectionUrl =
-                    transformedConnectionUrl.substring(0, transformedConnectionUrl.length() - 4)
-                            + "-plugin.git";
-        }
-        if (!oldUrl.equals(transformedConnectionUrl)) {
-            LOGGER.log(
-                    Level.WARNING, "project.scm.connectionUrl should be ending with '-plugin.git'");
-        }
-
-        pomData.setConnectionUrl(transformedConnectionUrl);
+        return new PomData(
+                model.getArtifactId(),
+                model.getPackaging(),
+                model.getScm().getConnection(),
+                model.getScm().getTag(),
+                parent,
+                model.getGroupId());
     }
 }
