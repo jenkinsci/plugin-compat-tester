@@ -265,12 +265,7 @@ public class PluginCompatTester {
         beforeCheckout.put("pomData", pomData);
         beforeCheckout.put("config", config);
         beforeCheckout.put("runCheckout", true);
-        beforeCheckout.put("skipPlugin", false);
         beforeCheckout = pcth.runBeforeCheckout(beforeCheckout);
-        if ((boolean) beforeCheckout.get("skipPlugin")) {
-            LOGGER.log(Level.WARNING, "Skipping plugin {0}", plugin.name);
-            return;
-        }
 
         if ((boolean) beforeCheckout.get("runCheckout")) {
             if (beforeCheckout.get("checkoutDir") != null) {
