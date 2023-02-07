@@ -105,9 +105,6 @@ public class PluginCompatTesterCli {
         if (options.getLocalCheckoutDir() != null && !options.getLocalCheckoutDir().isEmpty()) {
             config.setLocalCheckoutDir(options.getLocalCheckoutDir());
         }
-        if (options.getTestJDKHome() != null) {
-            config.setTestJDKHome(options.getTestJDKHome());
-        }
         if (options.getFallbackGitHubOrganization() != null) {
             config.setFallbackGitHubOrganization(options.getFallbackGitHubOrganization());
         }

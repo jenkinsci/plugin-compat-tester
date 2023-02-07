@@ -50,12 +50,6 @@ public class CliOptions {
                     "A WAR file to scan for plugins rather than looking in the update center.")
     private File war;
 
-    @CheckForNull
-    @Parameter(
-            names = "-testJDKHome",
-            description = "A path to JDK HOME to be used for running tests in plugins.")
-    private File testJDKHome;
-
     @Parameter(
             names = "-workDirectory",
             required = true,
@@ -216,11 +210,6 @@ public class CliOptions {
 
     public boolean isPrintHelp() {
         return printHelp;
-    }
-
-    @CheckForNull
-    public File getTestJDKHome() {
-        return testJDKHome;
     }
 
     public boolean isFailFast() {
