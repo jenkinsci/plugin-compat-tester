@@ -126,7 +126,9 @@ public class PluginRemoting {
     }
 
     /**
-     * Replaces any occurence of {@code "${project.artifactId}"} or  {@code "${artifactId}"} with the supplied value of the artifactId/
+     * Replaces any occurence of {@code "${project.artifactId}"} or {@code "${artifactId}"} with the
+     * supplied value of the artifactId/
+     *
      * @param original the original string
      * @param artifactId the interpolated String
      * @return the original string with any interpolation for the artifactId resolved.
