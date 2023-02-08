@@ -136,6 +136,6 @@ public class PluginRemoting {
         if (original == null) {
             return null;
         }
-        return original.replace("${project.artifactId}", artifactId).replace("${artifactId}", artifactId);
+        return original.replace("${project.artifactId}", artifactId);
     }
 }
