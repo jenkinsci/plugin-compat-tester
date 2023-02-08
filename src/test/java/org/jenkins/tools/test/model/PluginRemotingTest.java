@@ -53,7 +53,7 @@ public class PluginRemotingTest {
         assertThat(
                 pomData.parent,
                 is(new MavenCoordinates("com.example.jenkins", "example-parent", "4.1")));
-        assertThat(pomData.groupId, is("com.example.jenkins"));
+        assertThat(pomData.groupId, nullValue());
         assertThat(pomData.artifactId, is("example"));
         assertThat(pomData.getPackaging(), is("hpi"));
         assertThat(pomData.getConnectionUrl(), nullValue());
