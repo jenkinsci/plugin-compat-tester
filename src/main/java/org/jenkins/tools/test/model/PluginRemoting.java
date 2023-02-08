@@ -119,8 +119,10 @@ public class PluginRemoting {
                 model.getArtifactId(),
                 model.getPackaging(),
                 // scm may contain properties so it needs to be resolved.
-                interpolateString(model.getScm().getConnection(), model.getArtifactId()),
-                model.getScm().getTag(),
+                interpolateString(
+                        model.getScm() != null ? model.getScm().getConnection() : null,
+                        model.getArtifactId()),
+                model.getScm() != null ? model.getScm().getTag() : null,
                 parent,
                 model.getGroupId());
     }

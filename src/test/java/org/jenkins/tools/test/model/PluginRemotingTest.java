@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.io.File;
 import org.junit.Test;
 
 public class PluginRemotingTest {
@@ -27,5 +28,35 @@ public class PluginRemotingTest {
         assertThat(
                 PluginRemoting.interpolateString("${projectXartifactId}suffix", "something"),
                 is("${projectXartifactId}suffix"));
+    }
+
+    @Test
+    public void smokes() throws Exception {
+        File pomFile = new File(getClass().getResource("smokes/pom.xml").toURI());
+        PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
+        PomData pomData = pluginRemoting.retrievePomData();
+        assertThat(pomData.parent, nullValue());
+        assertThat(pomData.groupId, is("com.example.jenkins"));
+        assertThat(pomData.artifactId, is("example"));
+        assertThat(pomData.getPackaging(), is("hpi"));
+        assertThat(
+                pomData.getConnectionUrl(),
+                is("scm:git:https://jenkins.example.com/example-plugin.git"));
+        assertThat(pomData.getScmTag(), is("example-4.1"));
+    }
+
+    @Test
+    public void noScm() throws Exception {
+        File pomFile = new File(getClass().getResource("scm/pom.xml").toURI());
+        PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
+        PomData pomData = pluginRemoting.retrievePomData();
+        assertThat(
+                pomData.parent,
+                is(new MavenCoordinates("com.example.jenkins", "example-parent", "4.1")));
+        assertThat(pomData.groupId, nullValue());
+        assertThat(pomData.artifactId, is("example"));
+        assertThat(pomData.getPackaging(), is("hpi"));
+        assertThat(pomData.getConnectionUrl(), nullValue());
+        assertThat(pomData.getScmTag(), nullValue());
     }
 }

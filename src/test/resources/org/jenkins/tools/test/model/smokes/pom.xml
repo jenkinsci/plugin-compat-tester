@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example.jenkins</groupId>
+  <artifactId>example</artifactId>
+  <version>4.1</version>
+  <packaging>hpi</packaging>
+  <name>Example</name>
+  <url>https://jenkins.example.com/example-plugin</url>
+  <licenses>
+    <license>
+      <name>The MIT License (MIT)</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:git:https://jenkins.example.com/example-plugin.git</connection>
+    <developerConnection>scm:git:git@jenkins.example.com/example-plugin.git</developerConnection>
+    <tag>example-4.1</tag>
+    <url>https://jenkins.example.com/example-plugin</url>
+  </scm>
+  <distributionManagement>
+    <repository>
+      <id>maven.example.com</id>
+      <url>https://repo.example.com/releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>maven.example.com</id>
+      <url>https://repo.example.com/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <repositories>
+    <repository>
+      <id>repo.example.com</id>
+      <url>https://repo.example.com/public/</url>
+    </repository>
+  </repositories>
+</project>
