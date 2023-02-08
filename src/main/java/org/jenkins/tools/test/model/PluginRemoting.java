@@ -36,6 +36,7 @@ import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.maven.model.Model;
@@ -118,9 +119,23 @@ public class PluginRemoting {
         return new PomData(
                 model.getArtifactId(),
                 model.getPackaging(),
-                model.getScm().getConnection(),
+                // scm may contain properties so it needs to be resolved.
+                interpolateString(model.getScm().getConnection(), model.getArtifactId()),
                 model.getScm().getTag(),
                 parent,
                 model.getGroupId());
+    }
+
+    /**
+     * Replaces any occurence of {@code "${project.artifactId}"} or  {@code "${artifactId}"} with the supplied value of the artifactId/
+     * @param original the original string
+     * @param artifactId the interpolated String
+     * @return the original string with any interpolation for the artifactId resolved.
+     */
+    static String interpolateString(String original, String artifactId) {
+        if (original == null) {
+            return null;
+        }
+        return original.replace("${project.artifactId}", artifactId).replace("${artifactId}", artifactId);
     }
 }
