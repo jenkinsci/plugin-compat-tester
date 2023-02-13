@@ -27,6 +27,7 @@
 package org.jenkins.tools.test;
 
 import hudson.model.UpdateSite;
+import hudson.util.VersionNumber;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,13 +35,12 @@ import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -83,7 +83,9 @@ public class PluginCompatTester {
 
     public PluginCompatTester(PluginCompatTesterConfig config) {
         this.config = config;
-        runner = new ExternalMavenRunner(config.getExternalMaven());
+        runner =
+                new ExternalMavenRunner(
+                        config.getExternalMaven(), config.getM2Settings(), config.getMavenArgs());
     }
 
     public void testPlugins() throws PluginCompatibilityTesterException {
@@ -133,10 +135,6 @@ public class PluginCompatTester {
         MavenCoordinates coreCoordinates =
                 new MavenCoordinates("org.jenkins-ci.main", "jenkins-war", data.core.version);
 
-        MavenRunner.Config mconfig = new MavenRunner.Config(config);
-        // TODO REMOVE
-        mconfig.userProperties.put("failIfNoTests", "false");
-
         PluginCompatibilityTesterException lastException = null;
         LOGGER.log(Level.INFO, "Starting plugin tests on core coordinates {0}", coreCoordinates);
         for (UpdateSite.Plugin plugin : data.plugins.values()) {
@@ -175,7 +173,7 @@ public class PluginCompatTester {
 
             try {
                 PomData pomData = remote.retrievePomData();
-                testPluginAgainst(coreCoordinates, plugin, mconfig, pomData, pcth);
+                testPluginAgainst(coreCoordinates, plugin, pomData, pcth);
             } catch (PluginCompatibilityTesterException e) {
                 if (lastException != null) {
                     e.addSuppressed(lastException);
@@ -234,7 +232,6 @@ public class PluginCompatTester {
     private void testPluginAgainst(
             MavenCoordinates coreCoordinates,
             UpdateSite.Plugin plugin,
-            MavenRunner.Config mconfig,
             PomData pomData,
             PluginCompatTesterHooks pcth)
             throws PluginCompatibilityTesterException {
@@ -252,7 +249,7 @@ public class PluginCompatTester {
 
         File pluginCheckoutDir =
                 new File(
-                        config.workDirectory.getAbsolutePath()
+                        config.getWorkingDir().getAbsolutePath()
                                 + File.separator
                                 + plugin.name
                                 + File.separator);
@@ -318,13 +315,18 @@ public class PluginCompatTester {
                     // org.apache.commons.io.FileUtils seem to not handle links, so may need to
                     // use something like
                     // http://docs.oracle.com/javase/tutorial/displayCode.html?code=http://docs.oracle.com/javase/tutorial/essential/io/examples/Copy.java
+                    File localCheckoutDir = config.getLocalCheckoutDir();
+                    if (localCheckoutDir == null) {
+                        throw new AssertionError(
+                                "Could never happen, but needed to silence SpotBugs");
+                    }
                     LOGGER.log(
                             Level.INFO,
                             "Copy plugin directory from {0}",
-                            config.getLocalCheckoutDir().getAbsolutePath());
+                            localCheckoutDir.getAbsolutePath());
                     try {
                         org.codehaus.plexus.util.FileUtils.copyDirectoryStructure(
-                                config.getLocalCheckoutDir(), pluginCheckoutDir);
+                                localCheckoutDir, pluginCheckoutDir);
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
@@ -354,7 +356,7 @@ public class PluginCompatTester {
 
         File buildLogFile =
                 createBuildLogFile(
-                        config.workDirectory, plugin.name, plugin.version, coreCoordinates);
+                        config.getWorkingDir(), plugin.name, plugin.version, coreCoordinates);
         try {
             FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
             FileUtils.touch(buildLogFile); // Creating log file
@@ -387,27 +389,20 @@ public class PluginCompatTester {
         // potential javadoc execution to avoid general test failure.
         if (!ranCompile) {
             runner.run(
-                    mconfig,
+                    Map.of("maven.javadoc.skip", "true"),
                     pluginCheckoutDir,
                     buildLogFile,
                     "clean",
-                    "process-test-classes",
-                    "-Dmaven.javadoc.skip");
+                    "process-test-classes");
         }
         ranCompile = true;
 
         List<String> args = new ArrayList<>();
-        Map<String, String> userProperties = mconfig.userProperties;
-        args.add(
-                String.format(
-                        "--define=forkCount=%s", userProperties.getOrDefault("forkCount", "1")));
         args.add("hpi:resolve-test-dependencies");
         args.add("hpi:test-hpl");
         args.add("surefire:test");
 
         // Run preexecution hooks
-        List<String> testTypes = new LinkedList<>();
-        testTypes.add("surefire"); // default
         Map<String, Object> forExecutionHooks = new HashMap<>();
         forExecutionHooks.put("pluginName", plugin.name);
         forExecutionHooks.put("plugin", plugin);
@@ -417,14 +412,30 @@ public class PluginCompatTester {
         forExecutionHooks.put("coreCoordinates", coreCoordinates);
         forExecutionHooks.put("config", config);
         forExecutionHooks.put("pluginDir", pluginCheckoutDir);
-        forExecutionHooks.put("types", testTypes);
         pcth.runBeforeExecution(forExecutionHooks);
         args = (List<String>) forExecutionHooks.get("args");
-        Set<String> types = new HashSet<>((List<String>) forExecutionHooks.get("types"));
-        userProperties.put("types", String.join(",", types));
+
+        Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
+        properties.put("overrideWar", config.getWar().toString());
+        properties.put("jenkins.version", coreCoordinates.version);
+        properties.put("useUpperBounds", "true");
+        if (new VersionNumber(coreCoordinates.version).isOlderThan(new VersionNumber("2.382"))) {
+            /*
+             * Versions of Jenkins prior to 2.382 are susceptible to JENKINS-68696, in which
+             * javax.servlet:servlet-api comes from core at version 0. This is an intentional trick
+             * to prevent this library from being used, and we do not want it to be upgraded to a
+             * nonzero version (which is not a realistic test scenario) just because it happens to
+             * be on the class path of some plugin and triggers an upper bounds violation.
+             */
+            properties.put("upperBoundsExcludes", "javax.servlet:servlet-api");
+        }
 
         // Execute with tests
-        runner.run(mconfig, pluginCheckoutDir, buildLogFile, args.toArray(new String[0]));
+        runner.run(
+                Collections.unmodifiableMap(properties),
+                pluginCheckoutDir,
+                buildLogFile,
+                args.toArray(new String[0]));
     }
 
     public static void cloneFromScm(
@@ -607,11 +618,12 @@ public class PluginCompatTester {
     }
 
     private boolean localCheckoutProvided() {
-        return config.getLocalCheckoutDir() != null && config.getLocalCheckoutDir().exists();
+        File localCheckoutDir = config.getLocalCheckoutDir();
+        return localCheckoutDir != null && localCheckoutDir.exists();
     }
 
     private boolean onlyOnePluginIncluded() {
-        return config.getIncludePlugins() != null && config.getIncludePlugins().size() == 1;
+        return config.getIncludePlugins().size() == 1;
     }
 
     /**
@@ -685,8 +697,7 @@ public class PluginCompatTester {
      * Provides the Maven module used for a plugin on a {@code mvn [...] -pl} operation in the
      * parent path
      */
-    public static String getMavenModule(
-            String plugin, File pluginPath, MavenRunner runner, MavenRunner.Config mavenConfig)
+    public static String getMavenModule(String plugin, File pluginPath, MavenRunner runner)
             throws PomExecutionException {
         String absolutePath = pluginPath.getAbsolutePath();
         if (absolutePath.endsWith(plugin)) {
@@ -699,12 +710,10 @@ public class PluginCompatTester {
         }
         File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "modules.log");
         runner.run(
-                mavenConfig,
+                Map.of("expression", "project.modules", "forceStdout", "true"),
                 parentFile,
                 log,
-                "-Dexpression=project.modules",
                 "-q",
-                "-DforceStdout",
                 "help:evaluate");
         List<String> lines;
         try {

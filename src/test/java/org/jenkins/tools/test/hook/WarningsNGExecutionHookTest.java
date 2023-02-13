@@ -54,26 +54,10 @@ public class WarningsNGExecutionHookTest {
         info.put(
                 "args",
                 new ArrayList<>(
-                        List.of(
-                                "--define=forkCount=1",
-                                "hpi:resolve-test-dependencies",
-                                "hpi:test-hpl",
-                                "surefire:test")));
+                        List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test")));
         Map<String, Object> afterAction = hook.action(info);
         List<String> args = (List<String>) afterAction.get("args");
-        assertThat(args.size(), is(5));
+        assertThat(args.size(), is(4));
         assertTrue(args.contains("failsafe:integration-test"));
-    }
-
-    @Test
-    public void testType() {
-        final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
-
-        Map<String, Object> info = new HashMap<>();
-        info.put("types", new ArrayList<>(List.of("surefire")));
-        Map<String, Object> afterAction = hook.action(info);
-        List<String> types = (List<String>) afterAction.get("types");
-        assertThat(types.size(), is(2));
-        assertTrue(types.contains("failsafe"));
     }
 }

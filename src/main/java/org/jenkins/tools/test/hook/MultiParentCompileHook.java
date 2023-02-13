@@ -28,7 +28,6 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     private static final Logger LOGGER = Logger.getLogger(MultiParentCompileHook.class.getName());
 
     protected MavenRunner runner;
-    protected MavenRunner.Config mavenConfig;
 
     public static final String ESLINTRC = ".eslintrc";
 
@@ -41,8 +40,9 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         LOGGER.log(Level.INFO, "Executing multi-parent compile hook");
         PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
 
-        runner = new ExternalMavenRunner(config.getExternalMaven());
-        mavenConfig = getMavenConfig(config);
+        runner =
+                new ExternalMavenRunner(
+                        config.getExternalMaven(), config.getM2Settings(), config.getMavenArgs());
 
         File pluginDir = (File) moreInfo.get("pluginDir");
         LOGGER.log(Level.INFO, "Plugin dir is {0}", pluginDir);
@@ -73,7 +73,6 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
                         && (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE);
         if (!ranCompile) {
             compile(
-                    mavenConfig,
                     pluginDir,
                     localCheckoutDir,
                     (String) moreInfo.get("parentFolder"),
@@ -114,26 +113,13 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         }
     }
 
-    private MavenRunner.Config getMavenConfig(PluginCompatTesterConfig config) {
-        MavenRunner.Config mconfig = new MavenRunner.Config(config);
-        // TODO REMOVE
-        mconfig.userProperties.put("failIfNoTests", "false");
-        return mconfig;
-    }
-
-    private void compile(
-            MavenRunner.Config mavenConfig,
-            File path,
-            File localCheckoutDir,
-            String parentFolder,
-            String pluginName)
+    private void compile(File path, File localCheckoutDir, String parentFolder, String pluginName)
             throws PomExecutionException {
         if (isSnapshotMultiParentPlugin(parentFolder, path, localCheckoutDir)) {
             // "process-test-classes" not working properly on multi-module plugin.
             // See https://issues.jenkins.io/browse/JENKINS-62658
             // installs dependencies into local repository
-            String mavenModule =
-                    PluginCompatTester.getMavenModule(pluginName, path, runner, mavenConfig);
+            String mavenModule = PluginCompatTester.getMavenModule(pluginName, path, runner);
             if (mavenModule == null || mavenModule.isBlank()) {
                 throw new IllegalStateException(
                         String.format(
@@ -141,26 +127,29 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
                                 pluginName, path));
             }
             runner.run(
-                    mavenConfig,
+                    Map.of(
+                            "skipTests",
+                            "true",
+                            "invoker.skip",
+                            "true",
+                            "enforcer.skip",
+                            "true",
+                            "maven.javadoc.skip",
+                            "true"),
                     path.getParentFile(),
                     setupCompileResources(path.getParentFile()),
                     "clean",
                     "install",
-                    "-DskipTests",
-                    "-Dinvoker.skip",
-                    "-Denforcer.skip",
-                    "-Dmaven.javadoc.skip",
                     "-am",
                     "-pl",
                     mavenModule);
         } else {
             runner.run(
-                    mavenConfig,
+                    Map.of("maven.javadoc.skip", "true"),
                     path,
                     setupCompileResources(path),
                     "clean",
-                    "process-test-classes",
-                    "-Dmaven.javadoc.skip");
+                    "process-test-classes");
         }
     }
 
@@ -194,12 +183,10 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
         File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "version.log");
         runner.run(
-                mavenConfig,
+                Map.of("expression", "project.version", "forceStdout", "true"),
                 parentFile,
                 log,
-                "-Dexpression=project.version",
                 "-q",
-                "-DforceStdout",
                 "help:evaluate");
         List<String> output;
         try {

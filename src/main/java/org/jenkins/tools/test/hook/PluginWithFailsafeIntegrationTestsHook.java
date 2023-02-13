@@ -13,9 +13,4 @@ public class PluginWithFailsafeIntegrationTestsHook extends PluginWithIntegratio
     public Collection<String> getGoals() {
         return List.of("failsafe:integration-test");
     }
-
-    @Override
-    public Collection<String> getTestTypes() {
-        return List.of("failsafe");
-    }
 }

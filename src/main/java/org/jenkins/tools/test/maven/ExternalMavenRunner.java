@@ -28,41 +28,50 @@ public class ExternalMavenRunner implements MavenRunner {
 
     private static final Logger LOGGER = Logger.getLogger(ExternalMavenRunner.class.getName());
 
-    private static final String DISABLE_DOWNLOAD_LOGS = "-ntp";
+    @CheckForNull private final File externalMaven;
 
-    @CheckForNull private File mvn;
+    @CheckForNull private final File m2Settings;
+
+    @NonNull private final List<String> mavenArgs;
 
     /**
      * Constructor.
      *
-     * @param mvn Path to Maven. If {@code null}, a default Maven executable from {@code PATH} will
-     *     be used
+     * @param externalMaven Path to Maven. If {@code null}, a default Maven executable from {@code
+     *     PATH} will be used
      */
-    public ExternalMavenRunner(@CheckForNull File mvn) {
-        this.mvn = mvn;
+    public ExternalMavenRunner(
+            @CheckForNull File externalMaven,
+            @CheckForNull File m2Settings,
+            @NonNull List<String> mavenArgs) {
+        this.externalMaven = externalMaven;
+        this.m2Settings = m2Settings;
+        this.mavenArgs = mavenArgs;
     }
 
     @Override
-    public void run(Config config, File baseDirectory, File buildLogFile, String... goals)
+    public void run(
+            Map<String, String> properties, File baseDirectory, File buildLogFile, String... args)
             throws PomExecutionException {
         List<String> cmd = new ArrayList<>();
-        if (mvn != null) {
-            cmd.add(mvn.getAbsolutePath());
+        if (externalMaven != null) {
+            cmd.add(externalMaven.getAbsolutePath());
         } else {
             cmd.add(SystemUtils.IS_OS_WINDOWS ? "mvn.cmd" : "mvn");
         }
-        cmd.add("--show-version");
-        cmd.add("--batch-mode");
-        cmd.add("--errors");
-        cmd.add(DISABLE_DOWNLOAD_LOGS);
-        if (config.userSettingsFile != null) {
-            cmd.add("--settings=" + config.userSettingsFile);
+        cmd.add("-B"); // --batch-mode
+        cmd.add("-V"); // --show-version
+        cmd.add("-e"); // --errors
+        cmd.add("-ntp"); // --no-transfer-progress
+        if (m2Settings != null) {
+            cmd.add("-s");
+            cmd.add(m2Settings.toString());
         }
-        for (Map.Entry<String, String> entry : config.userProperties.entrySet()) {
-            cmd.add("--define=" + entry);
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            cmd.add("-D" + entry);
         }
-        cmd.addAll(config.mavenArgs);
-        cmd.addAll(List.of(goals));
+        cmd.addAll(mavenArgs);
+        cmd.addAll(List.of(args));
         LOGGER.log(
                 Level.INFO,
                 "Running {0} in {1} >> {2}",
