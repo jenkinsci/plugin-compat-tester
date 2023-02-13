@@ -440,12 +440,15 @@ public class PluginCompatTester {
         PluginSourcesUnavailableException lastException = null;
         for (String connectionURL : connectionURLs) {
             if (connectionURL != null) {
+                if (StringUtils.startsWith(connectionURL, "scm:git:")) {
+                    connectionURL = StringUtils.substringAfter(connectionURL, "scm:git:");
+                }
                 // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
                 connectionURL = connectionURL.replace("git://", "https://");
             }
             try {
                 cloneImpl(connectionURL, scmTag, checkoutDirectory);
-                break;
+                return; // checkout was ok
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             } catch (PluginSourcesUnavailableException e) {
@@ -472,19 +475,19 @@ public class PluginCompatTester {
      *   <li><code>git checkout FETCH_HEAD</code>
      * </ul>
      *
-     * @param connectionURL The connection URL, in a format such as
-     *     scm:git:https://github.com/jenkinsci/mailer-plugin.git or
-     *     https://github.com/jenkinsci/mailer-plugin.git
+     * @param gitURL The git native URL, see the <a
+     *     href="https://git-scm.com/docs/git-clone#_git_urls">git documentation</a> for the
+     *     supported syntax
      * @param scmTag the tag or sha1 hash to clone
      * @param checkoutDirectory the directory in which to clone the Git repository
      * @throws IOException if an error occurs
      */
-    private static void cloneImpl(String connectionURL, String scmTag, File checkoutDirectory)
+    private static void cloneImpl(String gitUrl, String scmTag, File checkoutDirectory)
             throws IOException, PluginSourcesUnavailableException {
         LOGGER.log(
                 Level.INFO,
-                "Checking out from SCM connection URL {0} at {1}",
-                new Object[] {connectionURL, scmTag});
+                "Checking out from git repository {0} at {1}",
+                new Object[] {gitUrl, scmTag});
 
         /*
          * We previously used the Maven SCM API to clone the repository, which ran the following
@@ -528,13 +531,6 @@ public class PluginCompatTester {
             throw new PluginSourcesUnavailableException("git init was interrupted", e);
         }
 
-        // git fetch ${CONNECTION_URL} ${SCM_TAG}
-        String gitUrl;
-        if (StringUtils.startsWith(connectionURL, "scm:git:")) {
-            gitUrl = StringUtils.substringAfter(connectionURL, "scm:git:");
-        } else {
-            gitUrl = connectionURL;
-        }
         p =
                 new ProcessBuilder()
                         .directory(checkoutDirectory)
