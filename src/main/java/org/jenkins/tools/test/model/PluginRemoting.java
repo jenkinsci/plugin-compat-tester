@@ -26,6 +26,7 @@
 
 package org.jenkins.tools.test.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -33,6 +34,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -73,8 +75,14 @@ public class PluginRemoting {
         }
     }
 
+    @SuppressFBWarnings(
+            value = "URLCONNECTION_SSRF_FD",
+            justification = "Only file: URLs are supported")
     private String retrievePomContentFromHpi() throws IOException {
         URL url = new URL(hpiRemoteUrl);
+        if (!url.getProtocol().equals("jar") || !url.getFile().startsWith("file:")) {
+            throw new MalformedURLException("Invalid URL: " + url);
+        }
         try (InputStream is = url.openStream();
                 ZipInputStream zis = new ZipInputStream(is)) {
             ZipEntry ze;

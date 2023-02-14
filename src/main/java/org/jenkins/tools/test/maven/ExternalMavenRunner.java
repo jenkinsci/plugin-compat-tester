@@ -2,6 +2,7 @@ package org.jenkins.tools.test.maven;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,6 +51,7 @@ public class ExternalMavenRunner implements MavenRunner {
     }
 
     @Override
+    @SuppressFBWarnings(value = "COMMAND_INJECTION", justification = "intended behavior")
     public void run(
             Map<String, String> properties, File baseDirectory, File buildLogFile, String... args)
             throws PomExecutionException {

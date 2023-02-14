@@ -27,6 +27,7 @@
 package org.jenkins.tools.test.model;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +60,7 @@ import org.jenkins.tools.test.exception.PomTransformationException;
  *
  * @author Frederic Camblor
  */
+@SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "intended behavior")
 public class MavenPom {
 
     private static final Logger LOGGER = Logger.getLogger(MavenPom.class.getName());

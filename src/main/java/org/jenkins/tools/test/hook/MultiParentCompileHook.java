@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.hook;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -23,6 +24,7 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHook;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 
+@SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "intended behavior")
 public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
 
     private static final Logger LOGGER = Logger.getLogger(MultiParentCompileHook.class.getName());
