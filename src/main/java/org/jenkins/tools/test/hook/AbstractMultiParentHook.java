@@ -27,8 +27,8 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
         UpdateSite.Plugin currentPlugin = (UpdateSite.Plugin) moreInfo.get("plugin");
 
         // We should not execute the hook if using localCheckoutDir
-        boolean shouldExecuteHook =
-                config.getLocalCheckoutDir() == null || !config.getLocalCheckoutDir().exists();
+        File localCheckoutDir = config.getLocalCheckoutDir();
+        boolean shouldExecuteHook = localCheckoutDir == null || !localCheckoutDir.exists();
 
         if (shouldExecuteHook) {
             LOGGER.log(Level.INFO, "Executing hook for {0}", getParentProjectName());
@@ -40,7 +40,8 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 // Checkout to the parent directory. All other processes will be on the child
                 // directory
                 File parentPath =
-                        new File(config.workDirectory.getAbsolutePath() + "/" + getParentFolder());
+                        new File(
+                                config.getWorkingDir().getAbsolutePath() + "/" + getParentFolder());
 
                 pomData = (PomData) moreInfo.get("pomData");
                 // Like the call in PluginCompatTester#runHooks but with subdirectories trimmed:
@@ -59,7 +60,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             // Change the "download"" directory; after download, it's simply used for reference
             File childPath =
                     new File(
-                            config.workDirectory.getAbsolutePath()
+                            config.getWorkingDir().getAbsolutePath()
                                     + "/"
                                     + getParentFolder()
                                     + "/"

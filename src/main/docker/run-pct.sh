@@ -137,7 +137,7 @@ if [ "${SHOULD_CHECKOUT}" -eq 1 ] && [ -z "${DO_NOT_OVERRIDE_PCT_CHECKOUT}" ] ; 
     mvn -B clean -s "${MVN_SETTINGS_FILE}"
   fi
   mv "${TMP_CHECKOUT_DIR}" "${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
-  LOCAL_CHECKOUT_ARG="-localCheckoutDir ${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
+  LOCAL_CHECKOUT_ARG="--local-checkout-dir ${PCT_TMP}/localCheckoutDir/${ARTIFACT_ID}"
 fi
 
 
@@ -157,11 +157,10 @@ fi
 pctExitCode=0
 echo java ${JAVA_OPTS} ${extra_java_opts[@]} \
   -jar /pct/pct-cli.jar \
-  -workDirectory "${PCT_TMP}/work" ${WAR_PATH_OPT} \
-  ${FAIL_ON_ERROR_ARG}\
+  --working-dir "${PCT_TMP}/work" ${WAR_PATH_OPT} \
   ${LOCAL_CHECKOUT_ARG} \
-  -includePlugins "${ARTIFACT_ID}" \
-  -m2SettingsFile "${MVN_SETTINGS_FILE}" \
+  --include-plugins "${ARTIFACT_ID}" \
+  --maven-settings "${MVN_SETTINGS_FILE}" \
   "$@" \
   "|| echo \$? > /pct/tmp/pct_exit_code" > /pct/tmp/pct_command
 chmod +x /pct/tmp/pct_command

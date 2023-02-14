@@ -54,28 +54,18 @@ public class JacocoHookTest {
         info.put(
                 "args",
                 new ArrayList<>(
-                        List.of(
-                                "--define=forkCount=1",
-                                "hpi:resolve-test-dependencies",
-                                "hpi:test-hpl",
-                                "surefire:test")));
+                        List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test")));
         Map<String, Object> afterAction = hook.action(info);
         List<String> args = (List<String>) afterAction.get("args");
-        assertThat(args.size(), is(5));
-        assertThat(args.get(1), is("jacoco:prepare-agent"));
+        assertThat(args.size(), is(4));
+        assertThat(args.get(0), is("jacoco:prepare-agent"));
 
         info = new HashMap<>();
-        info.put(
-                "args",
-                new ArrayList<>(
-                        List.of(
-                                "--define=forkCount=1",
-                                "other-plugin:other-goal",
-                                "surefire:test")));
+        info.put("args", new ArrayList<>(List.of("other-plugin:other-goal", "surefire:test")));
         afterAction = hook.action(info);
         args = (List<String>) afterAction.get("args");
-        assertThat(args.size(), is(4));
-        assertThat(args.get(2), is("jacoco:prepare-agent"));
+        assertThat(args.size(), is(3));
+        assertThat(args.get(1), is("jacoco:prepare-agent"));
 
         info = new HashMap<>();
         info.put("args", new ArrayList<>(List.of("element1", "element2", "element3", "element4")));

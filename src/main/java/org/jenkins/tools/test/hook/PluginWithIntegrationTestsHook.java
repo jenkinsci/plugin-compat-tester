@@ -13,10 +13,6 @@ public abstract class PluginWithIntegrationTestsHook extends PluginCompatTesterH
     @NonNull
     public abstract Collection<String> getGoals();
 
-    /** Inform about test type suite to execute integration test */
-    @NonNull
-    public abstract Collection<String> getTestTypes();
-
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> action(Map<String, Object> info) {
@@ -26,10 +22,6 @@ public abstract class PluginWithIntegrationTestsHook extends PluginCompatTesterH
             args.addAll(getGoals());
         }
 
-        List<String> types = (List<String>) info.get("types");
-        if (types != null) {
-            types.addAll(getTestTypes());
-        }
         return info;
     }
 }

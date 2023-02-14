@@ -45,13 +45,13 @@ The PCT cli supports to pass a war file containing plugins (generated with Custo
 the plugins is infered from the war file contents.
 
 In such scenarios is tipical to want to run the PCT for all plugins contained in the war file, to avoid having to spawn a new docker container for each plugin
-you can use the env variables `DO_NOT_OVERRIDE_PCT_CHECKOUT=true` and `FAIL_ON_ERROR=false` to let the PCT CLI (instead of the `run-pct` script) checkout the proper
+you can use the env variables `DO_NOT_OVERRIDE_PCT_CHECKOUT=true` to let the PCT CLI (instead of the `run-pct` script) checkout the proper
 versions of the plugins and make sure the PCT does not stop before testing all plugins.
 
 By using those env variables you can pass a comma separated list of plugins ids using the `ARTIFACT_ID` env variable
 
 ```shell
-docker run -ti --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -e ARTIFACT_ID=ssh-slaves,credentials -e DO_NOT_OVERRIDE_PCT_CHECKOUT=true -e FAIL_ON_ERROR=false jenkins/pct
+docker run -ti --rm -v maven-repo:/root/.m2 -v $(pwd)/out:/pct/out -v my/jenkins.war:/pct/jenkins.war:ro -e ARTIFACT_ID=ssh-slaves,credentials -e DO_NOT_OVERRIDE_PCT_CHECKOUT=true -e jenkins/pct
 ```
 
 #### Configuration
@@ -97,27 +97,15 @@ PCT offers the CLI interface which can be used to run PCT locally.
 
 ```shell
 java -jar target/plugins-compat-tester-cli.jar \
-  -workDirectory $(pwd)/tmp/work \
-  -includePlugins ${PLUGIN_ARTIFACT_ID} \
-  -war jenkins.war -localCheckoutDir ${PLUGIN_SRC} \
-  -mvn ${PATH_TO_MAVEN}
+  --working-dir $(pwd)/tmp/work \
+  --include-plugins ${PLUGIN_ARTIFACT_ID} \
+  --war jenkins.war --local-checkout-dir ${PLUGIN_SRC} \
+  --mvn ${PATH_TO_MAVEN}
 ```
 
 You can run the CLI with the `-help` argument to get a full list of supported options.
 
 :exclamation: For the moment testing more than one plugin at once requires plugins to be released, so for testing SNAPSHOTS you need to execute the last step for every plugin you want to test*
-
-### Running PCT with a BOM file
-
-Plugin Compat Tester supports running test suites using a BOM file as source of truth as follows:
-
-```shell
-java -jar target/plugins-compat-tester-cli.jar \
-  -workDirectory $(pwd)/tmp/work \
-  -includePlugins ${PLUGIN_ARTIFACT_ID} \
-  -bom ${BOM_FILE_LOCATION} \
-  -mvn ${PATH_TO_MAVEN}
-```
 
 ### Running PCT with custom Java versions
 

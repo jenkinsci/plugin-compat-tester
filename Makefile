@@ -46,10 +46,10 @@ print-java-home:
 .PHONY: demo
 demo: target/plugins-compat-tester-cli.jar $(WAR_PATH) print-java-home
 	java -jar target/plugins-compat-tester-cli.jar \
-	     -workDirectory $(CURDIR)/work \
-	     -mvn $(MVN_EXECUTABLE) \
-	     -war $(CURDIR)/$(WAR_PATH) \
-	     -includePlugins $(PLUGIN_NAME) \
+	     --working-dir $(CURDIR)/work \
+	     --mvn $(MVN_EXECUTABLE) \
+	     --war $(CURDIR)/$(WAR_PATH) \
+	     --include-plugins $(PLUGIN_NAME) \
 	     $(EXTRA_OPTS)
 
 # We do not automatically rebuild Docker here
