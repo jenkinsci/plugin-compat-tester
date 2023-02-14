@@ -109,7 +109,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
 
     @CheckForNull
     @CommandLine.Option(
-            names = "--m2-settings",
+            names = "--maven-settings",
             description = "Settings file to use when executing Maven.")
     private File m2Settings;
 
