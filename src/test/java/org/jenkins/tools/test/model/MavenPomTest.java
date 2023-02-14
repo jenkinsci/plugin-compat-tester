@@ -1,6 +1,6 @@
 package org.jenkins.tools.test.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import hudson.util.VersionNumber;
 import java.io.File;
@@ -14,19 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.jvnet.hudson.test.Issue;
 
-public class MavenPomTest {
-
-    @Rule public TemporaryFolder tmp = new TemporaryFolder();
+class MavenPomTest {
 
     @Issue("https://github.com/jenkinsci/bom/pull/301#issuecomment-694518923")
     @Test
-    public void addDependenciesWithTestsClassifier() throws Exception {
-        File prj = tmp.newFolder();
+    void addDependenciesWithTestsClassifier(@TempDir File prj) throws Exception {
         File pom = createPomFileFromResource(prj, "credentials-binding-pom-before.xml");
 
         Map<String, VersionNumber> toAdd =
@@ -187,8 +183,7 @@ public class MavenPomTest {
 
     @Issue("https://github.com/jenkinsci/plugin-compat-tester/pull/287")
     @Test
-    public void transformPOMwithSpecialCharacters() throws Exception {
-        File folder = tmp.newFolder();
+    void transformPOMwithSpecialCharacters(@TempDir File folder) throws Exception {
         File pomFile = createPomFileFromResource(folder, "demo-plugin-pom-before.xml");
 
         MavenCoordinates coreCoordinates =
@@ -201,8 +196,8 @@ public class MavenPomTest {
     }
 
     @Test
-    public void doNotDuplicateDependenciesWhoseVersionsAreProperties() throws Exception {
-        File folder = tmp.newFolder();
+    void doNotDuplicateDependenciesWhoseVersionsAreProperties(@TempDir File folder)
+            throws Exception {
         File pomFile = createPomFileFromResource(folder, "demo-plugin-properties-pom-before.xml");
         Map<String, VersionNumber> toAdd = new HashMap<>();
         Map<String, VersionNumber> toReplace = new HashMap<>();

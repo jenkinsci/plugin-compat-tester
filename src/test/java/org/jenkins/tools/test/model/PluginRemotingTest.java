@@ -5,12 +5,12 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.io.File;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PluginRemotingTest {
+class PluginRemotingTest {
 
     @Test
-    public void testStringInterpolation() {
+    void testStringInterpolation() {
         assertThat(
                 PluginRemoting.interpolateString("${project.artifactId}", "wibble"), is("wibble"));
         assertThat(
@@ -31,7 +31,7 @@ public class PluginRemotingTest {
     }
 
     @Test
-    public void smokes() throws Exception {
+    void smokes() throws Exception {
         File pomFile = new File(getClass().getResource("smokes/pom.xml").toURI());
         PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
         PomData pomData = pluginRemoting.retrievePomData();
@@ -46,7 +46,7 @@ public class PluginRemotingTest {
     }
 
     @Test
-    public void noScm() throws Exception {
+    void noScm() throws Exception {
         File pomFile = new File(getClass().getResource("scm/pom.xml").toURI());
         PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
         PomData pomData = pluginRemoting.retrievePomData();
