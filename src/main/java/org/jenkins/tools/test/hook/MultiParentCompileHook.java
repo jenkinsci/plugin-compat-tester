@@ -42,7 +42,9 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
         runner =
                 new ExternalMavenRunner(
-                        config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
+                        config.getExternalMaven(),
+                        config.getMavenSettings(),
+                        config.getMavenArgs());
 
         File pluginDir = (File) moreInfo.get("pluginDir");
         LOGGER.log(Level.INFO, "Plugin dir is {0}", pluginDir);

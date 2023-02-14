@@ -85,7 +85,9 @@ public class PluginCompatTester {
         this.config = config;
         runner =
                 new ExternalMavenRunner(
-                        config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
+                        config.getExternalMaven(),
+                        config.getMavenSettings(),
+                        config.getMavenArgs());
     }
 
     public void testPlugins() throws PluginCompatibilityTesterException {
