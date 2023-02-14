@@ -111,7 +111,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
     @CommandLine.Option(
             names = "--maven-settings",
             description = "Settings file to use when executing Maven.")
-    private File m2Settings;
+    private File mavenSettings;
 
     @CheckForNull
     @CommandLine.Option(
@@ -182,7 +182,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
         }
         config.setFallbackGitHubOrganization(fallbackGitHubOrganization);
         config.setExternalMaven(externalMaven);
-        config.setM2Settings(m2Settings);
+        config.setMavenSettings(mavenSettings);
         if (mavenProperties != null) {
             config.setMavenProperties(mavenProperties);
         }

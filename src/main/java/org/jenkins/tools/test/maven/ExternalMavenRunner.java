@@ -30,7 +30,7 @@ public class ExternalMavenRunner implements MavenRunner {
 
     @CheckForNull private final File externalMaven;
 
-    @CheckForNull private final File m2Settings;
+    @CheckForNull private final File mavenSettings;
 
     @NonNull private final List<String> mavenArgs;
 
@@ -42,10 +42,10 @@ public class ExternalMavenRunner implements MavenRunner {
      */
     public ExternalMavenRunner(
             @CheckForNull File externalMaven,
-            @CheckForNull File m2Settings,
+            @CheckForNull File mavenSettings,
             @NonNull List<String> mavenArgs) {
         this.externalMaven = externalMaven;
-        this.m2Settings = m2Settings;
+        this.mavenSettings = mavenSettings;
         this.mavenArgs = mavenArgs;
     }
 
@@ -63,9 +63,9 @@ public class ExternalMavenRunner implements MavenRunner {
         cmd.add("-V"); // --show-version
         cmd.add("-e"); // --errors
         cmd.add("-ntp"); // --no-transfer-progress
-        if (m2Settings != null) {
+        if (mavenSettings != null) {
             cmd.add("-s");
-            cmd.add(m2Settings.toString());
+            cmd.add(mavenSettings.toString());
         }
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             cmd.add("-D" + entry);

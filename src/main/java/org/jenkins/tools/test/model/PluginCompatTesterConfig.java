@@ -67,7 +67,7 @@ public class PluginCompatTesterConfig {
 
     // Path for maven settings file where repository will be provided allowing to
     // download jenkins-core artifact (and dependencies)
-    @CheckForNull private File m2Settings;
+    @CheckForNull private File mavenSettings;
 
     @NonNull private Map<String, String> mavenProperties = Map.of();
 
@@ -147,12 +147,12 @@ public class PluginCompatTesterConfig {
     }
 
     @CheckForNull
-    public File getM2Settings() {
-        return m2Settings;
+    public File getMavenSettings() {
+        return mavenSettings;
     }
 
-    public void setM2Settings(@CheckForNull File m2Settings) {
-        this.m2Settings = m2Settings;
+    public void setMavenSettings(@CheckForNull File mavenSettings) {
+        this.mavenSettings = mavenSettings;
     }
 
     @NonNull

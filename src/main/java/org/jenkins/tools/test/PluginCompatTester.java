@@ -85,7 +85,7 @@ public class PluginCompatTester {
         this.config = config;
         runner =
                 new ExternalMavenRunner(
-                        config.getExternalMaven(), config.getM2Settings(), config.getMavenArgs());
+                        config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
     }
 
     public void testPlugins() throws PluginCompatibilityTesterException {
@@ -138,13 +138,13 @@ public class PluginCompatTester {
         PluginCompatibilityTesterException lastException = null;
         LOGGER.log(Level.INFO, "Starting plugin tests on core coordinates {0}", coreCoordinates);
         for (UpdateSite.Plugin plugin : data.plugins.values()) {
-            if (config.getIncludePlugins() != null
+            if (!config.getIncludePlugins().isEmpty()
                     && !config.getIncludePlugins().contains(plugin.name.toLowerCase())) {
                 LOGGER.log(Level.FINE, "Plugin {0} not in included plugins; skipping", plugin.name);
                 continue;
             }
 
-            if (config.getExcludePlugins() != null
+            if (!config.getExcludePlugins().isEmpty()
                     && config.getExcludePlugins().contains(plugin.name.toLowerCase())) {
                 LOGGER.log(Level.INFO, "Plugin {0} in excluded plugins; skipping", plugin.name);
                 continue;

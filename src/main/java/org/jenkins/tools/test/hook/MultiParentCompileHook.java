@@ -42,7 +42,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
         runner =
                 new ExternalMavenRunner(
-                        config.getExternalMaven(), config.getM2Settings(), config.getMavenArgs());
+                        config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
 
         File pluginDir = (File) moreInfo.get("pluginDir");
         LOGGER.log(Level.INFO, "Plugin dir is {0}", pluginDir);
@@ -50,8 +50,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         File localCheckoutDir = config.getLocalCheckoutDir();
         if (localCheckoutDir != null) {
             Path pluginSourcesDir = localCheckoutDir.toPath();
-            boolean isMultipleLocalPlugins =
-                    config.getIncludePlugins() != null && config.getIncludePlugins().size() > 1;
+            boolean isMultipleLocalPlugins = config.getIncludePlugins().size() > 1;
             // We are running for local changes, let's copy the .eslintrc file if we can. If we
             // are using localCheckoutDir with multiple plugins the .eslintrc must be located at
             // the top level. If not it must be located on the parent of the localCheckoutDir.
