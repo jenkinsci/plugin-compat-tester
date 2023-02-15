@@ -49,8 +49,7 @@ public class PluginCompatTesterHooks {
         setupHooksByType();
     }
 
-    public PluginCompatTesterHooks(List<String> extraPrefixes, List<File> externalJars)
-            throws MalformedURLException {
+    public PluginCompatTesterHooks(List<String> extraPrefixes, List<File> externalJars) {
         this(extraPrefixes, externalJars, Collections.emptyList());
     }
 
@@ -200,11 +199,8 @@ public class PluginCompatTesterHooks {
                         allForType.add(hook);
                         sortedHooks.put(plugin, allForType);
                     }
-                } catch (Exception ex) {
-                    LOGGER.log(
-                            Level.WARNING,
-                            "Error when loading " + c.getName() + "; continuing",
-                            ex);
+                } catch (ReflectiveOperationException e) {
+                    throw new RuntimeException("Error when loading " + c.getName(), e);
                 }
             }
         }

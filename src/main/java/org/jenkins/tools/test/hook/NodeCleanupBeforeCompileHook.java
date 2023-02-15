@@ -26,11 +26,10 @@ public class NodeCleanupBeforeCompileHook extends PluginCompatTesterHookBeforeCo
             File pluginDir = (File) moreInfo.get("pluginDir");
             LOGGER.log(Level.INFO, "Executing node and node_modules cleanup hook");
             compile(pluginDir);
-            return moreInfo;
         } else {
             LOGGER.log(Level.INFO, "Hook not triggered; continuing");
-            return moreInfo;
         }
+        return moreInfo;
     }
 
     @Override

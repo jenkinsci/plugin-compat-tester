@@ -490,7 +490,7 @@ public class PluginCompatTester {
      *   <li><code>git checkout FETCH_HEAD</code>
      * </ul>
      *
-     * @param gitURL The git native URL, see the <a
+     * @param gitUrl The git native URL, see the <a
      *     href="https://git-scm.com/docs/git-clone#_git_urls">git documentation</a> for the
      *     supported syntax
      * @param scmTag the tag or sha1 hash to clone
