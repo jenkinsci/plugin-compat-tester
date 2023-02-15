@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.hook;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.UpdateSite;
 import java.io.File;
 import java.util.Map;
@@ -21,6 +22,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     private PomData pomData;
 
     @Override
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "intended behavior")
     public Map<String, Object> action(Map<String, Object> moreInfo)
             throws PluginSourcesUnavailableException {
         PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");

@@ -26,6 +26,7 @@
 
 package org.jenkins.tools.test;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.UpdateSite;
 import hudson.util.VersionNumber;
 import java.io.File;
@@ -70,6 +71,7 @@ import org.jenkins.tools.test.util.StreamGobbler;
  *
  * @author Frederic Camblor, Olivier Lamy
  */
+@SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "intended behavior")
 public class PluginCompatTester {
 
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTester.class.getName());
@@ -495,6 +497,7 @@ public class PluginCompatTester {
      * @param checkoutDirectory the directory in which to clone the Git repository
      * @throws IOException if an error occurs
      */
+    @SuppressFBWarnings(value = "COMMAND_INJECTION", justification = "intended behavior")
     private static void cloneImpl(String gitUrl, String scmTag, File checkoutDirectory)
             throws IOException, PluginSourcesUnavailableException {
         LOGGER.log(
@@ -636,6 +639,7 @@ public class PluginCompatTester {
      *     or "normal" plugins in the war file
      * @return Update center data
      */
+    @SuppressFBWarnings(value = "REDOS", justification = "intended behavior")
     private UpdateSite.Data scanWAR(File war, String pluginRegExp) {
         UpdateSite.Entry core = null;
         List<UpdateSite.Plugin> plugins = new ArrayList<>();
