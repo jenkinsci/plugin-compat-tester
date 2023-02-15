@@ -91,11 +91,15 @@ public class ExternalMavenRunner implements MavenRunner {
             exitStatus = p.waitFor();
             gobbler.join();
         } catch (InterruptedException e) {
-            throw new PomExecutionException(cmd + " was interrupted", e);
+            throw new PomExecutionException(String.join(" ", cmd) + " was interrupted", e);
         }
         if (exitStatus != 0) {
             throw new PomExecutionException(
-                    cmd + " in " + baseDirectory + " failed with exit status " + exitStatus);
+                    String.join(" ", cmd)
+                            + " in "
+                            + baseDirectory
+                            + " failed with exit status "
+                            + exitStatus);
         }
     }
 

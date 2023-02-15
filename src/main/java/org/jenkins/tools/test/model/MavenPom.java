@@ -31,8 +31,10 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.VersionNumber;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
@@ -87,48 +89,47 @@ public class MavenPom {
         File backupPom = new File(rootDir.getAbsolutePath() + "/" + pomFileName + ".backup");
         try {
             Files.move(pom.toPath(), backupPom.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
-            Document doc;
-            try {
-                doc = new SAXReader().read(backupPom);
-            } catch (DocumentException x) {
-                throw new IOException(x);
-            }
-
-            Element parent = doc.getRootElement().element("parent");
-            if (parent != null) {
-                Element groupIdElem = parent.element(GROUP_ID_ELEMENT);
-                if (groupIdElem != null) {
-                    groupIdElem.setText(coreCoordinates.groupId);
-                }
-
-                Element artifactIdElem = parent.element(ARTIFACT_ID_ELEMENT);
-                if (artifactIdElem != null) {
-                    artifactIdElem.setText(coreCoordinates.artifactId);
-                }
-
-                Element versionIdElem = parent.element(VERSION_ELEMENT);
-                if (versionIdElem != null) {
-                    versionIdElem.setText(coreCoordinates.version);
-                }
-            }
-
-            writeDocument(pom, doc);
-        } catch (Exception e) {
-            throw new PomTransformationException(
-                    "Error while transforming pom : " + pom.getAbsolutePath(), e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
+
+        Document doc;
+        try {
+            doc = new SAXReader().read(backupPom);
+        } catch (DocumentException x) {
+            throw new PomTransformationException("Failed to parse pom.xml", x);
+        }
+
+        Element parent = doc.getRootElement().element("parent");
+        if (parent != null) {
+            Element groupIdElem = parent.element(GROUP_ID_ELEMENT);
+            if (groupIdElem != null) {
+                groupIdElem.setText(coreCoordinates.groupId);
+            }
+
+            Element artifactIdElem = parent.element(ARTIFACT_ID_ELEMENT);
+            if (artifactIdElem != null) {
+                artifactIdElem.setText(coreCoordinates.artifactId);
+            }
+
+            Element versionIdElem = parent.element(VERSION_ELEMENT);
+            if (versionIdElem != null) {
+                versionIdElem.setText(coreCoordinates.version);
+            }
+        }
+
+        writeDocument(pom, doc);
     }
 
     /** Removes the dependency if it exists. */
     public void removeDependency(@NonNull String groupId, @NonNull String artifactId)
-            throws IOException {
+            throws PomTransformationException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
             doc = new SAXReader().read(pom);
         } catch (DocumentException x) {
-            throw new IOException(x);
+            throw new PomTransformationException("Failed to parse pom.xml", x);
         }
         Element dependencies = doc.getRootElement().element("dependencies");
         if (dependencies == null) {
@@ -160,13 +161,13 @@ public class MavenPom {
      * @param includeGroupId - specify if we want to add the groupId or not
      */
     public void addPluginManagement(List<MavenCoordinates> pluginsToAdd, boolean includeGroupId)
-            throws IOException {
+            throws PomTransformationException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
             doc = new SAXReader().read(pom);
         } catch (DocumentException x) {
-            throw new IOException(x);
+            throw new PomTransformationException("Failed to parse pom.xml", x);
         }
 
         Element build = doc.getRootElement().element("build");
@@ -199,13 +200,13 @@ public class MavenPom {
     }
 
     /** Create/Update the properties section adding/updating some of them */
-    public void addProperties(Properties propertiesToAdd) throws IOException {
+    public void addProperties(Properties propertiesToAdd) throws PomTransformationException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
             doc = new SAXReader().read(pom);
         } catch (DocumentException x) {
-            throw new IOException(x);
+            throw new PomTransformationException("Failed to parse pom.xml", x);
         }
 
         Element properties = doc.getRootElement().element("properties");
@@ -231,13 +232,13 @@ public class MavenPom {
             Map<String, VersionNumber> toReplaceTest,
             Map<String, String> pluginGroupIds,
             List<String> toConvert)
-            throws IOException {
+            throws PomTransformationException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
         try {
             doc = new SAXReader().read(pom);
         } catch (DocumentException x) {
-            throw new IOException(x);
+            throw new PomTransformationException("Failed to parse pom.xml", x);
         }
         Element dependencies = doc.getRootElement().element("dependencies");
         if (dependencies == null) {
@@ -404,22 +405,24 @@ public class MavenPom {
         }
     }
 
-    private void writeDocument(final File target, final Document doc) throws IOException {
-        Writer w = Files.newBufferedWriter(target.toPath(), getSafeCharset(doc));
-        OutputFormat format = OutputFormat.createPrettyPrint();
-        XMLWriter writer = new XMLWriter(w, format);
-        try {
-            writer.write(doc);
-        } finally {
-            writer.close();
-            w.close();
+    private void writeDocument(final File target, final Document doc) {
+        try (Writer w = Files.newBufferedWriter(target.toPath(), getSafeCharset(doc))) {
+            OutputFormat format = OutputFormat.createPrettyPrint();
+            XMLWriter writer = new XMLWriter(w, format);
+            try {
+                writer.write(doc);
+            } finally {
+                writer.close();
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
     private static Charset getSafeCharset(final Document doc) {
         try {
             return Charset.forName(doc.getXMLEncoding());
-        } catch (Exception ex) {
+        } catch (UnsupportedCharsetException ex) {
             return Charset.defaultCharset();
         }
     }
