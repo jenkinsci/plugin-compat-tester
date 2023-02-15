@@ -59,7 +59,7 @@ public class PluginCompatTesterHooks {
         setupPrefixes(extraPrefixes);
         setupExternalClassLoaders(externalJars);
         setupHooksByType();
-        if (excludeHooks != null) {
+        if (!excludeHooks.isEmpty()) {
             this.excludeHooks.addAll(excludeHooks);
         }
     }
@@ -71,13 +71,13 @@ public class PluginCompatTesterHooks {
     }
 
     private void setupPrefixes(List<String> extraPrefixes) {
-        if (extraPrefixes != null) {
+        if (!extraPrefixes.isEmpty()) {
             hookPrefixes.addAll(extraPrefixes);
         }
     }
 
     private void setupExternalClassLoaders(List<File> externalJars) {
-        if (externalJars == null) {
+        if (externalJars.isEmpty()) {
             return;
         }
         List<URL> urls = new ArrayList<>();
