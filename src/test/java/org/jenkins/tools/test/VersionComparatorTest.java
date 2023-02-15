@@ -32,14 +32,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Map;
 import org.jenkins.tools.test.model.comparators.VersionComparator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for plugin version comparisons
  *
  * @author Frederic Camblor
  */
-public class VersionComparatorTest {
+class VersionComparatorTest {
 
     private static final Map<String, Integer> OPERAND_CONVERSION =
             Map.of(
@@ -61,13 +61,13 @@ public class VersionComparatorTest {
     }
 
     @Test
-    public void shouldBasicEqualComparisonTestBeOk() {
+    void shouldBasicEqualComparisonTestBeOk() {
         test("1.2.3", "=", "1.2.3");
         test("1", "=", "1");
     }
 
     @Test
-    public void shouldBasicNonEqualComparisonTestBeOk() {
+    void shouldBasicNonEqualComparisonTestBeOk() {
         testAndCommutate("1", "<", "2");
         testAndCommutate("10", ">", "2");
         testAndCommutate("1.2", "<", "2.1");
@@ -77,7 +77,7 @@ public class VersionComparatorTest {
     }
 
     @Test
-    public void shouldSpecialCasesBeHandledCorrectly() {
+    void shouldSpecialCasesBeHandledCorrectly() {
         test("1", "<", "1.2.1");
         test("1.2", "<", "1.2.1");
         test("1.1-beta", ">", "1.1-alpha");

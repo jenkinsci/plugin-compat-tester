@@ -2,8 +2,8 @@ package org.jenkins.tools.test.hook;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Map;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PomData;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class WarningsNGExecutionHookTest {
+class WarningsNGExecutionHookTest {
 
     @Test
-    public void testCheckMethod() {
+    void testCheckMethod() {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
         final MavenCoordinates parent =
                 new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.57");
@@ -47,7 +47,7 @@ public class WarningsNGExecutionHookTest {
     }
 
     @Test
-    public void testAction() {
+    void testAction() {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
         Map<String, Object> info = new HashMap<>();
