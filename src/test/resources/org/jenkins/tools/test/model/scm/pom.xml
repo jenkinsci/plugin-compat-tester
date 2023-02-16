@@ -10,4 +10,10 @@
   <packaging>hpi</packaging>
   <name>Example</name>
   <url>https://jenkins.example.com/example-plugin</url>
+  <scm>
+    <connection>scm:git:https://jenkins.example.com/example-plugin.git</connection>
+    <developerConnection>scm:git:git@jenkins.example.com/example-plugin.git</developerConnection>
+    <tag>example-4.1</tag>
+    <url>https://jenkins.example.com/example-plugin</url>
+  </scm>
 </project>

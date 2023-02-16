@@ -35,36 +35,36 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * @author Frederic Camblor
  */
 public class PomData {
-    public final String artifactId;
-    public final String groupId;
+    @NonNull public final String artifactId;
+
+    @CheckForNull public final String groupId;
 
     @NonNull private final String packaging;
 
     @CheckForNull public final MavenCoordinates parent;
-    private String connectionUrl;
-    private String scmTag;
+
+    @NonNull private String connectionUrl;
+
+    @NonNull private String scmTag;
 
     public PomData(
-            String artifactId,
+            @NonNull String artifactId,
             @CheckForNull String packaging,
-            String connectionUrl,
-            String scmTag,
+            @NonNull String connectionUrl,
+            @NonNull String scmTag,
             @CheckForNull MavenCoordinates parent,
-            String groupId) {
+            @CheckForNull String groupId) {
         this.artifactId = artifactId;
         this.groupId = groupId;
         this.packaging = packaging != null ? packaging : "jar";
-        this.setConnectionUrl(connectionUrl);
+        this.connectionUrl = connectionUrl;
         this.scmTag = scmTag;
         this.parent = parent;
     }
 
+    @NonNull
     public String getConnectionUrl() {
         return connectionUrl;
-    }
-
-    public void setConnectionUrl(String connectionUrl) {
-        this.connectionUrl = connectionUrl;
     }
 
     @NonNull
@@ -72,6 +72,7 @@ public class PomData {
         return packaging;
     }
 
+    @NonNull
     public String getScmTag() {
         return scmTag;
     }

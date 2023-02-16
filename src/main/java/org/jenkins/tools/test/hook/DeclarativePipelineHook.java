@@ -22,11 +22,6 @@ public class DeclarativePipelineHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getParentProjectName() {
-        return "pipeline-model-definition";
-    }
-
-    @Override
     public boolean check(Map<String, Object> info) {
         PomData data = (PomData) info.get("pomData");
         return "org.jenkinsci.plugins".equals(data.groupId)

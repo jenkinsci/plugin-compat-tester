@@ -11,11 +11,6 @@ public class AwsJavaSdkHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getParentProjectName() {
-        return "aws-java-sdk-parent";
-    }
-
-    @Override
     public boolean check(Map<String, Object> info) {
         PomData data = (PomData) info.get("pomData");
         return ("org.jenkins-ci.plugins".equals(data.groupId)

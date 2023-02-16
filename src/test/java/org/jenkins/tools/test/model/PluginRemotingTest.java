@@ -21,7 +21,6 @@ class PluginRemotingTest {
                 is("somethingsuffix"));
 
         // no interpolation - contains neither ${artifactId} not ${project.artifactId}
-        assertThat(PluginRemoting.interpolateString(null, "wibble"), nullValue());
         assertThat(
                 PluginRemoting.interpolateString("${aartifactId}suffix", "something"),
                 is("${aartifactId}suffix"));
@@ -46,7 +45,7 @@ class PluginRemotingTest {
     }
 
     @Test
-    void noScm() throws Exception {
+    void parent() throws Exception {
         File pomFile = new File(getClass().getResource("scm/pom.xml").toURI());
         PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
         PomData pomData = pluginRemoting.retrievePomData();
@@ -56,7 +55,9 @@ class PluginRemotingTest {
         assertThat(pomData.groupId, nullValue());
         assertThat(pomData.artifactId, is("example"));
         assertThat(pomData.getPackaging(), is("hpi"));
-        assertThat(pomData.getConnectionUrl(), nullValue());
-        assertThat(pomData.getScmTag(), nullValue());
+        assertThat(
+                pomData.getConnectionUrl(),
+                is("scm:git:https://jenkins.example.com/example-plugin.git"));
+        assertThat(pomData.getScmTag(), is("example-4.1"));
     }
 }
