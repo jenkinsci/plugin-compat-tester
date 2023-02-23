@@ -12,11 +12,6 @@ public class BlueOceanHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getParentProjectName() {
-        return "blueocean-parent";
-    }
-
-    @Override
     public boolean check(Map<String, Object> info) {
         PomData data = (PomData) info.get("pomData");
         return "io.jenkins.blueocean".equals(data.groupId)

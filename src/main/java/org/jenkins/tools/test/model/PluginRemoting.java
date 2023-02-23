@@ -127,10 +127,8 @@ public class PluginRemoting {
                 model.getArtifactId(),
                 model.getPackaging(),
                 // scm may contain properties so it needs to be resolved.
-                interpolateString(
-                        model.getScm() != null ? model.getScm().getConnection() : null,
-                        model.getArtifactId()),
-                model.getScm() != null ? model.getScm().getTag() : null,
+                interpolateString(model.getScm().getConnection(), model.getArtifactId()),
+                model.getScm().getTag(),
                 parent,
                 model.getGroupId());
     }
@@ -144,9 +142,6 @@ public class PluginRemoting {
      * @return the original string with any interpolation for the artifactId resolved.
      */
     static String interpolateString(String original, String artifactId) {
-        if (original == null) {
-            return null;
-        }
         return original.replace("${project.artifactId}", artifactId);
     }
 }

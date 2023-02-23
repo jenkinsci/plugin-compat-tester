@@ -17,11 +17,6 @@ public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getParentProjectName() {
-        return "warnings-ng";
-    }
-
-    @Override
     public boolean check(Map<String, Object> info) {
         return isWarningsNG(info);
     }

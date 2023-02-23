@@ -13,11 +13,6 @@ public class WorkflowCpsHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getParentProjectName() {
-        return "workflow-cps";
-    }
-
-    @Override
     protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
         return "plugin";
     }

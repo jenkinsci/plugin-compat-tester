@@ -12,11 +12,6 @@ public class ConfigurationAsCodeHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getParentProjectName() {
-        return "configuration-as-code";
-    }
-
-    @Override
     public boolean check(Map<String, Object> info) {
         PomData data = (PomData) info.get("pomData");
         return "io.jenkins".equals(data.groupId)

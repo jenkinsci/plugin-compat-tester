@@ -12,11 +12,6 @@ public class SwarmHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getParentProjectName() {
-        return "swarm-plugin";
-    }
-
-    @Override
     protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
         return "plugin";
     }

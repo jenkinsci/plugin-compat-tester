@@ -21,11 +21,6 @@ public class DeclarativePipelineMigrationHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getParentProjectName() {
-        return "declarative-pipeline-migration-assistant";
-    }
-
-    @Override
     public boolean check(Map<String, Object> info) {
         PomData data = (PomData) info.get("pomData");
         return "org.jenkins-ci.plugins.to-declarative".equals(data.groupId)
