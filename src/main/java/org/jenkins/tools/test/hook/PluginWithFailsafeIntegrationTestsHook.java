@@ -7,7 +7,8 @@ import java.util.List;
  * Workaround for those plugins with integration tests since they need execute the
  * failsafe:integration-test goal before execution.
  */
-public class PluginWithFailsafeIntegrationTestsHook extends PluginWithIntegrationTestsHook {
+public abstract class PluginWithFailsafeIntegrationTestsHook
+        extends PluginWithIntegrationTestsHook {
 
     @Override
     public Collection<String> getGoals() {
