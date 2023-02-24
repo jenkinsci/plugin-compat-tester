@@ -1,8 +1,8 @@
 package org.jenkins.tools.test.hook;
 
-import hudson.model.UpdateSite;
-import java.util.Map;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 
 public class ConfigurationAsCodeHook extends AbstractMultiParentHook {
 
@@ -12,15 +12,15 @@ public class ConfigurationAsCodeHook extends AbstractMultiParentHook {
     }
 
     @Override
-    public boolean check(Map<String, Object> info) {
-        PomData data = (PomData) info.get("pomData");
+    public boolean check(@NonNull BeforeCheckoutContext context) {
+        PomData data = context.getPomData();
         return "io.jenkins".equals(data.groupId)
                 && "configuration-as-code".equals(data.artifactId)
                 && "hpi".equals(data.getPackaging());
     }
 
     @Override
-    protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
+    protected String getPluginFolderName(@NonNull BeforeCheckoutContext context) {
         return "plugin";
     }
 }

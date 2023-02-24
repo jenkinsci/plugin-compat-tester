@@ -1,15 +1,14 @@
 package org.jenkins.tools.test.hook;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import hudson.model.UpdateSite;
 import java.io.File;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
-import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
 /** Utility class to ease create simple hooks for multi-module projects */
@@ -19,21 +18,17 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
 
     protected boolean firstRun = true;
 
-    private PomData pomData;
-
     @Override
     @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "intended behavior")
-    public Map<String, Object> action(Map<String, Object> moreInfo)
+    public void action(@NonNull BeforeCheckoutContext context)
             throws PluginSourcesUnavailableException {
-        PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
-        UpdateSite.Plugin currentPlugin = (UpdateSite.Plugin) moreInfo.get("plugin");
 
         // We should not execute the hook if using localCheckoutDir
-        File localCheckoutDir = config.getLocalCheckoutDir();
+        File localCheckoutDir = context.getConfig().getLocalCheckoutDir();
         boolean shouldExecuteHook = localCheckoutDir == null || !localCheckoutDir.exists();
 
         if (shouldExecuteHook) {
-            LOGGER.log(Level.INFO, "Executing hook for {0}", currentPlugin.getDisplayName());
+            LOGGER.log(Level.INFO, "Executing hook for {0}", context.getPlugin().getDisplayName());
             // Determine if we need to run the download; only run for first identified plugin in the
             // series
             if (firstRun) {
@@ -43,51 +38,51 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 // directory
                 File parentPath =
                         new File(
-                                config.getWorkingDir().getAbsolutePath() + "/" + getParentFolder());
+                                context.getConfig().getWorkingDir().getAbsolutePath()
+                                        + "/"
+                                        + getParentFolder());
 
-                pomData = (PomData) moreInfo.get("pomData");
+                PomData pomData = context.getPomData();
                 // Like the call in PluginCompatTester#runHooks but with subdirectories trimmed:
                 PluginCompatTester.cloneFromScm(
                         pomData.getConnectionUrl(),
-                        config.getFallbackGitHubOrganization(),
+                        context.getConfig().getFallbackGitHubOrganization(),
                         pomData.getScmTag(),
                         parentPath);
             }
 
             // Checkout already happened, don't run through again
-            moreInfo.put("runCheckout", false);
+            context.setRanCheckout(true);
             firstRun = false;
 
             // Change the "download"" directory; after download, it's simply used for reference
             File childPath =
                     new File(
-                            config.getWorkingDir().getAbsolutePath()
+                            context.getConfig().getWorkingDir().getAbsolutePath()
                                     + "/"
                                     + getParentFolder()
                                     + "/"
-                                    + getPluginFolderName(currentPlugin));
+                                    + getPluginFolderName(context));
 
             LOGGER.log(
                     Level.INFO,
                     "Child path for {0}: {1}",
-                    new Object[] {currentPlugin.getDisplayName(), childPath.getPath()});
-            moreInfo.put("checkoutDir", childPath);
-            moreInfo.put("pluginDir", childPath);
-            moreInfo.put("parentFolder", getParentFolder());
+                    new Object[] {context.getPlugin().getDisplayName(), childPath.getPath()});
+            context.setCheckoutDir(childPath);
+            context.setPluginDir(childPath);
+            context.setParentFolder(getParentFolder());
         } else {
-            configureLocalCheckOut(currentPlugin, config.getLocalCheckoutDir(), moreInfo);
+            configureLocalCheckOut(context.getConfig().getLocalCheckoutDir(), context);
         }
-
-        return moreInfo;
     }
 
     protected void configureLocalCheckOut(
-            UpdateSite.Plugin currentPlugin, File localCheckoutDir, Map<String, Object> moreInfo) {
+            File localCheckoutDir, @NonNull BeforeCheckoutContext context) {
         // Do nothing to keep compatibility with pre-existing Hooks
         LOGGER.log(
                 Level.INFO,
                 "Ignoring local checkout directory for {0}",
-                currentPlugin.getDisplayName());
+                context.getPlugin().getDisplayName());
     }
 
     /**
@@ -101,7 +96,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
      * overridden to support plugins (like {@code workflow-cps}) that are not located in a folder
      * with the same name as the plugin itself.
      */
-    protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
-        return currentPlugin.name;
+    protected String getPluginFolderName(@NonNull BeforeCheckoutContext context) {
+        return context.getPlugin().name;
     }
 }

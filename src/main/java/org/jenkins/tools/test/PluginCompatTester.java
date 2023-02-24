@@ -38,7 +38,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +61,9 @@ import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PluginRemoting;
 import org.jenkins.tools.test.model.PomData;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
+import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
+import org.jenkins.tools.test.model.hook.BeforeCompilationContext;
+import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.util.StreamGobbler;
 
@@ -257,20 +258,17 @@ public class PluginCompatTester {
                                 + File.separator
                                 + plugin.name
                                 + File.separator);
-        String parentFolder = "";
+        String parentFolder = null;
 
         // Run any precheckout hooks
-        Map<String, Object> beforeCheckout = new HashMap<>();
-        beforeCheckout.put("pluginName", plugin.name);
-        beforeCheckout.put("plugin", plugin);
-        beforeCheckout.put("pomData", pomData);
-        beforeCheckout.put("config", config);
-        beforeCheckout.put("runCheckout", true);
-        beforeCheckout = pcth.runBeforeCheckout(beforeCheckout);
+        BeforeCheckoutContext beforeCheckout =
+                new BeforeCheckoutContext(plugin, pomData, coreCoordinates, config);
+        pcth.runBeforeCheckout(beforeCheckout);
 
-        if ((boolean) beforeCheckout.get("runCheckout")) {
-            if (beforeCheckout.get("checkoutDir") != null) {
-                pluginCheckoutDir = (File) beforeCheckout.get("checkoutDir");
+        if (!beforeCheckout.ranCheckout()) {
+            File checkoutDir = beforeCheckout.getCheckoutDir();
+            if (checkoutDir != null) {
+                pluginCheckoutDir = checkoutDir;
             }
             try {
                 if (Files.isDirectory(pluginCheckoutDir.toPath())) {
@@ -346,11 +344,11 @@ public class PluginCompatTester {
             }
         } else {
             // If the plugin exists in a different directory (multi-module plugins)
-            if (beforeCheckout.get("pluginDir") != null) {
-                pluginCheckoutDir = (File) beforeCheckout.get("checkoutDir");
+            if (beforeCheckout.getPluginDir() != null) {
+                pluginCheckoutDir = beforeCheckout.getCheckoutDir();
             }
-            if (beforeCheckout.get("parentFolder") != null) {
-                parentFolder = (String) beforeCheckout.get("parentFolder");
+            if (beforeCheckout.getParentFolder() != null) {
+                parentFolder = beforeCheckout.getParentFolder();
             }
             LOGGER.log(
                     Level.INFO,
@@ -369,29 +367,16 @@ public class PluginCompatTester {
         }
 
         // Ran the BeforeCompileHooks
-        Map<String, Object> beforeCompile = new HashMap<>();
-        beforeCompile.put("pluginName", plugin.name);
-        beforeCompile.put("plugin", plugin);
-        beforeCompile.put("pluginDir", pluginCheckoutDir);
-        beforeCompile.put("pomData", pomData);
-        beforeCompile.put("config", config);
-        beforeCompile.put("core", coreCoordinates);
-        if (parentFolder != null && !parentFolder.isEmpty()) {
-            beforeCompile.put("parentFolder", parentFolder);
-        }
-        Map<String, Object> hookInfo = pcth.runBeforeCompilation(beforeCompile);
+        BeforeCompilationContext beforeCompile =
+                new BeforeCompilationContext(
+                        plugin, pomData, coreCoordinates, config, pluginCheckoutDir, parentFolder);
+        pcth.runBeforeCompilation(beforeCompile);
 
-        boolean ranCompile =
-                hookInfo.containsKey(PluginCompatTesterHookBeforeCompile.OVERRIDE_DEFAULT_COMPILE)
-                        && (boolean)
-                                hookInfo.get(
-                                        PluginCompatTesterHookBeforeCompile
-                                                .OVERRIDE_DEFAULT_COMPILE);
         // First build against the original POM. This defends against source incompatibilities
         // (which we do not care about for this purpose); and ensures that we are testing a
         // plugin binary as close as possible to what was actually released. We also skip
         // potential javadoc execution to avoid general test failure.
-        if (!ranCompile) {
+        if (!beforeCompile.ranCompile()) {
             runner.run(
                     Map.of("maven.javadoc.skip", "true"),
                     pluginCheckoutDir,
@@ -399,7 +384,6 @@ public class PluginCompatTester {
                     "clean",
                     "process-test-classes");
         }
-        ranCompile = true;
 
         List<String> args = new ArrayList<>();
         args.add("hpi:resolve-test-dependencies");
@@ -407,17 +391,17 @@ public class PluginCompatTester {
         args.add("surefire:test");
 
         // Run preexecution hooks
-        Map<String, Object> forExecutionHooks = new HashMap<>();
-        forExecutionHooks.put("pluginName", plugin.name);
-        forExecutionHooks.put("plugin", plugin);
-        forExecutionHooks.put("args", args);
-        forExecutionHooks.put("pomData", pomData);
-        forExecutionHooks.put("pom", new MavenPom(pluginCheckoutDir));
-        forExecutionHooks.put("coreCoordinates", coreCoordinates);
-        forExecutionHooks.put("config", config);
-        forExecutionHooks.put("pluginDir", pluginCheckoutDir);
+        BeforeExecutionContext forExecutionHooks =
+                new BeforeExecutionContext(
+                        plugin,
+                        pomData,
+                        coreCoordinates,
+                        config,
+                        pluginCheckoutDir,
+                        parentFolder,
+                        args,
+                        new MavenPom(pluginCheckoutDir));
         pcth.runBeforeExecution(forExecutionHooks);
-        args = (List<String>) forExecutionHooks.get("args");
 
         Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
         properties.put("overrideWar", config.getWar().toString());

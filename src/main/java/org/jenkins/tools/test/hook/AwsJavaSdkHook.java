@@ -1,7 +1,8 @@
 package org.jenkins.tools.test.hook;
 
-import java.util.Map;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 
 public class AwsJavaSdkHook extends AbstractMultiParentHook {
 
@@ -11,8 +12,8 @@ public class AwsJavaSdkHook extends AbstractMultiParentHook {
     }
 
     @Override
-    public boolean check(Map<String, Object> info) {
-        PomData data = (PomData) info.get("pomData");
+    public boolean check(@NonNull BeforeCheckoutContext context) {
+        PomData data = context.getPomData();
         return ("org.jenkins-ci.plugins".equals(data.groupId)
                         && "aws-java-sdk".equals(data.artifactId)
                         && "hpi".equals(data.getPackaging()))

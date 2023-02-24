@@ -1,8 +1,9 @@
 package org.jenkins.tools.test.hook;
 
-import java.util.Map;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Set;
 import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 
 /**
  * Workaround for the Pipeline: Declarative plugins since they are stored in a central repository.
@@ -22,8 +23,8 @@ public class DeclarativePipelineHook extends AbstractMultiParentHook {
     }
 
     @Override
-    public boolean check(Map<String, Object> info) {
-        PomData data = (PomData) info.get("pomData");
+    public boolean check(@NonNull BeforeCheckoutContext context) {
+        PomData data = context.getPomData();
         return "org.jenkinsci.plugins".equals(data.groupId)
                 && ARTIFACT_IDS.contains(data.artifactId)
                 && "hpi".equals(data.getPackaging());

@@ -1,9 +1,6 @@
 package org.jenkins.tools.test.model.hook;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 
 /**
@@ -14,7 +11,7 @@ import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
  * enable Plugin Compatibility Tester to actually go about testing the plugin rather than throwing
  * up its hands in defeat.
  */
-public interface PluginCompatTesterHook {
+public abstract class PluginCompatTesterHook<C extends StageContext> {
 
     /**
      * Check if the plugin should be affected by this hook. There are several different ways this
@@ -22,7 +19,7 @@ public interface PluginCompatTesterHook {
      *
      * <p>Always run this hook unless otherwise specified.
      */
-    default boolean check(Map<String, Object> info) {
+    public boolean check(@NonNull C context) {
         return true;
     }
 
@@ -32,19 +29,5 @@ public interface PluginCompatTesterHook {
      *
      * <p>Certain implementations could throw exceptions.
      */
-    Map<String, Object> action(Map<String, Object> moreInfo)
-            throws PluginCompatibilityTesterException;
-
-    /**
-     * List the plugins this hook affects. This can be a single plugin, a list of plugins, or simply
-     * all plugins.
-     *
-     * <p>Apply this hook to all plugins unless otherwise specified.
-     */
-    default List<String> transformedPlugins() {
-        return new ArrayList<>(Collections.singletonList("all"));
-    }
-
-    /** Check the object used for this hook. */
-    void validate(Map<String, Object> toCheck);
+    public abstract void action(@NonNull C context) throws PluginCompatibilityTesterException;
 }
