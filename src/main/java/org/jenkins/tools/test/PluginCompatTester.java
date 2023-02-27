@@ -420,6 +420,7 @@ public class PluginCompatTester {
         args = (List<String>) forExecutionHooks.get("args");
 
         Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
+        properties.put("jth.jenkins-war.path", config.getWar().toString());
         properties.put("overrideWar", config.getWar().toString());
         properties.put("jenkins.version", coreCoordinates.version);
         properties.put("useUpperBounds", "true");
