@@ -46,7 +46,7 @@ class PluginRemotingTest {
 
     @Test
     void parent() throws Exception {
-        File pomFile = new File(getClass().getResource("scm/pom.xml").toURI());
+        File pomFile = new File(getClass().getResource("parent/pom.xml").toURI());
         PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
         PomData pomData = pluginRemoting.retrievePomData();
         assertThat(
