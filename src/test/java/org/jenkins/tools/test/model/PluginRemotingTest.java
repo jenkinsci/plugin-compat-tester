@@ -3,8 +3,10 @@ package org.jenkins.tools.test.model;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
+import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.junit.jupiter.api.Test;
 
 class PluginRemotingTest {
@@ -59,5 +61,16 @@ class PluginRemotingTest {
                 pomData.getConnectionUrl(),
                 is("scm:git:https://jenkins.example.com/example-plugin.git"));
         assertThat(pomData.getScmTag(), is("example-4.1"));
+    }
+
+    @Test
+    void negative() throws Exception {
+        File pomFile = new File(getClass().getResource("negative/pom.xml").toURI());
+        PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
+        PluginSourcesUnavailableException e =
+                assertThrows(
+                        PluginSourcesUnavailableException.class,
+                        () -> pluginRemoting.retrievePomData());
+        assertThat(e.getMessage(), is("Failed to parse pom.xml"));
     }
 }
