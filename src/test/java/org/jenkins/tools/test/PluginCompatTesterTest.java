@@ -30,8 +30,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import hudson.model.UpdateSite;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -84,6 +86,24 @@ class PluginCompatTesterTest {
         assertEquals(0, skipped);
         int failures = Integer.parseInt(element.getAttribute("failures"));
         assertEquals(0, failures);
+    }
+
+    @Test
+    void updateSite() {
+        UpdateSite.Data data =
+                PluginCompatTester.scanWAR(
+                        new File("target", "megawar.war").getAbsoluteFile(),
+                        "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
+        assertEquals("core", data.core.name);
+        assertNotNull(data.core.version);
+        assertEquals("https://foobar", data.core.url);
+        UpdateSite.Plugin plugin = data.plugins.get("text-finder");
+        assertNotNull(plugin);
+        assertEquals("Text Finder", plugin.getDisplayName());
+        assertEquals("Text Finder", plugin.title);
+        assertEquals("text-finder", plugin.name);
+        assertNotNull(plugin.version);
+        assertNotNull(plugin.url);
     }
 
     @Test
