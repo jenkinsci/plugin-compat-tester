@@ -26,6 +26,7 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
+    <jenkins.version>2.392</jenkins.version>
     <picocli.version>4.7.1</picocli.version>
     <slf4j.version>2.0.6</slf4j.version>
     <spotbugs.effort>Max</spotbugs.effort>
@@ -115,6 +116,19 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.jenkins-ci.main</groupId>
+      <artifactId>jenkins-war</artifactId>
+      <version>${jenkins.version}</version>
+      <type>executable-war</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>text-finder</artifactId>
+      <version>1.22</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
@@ -163,7 +177,6 @@
               <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
               <sortDependencies>scope,groupId,artifactId</sortDependencies>
               <sortDependencyExclusions>groupId,artifactId</sortDependencyExclusions>
-              <sortPlugins>groupId,artifactId</sortPlugins>
               <sortModules>true</sortModules>
               <sortExecutions>true</sortExecutions>
             </sortPom>
@@ -195,6 +208,73 @@
             <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
           </compilerArgs>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jenkins-ci.tools</groupId>
+        <artifactId>maven-hpi-plugin</artifactId>
+        <!-- Version specified in parent POM -->
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <id>prepare-test-plugins</id>
+            <goals>
+              <goal>resolve-test-dependencies</goal>
+            </goals>
+            <phase>test-compile</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <!-- Version specified in parent POM -->
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <phase>process-test-classes</phase>
+            <configuration>
+              <includeTypes>executable-war</includeTypes>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>prepare-megawar</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>process-test-classes</phase>
+            <configuration>
+              <target>
+                <!-- Keep in sync with logic in jenkinsci/bom/prep.sh -->
+                <mkdir dir="${project.build.directory}/jenkins" />
+                <echo file="${project.build.directory}/jenkins/split-plugins.txt"># nothing</echo>
+                <delete dir="${project.build.directory}/megawar" />
+                <unzip dest="${project.build.directory}/megawar" src="${project.build.directory}/jenkins-war-${jenkins.version}.war" />
+                <jar basedir="${project.build.directory}" destfile="${project.build.directory}/megawar/WEB-INF/lib/jenkins-core-${jenkins.version}.jar" includes="jenkins/split-plugins.txt" update="true" />
+                <copy todir="${project.build.directory}/megawar/WEB-INF/plugins">
+                  <fileset dir="${project.build.directory}/test-classes/test-dependencies">
+                    <include name="**/*.hpi" />
+                  </fileset>
+                </copy>
+                <delete dir="${project.build.directory}/megawar/WEB-INF/detached-plugins" />
+                <delete file="${project.build.directory}/megawar/META-INF/JENKINS.RSA" />
+                <delete file="${project.build.directory}/megawar/META-INF/JENKINS.SF" />
+                <war destfile="${project.build.directory}/megawar.war">
+                  <fileset dir="${project.build.directory}/megawar" />
+                </war>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

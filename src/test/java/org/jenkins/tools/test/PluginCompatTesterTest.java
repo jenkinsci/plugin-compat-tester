@@ -29,12 +29,24 @@ package org.jenkins.tools.test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.jvnet.hudson.test.Issue;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Main test class for plugin compatibility test frontend
@@ -42,6 +54,37 @@ import org.jvnet.hudson.test.Issue;
  * @author Frederic Camblor
  */
 class PluginCompatTesterTest {
+
+    @Test
+    void smokes(@TempDir File tempDir) throws Exception {
+        PluginCompatTesterConfig config =
+                new PluginCompatTesterConfig(
+                        new File("target", "megawar.war").getAbsoluteFile(), tempDir);
+        config.setMavenProperties(Map.of("test", "InjectedTest"));
+        PluginCompatTester tester = new PluginCompatTester(config);
+        tester.testPlugins();
+        Path report =
+                tempDir.toPath()
+                        .resolve("text-finder")
+                        .resolve("target")
+                        .resolve("surefire-reports")
+                        .resolve("TEST-InjectedTest.xml");
+        assertTrue(Files.exists(report));
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(report.toFile());
+        Element element = document.getDocumentElement();
+        int tests = Integer.parseInt(element.getAttribute("tests"));
+        assertNotEquals(0, tests);
+        int errors = Integer.parseInt(element.getAttribute("errors"));
+        assertEquals(0, errors);
+        int skipped = Integer.parseInt(element.getAttribute("skipped"));
+        assertEquals(0, skipped);
+        int failures = Integer.parseInt(element.getAttribute("failures"));
+        assertEquals(0, failures);
+    }
 
     @Test
     void testMatcher() {
