@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.exception.PomExecutionException;
@@ -207,28 +206,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     }
 
     private File setupCompileResources(File path) {
-        LOGGER.log(Level.INFO, "Cleaning up node modules if necessary");
-        removeNodeFolders(path);
         LOGGER.log(Level.INFO, "Plugin compilation log directory: {0}", path);
         return new File(path + "/compilePluginLog.log");
-    }
-
-    private void removeNodeFolders(File path) {
-        File nodeFolder = new File(path, "node");
-        if (nodeFolder.exists() && nodeFolder.isDirectory()) {
-            try {
-                FileUtils.deleteDirectory(nodeFolder);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-        File nodeModulesFolder = new File(path, "node_modules");
-        if (nodeModulesFolder.exists() && nodeModulesFolder.isDirectory()) {
-            try {
-                FileUtils.deleteDirectory(nodeFolder);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
     }
 }
