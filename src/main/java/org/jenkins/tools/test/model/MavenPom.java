@@ -72,8 +72,8 @@ public class MavenPom {
     private static final String VERSION_ELEMENT = "version";
     private static final String CLASSIFIER_ELEMENT = "classifier";
 
-    private File rootDir;
-    private String pomFileName;
+    private final File rootDir;
+    private final String pomFileName;
 
     public MavenPom(File rootDir) {
         this(rootDir, "pom.xml");

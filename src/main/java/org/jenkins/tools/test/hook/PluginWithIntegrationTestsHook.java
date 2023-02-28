@@ -12,7 +12,6 @@ public abstract class PluginWithIntegrationTestsHook extends PluginCompatTesterH
     @NonNull
     public abstract Collection<String> getGoals();
 
-    @SuppressWarnings("unchecked")
     @Override
     public void action(@NonNull BeforeExecutionContext context) {
         context.getArgs().addAll(getGoals());
