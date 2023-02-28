@@ -1,8 +1,9 @@
 package org.jenkins.tools.test.hook;
 
-import java.util.Map;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Set;
 import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 
 /**
  * Custom execution hook for plugins whose parent is {@code org.jvnet.hudson.plugins:analysis-pom}.
@@ -23,8 +24,8 @@ public class AnalysisPomExecutionHook extends PluginWithFailsafeIntegrationTests
                     "popper2-api");
 
     @Override
-    public boolean check(Map<String, Object> info) {
-        PomData data = (PomData) info.get("pomData");
+    public boolean check(@NonNull BeforeExecutionContext context) {
+        PomData data = context.getPomData();
         return "io.jenkins.plugins".equals(data.groupId)
                 && ARTIFACT_IDS.contains(data.artifactId)
                 && "hpi".equals(data.getPackaging());

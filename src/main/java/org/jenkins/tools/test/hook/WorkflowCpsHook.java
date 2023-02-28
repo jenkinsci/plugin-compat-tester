@@ -1,9 +1,9 @@
 package org.jenkins.tools.test.hook;
 
-import hudson.model.UpdateSite;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.VersionNumber;
-import java.util.Map;
 import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 
 public class WorkflowCpsHook extends AbstractMultiParentHook {
 
@@ -13,17 +13,15 @@ public class WorkflowCpsHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
+    protected String getPluginFolderName(@NonNull BeforeCheckoutContext context) {
         return "plugin";
     }
 
     @Override
-    public boolean check(Map<String, Object> info) {
-        PomData data = (PomData) info.get("pomData");
-        UpdateSite.Plugin plugin =
-                info.get("plugin") != null ? (UpdateSite.Plugin) info.get("plugin") : null;
-        if (plugin != null && plugin.version != null) {
-            VersionNumber pluginVersion = new VersionNumber(plugin.version);
+    public boolean check(@NonNull BeforeCheckoutContext context) {
+        PomData data = context.getPomData();
+        if (context.getPlugin() != null && context.getPlugin().version != null) {
+            VersionNumber pluginVersion = new VersionNumber(context.getPlugin().version);
             // 2803 was the final release before it became a multi-module project.
             // The history of groovy-cps history was merged into the repo, so the first multi-module
             // release will be a little over 3500.

@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.hook;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
@@ -20,9 +21,12 @@ import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
+import org.jenkins.tools.test.model.hook.BeforeCompilationContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHook;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
+import org.jenkins.tools.test.model.hook.Stage;
 
 @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "intended behavior")
 public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
@@ -38,9 +42,9 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
     }
 
     @Override
-    public Map<String, Object> action(Map<String, Object> moreInfo) throws PomExecutionException {
+    public void action(@NonNull BeforeCompilationContext context) throws PomExecutionException {
         LOGGER.log(Level.INFO, "Executing multi-parent compile hook");
-        PluginCompatTesterConfig config = (PluginCompatTesterConfig) moreInfo.get("config");
+        PluginCompatTesterConfig config = context.getConfig();
 
         runner =
                 new ExternalMavenRunner(
@@ -48,7 +52,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
                         config.getMavenSettings(),
                         config.getMavenArgs());
 
-        File pluginDir = (File) moreInfo.get("pluginDir");
+        File pluginDir = context.getPluginDir();
         LOGGER.log(Level.INFO, "Plugin dir is {0}", pluginDir);
 
         File localCheckoutDir = config.getLocalCheckoutDir();
@@ -71,30 +75,29 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
         // We need to compile before generating effective pom overriding jenkins.version
         // only if the plugin is not already compiled
-        boolean ranCompile =
-                moreInfo.containsKey(OVERRIDE_DEFAULT_COMPILE)
-                        && (boolean) moreInfo.get(OVERRIDE_DEFAULT_COMPILE);
-        if (!ranCompile) {
+        if (!context.ranCompile()) {
             compile(
                     pluginDir,
                     localCheckoutDir,
-                    (String) moreInfo.get("parentFolder"),
-                    (String) moreInfo.get("pluginName"));
-            moreInfo.put(OVERRIDE_DEFAULT_COMPILE, true);
+                    context.getParentFolder(),
+                    context.getPlugin().name);
+            context.setRanCompile(true);
         }
 
         LOGGER.log(Level.INFO, "Executed multi-parent compile hook");
-        return moreInfo;
     }
 
     @Override
-    public void validate(Map<String, Object> toCheck) {}
-
-    @Override
-    public boolean check(Map<String, Object> info) {
+    public boolean check(@NonNull BeforeCompilationContext context) {
         for (PluginCompatTesterHook hook :
-                PluginCompatTesterHooks.getHooksFromStage("checkout", info)) {
-            if (hook instanceof AbstractMultiParentHook && hook.check(info)) {
+                PluginCompatTesterHooks.hooksByStage.get(Stage.CHECKOUT)) {
+            if (hook instanceof AbstractMultiParentHook
+                    && hook.check(
+                            new BeforeCheckoutContext(
+                                    context.getPlugin(),
+                                    context.getPomData(),
+                                    context.getCoreCoordinates(),
+                                    context.getConfig()))) {
                 return true;
             }
         }

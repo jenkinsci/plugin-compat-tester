@@ -6,11 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.junit.jupiter.api.Test;
 
 class WarningsNGExecutionHookTest {
@@ -29,9 +28,9 @@ class WarningsNGExecutionHookTest {
                         "whatever",
                         parent,
                         "org.jenkins-ci.plugins");
-        Map<String, Object> info = new HashMap<>();
-        info.put("pomData", pomData);
-        assertTrue(hook.check(info));
+        BeforeExecutionContext context =
+                new BeforeExecutionContext(null, pomData, null, null, null, null, List.of(), null);
+        assertTrue(hook.check(context));
 
         pomData =
                 new PomData(
@@ -41,22 +40,21 @@ class WarningsNGExecutionHookTest {
                         "whatever",
                         parent,
                         "org.jenkins-ci.plugins");
-        info = new HashMap<>();
-        info.put("pomData", pomData);
-        assertFalse(hook.check(info));
+        context =
+                new BeforeExecutionContext(null, pomData, null, null, null, null, List.of(), null);
+        assertFalse(hook.check(context));
     }
 
     @Test
     void testAction() {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
-        Map<String, Object> info = new HashMap<>();
-        info.put(
-                "args",
+        List<String> args =
                 new ArrayList<>(
-                        List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test")));
-        Map<String, Object> afterAction = hook.action(info);
-        List<String> args = (List<String>) afterAction.get("args");
+                        List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test"));
+        BeforeExecutionContext context =
+                new BeforeExecutionContext(null, null, null, null, null, null, args, null);
+        hook.action(context);
         assertThat(args.size(), is(4));
         assertTrue(args.contains("failsafe:integration-test"));
     }

@@ -1,9 +1,9 @@
 package org.jenkins.tools.test.hook;
 
-import hudson.model.UpdateSite;
-import java.util.Map;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Set;
 import org.jenkins.tools.test.model.PomData;
+import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 
 public class PipelineStageViewHook extends AbstractMultiParentHook {
 
@@ -16,13 +16,13 @@ public class PipelineStageViewHook extends AbstractMultiParentHook {
     }
 
     @Override
-    protected String getPluginFolderName(UpdateSite.Plugin currentPlugin) {
-        return currentPlugin.name.equals("pipeline-rest-api") ? "rest-api" : "ui";
+    protected String getPluginFolderName(@NonNull BeforeCheckoutContext context) {
+        return context.getPlugin().name.equals("pipeline-rest-api") ? "rest-api" : "ui";
     }
 
     @Override
-    public boolean check(Map<String, Object> info) {
-        PomData data = (PomData) info.get("pomData");
+    public boolean check(@NonNull BeforeCheckoutContext context) {
+        PomData data = context.getPomData();
         return "org.jenkins-ci.plugins.pipeline-stage-view".equals(data.groupId)
                 && ARTIFACT_IDS.contains(data.artifactId)
                 && "hpi".equals(data.getPackaging());
