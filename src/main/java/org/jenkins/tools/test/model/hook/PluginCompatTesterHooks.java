@@ -11,7 +11,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -40,7 +39,7 @@ public class PluginCompatTesterHooks {
 
     @NonNull private final List<String> hookPrefixes;
 
-    public static final Map<Stage, List<PluginCompatTesterHook>> hooksByStage =
+    public static final Map<Stage, List<PluginCompatTesterHook<StageContext>>> hooksByStage =
             new EnumMap<>(Stage.class);
 
     @NonNull private final List<String> excludeHooks;
@@ -98,7 +97,7 @@ public class PluginCompatTesterHooks {
      * @param context relevant information to hooks at various stages.
      */
     private void runHooks(@NonNull StageContext context) throws PluginCompatibilityTesterException {
-        for (PluginCompatTesterHook hook : hooksByStage.get(context.getStage())) {
+        for (PluginCompatTesterHook<StageContext> hook : hooksByStage.get(context.getStage())) {
             if (!excludeHooks.contains(hook.getClass().getName()) && hook.check(context)) {
                 LOGGER.log(Level.INFO, "Running hook: {0}", hook.getClass().getName());
                 hook.action(context);
@@ -108,8 +107,8 @@ public class PluginCompatTesterHooks {
         }
     }
 
-    private List<PluginCompatTesterHook> findHooks(Stage stage) {
-        List<PluginCompatTesterHook> sortedHooks = new LinkedList<>();
+    private List<PluginCompatTesterHook<StageContext>> findHooks(Stage stage) {
+        List<PluginCompatTesterHook<StageContext>> sortedHooks = new ArrayList<>();
 
         // Search for all hooks defined within the given classpath prefix
         ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
@@ -118,7 +117,7 @@ public class PluginCompatTesterHooks {
             configurationBuilder.forPackage(hookPrefix, classLoader);
         }
         Reflections reflections = new Reflections(configurationBuilder);
-        NavigableSet<Class<? extends PluginCompatTesterHook>> subTypes;
+        NavigableSet<Class<? extends PluginCompatTesterHook<? extends StageContext>>> subTypes;
 
         // Find all steps for a given stage. Long due to casting
         switch (stage) {
@@ -153,11 +152,13 @@ public class PluginCompatTesterHooks {
                 throw new IllegalArgumentException("Invalid stage: " + stage);
         }
 
-        for (Class<?> c : subTypes) {
+        for (Class<? extends PluginCompatTesterHook<? extends StageContext>> c : subTypes) {
             try {
                 LOGGER.log(Level.FINE, "Loading hook: {0}", c.getName());
-                Constructor<?> constructor = c.getConstructor();
-                PluginCompatTesterHook hook = (PluginCompatTesterHook) constructor.newInstance();
+                Constructor<? extends PluginCompatTesterHook<? extends StageContext>> constructor =
+                        c.getConstructor();
+                PluginCompatTesterHook<StageContext> hook =
+                        (PluginCompatTesterHook<StageContext>) constructor.newInstance();
                 sortedHooks.add(hook);
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException("Error when loading " + c.getName(), e);
@@ -167,7 +168,9 @@ public class PluginCompatTesterHooks {
         return sortedHooks;
     }
 
-    private static Supplier<NavigableSet<Class<? extends PluginCompatTesterHook>>> navigableSet() {
+    private static Supplier<
+                    NavigableSet<Class<? extends PluginCompatTesterHook<? extends StageContext>>>>
+            navigableSet() {
         return () -> new TreeSet<>(Comparator.comparing(Class::getName));
     }
 
@@ -176,8 +179,8 @@ public class PluginCompatTesterHooks {
      * Set}s. Gets around a generics error: {@code incompatible types: inference variable T has
      * incompatible bounds}.
      */
-    private Class<? extends PluginCompatTesterHook> casting(
-            Class<? extends PluginCompatTesterHook> c) {
+    private Class<? extends PluginCompatTesterHook<? extends StageContext>> casting(
+            Class<? extends PluginCompatTesterHook<? extends StageContext>> c) {
         return c;
     }
 }

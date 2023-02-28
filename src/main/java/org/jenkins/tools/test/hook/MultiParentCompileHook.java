@@ -27,6 +27,7 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHook;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.model.hook.Stage;
+import org.jenkins.tools.test.model.hook.StageContext;
 
 @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "intended behavior")
 public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
@@ -89,10 +90,12 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
     @Override
     public boolean check(@NonNull BeforeCompilationContext context) {
-        for (PluginCompatTesterHook hook :
+        for (PluginCompatTesterHook<? extends StageContext> hook :
                 PluginCompatTesterHooks.hooksByStage.get(Stage.CHECKOUT)) {
-            if (hook instanceof AbstractMultiParentHook
-                    && hook.check(
+            PluginCompatTesterHook<BeforeCheckoutContext> checkoutHook =
+                    (PluginCompatTesterHook<BeforeCheckoutContext>) hook;
+            if (checkoutHook instanceof AbstractMultiParentHook
+                    && checkoutHook.check(
                             new BeforeCheckoutContext(
                                     context.getPlugin(),
                                     context.getPomData(),

@@ -69,8 +69,7 @@ class PluginRemotingTest {
         PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
         PluginSourcesUnavailableException e =
                 assertThrows(
-                        PluginSourcesUnavailableException.class,
-                        () -> pluginRemoting.retrievePomData());
+                        PluginSourcesUnavailableException.class, pluginRemoting::retrievePomData);
         assertThat(e.getMessage(), is("Failed to parse pom.xml"));
     }
 }
