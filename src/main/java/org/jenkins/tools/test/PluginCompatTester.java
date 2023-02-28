@@ -612,7 +612,7 @@ public class PluginCompatTester {
      * @return Update center data
      */
     @SuppressFBWarnings(value = "REDOS", justification = "intended behavior")
-    private UpdateSite.Data scanWAR(File war, String pluginRegExp) {
+    static UpdateSite.Data scanWAR(File war, String pluginRegExp) {
         UpdateSite.Entry core = null;
         List<UpdateSite.Plugin> plugins = new ArrayList<>();
         try (JarFile jf = new JarFile(war)) {
