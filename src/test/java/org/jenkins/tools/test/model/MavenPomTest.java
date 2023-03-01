@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.model.Dependency;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.jvnet.hudson.test.Issue;
@@ -186,8 +187,10 @@ class MavenPomTest {
     void transformPOMwithSpecialCharacters(@TempDir File folder) throws Exception {
         File pomFile = createPomFileFromResource(folder, "demo-plugin-pom-before.xml");
 
-        MavenCoordinates coreCoordinates =
-                new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "2.235.1");
+        Dependency coreCoordinates = new Dependency();
+        coreCoordinates.setGroupId("org.jenkins-ci.plugins");
+        coreCoordinates.setArtifactId("plugin");
+        coreCoordinates.setVersion("2.235.1");
 
         MavenPom mavenPom = new MavenPom(pomFile.getParentFile());
         mavenPom.transformPom(coreCoordinates);

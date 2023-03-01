@@ -5,10 +5,10 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.UpdateSite;
 import java.io.File;
 import java.util.List;
-import org.jenkins.tools.test.model.MavenCoordinates;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.PomData;
 
 public final class BeforeExecutionContext extends StageContext {
 
@@ -22,14 +22,14 @@ public final class BeforeExecutionContext extends StageContext {
 
     public BeforeExecutionContext(
             @NonNull UpdateSite.Plugin plugin,
-            @NonNull PomData pomData,
-            @NonNull MavenCoordinates coreCoordinates,
+            @NonNull Model model,
+            @NonNull Dependency coreCoordinates,
             @NonNull PluginCompatTesterConfig config,
             @CheckForNull File pluginDir,
             @CheckForNull String parentFolder,
             @NonNull List<String> args,
             @NonNull MavenPom pom) {
-        super(Stage.EXECUTION, plugin, pomData, coreCoordinates, config);
+        super(Stage.EXECUTION, plugin, model, coreCoordinates, config);
         this.pluginDir = pluginDir;
         this.parentFolder = parentFolder;
         this.args = args;

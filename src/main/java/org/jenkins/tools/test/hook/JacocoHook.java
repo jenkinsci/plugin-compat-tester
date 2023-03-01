@@ -3,7 +3,7 @@ package org.jenkins.tools.test.hook;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
 import java.util.stream.IntStream;
-import org.jenkins.tools.test.model.PomData;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
@@ -15,8 +15,8 @@ public class JacocoHook extends PluginCompatTesterHookBeforeExecution {
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
-        PomData data = context.getPomData();
-        return "jacoco".equals(data.artifactId);
+        Model model = context.getModel();
+        return "jacoco".equals(model.getArtifactId());
     }
 
     @Override

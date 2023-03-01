@@ -1,7 +1,7 @@
 package org.jenkins.tools.test.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.jenkins.tools.test.model.PomData;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 
 public class AwsJavaSdkHook extends AbstractMultiParentHook {
@@ -13,12 +13,12 @@ public class AwsJavaSdkHook extends AbstractMultiParentHook {
 
     @Override
     public boolean check(@NonNull BeforeCheckoutContext context) {
-        PomData data = context.getPomData();
-        return ("org.jenkins-ci.plugins".equals(data.groupId)
-                        && "aws-java-sdk".equals(data.artifactId)
-                        && "hpi".equals(data.getPackaging()))
-                || ("org.jenkins-ci.plugins.aws-java-sdk".equals(data.groupId)
-                        && data.artifactId.startsWith("aws-java-sdk")
-                        && "hpi".equals(data.getPackaging()));
+        Model model = context.getModel();
+        return ("org.jenkins-ci.plugins".equals(model.getGroupId())
+                        && "aws-java-sdk".equals(model.getArtifactId())
+                        && "hpi".equals(model.getPackaging()))
+                || ("org.jenkins-ci.plugins.aws-java-sdk".equals(model.getGroupId())
+                        && model.getArtifactId().startsWith("aws-java-sdk")
+                        && "hpi".equals(model.getPackaging()));
     }
 }

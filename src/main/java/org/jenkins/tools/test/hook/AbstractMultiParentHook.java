@@ -5,9 +5,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
-import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 
@@ -42,12 +42,12 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                                         + "/"
                                         + getParentFolder());
 
-                PomData pomData = context.getPomData();
+                Model model = context.getModel();
                 // Like the call in PluginCompatTester#runHooks but with subdirectories trimmed:
                 PluginCompatTester.cloneFromScm(
-                        pomData.getConnectionUrl(),
+                        model.getScm().getConnection(),
                         context.getConfig().getFallbackGitHubOrganization(),
-                        pomData.getScmTag(),
+                        model.getScm().getTag(),
                         parentPath);
             }
 

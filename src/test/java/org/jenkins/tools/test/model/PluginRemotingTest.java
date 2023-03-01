@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.junit.jupiter.api.Test;
 
@@ -35,32 +36,32 @@ class PluginRemotingTest {
     void smokes() throws Exception {
         File pomFile = new File(getClass().getResource("smokes/pom.xml").toURI());
         PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
-        PomData pomData = pluginRemoting.retrievePomData();
-        assertThat(pomData.parent, nullValue());
-        assertThat(pomData.groupId, is("com.example.jenkins"));
-        assertThat(pomData.artifactId, is("example"));
-        assertThat(pomData.getPackaging(), is("hpi"));
+        Model model = pluginRemoting.retrieveModel();
+        assertThat(model.getParent(), nullValue());
+        assertThat(model.getGroupId(), is("com.example.jenkins"));
+        assertThat(model.getArtifactId(), is("example"));
+        assertThat(model.getPackaging(), is("hpi"));
         assertThat(
-                pomData.getConnectionUrl(),
+                model.getScm().getConnection(),
                 is("scm:git:https://jenkins.example.com/example-plugin.git"));
-        assertThat(pomData.getScmTag(), is("example-4.1"));
+        assertThat(model.getScm().getTag(), is("example-4.1"));
     }
 
     @Test
     void parent() throws Exception {
         File pomFile = new File(getClass().getResource("parent/pom.xml").toURI());
         PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
-        PomData pomData = pluginRemoting.retrievePomData();
+        Model model = pluginRemoting.retrieveModel();
+        assertThat(model.getParent().getGroupId(), is("com.example.jenkins"));
+        assertThat(model.getParent().getArtifactId(), is("example-parent"));
+        assertThat(model.getParent().getVersion(), is("4.1"));
+        assertThat(model.getGroupId(), nullValue());
+        assertThat(model.getArtifactId(), is("example"));
+        assertThat(model.getPackaging(), is("hpi"));
         assertThat(
-                pomData.parent,
-                is(new MavenCoordinates("com.example.jenkins", "example-parent", "4.1")));
-        assertThat(pomData.groupId, nullValue());
-        assertThat(pomData.artifactId, is("example"));
-        assertThat(pomData.getPackaging(), is("hpi"));
-        assertThat(
-                pomData.getConnectionUrl(),
+                model.getScm().getConnection(),
                 is("scm:git:https://jenkins.example.com/example-plugin.git"));
-        assertThat(pomData.getScmTag(), is("example-4.1"));
+        assertThat(model.getScm().getTag(), is("example-4.1"));
     }
 
     @Test
@@ -69,7 +70,7 @@ class PluginRemotingTest {
         PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
         PluginSourcesUnavailableException e =
                 assertThrows(
-                        PluginSourcesUnavailableException.class, pluginRemoting::retrievePomData);
+                        PluginSourcesUnavailableException.class, pluginRemoting::retrieveModel);
         assertThat(e.getMessage(), is("Failed to parse pom.xml"));
     }
 }

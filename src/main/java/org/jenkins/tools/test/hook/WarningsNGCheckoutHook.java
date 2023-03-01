@@ -4,7 +4,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jenkins.tools.test.model.PomData;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 
 public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
@@ -18,9 +18,9 @@ public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
 
     @Override
     public boolean check(@NonNull BeforeCheckoutContext context) {
-        PomData data = context.getPomData();
-        return "warnings-ng-parent".equals(data.artifactId) // localCheckoutDir
-                || "warnings-ng".equals(data.artifactId); // checkout
+        Model model = context.getModel();
+        return "warnings-ng-parent".equals(model.getArtifactId()) // localCheckoutDir
+                || "warnings-ng".equals(model.getArtifactId()); // checkout
     }
 
     @Override

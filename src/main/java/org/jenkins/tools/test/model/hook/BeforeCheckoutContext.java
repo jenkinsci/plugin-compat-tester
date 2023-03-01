@@ -4,9 +4,9 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.UpdateSite;
 import java.io.File;
-import org.jenkins.tools.test.model.MavenCoordinates;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.PomData;
 
 public final class BeforeCheckoutContext extends StageContext {
 
@@ -20,10 +20,10 @@ public final class BeforeCheckoutContext extends StageContext {
 
     public BeforeCheckoutContext(
             @NonNull UpdateSite.Plugin plugin,
-            @NonNull PomData pomData,
-            @NonNull MavenCoordinates coreCoordinates,
+            @NonNull Model model,
+            @NonNull Dependency coreCoordinates,
             @NonNull PluginCompatTesterConfig config) {
-        super(Stage.CHECKOUT, plugin, pomData, coreCoordinates, config);
+        super(Stage.CHECKOUT, plugin, model, coreCoordinates, config);
     }
 
     public boolean ranCheckout() {
