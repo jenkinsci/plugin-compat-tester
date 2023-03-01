@@ -120,7 +120,10 @@ public class ExternalMavenRunner implements MavenRunner {
             try (InputStream is = p.getInputStream();
                     Reader isr = new InputStreamReader(is, Charset.defaultCharset());
                     BufferedReader r = new BufferedReader(isr);
-                    OutputStream os = buildLogFile == null ? OutputStream.nullOutputStream() : new FileOutputStream(buildLogFile, true);
+                    OutputStream os =
+                            buildLogFile == null
+                                    ? OutputStream.nullOutputStream()
+                                    : new FileOutputStream(buildLogFile, true);
                     Writer osw = new OutputStreamWriter(os, Charset.defaultCharset());
                     PrintWriter w = new PrintWriter(osw)) {
                 String line;
