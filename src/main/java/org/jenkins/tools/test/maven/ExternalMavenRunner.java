@@ -2,6 +2,7 @@ package org.jenkins.tools.test.maven;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.SystemUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
 
@@ -107,9 +109,9 @@ public class ExternalMavenRunner implements MavenRunner {
 
         @NonNull private final Process p;
 
-        @NonNull private final File buildLogFile;
+        @CheckForNull private final File buildLogFile;
 
-        public MavenGobbler(@NonNull Process p, @NonNull File buildLogFile) {
+        public MavenGobbler(@NonNull Process p, @Nullable File buildLogFile) {
             this.p = p;
             this.buildLogFile = buildLogFile;
         }
@@ -119,7 +121,7 @@ public class ExternalMavenRunner implements MavenRunner {
             try (InputStream is = p.getInputStream();
                     Reader isr = new InputStreamReader(is, Charset.defaultCharset());
                     BufferedReader r = new BufferedReader(isr);
-                    OutputStream os = new FileOutputStream(buildLogFile, true);
+                    OutputStream os = buildLogFile == null ? NullOutputStream.NULL_OUTPUT_STREAM : new FileOutputStream(buildLogFile, true);
                     Writer osw = new OutputStreamWriter(os, Charset.defaultCharset());
                     PrintWriter w = new PrintWriter(osw)) {
                 String line;

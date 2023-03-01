@@ -186,9 +186,9 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
         File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "version.log");
         runner.run(
-                Map.of("expression", "project.version", "forceStdout", "true"),
+                Map.of("expression", "project.version", "output", log.getAbsolutePath()),
                 parentFile,
-                log,
+                null,
                 "-q",
                 "help:evaluate");
         List<String> output;
