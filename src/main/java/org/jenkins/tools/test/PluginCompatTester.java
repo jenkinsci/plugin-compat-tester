@@ -688,9 +688,9 @@ public class PluginCompatTester {
         }
         File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "modules.log");
         runner.run(
-                Map.of("expression", "project.modules", "forceStdout", "true"),
+                Map.of("expression", "project.modules", "output", log.getAbsolutePath()),
                 parentFile,
-                log,
+                null,
                 "-q",
                 "help:evaluate");
         List<String> lines;
