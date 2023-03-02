@@ -16,6 +16,7 @@ import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
+import org.kohsuke.MetaInfServices;
 
 /**
  * The {@code overrideWar} option is available in HPI Plugin 3.29 or later, but many plugins under
@@ -24,6 +25,7 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
  * the managed set are using a plugin parent POM with HPI Plugin 3.29 or later (i.e., plugin parent
  * POM 4.44 or later), this can be deleted.
  */
+@MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
 public class HpiPluginHook extends PluginCompatTesterHookBeforeExecution {
 
     @Override

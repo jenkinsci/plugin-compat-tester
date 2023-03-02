@@ -6,11 +6,13 @@ import java.util.stream.IntStream;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
+import org.kohsuke.MetaInfServices;
 
 /**
  * Workaround for JaCoCo plugin since it needs execute the jacoco:prepare-agent goal before
  * execution.
  */
+@MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
 public class JacocoHook extends PluginCompatTesterHookBeforeExecution {
 
     @Override

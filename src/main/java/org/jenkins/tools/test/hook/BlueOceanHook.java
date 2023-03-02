@@ -3,8 +3,11 @@ package org.jenkins.tools.test.hook;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
+import org.kohsuke.MetaInfServices;
 
 /** Workaround for the Blue Ocean plugins since they are stored in a central repository. */
+@MetaInfServices(PluginCompatTesterHookBeforeCheckout.class)
 public class BlueOceanHook extends AbstractMultiParentHook {
 
     @Override

@@ -4,11 +4,14 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Set;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
+import org.kohsuke.MetaInfServices;
 
 /**
  * Custom execution hook for plugins whose parent is {@code org.jvnet.hudson.plugins:analysis-pom}.
  * These plugins use Maven Failsafe Plugin in their test suites.
  */
+@MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
 public class AnalysisPomExecutionHook extends PluginWithFailsafeIntegrationTestsHook {
 
     private static final Set<String> ARTIFACT_IDS =
