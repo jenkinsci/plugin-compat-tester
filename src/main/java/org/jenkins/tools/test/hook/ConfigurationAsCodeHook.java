@@ -1,7 +1,7 @@
 package org.jenkins.tools.test.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.jenkins.tools.test.model.PomData;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 
 public class ConfigurationAsCodeHook extends AbstractMultiParentHook {
@@ -13,10 +13,10 @@ public class ConfigurationAsCodeHook extends AbstractMultiParentHook {
 
     @Override
     public boolean check(@NonNull BeforeCheckoutContext context) {
-        PomData data = context.getPomData();
-        return "io.jenkins".equals(data.groupId)
-                && "configuration-as-code".equals(data.artifactId)
-                && "hpi".equals(data.getPackaging());
+        Model model = context.getModel();
+        return "io.jenkins".equals(model.getGroupId())
+                && "configuration-as-code".equals(model.getArtifactId())
+                && "hpi".equals(model.getPackaging());
     }
 
     @Override

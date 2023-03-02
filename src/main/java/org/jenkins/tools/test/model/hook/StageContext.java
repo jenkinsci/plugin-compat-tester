@@ -2,27 +2,27 @@ package org.jenkins.tools.test.model.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.UpdateSite;
-import org.jenkins.tools.test.model.MavenCoordinates;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.PomData;
 
 public abstract class StageContext {
 
     @NonNull private final Stage stage;
     @NonNull private final UpdateSite.Plugin plugin;
-    @NonNull private final PomData pomData;
-    @NonNull private final MavenCoordinates coreCoordinates;
+    @NonNull private final Model model;
+    @NonNull private final Dependency coreCoordinates;
     @NonNull private final PluginCompatTesterConfig config;
 
     public StageContext(
             @NonNull Stage stage,
             @NonNull UpdateSite.Plugin plugin,
-            @NonNull PomData pomData,
-            @NonNull MavenCoordinates coreCoordinates,
+            @NonNull Model model,
+            @NonNull Dependency coreCoordinates,
             @NonNull PluginCompatTesterConfig config) {
         this.stage = stage;
         this.plugin = plugin;
-        this.pomData = pomData;
+        this.model = model;
         this.coreCoordinates = coreCoordinates;
         this.config = config;
     }
@@ -38,12 +38,12 @@ public abstract class StageContext {
     }
 
     @NonNull
-    public PomData getPomData() {
-        return pomData;
+    public Model getModel() {
+        return model;
     }
 
     @NonNull
-    public MavenCoordinates getCoreCoordinates() {
+    public Dependency getCoreCoordinates() {
         return coreCoordinates;
     }
 

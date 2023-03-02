@@ -49,6 +49,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.model.Dependency;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -84,7 +85,7 @@ public class MavenPom {
         this.pomFileName = pomFileName;
     }
 
-    public void transformPom(MavenCoordinates coreCoordinates) throws PomTransformationException {
+    public void transformPom(Dependency coreCoordinates) throws PomTransformationException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         File backupPom = new File(rootDir.getAbsolutePath() + "/" + pomFileName + ".backup");
         try {
@@ -104,17 +105,17 @@ public class MavenPom {
         if (parent != null) {
             Element groupIdElem = parent.element(GROUP_ID_ELEMENT);
             if (groupIdElem != null) {
-                groupIdElem.setText(coreCoordinates.groupId);
+                groupIdElem.setText(coreCoordinates.getGroupId());
             }
 
             Element artifactIdElem = parent.element(ARTIFACT_ID_ELEMENT);
             if (artifactIdElem != null) {
-                artifactIdElem.setText(coreCoordinates.artifactId);
+                artifactIdElem.setText(coreCoordinates.getArtifactId());
             }
 
             Element versionIdElem = parent.element(VERSION_ELEMENT);
             if (versionIdElem != null) {
-                versionIdElem.setText(coreCoordinates.version);
+                versionIdElem.setText(coreCoordinates.getVersion());
             }
         }
 
@@ -160,7 +161,7 @@ public class MavenPom {
      *
      * @param includeGroupId - specify if we want to add the groupId or not
      */
-    public void addPluginManagement(List<MavenCoordinates> pluginsToAdd, boolean includeGroupId)
+    public void addPluginManagement(List<Dependency> pluginsToAdd, boolean includeGroupId)
             throws PomTransformationException {
         File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
         Document doc;
@@ -184,16 +185,16 @@ public class MavenPom {
         if (plugins == null) {
             plugins = pluginManagement.addElement("plugins");
         }
-        for (MavenCoordinates plugin : pluginsToAdd) {
+        for (Dependency plugin : pluginsToAdd) {
             Element entry = plugins.addElement("plugin");
             if (includeGroupId) {
                 Element groupIdElem = entry.addElement(GROUP_ID_ELEMENT);
-                groupIdElem.setText(plugin.groupId);
+                groupIdElem.setText(plugin.getGroupId());
             }
             Element artifactIdElem = entry.addElement(ARTIFACT_ID_ELEMENT);
-            artifactIdElem.setText(plugin.artifactId);
+            artifactIdElem.setText(plugin.getArtifactId());
             Element versionIdElem = entry.addElement(VERSION_ELEMENT);
-            versionIdElem.setText(plugin.version);
+            versionIdElem.setText(plugin.getVersion());
         }
 
         writeDocument(pom, doc);

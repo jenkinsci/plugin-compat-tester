@@ -1,7 +1,7 @@
 package org.jenkins.tools.test.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.jenkins.tools.test.model.PomData;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 
 public class MinaSshdApi extends AbstractMultiParentHook {
@@ -13,9 +13,9 @@ public class MinaSshdApi extends AbstractMultiParentHook {
 
     @Override
     public boolean check(@NonNull BeforeCheckoutContext context) {
-        PomData data = context.getPomData();
-        return "io.jenkins.plugins.mina-sshd-api".equals(data.groupId)
-                && data.artifactId.startsWith("mina-sshd-api")
-                && "hpi".equals(data.getPackaging());
+        Model model = context.getModel();
+        return "io.jenkins.plugins.mina-sshd-api".equals(model.getGroupId())
+                && model.getArtifactId().startsWith("mina-sshd-api")
+                && "hpi".equals(model.getPackaging());
     }
 }

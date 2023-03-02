@@ -97,7 +97,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
                     && checkoutHook.check(
                             new BeforeCheckoutContext(
                                     context.getPlugin(),
-                                    context.getPomData(),
+                                    context.getModel(),
                                     context.getCoreCoordinates(),
                                     context.getConfig()))) {
                 return true;

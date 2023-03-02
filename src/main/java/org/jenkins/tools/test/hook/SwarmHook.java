@@ -1,7 +1,7 @@
 package org.jenkins.tools.test.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.jenkins.tools.test.model.PomData;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 
 public class SwarmHook extends AbstractMultiParentHook {
@@ -18,9 +18,9 @@ public class SwarmHook extends AbstractMultiParentHook {
 
     @Override
     public boolean check(@NonNull BeforeCheckoutContext context) {
-        PomData data = context.getPomData();
-        return "org.jenkins-ci.plugins".equals(data.groupId)
-                && "swarm".equals(data.artifactId)
-                && "hpi".equals(data.getPackaging());
+        Model model = context.getModel();
+        return "org.jenkins-ci.plugins".equals(model.getGroupId())
+                && "swarm".equals(model.getArtifactId())
+                && "hpi".equals(model.getPackaging());
     }
 }

@@ -2,7 +2,7 @@ package org.jenkins.tools.test.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Set;
-import org.jenkins.tools.test.model.PomData;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 
 /**
@@ -25,9 +25,9 @@ public class AnalysisPomExecutionHook extends PluginWithFailsafeIntegrationTests
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
-        PomData data = context.getPomData();
-        return "io.jenkins.plugins".equals(data.groupId)
-                && ARTIFACT_IDS.contains(data.artifactId)
-                && "hpi".equals(data.getPackaging());
+        Model model = context.getModel();
+        return "io.jenkins.plugins".equals(model.getGroupId())
+                && ARTIFACT_IDS.contains(model.getArtifactId())
+                && "hpi".equals(model.getPackaging());
     }
 }

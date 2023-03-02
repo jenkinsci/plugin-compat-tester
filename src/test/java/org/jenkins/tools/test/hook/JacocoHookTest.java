@@ -7,8 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jenkins.tools.test.model.MavenCoordinates;
-import org.jenkins.tools.test.model.PomData;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.junit.jupiter.api.Test;
 
@@ -17,30 +16,15 @@ class JacocoHookTest {
     @Test
     void testCheckMethod() {
         final JacocoHook hook = new JacocoHook();
-        final MavenCoordinates parent =
-                new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.57");
 
-        PomData pomData =
-                new PomData(
-                        "jacoco",
-                        "hpi",
-                        "it-does-not-matter",
-                        "whatever",
-                        parent,
-                        "org.jenkins-ci.plugins");
+        Model model = new Model();
+        model.setArtifactId("jacoco");
         BeforeExecutionContext context =
-                new BeforeExecutionContext(null, pomData, null, null, null, null, null, null);
+                new BeforeExecutionContext(null, model, null, null, null, null, null, null);
         assertTrue(hook.check(context));
 
-        pomData =
-                new PomData(
-                        "other-plugin",
-                        "hpi",
-                        "it-does-not-matter",
-                        "whatever",
-                        parent,
-                        "org.jenkins-ci.plugins");
-        context = new BeforeExecutionContext(null, pomData, null, null, null, null, null, null);
+        model.setArtifactId("other-plugin");
+        context = new BeforeExecutionContext(null, model, null, null, null, null, null, null);
         assertFalse(hook.check(context));
     }
 

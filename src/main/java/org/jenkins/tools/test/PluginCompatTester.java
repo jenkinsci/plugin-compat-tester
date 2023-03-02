@@ -51,16 +51,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
-import org.jenkins.tools.test.model.MavenCoordinates;
 import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PluginRemoting;
-import org.jenkins.tools.test.model.PomData;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 import org.jenkins.tools.test.model.hook.BeforeCompilationContext;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
@@ -137,8 +137,11 @@ public class PluginCompatTester {
             data.plugins.put(artifactId, extracted);
         }
 
-        MavenCoordinates coreCoordinates =
-                new MavenCoordinates("org.jenkins-ci.main", "jenkins-war", data.core.version);
+        Dependency coreCoordinates = new Dependency();
+        coreCoordinates.setGroupId("org.jenkins-ci.main");
+        coreCoordinates.setArtifactId("jenkins-war");
+        coreCoordinates.setVersion(data.core.version);
+        coreCoordinates.setType("executable-war");
 
         PluginCompatibilityTesterException lastException = null;
         LOGGER.log(Level.INFO, "Starting plugin tests on core coordinates {0}", coreCoordinates);
@@ -177,8 +180,8 @@ public class PluginCompatTester {
             }
 
             try {
-                PomData pomData = remote.retrievePomData();
-                testPluginAgainst(coreCoordinates, plugin, pomData, pcth);
+                Model model = remote.retrieveModel();
+                testPluginAgainst(coreCoordinates, plugin, model, pcth);
             } catch (PluginCompatibilityTesterException e) {
                 if (lastException != null) {
                     e.addSuppressed(lastException);
@@ -191,7 +194,7 @@ public class PluginCompatTester {
                             Level.SEVERE,
                             String.format(
                                     "Internal error while executing a test for core %s and plugin %s at version %s.",
-                                    coreCoordinates.version,
+                                    coreCoordinates.getVersion(),
                                     plugin.getDisplayName(),
                                     plugin.version),
                             e);
@@ -205,18 +208,18 @@ public class PluginCompatTester {
     }
 
     private UpdateSite.Plugin extractFromLocalCheckout() throws PluginSourcesUnavailableException {
-        PomData data =
+        Model model =
                 new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"))
-                        .retrievePomData();
+                        .retrieveModel();
         return new UpdateSite.Plugin(
-                data.artifactId, "" /* version is not required */, data.getConnectionUrl(), null);
+                model.getArtifactId(),
+                "" /* version is not required */,
+                model.getScm().getConnection(),
+                null);
     }
 
     private static File createBuildLogFile(
-            File workDirectory,
-            String pluginName,
-            String pluginVersion,
-            MavenCoordinates coreCoords) {
+            File workDirectory, String pluginName, String pluginVersion, Dependency coreCoords) {
         return new File(
                 workDirectory.getAbsolutePath()
                         + File.separator
@@ -224,20 +227,20 @@ public class PluginCompatTester {
     }
 
     private static String createBuildLogFilePathFor(
-            String pluginName, String pluginVersion, MavenCoordinates coreCoords) {
+            String pluginName, String pluginVersion, Dependency coreCoords) {
         return String.format(
                 "logs/%s/v%s_against_%s_%s_%s.log",
                 pluginName,
                 pluginVersion,
-                coreCoords.groupId,
-                coreCoords.artifactId,
-                coreCoords.version);
+                coreCoords.getGroupId(),
+                coreCoords.getArtifactId(),
+                coreCoords.getVersion());
     }
 
     private void testPluginAgainst(
-            MavenCoordinates coreCoordinates,
+            Dependency coreCoordinates,
             UpdateSite.Plugin plugin,
-            PomData pomData,
+            Model model,
             PluginCompatTesterHooks pcth)
             throws PluginCompatibilityTesterException {
         LOGGER.log(
@@ -262,7 +265,7 @@ public class PluginCompatTester {
 
         // Run any precheckout hooks
         BeforeCheckoutContext beforeCheckout =
-                new BeforeCheckoutContext(plugin, pomData, coreCoordinates, config);
+                new BeforeCheckoutContext(plugin, model, coreCoordinates, config);
         pcth.runBeforeCheckout(beforeCheckout);
 
         if (!beforeCheckout.ranCheckout()) {
@@ -306,9 +309,9 @@ public class PluginCompatTester {
                         }
                     } else {
                         cloneFromScm(
-                                pomData.getConnectionUrl(),
+                                model.getScm().getConnection(),
                                 config.getFallbackGitHubOrganization(),
-                                pomData.getScmTag(),
+                                model.getScm().getTag(),
                                 pluginCheckoutDir);
                     }
                 } else {
@@ -337,9 +340,9 @@ public class PluginCompatTester {
                 // These hooks could redirect the SCM, skip checkout (if multiple plugins use
                 // the same preloaded repo)
                 cloneFromScm(
-                        pomData.getConnectionUrl(),
+                        model.getScm().getConnection(),
                         config.getFallbackGitHubOrganization(),
-                        pomData.getScmTag(),
+                        model.getScm().getTag(),
                         pluginCheckoutDir);
             }
         } else {
@@ -369,7 +372,7 @@ public class PluginCompatTester {
         // Ran the BeforeCompileHooks
         BeforeCompilationContext beforeCompile =
                 new BeforeCompilationContext(
-                        plugin, pomData, coreCoordinates, config, pluginCheckoutDir, parentFolder);
+                        plugin, model, coreCoordinates, config, pluginCheckoutDir, parentFolder);
         pcth.runBeforeCompilation(beforeCompile);
 
         // First build against the original POM. This defends against source incompatibilities
@@ -394,7 +397,7 @@ public class PluginCompatTester {
         BeforeExecutionContext forExecutionHooks =
                 new BeforeExecutionContext(
                         plugin,
-                        pomData,
+                        model,
                         coreCoordinates,
                         config,
                         pluginCheckoutDir,
@@ -405,9 +408,10 @@ public class PluginCompatTester {
 
         Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
         properties.put("overrideWar", config.getWar().toString());
-        properties.put("jenkins.version", coreCoordinates.version);
+        properties.put("jenkins.version", coreCoordinates.getVersion());
         properties.put("useUpperBounds", "true");
-        if (new VersionNumber(coreCoordinates.version).isOlderThan(new VersionNumber("2.382"))) {
+        if (new VersionNumber(coreCoordinates.getVersion())
+                .isOlderThan(new VersionNumber("2.382"))) {
             /*
              * Versions of Jenkins prior to 2.382 are susceptible to JENKINS-68696, in which
              * javax.servlet:servlet-api comes from core at version 0. This is an intentional trick

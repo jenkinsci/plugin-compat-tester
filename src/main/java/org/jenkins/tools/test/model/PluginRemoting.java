@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Scm;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
@@ -100,7 +101,7 @@ public class PluginRemoting {
         return Files.readString(pomFile.toPath(), StandardCharsets.UTF_8);
     }
 
-    public PomData retrievePomData() throws PluginSourcesUnavailableException {
+    public Model retrieveModel() throws PluginSourcesUnavailableException {
         String pomContent = this.retrievePomContent();
 
         Model model;
@@ -113,24 +114,13 @@ public class PluginRemoting {
             throw new UncheckedIOException(e);
         }
 
-        MavenCoordinates parent;
-        if (model.getParent() != null) {
-            parent =
-                    new MavenCoordinates(
-                            model.getParent().getGroupId(),
-                            model.getParent().getArtifactId(),
-                            model.getParent().getVersion());
-        } else {
-            parent = null;
+        Scm scm = model.getScm();
+        if (scm != null) {
+            // scm may contain properties so it needs to be resolved.
+            scm.setConnection(interpolateString(scm.getConnection(), model.getArtifactId()));
         }
-        return new PomData(
-                model.getArtifactId(),
-                model.getPackaging(),
-                // scm may contain properties so it needs to be resolved.
-                interpolateString(model.getScm().getConnection(), model.getArtifactId()),
-                model.getScm().getTag(),
-                parent,
-                model.getGroupId());
+
+        return model;
     }
 
     /**

@@ -7,8 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jenkins.tools.test.model.MavenCoordinates;
-import org.jenkins.tools.test.model.PomData;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.junit.jupiter.api.Test;
 
@@ -17,31 +16,16 @@ class WarningsNGExecutionHookTest {
     @Test
     void testCheckMethod() {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
-        final MavenCoordinates parent =
-                new MavenCoordinates("org.jenkins-ci.plugins", "plugin", "3.57");
 
-        PomData pomData =
-                new PomData(
-                        "warnings-ng",
-                        "hpi",
-                        "it-does-not-matter",
-                        "whatever",
-                        parent,
-                        "org.jenkins-ci.plugins");
+        Model model = new Model();
+        model.setArtifactId("warnings-ng");
+
         BeforeExecutionContext context =
-                new BeforeExecutionContext(null, pomData, null, null, null, null, List.of(), null);
+                new BeforeExecutionContext(null, model, null, null, null, null, List.of(), null);
         assertTrue(hook.check(context));
 
-        pomData =
-                new PomData(
-                        "other-plugin",
-                        "hpi",
-                        "it-does-not-matter",
-                        "whatever",
-                        parent,
-                        "org.jenkins-ci.plugins");
-        context =
-                new BeforeExecutionContext(null, pomData, null, null, null, null, List.of(), null);
+        model.setArtifactId("other-plugin");
+        context = new BeforeExecutionContext(null, model, null, null, null, null, List.of(), null);
         assertFalse(hook.check(context));
     }
 

@@ -2,7 +2,7 @@ package org.jenkins.tools.test.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Set;
-import org.jenkins.tools.test.model.PomData;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 
 public class PipelineStageViewHook extends AbstractMultiParentHook {
@@ -22,9 +22,9 @@ public class PipelineStageViewHook extends AbstractMultiParentHook {
 
     @Override
     public boolean check(@NonNull BeforeCheckoutContext context) {
-        PomData data = context.getPomData();
-        return "org.jenkins-ci.plugins.pipeline-stage-view".equals(data.groupId)
-                && ARTIFACT_IDS.contains(data.artifactId)
-                && "hpi".equals(data.getPackaging());
+        Model model = context.getModel();
+        return "org.jenkins-ci.plugins.pipeline-stage-view".equals(model.getGroupId())
+                && ARTIFACT_IDS.contains(model.getArtifactId())
+                && "hpi".equals(model.getPackaging());
     }
 }
