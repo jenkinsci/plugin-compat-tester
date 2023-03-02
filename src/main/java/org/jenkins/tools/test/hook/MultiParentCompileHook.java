@@ -7,13 +7,10 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.exception.PomExecutionException;
@@ -35,8 +32,6 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
 
     protected MavenRunner runner;
 
-    public static final String ESLINTRC = ".eslintrc";
-
     public MultiParentCompileHook() {
         LOGGER.log(Level.INFO, "Loaded multi-parent compile hook");
     }
@@ -55,30 +50,12 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         File pluginDir = context.getPluginDir();
         LOGGER.log(Level.INFO, "Plugin dir is {0}", pluginDir);
 
-        File localCheckoutDir = config.getLocalCheckoutDir();
-        if (localCheckoutDir != null) {
-            Path pluginSourcesDir = localCheckoutDir.toPath();
-            boolean isMultipleLocalPlugins = config.getIncludePlugins().size() > 1;
-            // We are running for local changes, let's copy the .eslintrc file if we can. If we
-            // are using localCheckoutDir with multiple plugins the .eslintrc must be located at
-            // the top level. If not it must be located on the parent of the localCheckoutDir.
-            if (!isMultipleLocalPlugins) {
-                pluginSourcesDir = pluginSourcesDir.getParent();
-            }
-            // Copy the file if it exists
-            try (Stream<Path> walk = Files.walk(pluginSourcesDir, 1)) {
-                walk.filter(this::isEslintFile).forEach(eslintrc -> copy(eslintrc, pluginDir));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-
         // We need to compile before generating effective pom overriding jenkins.version
         // only if the plugin is not already compiled
         if (!context.ranCompile()) {
             compile(
                     pluginDir,
-                    localCheckoutDir,
+                    config.getLocalCheckoutDir(),
                     context.getParentFolder(),
                     context.getPlugin().name);
             context.setRanCompile(true);
@@ -104,21 +81,6 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             }
         }
         return false;
-    }
-
-    private boolean isEslintFile(Path file) {
-        return file.getFileName().toString().equals(ESLINTRC);
-    }
-
-    private void copy(Path eslintrc, File pluginFolder) {
-        try {
-            Files.copy(
-                    eslintrc,
-                    new File(pluginFolder.getParent(), ESLINTRC).toPath(),
-                    StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Unable to copy eslintrc file", e);
-        }
     }
 
     private void compile(File path, File localCheckoutDir, String parentFolder, String pluginName)
