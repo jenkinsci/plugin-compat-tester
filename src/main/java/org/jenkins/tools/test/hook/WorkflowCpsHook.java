@@ -4,7 +4,10 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.VersionNumber;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
+import org.kohsuke.MetaInfServices;
 
+@MetaInfServices(PluginCompatTesterHookBeforeCheckout.class)
 public class WorkflowCpsHook extends AbstractMultiParentHook {
 
     @Override

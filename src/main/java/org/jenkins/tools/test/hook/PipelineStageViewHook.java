@@ -4,7 +4,10 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Set;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
+import org.kohsuke.MetaInfServices;
 
+@MetaInfServices(PluginCompatTesterHookBeforeCheckout.class)
 public class PipelineStageViewHook extends AbstractMultiParentHook {
 
     private static final Set<String> ARTIFACT_IDS =

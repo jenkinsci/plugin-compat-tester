@@ -29,7 +29,6 @@ package org.jenkins.tools.test.model;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -72,9 +71,6 @@ public class PluginCompatTesterConfig {
     @NonNull private Map<String, String> mavenProperties = Map.of();
 
     @NonNull private List<String> mavenArgs = List.of();
-
-    // Classpath prefixes of the extra hooks
-    @NonNull private List<String> hookPrefixes = List.of("org.jenkins");
 
     // External hooks jar files path locations
     @NonNull private List<File> externalHooksJars = List.of();
@@ -171,19 +167,6 @@ public class PluginCompatTesterConfig {
 
     public void setMavenArgs(@NonNull List<String> mavenArgs) {
         this.mavenArgs = List.copyOf(mavenArgs);
-    }
-
-    @NonNull
-    public List<String> getHookPrefixes() {
-        return hookPrefixes;
-    }
-
-    public void setHookPrefixes(@NonNull List<String> hookPrefixes) {
-        // Want to also process the default
-        List<String> combined = new ArrayList<>();
-        combined.addAll(this.hookPrefixes);
-        combined.addAll(hookPrefixes);
-        this.hookPrefixes = List.copyOf(combined);
     }
 
     @NonNull

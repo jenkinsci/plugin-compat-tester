@@ -132,15 +132,6 @@ public class PluginCompatTesterCli implements Callable<Integer> {
 
     @CheckForNull
     @CommandLine.Option(
-            names = "--hook-prefixes",
-            split = ",",
-            arity = "1",
-            paramLabel = "prefix",
-            description = "Comma-separated list of prefixes of extra hook classes.")
-    private List<String> hookPrefixes;
-
-    @CheckForNull
-    @CommandLine.Option(
             names = "--external-hooks-jars",
             split = ",",
             arity = "1",
@@ -188,9 +179,6 @@ public class PluginCompatTesterCli implements Callable<Integer> {
         }
         if (mavenArgs != null) {
             config.setMavenArgs(mavenArgs);
-        }
-        if (hookPrefixes != null) {
-            config.setHookPrefixes(hookPrefixes);
         }
         if (externalHooksJars != null) {
             config.setExternalHooksJars(externalHooksJars);

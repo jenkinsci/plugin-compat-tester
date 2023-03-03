@@ -27,7 +27,9 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.model.hook.Stage;
 import org.jenkins.tools.test.model.hook.StageContext;
+import org.kohsuke.MetaInfServices;
 
+@MetaInfServices(PluginCompatTesterHookBeforeCompile.class)
 @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "intended behavior")
 public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile {
 

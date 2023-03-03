@@ -6,7 +6,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
+import org.kohsuke.MetaInfServices;
 
+@MetaInfServices(PluginCompatTesterHookBeforeCheckout.class)
 public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
 
     private static final Logger LOGGER = Logger.getLogger(WarningsNGCheckoutHook.class.getName());

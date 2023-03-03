@@ -96,9 +96,7 @@ public class PluginCompatTester {
     public void testPlugins() throws PluginCompatibilityTesterException {
         PluginCompatTesterHooks pcth =
                 new PluginCompatTesterHooks(
-                        config.getHookPrefixes(),
-                        config.getExternalHooksJars(),
-                        config.getExcludeHooks());
+                        config.getExternalHooksJars(), config.getExcludeHooks());
         // Determine the plugin data
 
         // Scan bundled plugins. If there is any bundled plugin, only these plugins will be taken
