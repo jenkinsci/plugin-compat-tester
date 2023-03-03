@@ -30,6 +30,7 @@
     <picocli.version>4.7.1</picocli.version>
     <slf4j.version>2.0.6</slf4j.version>
     <spotbugs.effort>Max</spotbugs.effort>
+    <argLine />
   </properties>
 
   <dependencyManagement>
@@ -296,9 +297,18 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <!-- Version specified in parent POM -->
         <configuration>
+          <argLine>@{argLine} -Xmx128m -XX:+HeapDumpOnOutOfMemoryError -XX:+TieredCompilation -XX:TieredStopAtLevel=1</argLine>
           <systemPropertyVariables>
             <java.util.logging.config.class>org.jenkins.tools.test.logging.LoggingConfiguration</java.util.logging.config.class>
           </systemPropertyVariables>
+          <environmentVariables>
+            <!--
+              PluginCompatTesterTest runs the PCT which will run various maven.  if the JVM is not configured (its not for the text-finder)
+               then we run a JVM that seems the host/container memory and assumes it is the only thing running leading to it being OOMKilled
+               -->
+            <MAVEN_OPTS>-Xmx256m -XX:+TieredCompilation -XX:TieredStopAtLevel=1</MAVEN_OPTS>
+          </environmentVariables>
+          <reuseForks>false</reuseForks>
           <runOrder>alphabetical</runOrder>
         </configuration>
       </plugin>
