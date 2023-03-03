@@ -37,6 +37,7 @@ import java.util.concurrent.Callable;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.logging.LoggingConfiguration;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.picocli.ExistingFileTypeConverter;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -57,7 +58,8 @@ public class PluginCompatTesterCli implements Callable<Integer> {
     @CommandLine.Option(
             names = {"-w", "--war"},
             required = true,
-            description = "Path to the WAR file to be used by the PCT.")
+            description = "Path to the WAR file to be used by the PCT.",
+            converter = ExistingFileTypeConverter.class)
     private File war;
 
     @CommandLine.Option(
@@ -104,13 +106,17 @@ public class PluginCompatTesterCli implements Callable<Integer> {
     private String fallbackGitHubOrganization;
 
     @CheckForNull
-    @CommandLine.Option(names = "--mvn", description = "The path to the Maven executable.")
+    @CommandLine.Option(
+            names = "--mvn",
+            description = "The path to the Maven executable.",
+            converter = ExistingFileTypeConverter.class)
     private File externalMaven;
 
     @CheckForNull
     @CommandLine.Option(
             names = "--maven-settings",
-            description = "Settings file to use when executing Maven.")
+            description = "Settings file to use when executing Maven.",
+            converter = ExistingFileTypeConverter.class)
     private File mavenSettings;
 
     @CheckForNull
@@ -136,14 +142,16 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             split = ",",
             arity = "1",
             paramLabel = "jar",
-            description = "Comma-separated list of paths to external hooks JARs.")
+            description = "Comma-separated list of paths to external hooks JARs.",
+            converter = ExistingFileTypeConverter.class)
     private List<File> externalHooksJars;
 
     @CheckForNull
     @CommandLine.Option(
             names = "--local-checkout-dir",
             description =
-                    "Folder containing either a local (possibly modified) clone of a plugin repository or a set of local clones of different plugins.")
+                    "Folder containing either a local (possibly modified) clone of a plugin repository or a set of local clones of different plugins.",
+            converter = ExistingFileTypeConverter.class)
     private File localCheckoutDir;
 
     @CommandLine.Option(
