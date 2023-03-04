@@ -444,8 +444,6 @@ public class PluginCompatTester {
                 if (StringUtils.startsWith(connectionURL, "scm:git:")) {
                     connectionURL = StringUtils.substringAfter(connectionURL, "scm:git:");
                 }
-                // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
-                connectionURL = connectionURL.replace("git://", "https://");
             }
             try {
                 cloneImpl(connectionURL, scmTag, checkoutDirectory);
