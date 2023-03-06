@@ -18,7 +18,9 @@ class WarningsNGExecutionHookTest {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
         Model model = new Model();
+        model.setGroupId("io.jenkins.plugins");
         model.setArtifactId("warnings-ng");
+        model.setPackaging("hpi");
 
         BeforeExecutionContext context =
                 new BeforeExecutionContext(null, model, null, null, null, null, List.of(), null);
