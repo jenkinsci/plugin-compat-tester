@@ -2,6 +2,7 @@ package org.jenkins.tools.test.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.maven.model.Model;
@@ -14,6 +15,9 @@ public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
 
     private static final Logger LOGGER = Logger.getLogger(WarningsNGCheckoutHook.class.getName());
 
+    private static final Set<String> ARTIFACT_IDS =
+            Set.of(/* localCheckoutDir */ "warnings-ng-parent", /* checkout */ "warnings-ng");
+
     @Override
     protected String getParentFolder() {
         return "warnings-ng-plugin";
@@ -22,8 +26,9 @@ public class WarningsNGCheckoutHook extends AbstractMultiParentHook {
     @Override
     public boolean check(@NonNull BeforeCheckoutContext context) {
         Model model = context.getModel();
-        return "warnings-ng-parent".equals(model.getArtifactId()) // localCheckoutDir
-                || "warnings-ng".equals(model.getArtifactId()); // checkout
+        return "io.jenkins.plugins".equals(model.getGroupId())
+                && ARTIFACT_IDS.contains(model.getArtifactId())
+                && "hpi".equals(model.getPackaging());
     }
 
     @Override

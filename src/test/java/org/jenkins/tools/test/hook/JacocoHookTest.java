@@ -18,7 +18,9 @@ class JacocoHookTest {
         final JacocoHook hook = new JacocoHook();
 
         Model model = new Model();
+        model.setGroupId("org.jenkins-ci.plugins");
         model.setArtifactId("jacoco");
+        model.setPackaging("hpi");
         BeforeExecutionContext context =
                 new BeforeExecutionContext(null, model, null, null, null, null, null, null);
         assertTrue(hook.check(context));

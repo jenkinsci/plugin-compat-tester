@@ -9,7 +9,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
-import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
@@ -49,8 +48,7 @@ public class HpiPluginHook extends PluginCompatTesterHookBeforeExecution {
     }
 
     @Override
-    public void action(@NonNull BeforeExecutionContext context)
-            throws PluginCompatibilityTesterException {
+    public void action(@NonNull BeforeExecutionContext context) {
         context.getArgs().add("-Dhpi-plugin.version=3.37");
     }
 
