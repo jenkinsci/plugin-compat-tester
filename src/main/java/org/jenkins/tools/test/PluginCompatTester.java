@@ -455,6 +455,20 @@ public class PluginCompatTester {
                                 "https://github.com/jenkinsci/antisamy-markup-formatter-plugin");
 
                 // TODO pending release of
+                // https://github.com/jenkinsci/authentication-tokens-plugin/pull/106
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/authentication-tokens-plugin",
+                                "https://github.com/jenkinsci/authentication-tokens-plugin");
+
+                // TODO pending release of
+                // https://github.com/jenkinsci/blueocean-display-url-plugin/pull/227
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/blueocean-display-url-plugin",
+                                "https://github.com/jenkinsci/blueocean-display-url-plugin");
+
+                // TODO pending release of
                 // https://github.com/jenkinsci/bootstrap5-api-plugin/commit/8c5f60ab5e21c03b68d696e7b760caa991b25aa9
                 connectionURL =
                         connectionURL.replace(
@@ -509,6 +523,33 @@ public class PluginCompatTester {
                                 "git://github.com/jenkinsci/github-api-plugin",
                                 "https://github.com/jenkinsci/github-api-plugin");
 
+                // TODO pending release of
+                // https://github.com/jenkinsci/google-kubernetes-engine-plugin/pull/312
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/google-kubernetes-engine-plugin",
+                                "https://github.com/jenkinsci/google-kubernetes-engine-plugin");
+
+                // TODO pending release of
+                // https://github.com/jenkinsci/google-metadata-plugin/pull/50
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/google-metadata-plugin",
+                                "https://github.com/jenkinsci/google-metadata-plugin");
+
+                // TODO pending release of https://github.com/jenkinsci/google-oauth-plugin/pull/176
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/google-oauth-plugin",
+                                "https://github.com/jenkinsci/google-oauth-plugin");
+
+                // TODO pending release of
+                // https://github.com/jenkinsci/kubernetes-credentials-provider-plugin/pull/75
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/kubernetes-credentials-provider-plugin",
+                                "https://github.com/jenkinsci/kubernetes-credentials-provider-plugin");
+
                 // TODO pending adoption of https://github.com/jenkinsci/matrix-auth-plugin/pull/131
                 connectionURL =
                         connectionURL.replace(
@@ -516,11 +557,37 @@ public class PluginCompatTester {
                                 "https://github.com/jenkinsci/matrix-auth-plugin");
 
                 // TODO pending release of
+                // https://github.com/jenkinsci/node-iterator-api-plugin/pull/11
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/node-iterator-api-plugin",
+                                "https://github.com/jenkinsci/node-iterator-api-plugin");
+
+                // TODO pending release of
+                // https://github.com/jenkinsci/oauth-credentials-plugin/pull/9
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/oauth-credentials-plugin",
+                                "https://github.com/jenkinsci/oauth-credentials-plugin");
+
+                // TODO pending release of
                 // https://github.com/jenkinsci/popper2-api-plugin/commit/bf781e31b072103f3f72d7195e9071863f7f4dd9
                 connectionURL =
                         connectionURL.replace(
                                 "git://github.com/jenkinsci/popper2-api-plugin",
                                 "https://github.com/jenkinsci/popper2-api-plugin");
+
+                // TODO pending release of https://github.com/jenkinsci/pubsub-light-plugin/pull/100
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/pubsub-light-plugin",
+                                "https://github.com/jenkinsci/pubsub-light-plugin");
+
+                // TODO pending release of https://github.com/jenkinsci/s3-plugin/pull/243
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/s3-plugin",
+                                "https://github.com/jenkinsci/s3-plugin");
 
                 // TODO pending release of https://github.com/jenkinsci/ssh-agent-plugin/pull/116
                 connectionURL =
