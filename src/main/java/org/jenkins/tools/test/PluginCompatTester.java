@@ -390,14 +390,15 @@ public class PluginCompatTester {
         // plugin binary as close as possible to what was actually released. We also skip
         // potential javadoc execution to avoid general test failure.
         runner.run(
-                Map.of("maven.javadoc.skip", "true", "skipTests", "true"),
+                Map.of("maven.javadoc.skip", "true"),
                 pluginCheckoutDir,
                 buildLogFile,
                 "clean",
-                "verify");
+                "package",
+                "-Pquick-build");
 
         List<String> args = new ArrayList<>();
-        args.add("verify");
+        args.add("test");
 
         // Run preexecution hooks
         BeforeExecutionContext forExecutionHooks =
