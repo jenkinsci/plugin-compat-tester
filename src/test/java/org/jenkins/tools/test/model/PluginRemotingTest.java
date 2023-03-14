@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import org.apache.maven.model.Model;
-import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.junit.jupiter.api.Test;
 
 class PluginRemotingTest {
@@ -68,9 +67,8 @@ class PluginRemotingTest {
     void negative() throws Exception {
         File pomFile = new File(getClass().getResource("negative/pom.xml").toURI());
         PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
-        PluginSourcesUnavailableException e =
-                assertThrows(
-                        PluginSourcesUnavailableException.class, pluginRemoting::retrieveModel);
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, pluginRemoting::retrieveModel);
         assertThat(e.getMessage(), is("Failed to parse pom.xml"));
     }
 }
