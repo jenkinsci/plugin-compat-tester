@@ -394,11 +394,13 @@ public class PluginCompatTester {
                 pluginCheckoutDir,
                 buildLogFile,
                 "clean",
-                "package",
+                "install",
                 "-Pquick-build");
 
         List<String> args = new ArrayList<>();
-        args.add("test");
+        args.add("hpi:resolve-test-dependencies");
+        args.add("hpi:test-hpl");
+        args.add("surefire:test");
 
         // Run preexecution hooks
         BeforeExecutionContext forExecutionHooks =
