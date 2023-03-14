@@ -22,11 +22,11 @@ class JacocoHookTest {
         model.setArtifactId("jacoco");
         model.setPackaging("hpi");
         BeforeExecutionContext context =
-                new BeforeExecutionContext(null, model, null, null, null, null, null, null);
+                new BeforeExecutionContext(null, null, model, null, null, null);
         assertTrue(hook.check(context));
 
         model.setArtifactId("other-plugin");
-        context = new BeforeExecutionContext(null, model, null, null, null, null, null, null);
+        context = new BeforeExecutionContext(null, null, model, null, null, null);
         assertFalse(hook.check(context));
     }
 
@@ -38,19 +38,19 @@ class JacocoHookTest {
                 new ArrayList<>(
                         List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test"));
         BeforeExecutionContext context =
-                new BeforeExecutionContext(null, null, null, null, null, null, args, null);
+                new BeforeExecutionContext(null, null, null, null, args, null);
         hook.action(context);
         assertThat(args.size(), is(4));
         assertThat(args.get(0), is("jacoco:prepare-agent"));
 
         args = new ArrayList<>(List.of("other-plugin:other-goal", "surefire:test"));
-        context = new BeforeExecutionContext(null, null, null, null, null, null, args, null);
+        context = new BeforeExecutionContext(null, null, null, null, args, null);
         hook.action(context);
         assertThat(args.size(), is(3));
         assertThat(args.get(1), is("jacoco:prepare-agent"));
 
         args = new ArrayList<>(List.of("element1", "element2", "element3", "element4"));
-        context = new BeforeExecutionContext(null, null, null, null, null, null, args, null);
+        context = new BeforeExecutionContext(null, null, null, null, args, null);
         hook.action(context);
         assertThat(args.size(), is(4));
         assertFalse(args.contains("jacoco:prepare-agent"));

@@ -1,48 +1,24 @@
 package org.jenkins.tools.test.model.hook;
 
-import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.model.UpdateSite;
-import java.io.File;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
 public final class BeforeCompilationContext extends StageContext {
 
-    @CheckForNull private final File pluginDir;
-
-    @CheckForNull private final String parentFolder;
-
-    private boolean ranCompile;
+    @NonNull private final Model model;
 
     public BeforeCompilationContext(
-            @NonNull UpdateSite.Plugin plugin,
-            @NonNull Model model,
             @NonNull Dependency coreCoordinates,
             @NonNull PluginCompatTesterConfig config,
-            @CheckForNull File pluginDir,
-            @CheckForNull String parentFolder) {
-        super(Stage.COMPILATION, plugin, model, coreCoordinates, config);
-        this.pluginDir = pluginDir;
-        this.parentFolder = parentFolder;
+            @NonNull Model model) {
+        super(Stage.COMPILATION, coreCoordinates, config);
+        this.model = model;
     }
 
-    @CheckForNull
-    public File getPluginDir() {
-        return pluginDir;
-    }
-
-    @CheckForNull
-    public String getParentFolder() {
-        return parentFolder;
-    }
-
-    public boolean ranCompile() {
-        return ranCompile;
-    }
-
-    public void setRanCompile(boolean ranCompile) {
-        this.ranCompile = ranCompile;
+    @NonNull
+    public Model getModel() {
+        return model;
     }
 }

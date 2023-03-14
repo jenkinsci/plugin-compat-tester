@@ -67,7 +67,7 @@ class PluginCompatTesterTest {
         tester.testPlugins();
         Path report =
                 tempDir.toPath()
-                        .resolve("text-finder")
+                        .resolve("text-finder-plugin")
                         .resolve("target")
                         .resolve("surefire-reports")
                         .resolve("TEST-InjectedTest.xml");
