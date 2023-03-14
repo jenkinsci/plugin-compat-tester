@@ -44,6 +44,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Scm;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 
 /**
  * Utility class providing business for retrieving plugin POM data
@@ -100,7 +101,7 @@ public class PluginRemoting {
         return Files.readString(pomFile.toPath(), StandardCharsets.UTF_8);
     }
 
-    public Model retrieveModel() {
+    public Model retrieveModel() throws PluginSourcesUnavailableException {
         String pomContent = this.retrievePomContent();
 
         Model model;
@@ -108,7 +109,7 @@ public class PluginRemoting {
             MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
             model = mavenXpp3Reader.read(r);
         } catch (XmlPullParserException e) {
-            throw new IllegalArgumentException("Failed to parse pom.xml", e);
+            throw new PluginSourcesUnavailableException("Failed to parse pom.xml", e);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

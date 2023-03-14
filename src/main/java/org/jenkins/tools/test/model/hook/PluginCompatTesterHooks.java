@@ -29,7 +29,7 @@ public class PluginCompatTesterHooks {
 
     private ClassLoader classLoader = PluginCompatTesterHooks.class.getClassLoader();
 
-    private static final Map<Stage, List<PluginCompatTesterHook<StageContext>>> hooksByStage =
+    public static final Map<Stage, List<PluginCompatTesterHook<StageContext>>> hooksByStage =
             new EnumMap<>(Stage.class);
 
     @NonNull private final List<String> excludeHooks;

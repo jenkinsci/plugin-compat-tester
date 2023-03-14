@@ -2,6 +2,7 @@ package org.jenkins.tools.test.model.hook;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import hudson.model.UpdateSite;
 import java.io.File;
 import java.util.List;
 import org.apache.maven.model.Dependency;
@@ -11,36 +12,38 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
 public final class BeforeExecutionContext extends StageContext {
 
-    @NonNull private final Model model;
-
     @CheckForNull private final File pluginDir;
+
+    @CheckForNull private final String parentFolder;
 
     @NonNull private final List<String> args;
 
     @NonNull private final MavenPom pom;
 
     public BeforeExecutionContext(
+            @NonNull UpdateSite.Plugin plugin,
+            @NonNull Model model,
             @NonNull Dependency coreCoordinates,
             @NonNull PluginCompatTesterConfig config,
-            @NonNull Model model,
             @CheckForNull File pluginDir,
+            @CheckForNull String parentFolder,
             @NonNull List<String> args,
             @NonNull MavenPom pom) {
-        super(Stage.EXECUTION, coreCoordinates, config);
-        this.model = model;
+        super(Stage.EXECUTION, plugin, model, coreCoordinates, config);
         this.pluginDir = pluginDir;
+        this.parentFolder = parentFolder;
         this.args = args;
         this.pom = pom;
-    }
-
-    @NonNull
-    public Model getModel() {
-        return model;
     }
 
     @CheckForNull
     public File getPluginDir() {
         return pluginDir;
+    }
+
+    @CheckForNull
+    public String getParentFolder() {
+        return parentFolder;
     }
 
     @NonNull

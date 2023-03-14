@@ -19,15 +19,15 @@ class WarningsNGExecutionHookTest {
 
         Model model = new Model();
         model.setGroupId("io.jenkins.plugins");
-        model.setArtifactId("warnings-ng-parent");
-        model.setPackaging("pom");
+        model.setArtifactId("warnings-ng");
+        model.setPackaging("hpi");
 
         BeforeExecutionContext context =
-                new BeforeExecutionContext(null, null, model, null, List.of(), null);
+                new BeforeExecutionContext(null, model, null, null, null, null, List.of(), null);
         assertTrue(hook.check(context));
 
         model.setArtifactId("other-plugin");
-        context = new BeforeExecutionContext(null, null, model, null, List.of(), null);
+        context = new BeforeExecutionContext(null, model, null, null, null, null, List.of(), null);
         assertFalse(hook.check(context));
     }
 
@@ -39,7 +39,7 @@ class WarningsNGExecutionHookTest {
                 new ArrayList<>(
                         List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test"));
         BeforeExecutionContext context =
-                new BeforeExecutionContext(null, null, null, null, args, null);
+                new BeforeExecutionContext(null, null, null, null, null, null, args, null);
         hook.action(context);
         assertThat(args.size(), is(4));
         assertTrue(args.contains("failsafe:integration-test"));
