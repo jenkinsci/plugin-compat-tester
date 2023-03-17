@@ -131,7 +131,7 @@ public class PluginCompatTester {
                 && localCheckoutProvided()
                 && !data.plugins.containsKey(config.getIncludePlugins().get(0))) {
             String artifactId = config.getIncludePlugins().get(0);
-            UpdateSite.Plugin extracted = extractFromLocalCheckout();
+            UpdateSite.Plugin extracted = extractFromLocalCheckout(artifactId);
             data.plugins.put(artifactId, extracted);
         }
 
@@ -205,15 +205,22 @@ public class PluginCompatTester {
         }
     }
 
-    private UpdateSite.Plugin extractFromLocalCheckout() throws PluginSourcesUnavailableException {
+    /**
+     * Extracts SCM information from the local checkout directory and together with {@code plugin}
+     * constructs an ({@code UpdateSite.Plugin} entry.
+     *
+     * @param plugin the name of the plugin. This may differ from what is in the local checkout for
+     *     multi module builds
+     * @return
+     * @throws PluginSourcesUnavailableException
+     */
+    private UpdateSite.Plugin extractFromLocalCheckout(String plugin)
+            throws PluginSourcesUnavailableException {
         Model model =
                 new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"))
                         .retrieveModel();
         return new UpdateSite.Plugin(
-                model.getArtifactId(),
-                "" /* version is not required */,
-                model.getScm().getConnection(),
-                null);
+                plugin, "" /* version is not required */, model.getScm().getConnection(), null);
     }
 
     private static File createBuildLogFile(

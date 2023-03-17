@@ -77,12 +77,20 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
     }
 
     protected void configureLocalCheckOut(
-            File localCheckoutDir, @NonNull BeforeCheckoutContext context) {
-        // Do nothing to keep compatibility with pre-existing Hooks
-        LOGGER.log(
-                Level.INFO,
-                "Ignoring local checkout directory for {0}",
-                context.getPlugin().getDisplayName());
+            File localCheckoutDir, @NonNull BeforeCheckoutContext context)
+            throws PluginSourcesUnavailableException {
+
+        File pluginDir = new File(localCheckoutDir, getPluginFolderName(context));
+        if (!pluginDir.exists() && !pluginDir.isDirectory()) {
+            throw new PluginSourcesUnavailableException(
+                    "Invalid localCheckoutDir for " + context.getPlugin().getDisplayName());
+        }
+        // behave exactly as if we have cloned so other hooks do not need to handle the difference
+        // between a localcheckout and a fresh clone
+        context.setRanCheckout(true);
+        context.setCheckoutDir(pluginDir);
+        // context.setParentFolder("."); // it won;t be in a subdirectory like we had a clone
+        context.setPluginDir(pluginDir);
     }
 
     /**
