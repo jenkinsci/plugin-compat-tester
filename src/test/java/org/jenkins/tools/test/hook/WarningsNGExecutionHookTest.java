@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.junit.jupiter.api.Test;
+import hudson.model.UpdateSite;
 
 class WarningsNGExecutionHookTest {
 
@@ -17,17 +17,15 @@ class WarningsNGExecutionHookTest {
     void testCheckMethod() {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
-        Model model = new Model();
-        model.setGroupId("io.jenkins.plugins");
-        model.setArtifactId("warnings-ng");
-        model.setPackaging("hpi");
+        UpdateSite.Plugin plugin = new UpdateSite.Plugin("warnings-ng", null, null, null);
 
         BeforeExecutionContext context =
-                new BeforeExecutionContext(null, model, null, null, null, null, List.of(), null);
+                new BeforeExecutionContext(plugin, null, null, null, null, null, List.of(), null);
+        UpdateSite.Plugin plugin2 = context.getPlugin();
         assertTrue(hook.check(context));
 
-        model.setArtifactId("other-plugin");
-        context = new BeforeExecutionContext(null, model, null, null, null, null, List.of(), null);
+        plugin = new UpdateSite.Plugin("other-plugin", null, null, null);
+        context = new BeforeExecutionContext(plugin, null, null, null, null, null, List.of(), null);
         assertFalse(hook.check(context));
     }
 
