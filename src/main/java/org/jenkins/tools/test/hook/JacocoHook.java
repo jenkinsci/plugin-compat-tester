@@ -18,9 +18,9 @@ public class JacocoHook extends PluginCompatTesterHookBeforeExecution {
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
         Model model = context.getModel();
-        return "org.jenkins-ci.plugins".equals(model.getGroupId())
-                && "jacoco".equals(model.getArtifactId())
-                && "hpi".equals(model.getPackaging());
+        // pending https://github.com/jenkinsci/jacoco-plugin/pull/206
+        // "org.jenkins-ci.plugins".equals(model.getGroupId())
+        return "jacoco".equals(model.getArtifactId()) && "hpi".equals(model.getPackaging());
     }
 
     @Override

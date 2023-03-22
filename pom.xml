@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.95</version>
+    <version>1.96</version>
     <relativePath />
   </parent>
 
@@ -28,7 +28,7 @@
     <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
     <jenkins.version>2.392</jenkins.version>
     <picocli.version>4.7.1</picocli.version>
-    <slf4j.version>2.0.6</slf4j.version>
+    <slf4j.version>2.0.7</slf4j.version>
     <spotbugs.effort>Max</spotbugs.effort>
     <argLine />
   </properties>
@@ -78,7 +78,7 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-model</artifactId>
-      <version>3.9.0</version>
+      <version>3.9.1</version>
     </dependency>
     <dependency>
       <groupId>org.dom4j</groupId>
