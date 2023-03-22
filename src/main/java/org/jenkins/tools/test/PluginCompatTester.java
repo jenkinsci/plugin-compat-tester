@@ -462,6 +462,13 @@ public class PluginCompatTester {
                                 "https://github.com/jenkinsci/authentication-tokens-plugin");
 
                 // TODO pending release of
+                // https://github.com/jenkinsci/aws-global-configuration-plugin/pull/51
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/aws-global-configuration-plugin",
+                                "https://github.com/jenkinsci/aws-global-configuration-plugin");
+
+                // TODO pending release of
                 // https://github.com/jenkinsci/blueocean-display-url-plugin/pull/227
                 connectionURL =
                         connectionURL.replace(
