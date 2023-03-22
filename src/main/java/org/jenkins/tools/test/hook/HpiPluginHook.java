@@ -39,7 +39,8 @@ public class HpiPluginHook extends PluginCompatTesterHookBeforeExecution {
         if (pluginDir != null) {
             try {
                 String version = getHpiPluginVersion(pluginDir, runner);
-                return new VersionNumber(version).isOlderThan(new VersionNumber("3.37"));
+                // TODO pending release of "multimodule" branch in "maven-hpi-plugin"
+                return new VersionNumber(version).isOlderThan(new VersionNumber("3.40-rc1394.915b_0b_17732d"));
             } catch (PomExecutionException e) {
                 return false;
             }
@@ -49,7 +50,8 @@ public class HpiPluginHook extends PluginCompatTesterHookBeforeExecution {
 
     @Override
     public void action(@NonNull BeforeExecutionContext context) {
-        context.getArgs().add("-Dhpi-plugin.version=3.37");
+        // TODO pending release of "multimodule" branch in "maven-hpi-plugin"
+        context.getArgs().add("-Dhpi-plugin.version=3.40-rc1394.915b_0b_17732d");
     }
 
     private static String getHpiPluginVersion(File pluginPath, MavenRunner runner)
