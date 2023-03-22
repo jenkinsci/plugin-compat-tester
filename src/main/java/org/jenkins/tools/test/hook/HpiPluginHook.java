@@ -40,7 +40,8 @@ public class HpiPluginHook extends PluginCompatTesterHookBeforeExecution {
             try {
                 String version = getHpiPluginVersion(pluginDir, runner);
                 // TODO pending release of "multimodule" branch in "maven-hpi-plugin"
-                return new VersionNumber(version).isOlderThan(new VersionNumber("3.40-rc1394.915b_0b_17732d"));
+                return new VersionNumber(version)
+                        .isOlderThan(new VersionNumber("3.40-rc1394.915b_0b_17732d"));
             } catch (PomExecutionException e) {
                 return false;
             }
