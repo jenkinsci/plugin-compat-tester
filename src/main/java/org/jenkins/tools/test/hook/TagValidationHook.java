@@ -9,6 +9,12 @@ import org.kohsuke.MetaInfServices;
 
 @MetaInfServices(PluginCompatTesterHookBeforeCheckout.class)
 public class TagValidationHook extends PluginCompatTesterHookBeforeCheckout {
+
+    @Override
+    public boolean check(@NonNull BeforeCheckoutContext context) {
+        return context.getConfig().getLocalCheckoutDir() == null;
+    }
+
     @Override
     public void action(@NonNull BeforeCheckoutContext context)
             throws PluginSourcesUnavailableException {
