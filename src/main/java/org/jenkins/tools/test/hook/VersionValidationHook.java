@@ -4,14 +4,14 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
-import org.jenkins.tools.test.model.hook.BeforeCompilationContext;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
+import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 import org.kohsuke.MetaInfServices;
 
-@MetaInfServices(PluginCompatTesterHookBeforeCompile.class)
-public class VersionValidationHook extends PluginCompatTesterHookBeforeCompile {
+@MetaInfServices(PluginCompatTesterHookBeforeCheckout.class)
+public class VersionValidationHook extends PluginCompatTesterHookBeforeCheckout {
     @Override
-    public void action(@NonNull BeforeCompilationContext context)
+    public void action(@NonNull BeforeCheckoutContext context)
             throws PluginCompatibilityTesterException {
         Model model = context.getModel();
         if (model.getScm().getTag() == null || model.getScm().getTag().equals("HEAD")) {
