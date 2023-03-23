@@ -551,6 +551,13 @@ public class PluginCompatTester {
                                 "https://github.com/jenkinsci/google-oauth-plugin");
 
                 // TODO pending release of
+                // https://github.com/jenkinsci/kubernetes-credentials-plugin/pull/37
+                connectionURL =
+                        connectionURL.replace(
+                                "git://github.com/jenkinsci/kubernetes-credentials-plugin",
+                                "https://github.com/jenkinsci/kubernetes-credentials-plugin");
+
+                // TODO pending release of
                 // https://github.com/jenkinsci/kubernetes-credentials-provider-plugin/pull/75
                 connectionURL =
                         connectionURL.replace(
