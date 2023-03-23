@@ -1,4 +1,4 @@
-package hudson.model;
+package org.jenkins.tools.test.model;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
