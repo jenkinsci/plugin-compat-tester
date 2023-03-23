@@ -26,7 +26,7 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
-    <jenkins.version>2.392</jenkins.version>
+    <jenkins.version>2.396</jenkins.version>
     <picocli.version>4.7.1</picocli.version>
     <slf4j.version>2.0.7</slf4j.version>
     <spotbugs.effort>Max</spotbugs.effort>
@@ -112,15 +112,20 @@
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
-      <artifactId>jenkins-war</artifactId>
+      <artifactId>jenkins-core</artifactId>
       <version>${jenkins.version}</version>
-      <type>executable-war</type>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>text-finder</artifactId>
-      <version>1.22</version>
+      <version>1.23</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -208,13 +213,20 @@
         <!-- Version specified in parent POM -->
         <executions>
           <execution>
-            <id>copy-dependencies</id>
+            <id>jenkins-war</id>
             <goals>
-              <goal>copy-dependencies</goal>
+              <goal>copy</goal>
             </goals>
             <phase>process-test-classes</phase>
             <configuration>
-              <includeTypes>executable-war</includeTypes>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.jenkins-ci.main</groupId>
+                  <artifactId>jenkins-war</artifactId>
+                  <version>${jenkins.version}</version>
+                  <type>executable-war</type>
+                </artifactItem>
+              </artifactItems>
               <outputDirectory>${project.build.directory}</outputDirectory>
             </configuration>
           </execution>
