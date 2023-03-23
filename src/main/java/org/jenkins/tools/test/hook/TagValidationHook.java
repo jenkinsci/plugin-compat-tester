@@ -8,7 +8,7 @@ import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCheckout;
 import org.kohsuke.MetaInfServices;
 
 @MetaInfServices(PluginCompatTesterHookBeforeCheckout.class)
-public class VersionValidationHook extends PluginCompatTesterHookBeforeCheckout {
+public class TagValidationHook extends PluginCompatTesterHookBeforeCheckout {
     @Override
     public void action(@NonNull BeforeCheckoutContext context)
             throws PluginSourcesUnavailableException {
