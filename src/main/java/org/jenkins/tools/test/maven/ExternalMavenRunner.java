@@ -75,10 +75,17 @@ public class ExternalMavenRunner implements MavenRunner {
         }
         cmd.addAll(mavenArgs);
         cmd.addAll(List.of(args));
-        LOGGER.log(
-                Level.INFO,
-                "Running {0} in {1} >> {2}",
-                new Object[] {String.join(" ", cmd), baseDirectory, buildLogFile});
+        if (buildLogFile != null) {
+            LOGGER.log(
+                    Level.INFO,
+                    "Running {0} in {1} >> {2}",
+                    new Object[] {String.join(" ", cmd), baseDirectory, buildLogFile});
+        } else {
+            LOGGER.log(
+                    Level.INFO,
+                    "Running {0} in {1}",
+                    new Object[] {String.join(" ", cmd), baseDirectory});
+        }
         Process p;
         try {
             p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
