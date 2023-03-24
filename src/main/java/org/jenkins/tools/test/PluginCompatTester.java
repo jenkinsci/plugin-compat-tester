@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,7 +59,9 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
+import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
+import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.CheckoutInfo;
 import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
@@ -394,7 +397,10 @@ public class PluginCompatTester {
                 pluginCheckoutDir,
                 buildLogFile,
                 "clean",
-                "install",
+                // TODO: find a way to deal with multi-module projects without using "install"
+                getProjectModules(pluginCheckoutDir, runner).isEmpty()
+                        ? "process-test-classes"
+                        : "install",
                 "-Pquick-build");
 
         List<String> args = new ArrayList<>();
@@ -680,5 +686,30 @@ public class PluginCompatTester {
                 "Scanned contents of {0} with {1} plugins",
                 new Object[] {war, plugins.size()});
         return new UpdateSite.Data(core, plugins);
+    }
+
+    private static List<String> getProjectModules(File pluginPath, MavenRunner runner)
+            throws PomExecutionException {
+        Path log = pluginPath.toPath().resolve("project.modules.log");
+        runner.run(
+                Map.of("expression", "project.modules", "output", log.toAbsolutePath().toString()),
+                pluginPath,
+                null,
+                "-q",
+                "help:evaluate");
+        List<String> output;
+        try {
+            output = Files.readAllLines(log, Charset.defaultCharset());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        List<String> result = new ArrayList<>();
+        for (String line : output) {
+            if (!StringUtils.startsWith(line.trim(), "<string>")) {
+                continue;
+            }
+            result.add(line.replace("<string>", "").replace("</string>", "").trim());
+        }
+        return result;
     }
 }
