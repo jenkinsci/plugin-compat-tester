@@ -27,7 +27,6 @@
 package org.jenkins.tools.test;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import hudson.model.UpdateSite;
 import hudson.util.VersionNumber;
 import java.io.File;
 import java.io.IOException;
@@ -64,6 +63,7 @@ import org.jenkins.tools.test.model.CheckoutInfo;
 import org.jenkins.tools.test.model.MavenPom;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.PluginRemoting;
+import org.jenkins.tools.test.model.UpdateSite;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 import org.jenkins.tools.test.model.hook.BeforeCompilationContext;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
