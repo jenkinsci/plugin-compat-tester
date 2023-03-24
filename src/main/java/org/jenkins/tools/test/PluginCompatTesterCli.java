@@ -41,10 +41,11 @@ import org.jenkins.tools.test.picocli.ExistingFileTypeConverter;
 import picocli.CommandLine;
 
 @CommandLine.Command(
-        name = "pct",
+        name = "test-plugins",
         mixinStandardHelpOptions = true,
         description =
-                "Perform a compatibility test for plugins against Jenkins core and other plugins.")
+                "Perform a compatibility test for plugins against Jenkins core and other plugins.",
+        versionProvider = VersionProvider.class)
 public class PluginCompatTesterCli implements Callable<Integer> {
 
     static {
@@ -197,10 +198,5 @@ public class PluginCompatTesterCli implements Callable<Integer> {
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
         return 0;
-    }
-
-    public static void main(String... args) {
-        int exitCode = new CommandLine(new PluginCompatTesterCli()).execute(args);
-        System.exit(exitCode);
     }
 }
