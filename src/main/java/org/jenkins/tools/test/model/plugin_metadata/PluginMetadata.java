@@ -1,4 +1,4 @@
-package org.jenkins.tools.test.plgugin_metadata;
+package org.jenkins.tools.test.model.plugin_metadata;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import java.util.Objects;
@@ -9,12 +9,14 @@ public class PluginMetadata {
     private final String scmUrl;
     private final String modulePath;
     private final String gitCommit;
+    private final String name;
 
     private PluginMetadata(Builder builder) {
         this.pluginId = Objects.requireNonNull(builder.pluginId);
         this.scmUrl = Objects.requireNonNull(builder.scmUrl);
         this.modulePath = builder.modulePath;
         this.gitCommit = Objects.requireNonNull(builder.gitCommit);
+        this.name = builder.name;
     }
 
     /**
@@ -43,19 +45,28 @@ public class PluginMetadata {
         return modulePath;
     }
 
+    /**
+     * The plugin name if known, otherwise the plugin id.
+     */
+    public String getName() {
+        return name == null ? pluginId : name;
+    }
+
     public static final class Builder {
         private String pluginId;
         private String scmUrl;
         private String modulePath;
         private String gitCommit;
+        private String name;
 
         public Builder() {}
 
         public Builder(PluginMetadata from) {
-            this.pluginId = from.getPluginId();
-            this.scmUrl = from.getScmUrl();
-            this.modulePath = from.getModulePath();
-            this.gitCommit = from.getGitCommit();
+            this.pluginId = from.pluginId;
+            this.scmUrl = from.scmUrl;
+            this.modulePath = from.modulePath;
+            this.gitCommit = from.gitCommit;
+            this.name = from.name;
         }
 
         public Builder withPluginId(String pluginId) {
@@ -75,6 +86,11 @@ public class PluginMetadata {
 
         public Builder withGitCommit(String gitCommit) {
             this.gitCommit = gitCommit;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            this.name = name;
             return this;
         }
 

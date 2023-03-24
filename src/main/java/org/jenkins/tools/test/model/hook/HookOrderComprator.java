@@ -1,7 +1,7 @@
 package org.jenkins.tools.test.model.hook;
 
 import java.util.Comparator;
-import org.jenkins.tools.test.plgugin_metadata.PluginMetadataExtractor;
+import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataExtractor;
 
 /**
  * Comparator that will order first based on the {@code HookOrder}. Objects whose classes are

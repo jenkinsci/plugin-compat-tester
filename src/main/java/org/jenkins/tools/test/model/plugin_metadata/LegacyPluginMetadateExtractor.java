@@ -1,4 +1,4 @@
-package org.jenkins.tools.test.plgugin_metadata;
+package org.jenkins.tools.test.model.plugin_metadata;
 
 import java.util.Optional;
 import java.util.jar.Manifest;
@@ -8,7 +8,7 @@ import org.jenkins.tools.test.model.hook.HookOrder;
 import org.kohsuke.MetaInfServices;
 
 @MetaInfServices(PluginMetadataExtractor.class)
-@HookOrder(order = Short.MIN_VALUE) // just incase it ever needs to be overridden
+@HookOrder(order = -1000)
 public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
 
     @Override
@@ -17,8 +17,7 @@ public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
         // any multimodule project must have been handled before now (either the modern hook or a
         // specific hook for a legacy multi module project)
         if (pluginId.startsWith("aws-sdk")) {
-            throw new IllegalArgumentException(
-                    pluginId + " should be handled by the model extractor");
+            throw new IllegalArgumentException(pluginId + " should be handled by the model extractor");
         }
         String scm = model.getScm().getConnection();
         if (scm.startsWith("scm:git:")) {
@@ -27,14 +26,14 @@ public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
             throw new PluginSourcesUnavailableException(
                     "SCM URL " + scm + " is not supported by the pct - only git urls are allowed");
         }
+        assert pluginId.equals(model.getArtifactId());
         return Optional.of(
                 new PluginMetadata.Builder()
-                        .withPluginId(pluginId)
+                        .withPluginId(model.getArtifactId())
+                        .withName(model.getName())
                         .withScmUrl(scm)
                         .withGitCommit(model.getScm().getTag())
-                        .withModulePath(
-                                null) // any multi module projects have already been handled by now
-                        // or require new hooks.
+                        .withModulePath(null) // any multi module projects have already been handled by now or require new hooks.
                         .build());
     }
 }

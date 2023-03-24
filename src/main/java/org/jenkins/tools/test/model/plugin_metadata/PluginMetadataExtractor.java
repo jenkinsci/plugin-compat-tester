@@ -1,4 +1,4 @@
-package org.jenkins.tools.test.plgugin_metadata;
+package org.jenkins.tools.test.model.plugin_metadata;
 
 import java.util.Optional;
 import java.util.jar.Manifest;
@@ -17,7 +17,6 @@ public abstract class PluginMetadataExtractor {
      * @param model the plugins' model (from the HPI).
      * @return a fully populated PluginMetadata (or empty) for the given plugin.
      */
-    public abstract Optional<PluginMetadata> extractMetadata(
-            String pluginId, Manifest manifest, Model model)
+    public abstract Optional<PluginMetadata> extractMetadata(String pluginId, Manifest manifest, Model model)
             throws PluginSourcesUnavailableException;
 }

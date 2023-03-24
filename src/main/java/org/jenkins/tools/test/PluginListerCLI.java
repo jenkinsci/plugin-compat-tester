@@ -22,9 +22,9 @@ import org.apache.maven.model.Model;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.model.hook.HookOrderComprator;
+import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
+import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataExtractor;
 import org.jenkins.tools.test.picocli.ExistingFileTypeConverter;
-import org.jenkins.tools.test.plgugin_metadata.PluginMetadata;
-import org.jenkins.tools.test.plgugin_metadata.PluginMetadataExtractor;
 import org.jenkins.tools.test.util.ModelReader;
 import picocli.CommandLine;
 
