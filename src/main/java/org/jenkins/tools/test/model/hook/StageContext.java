@@ -1,10 +1,10 @@
 package org.jenkins.tools.test.model.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import hudson.model.UpdateSite;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.model.UpdateSite;
 
 public abstract class StageContext {
 
