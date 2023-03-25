@@ -39,9 +39,7 @@ public class HpiPluginHook extends PluginCompatTesterHookBeforeExecution {
         if (pluginDir != null) {
             try {
                 String version = getHpiPluginVersion(pluginDir, runner);
-                // TODO pending release of "multimodule" branch in "maven-hpi-plugin"
-                return new VersionNumber(version)
-                        .isOlderThan(new VersionNumber("3.40-rc1394.915b_0b_17732d"));
+                return new VersionNumber(version).isOlderThan(new VersionNumber("3.37"));
             } catch (PomExecutionException e) {
                 return false;
             }
@@ -51,8 +49,7 @@ public class HpiPluginHook extends PluginCompatTesterHookBeforeExecution {
 
     @Override
     public void action(@NonNull BeforeExecutionContext context) {
-        // TODO pending release of "multimodule" branch in "maven-hpi-plugin"
-        context.getArgs().add("-Dhpi-plugin.version=3.40-rc1394.915b_0b_17732d");
+        context.getArgs().add("-Dhpi-plugin.version=3.37");
     }
 
     private static String getHpiPluginVersion(File pluginPath, MavenRunner runner)
@@ -67,6 +64,7 @@ public class HpiPluginHook extends PluginCompatTesterHookBeforeExecution {
         List<String> output;
         try {
             output = Files.readAllLines(log.toPath(), Charset.defaultCharset());
+            Files.delete(log.toPath());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

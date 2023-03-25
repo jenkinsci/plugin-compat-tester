@@ -392,16 +392,41 @@ public class PluginCompatTester {
         // (which we do not care about for this purpose); and ensures that we are testing a
         // plugin binary as close as possible to what was actually released. We also skip
         // potential javadoc execution to avoid general test failure.
-        runner.run(
-                Map.of("maven.javadoc.skip", "true"),
-                pluginCheckoutDir,
-                buildLogFile,
-                "clean",
-                // TODO: find a way to deal with multi-module projects without using "install"
-                getProjectModules(pluginCheckoutDir, runner).isEmpty()
-                        ? "process-test-classes"
-                        : "install",
-                "-Pquick-build");
+
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("maven.javadoc.skip", "true");
+
+        // TODO delete after maven-hpi-plugin 3.40 is adopted by these plugins
+        Set<String> outdatedMultiModule =
+                Set.of(
+                        "io.jenkins.configuration-as-code:parent",
+                        "io.jenkins.plugins.mina-sshd-api:mina-sshd-api-parent",
+                        "org.jenkins-ci.plugins.aws-java-sdk:aws-java-sdk-parent",
+                        "org.jenkinsci.plugins:pipeline-model-parent",
+                        "org.jenkins-ci.plugins.pipeline-stage-view:parent-pom",
+                        "org.jenkins-ci.plugins.to-declarative:declarative-pipeline-migration-assistant-parent",
+                        "org.jenkins-ci.plugins.workflow:workflow-cps-parent");
+        if (outdatedMultiModule.contains(model.getGroupId() + ":" + model.getArtifactId())) {
+            properties.put("hpi-plugin.version", "3.40");
+        }
+
+        /*
+         * For multi-module projects where one plugin depends on another plugin in the same multi-module project, pass
+         * -Dset.changelist for incrementals releases so that Maven can find the first module when compiling the classes
+         * for the second module.
+         */
+        boolean setChangelist = false;
+        if (!localCheckoutProvided() && !getProjectModules(pluginCheckoutDir, runner).isEmpty()) {
+            String projectVersion = getProjectVersion(pluginCheckoutDir, runner);
+            if (projectVersion.endsWith("999999-SNAPSHOT")
+                    && !model.getVersion().equals(projectVersion)) {
+                setChangelist = true;
+            }
+        }
+        if (setChangelist) {
+            properties.put("set.changelist", "true");
+        }
+        runner.run(properties, pluginCheckoutDir, buildLogFile, "clean", "process-test-classes");
 
         List<String> args = new ArrayList<>();
         args.add("hpi:resolve-test-dependencies");
@@ -419,7 +444,7 @@ public class PluginCompatTester {
                         new MavenPom(pluginCheckoutDir));
         pcth.runBeforeExecution(forExecutionHooks);
 
-        Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
+        properties = new LinkedHashMap<>(config.getMavenProperties());
         properties.put("overrideWar", config.getWar().toString());
         properties.put("jenkins.version", coreCoordinates.getVersion());
         properties.put("useUpperBounds", "true");
@@ -433,6 +458,9 @@ public class PluginCompatTester {
              * be on the class path of some plugin and triggers an upper bounds violation.
              */
             properties.put("upperBoundsExcludes", "javax.servlet:servlet-api");
+        }
+        if (setChangelist) {
+            properties.put("set.changelist", "true");
         }
 
         // Execute with tests
@@ -688,6 +716,25 @@ public class PluginCompatTester {
         return new UpdateSite.Data(core, plugins);
     }
 
+    private static String getProjectVersion(File pluginPath, MavenRunner runner)
+            throws PomExecutionException {
+        Path log = pluginPath.toPath().resolve("project.version.log");
+        runner.run(
+                Map.of("expression", "project.version", "output", log.toAbsolutePath().toString()),
+                pluginPath,
+                null,
+                "-q",
+                "help:evaluate");
+        String output;
+        try {
+            output = Files.readString(log, Charset.defaultCharset()).trim();
+            Files.deleteIfExists(log);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return output;
+    }
+
     private static List<String> getProjectModules(File pluginPath, MavenRunner runner)
             throws PomExecutionException {
         Path log = pluginPath.toPath().resolve("project.modules.log");
@@ -700,6 +747,7 @@ public class PluginCompatTester {
         List<String> output;
         try {
             output = Files.readAllLines(log, Charset.defaultCharset());
+            Files.deleteIfExists(log);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
