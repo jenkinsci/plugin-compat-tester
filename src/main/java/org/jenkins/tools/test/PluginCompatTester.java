@@ -399,7 +399,6 @@ public class PluginCompatTester {
         // TODO delete after maven-hpi-plugin 3.40 is adopted by these plugins
         Set<String> outdatedMultiModule =
                 Set.of(
-                        "org.jenkinsci.plugins:pipeline-model-parent",
                         "org.jenkins-ci.plugins.pipeline-stage-view:parent-pom",
                         "org.jenkins-ci.plugins.to-declarative:declarative-pipeline-migration-assistant-parent",
                         "org.jenkins-ci.plugins.workflow:workflow-cps-parent");
