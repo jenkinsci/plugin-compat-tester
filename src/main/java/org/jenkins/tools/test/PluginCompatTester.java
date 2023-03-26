@@ -399,7 +399,6 @@ public class PluginCompatTester {
         // TODO delete after maven-hpi-plugin 3.40 is adopted by these plugins
         Set<String> outdatedMultiModule =
                 Set.of(
-                        "io.jenkins.plugins.mina-sshd-api:mina-sshd-api-parent",
                         "org.jenkins-ci.plugins.aws-java-sdk:aws-java-sdk-parent",
                         "org.jenkinsci.plugins:pipeline-model-parent",
                         "org.jenkins-ci.plugins.pipeline-stage-view:parent-pom",
