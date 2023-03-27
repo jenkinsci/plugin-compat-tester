@@ -400,8 +400,7 @@ public class PluginCompatTester {
         Set<String> outdatedMultiModule =
                 Set.of(
                         "io.jenkins.blueocean:blueocean-parent",
-                        "org.jenkins-ci.plugins.to-declarative:declarative-pipeline-migration-assistant-parent",
-                        "org.jenkins-ci.plugins.workflow:workflow-cps-parent");
+                        "org.jenkins-ci.plugins.to-declarative:declarative-pipeline-migration-assistant-parent");
         if (outdatedMultiModule.contains(model.getGroupId() + ":" + model.getArtifactId())) {
             properties.put("hpi-plugin.version", "3.40");
         }
