@@ -12,7 +12,10 @@ public class TagValidationHook extends PluginCompatTesterHookBeforeCompile {
 
     @Override
     public boolean check(@NonNull BeforeCompilationContext context) {
-        return context.getConfig().getLocalCheckoutDir() == null;
+        Model model = context.getModel();
+        // TODO pending https://github.com/jenkinsci/warnings-ng-plugin/pull/1496
+        return !model.getArtifactId().equals("warnings-ng-parent")
+                && context.getConfig().getLocalCheckoutDir() == null;
     }
 
     @Override
