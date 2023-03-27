@@ -397,10 +397,7 @@ public class PluginCompatTester {
         properties.put("maven.javadoc.skip", "true");
 
         // TODO delete after maven-hpi-plugin 3.40 is adopted by these plugins
-        Set<String> outdatedMultiModule =
-                Set.of(
-                        "io.jenkins.blueocean:blueocean-parent",
-                        "org.jenkins-ci.plugins.to-declarative:declarative-pipeline-migration-assistant-parent");
+        Set<String> outdatedMultiModule = Set.of("io.jenkins.blueocean:blueocean-parent");
         if (outdatedMultiModule.contains(model.getGroupId() + ":" + model.getArtifactId())) {
             properties.put("hpi-plugin.version", "3.40");
         }
