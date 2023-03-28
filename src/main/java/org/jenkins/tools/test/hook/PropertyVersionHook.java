@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.hook;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.VersionNumber;
 import java.io.File;
@@ -36,6 +37,7 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
      * parent POM, the property will not be updated. Return {@code null} to skip the minimum plugin
      * POM version check.
      */
+    @CheckForNull
     public String getMinimumPluginParentPomVersion() {
         return null;
     }
@@ -53,6 +55,9 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
             try {
                 if (getMinimumPluginParentPomVersion() != null) {
                     String pluginParentPomVersion = getPluginParentPomVersion(pluginDir, runner);
+                    if (pluginParentPomVersion == null) {
+                        return false;
+                    }
                     if (new VersionNumber(pluginParentPomVersion)
                             .isOlderThan(new VersionNumber(getMinimumPluginParentPomVersion()))) {
                         return false;
@@ -73,6 +78,7 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
         context.getArgs().add(String.format("-D%s=%s", getProperty(), getMinimumVersion()));
     }
 
+    @CheckForNull
     private static String getPluginParentPomVersion(File pluginPath, MavenRunner runner)
             throws PomExecutionException {
         String cur;
