@@ -20,6 +20,6 @@ public class HpiPluginHook extends PropertyVersionHook {
 
     @Override
     public String getMinimumVersion() {
-        return "3.37";
+        return "3.41";
     }
 }
