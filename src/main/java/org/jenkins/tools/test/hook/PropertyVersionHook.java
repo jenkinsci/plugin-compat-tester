@@ -31,6 +31,15 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
      */
     public abstract String getMinimumVersion();
 
+    /**
+     * The minimum plugin parent POM version needed. If the plugin under test is on an older plugin
+     * parent POM, the property will not be updated. Return {@code null} to skip the minimum plugin
+     * POM version check.
+     */
+    public String getMinimumPluginParentPomVersion() {
+        return null;
+    }
+
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
         PluginCompatTesterConfig config = context.getConfig();
@@ -42,6 +51,13 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
         File pluginDir = context.getPluginDir();
         if (pluginDir != null) {
             try {
+                if (getMinimumPluginParentPomVersion() != null) {
+                    String pluginParentPomVersion = getPluginParentPomVersion(pluginDir, runner);
+                    if (new VersionNumber(pluginParentPomVersion)
+                            .isOlderThan(new VersionNumber(getMinimumPluginParentPomVersion()))) {
+                        return false;
+                    }
+                }
                 String version = getPropertyVersion(pluginDir, getProperty(), runner);
                 return new VersionNumber(version)
                         .isOlderThan(new VersionNumber(getMinimumVersion()));
@@ -55,6 +71,21 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
     @Override
     public void action(@NonNull BeforeExecutionContext context) {
         context.getArgs().add(String.format("-D%s=%s", getProperty(), getMinimumVersion()));
+    }
+
+    private static String getPluginParentPomVersion(File pluginPath, MavenRunner runner)
+            throws PomExecutionException {
+        String cur;
+        for (cur = "project.parent"; ; cur += ".parent") {
+            String groupId = getPropertyVersion(pluginPath, cur + ".groupId", runner);
+            String artifactId = getPropertyVersion(pluginPath, cur + ".artifactId", runner);
+            if (groupId == null || artifactId == null) {
+                return null;
+            }
+            if (groupId.equals("org.jenkins-ci.plugins") && artifactId.equals("plugin")) {
+                return getPropertyVersion(pluginPath, cur + ".version", runner);
+            }
+        }
     }
 
     private static String getPropertyVersion(File pluginPath, String property, MavenRunner runner)
@@ -73,6 +104,6 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return output;
+        return "null object or invalid expression".equals(output) ? null : output;
     }
 }
