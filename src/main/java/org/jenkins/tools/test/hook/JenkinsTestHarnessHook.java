@@ -22,6 +22,6 @@ public class JenkinsTestHarnessHook extends PropertyVersionHook {
 
     @Override
     public String getMinimumPluginParentPomVersion() {
-        return "4.44";
+        return "4.48";
     }
 }
