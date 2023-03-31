@@ -8,13 +8,13 @@ import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.model.hook.HookOrder;
 import org.kohsuke.MetaInfServices;
 
-@MetaInfServices(PluginMetadataExtractor.class)
-@HookOrder(order = 1000) // just incase it ever needs to be overridden
 /**
  * Extractor that obtains all the information from the plugins Manifiest file. This requires the
  * plugin was built with a version of maven-hpi-plugin with
  * https://github.com/jenkinsci/maven-hpi-plugin/pull/436
  */
+@MetaInfServices(PluginMetadataExtractor.class)
+@HookOrder(order = 1000) // just incase it ever needs to be overridden
 public class ModernPluginMetaDataExtractor extends PluginMetadataExtractor {
 
     // https://github.com/jenkinsci/maven-hpi-plugin/pull/436

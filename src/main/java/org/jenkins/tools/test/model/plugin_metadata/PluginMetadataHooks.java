@@ -70,13 +70,14 @@ public class PluginMetadataHooks {
             manifest = jis.getManifest();
             String groupId = manifest.getMainAttributes().getValue("Group-Id");
             String artifactId = pluginId = manifest.getMainAttributes().getValue("Short-Name");
-            model = ModelReader.getModelFromHpi(groupId, artifactId, jis);
+            model = ModelReader.getPluginsModelFromHpi(groupId, artifactId, jis);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (PluginCompatibilityTesterException e) {
             throw new WrappedPluginCompatabilityException(e);
         }
         try {
+            // once all plugins have adopted https://github.com/jenkinsci/maven-hpi-plugin/pull/436 this can be simpliied
             for (PluginMetadataExtractor e : extractors) {
                 Optional<PluginMetadata> optionalMetadata =
                         e.extractMetadata(pluginId, manifest, model);

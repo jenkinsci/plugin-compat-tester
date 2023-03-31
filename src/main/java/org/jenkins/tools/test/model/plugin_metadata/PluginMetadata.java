@@ -3,6 +3,9 @@ package org.jenkins.tools.test.model.plugin_metadata;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import java.util.Objects;
 
+/**
+ * Metadata representing a specific plugin for testing.
+ */
 public class PluginMetadata {
 
     private final String pluginId;
@@ -26,13 +29,13 @@ public class PluginMetadata {
         return pluginId;
     }
 
-    /** The git URL for the source repository that contains this plugin. */
+    /** The git URL for the source repository that contains this plugin, may be {@code null} for a local checkout. */
     public String getScmUrl() {
         return scmUrl;
     }
 
     /**
-     * The sha of the git commit representing this plugin, may be {@code null} for a local checkout.
+     * The sha or tag of the git commit representing this plugin, may be {@code null} for a local checkout.
      */
     @CheckForNull
     public String getGitCommit() {

@@ -13,9 +13,23 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 
+/**
+ * Utility methods to load a {@link Model}
+ */
 public class ModelReader {
 
-    public static Model getModelFromHpi(
+    /**
+     * Load the model that is embeded inside the plugin in {@code META-INF/maven/${groupId}/${artifactId}/pom.xml}
+     * @param groupId the groupId of the plugin
+     * @param artifactId the artifact of the plugin
+     * @param jarInputStream the inputStream created from from Plugins jar file.
+     * @return the maven model for the plugin as read from the META-INF directory.
+     * @throws PluginSourcesUnavailableException if the entry could not be loaded or found.
+     * @throws IOException
+     * @deprecated This is here for legacy support and is likely be removed in a future version. 
+     */
+    @Deprecated
+    public static Model getPluginsModelFromHpi(
             String groupId, String artifactId, JarInputStream jarInputStream)
             throws PluginSourcesUnavailableException, IOException {
         String pom = getPomFromHpi(groupId, artifactId, jarInputStream);
@@ -38,7 +52,7 @@ public class ModelReader {
         return model;
     }
 
-    public static String getPomFromHpi(
+    private static String getPomFromHpi(
             String groupId, String artifactId, JarInputStream jarInputStream)
             throws PluginSourcesUnavailableException, IOException {
         final String entryName = "META-INF/maven/" + groupId + "/" + artifactId + "/pom.xml";
