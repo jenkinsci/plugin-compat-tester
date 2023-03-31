@@ -48,7 +48,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
@@ -256,8 +255,9 @@ public class PluginCompatTester {
         // use the same version so parents and other dependencies can be found
         // if not an incremental this property is ignored so is safe to set.
         runner.run(
-                Map.of("maven.javadoc.skip", "true",
-                       "set.changelist" ,"true"),
+                Map.of(
+                        "maven.javadoc.skip", "true",
+                        "set.changelist", "true"),
                 cloneLocation,
                 pluginMetadata.getModulePath(),
                 buildLogFile,
@@ -281,8 +281,9 @@ public class PluginCompatTester {
         properties.put("useUpperBounds", "true");
         // enable setting the incremental / CD release so if a multi-module reactor
         // any other projects can be obtained from the repo
-        properties.put("set.changelist" ,"true");
-        // as hooks may be adjusting the POMs tell the git-changelist extension to ignore dirty commits
+        properties.put("set.changelist", "true");
+        // as hooks may be adjusting the POMs tell the git-changelist extension to ignore dirty
+        // commits
         properties.put("ignore.dirt", "true");
         if (new VersionNumber(coreVersion).isOlderThan(new VersionNumber("2.382"))) {
             /*
@@ -491,14 +492,14 @@ public class PluginCompatTester {
                     gitURL.replace(
                             "git://github.com/jenkinsci/theme-manager-plugin",
                             "https://github.com/jenkinsci/theme-manager-plugin");
-        }
-        try {
-            cloneImpl(gitURL, scmTag, checkoutDirectory);
-            return; // checkout was ok
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        } catch (PluginSourcesUnavailableException e) {
-            lastException = throwOrAddSupressed(lastException, e, false);
+            try {
+                cloneImpl(gitURL, scmTag, checkoutDirectory);
+                return; // checkout was ok
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } catch (PluginSourcesUnavailableException e) {
+                lastException = throwOrAddSupressed(lastException, e, false);
+            }
         }
 
         if (lastException != null) {
