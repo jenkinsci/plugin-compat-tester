@@ -7,7 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +100,7 @@ public class PluginCompatTesterHooks {
                 ServiceLoader.load(clazz, classLoader)) {
             sortedHooks.add((PluginCompatTesterHook<StageContext>) hook);
         }
-        sortedHooks.sort(Comparator.comparing(hook -> hook.getClass().getName()));
+        sortedHooks.sort(new HookOrderComprator());
         return sortedHooks;
     }
 }

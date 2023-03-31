@@ -1,29 +1,24 @@
 package org.jenkins.tools.test.model.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.UpdateSite;
+import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
 
 public abstract class StageContext {
 
     @NonNull private final Stage stage;
-    @NonNull private final UpdateSite.Plugin plugin;
-    @NonNull private final Model model;
-    @NonNull private final Dependency coreCoordinates;
+    @NonNull private final PluginMetadata pluginMetadata;
+    @NonNull private final String coreVersion;
     @NonNull private final PluginCompatTesterConfig config;
 
     public StageContext(
             @NonNull Stage stage,
-            @NonNull UpdateSite.Plugin plugin,
-            @NonNull Model model,
-            @NonNull Dependency coreCoordinates,
+            @NonNull PluginMetadata pluginMetadata,
+            @NonNull String coreVersion,
             @NonNull PluginCompatTesterConfig config) {
         this.stage = stage;
-        this.plugin = plugin;
-        this.model = model;
-        this.coreCoordinates = coreCoordinates;
+        this.pluginMetadata = pluginMetadata;
+        this.coreVersion = coreVersion;
         this.config = config;
     }
 
@@ -33,18 +28,13 @@ public abstract class StageContext {
     }
 
     @NonNull
-    public UpdateSite.Plugin getPlugin() {
-        return plugin;
+    public PluginMetadata getPluginMetadata() {
+        return pluginMetadata;
     }
 
     @NonNull
-    public Model getModel() {
-        return model;
-    }
-
-    @NonNull
-    public Dependency getCoreCoordinates() {
-        return coreCoordinates;
+    public String getCoreVersion() {
+        return coreVersion;
     }
 
     @NonNull

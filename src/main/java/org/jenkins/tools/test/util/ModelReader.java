@@ -11,14 +11,13 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Scm;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 
 public class ModelReader {
 
     public static Model getModelFromHpi(
             String groupId, String artifactId, JarInputStream jarInputStream)
-            throws PluginCompatibilityTesterException, IOException {
+            throws PluginSourcesUnavailableException, IOException {
         String pom = getPomFromHpi(groupId, artifactId, jarInputStream);
         Model model;
 
@@ -41,7 +40,7 @@ public class ModelReader {
 
     public static String getPomFromHpi(
             String groupId, String artifactId, JarInputStream jarInputStream)
-            throws PluginCompatibilityTesterException, IOException {
+            throws PluginSourcesUnavailableException, IOException {
         final String entryName = "META-INF/maven/" + groupId + "/" + artifactId + "/pom.xml";
         JarEntry jarEntry;
         while ((jarEntry = jarInputStream.getNextJarEntry()) != null) {

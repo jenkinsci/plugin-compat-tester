@@ -258,7 +258,7 @@
                 <delete dir="${project.build.directory}/megawar/WEB-INF/detached-plugins" />
                 <delete file="${project.build.directory}/megawar/META-INF/JENKINS.RSA" />
                 <delete file="${project.build.directory}/megawar/META-INF/JENKINS.SF" />
-                <war destfile="${project.build.directory}/megawar.war">
+                <war destfile="${project.build.directory}/megawar.war" manifest="${project.build.directory}/megawar/META-INF/MANIFEST.MF">
                   <fileset dir="${project.build.directory}/megawar" />
                 </war>
               </target>

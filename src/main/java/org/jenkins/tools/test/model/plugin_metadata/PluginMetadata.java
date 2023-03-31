@@ -10,46 +10,52 @@ public class PluginMetadata {
     private final String modulePath;
     private final String gitCommit;
     private final String name;
+    private final String version;
 
     private PluginMetadata(Builder builder) {
         this.pluginId = Objects.requireNonNull(builder.pluginId);
         this.scmUrl = Objects.requireNonNull(builder.scmUrl);
         this.modulePath = builder.modulePath;
-        this.gitCommit = Objects.requireNonNull(builder.gitCommit);
+        this.gitCommit = builder.gitCommit;
         this.name = builder.name;
+        this.version = Objects.requireNonNull(builder.version);
     }
 
-    /**
-     * @return the pluginId
-     */
+    /** The unique plugin id for this plugin. */
     public String getPluginId() {
         return pluginId;
     }
 
-    /**
-     * @return the git SCM URL
-     */
+    /** The git URL for the source repository that contains this plugin. */
     public String getScmUrl() {
         return scmUrl;
     }
 
     /**
-     * @return the gitCommit
+     * The sha of the git commit representing this plugin, may be {@code null} for a local checkout.
      */
+    @CheckForNull
     public String getGitCommit() {
         return gitCommit;
     }
 
+    /**
+     * The module path of the plugin inside it's source repository, will be {@code null} or the
+     * empty string ({@code ""}) if the plugin is not part of a multi module build.
+     */
     @CheckForNull
     public String getModulePath() {
         return modulePath;
     }
 
-    /**
-     * The plugin name if known, otherwise the plugin id.
-     */
+    /** The plugin name if known, otherwise the plugin id. */
     public String getName() {
         return name == null ? pluginId : name;
+    }
+
+    /** The version of the plugin. */
+    public String getVersion() {
+        return version;
     }
 
     public static final class Builder {
@@ -58,6 +64,7 @@ public class PluginMetadata {
         private String modulePath;
         private String gitCommit;
         private String name;
+        private String version;
 
         public Builder() {}
 
@@ -67,6 +74,7 @@ public class PluginMetadata {
             this.modulePath = from.modulePath;
             this.gitCommit = from.gitCommit;
             this.name = from.name;
+            this.version = from.version;
         }
 
         public Builder withPluginId(String pluginId) {
@@ -91,6 +99,11 @@ public class PluginMetadata {
 
         public Builder withName(String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder withVersion(String version) {
+            this.version = version;
             return this;
         }
 

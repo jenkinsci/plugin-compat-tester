@@ -10,11 +10,14 @@ import org.kohsuke.MetaInfServices;
 
 @MetaInfServices(PluginMetadataExtractor.class)
 @HookOrder(order = -500)
-// delete once all non standard multi module plugins are using https://github.com/jenkinsci/maven-hpi-plugin/pull/436
+// delete once all non standard multi module plugins are using
+// https://github.com/jenkinsci/maven-hpi-plugin/pull/436
 public class LegacyMultimoduleExtractor extends PluginMetadataExtractor {
 
-    // delete once all non standard multi module plugins are using https://github.com/jenkinsci/maven-hpi-plugin/pull/436
-    private final Set<String> groupIdsWithNameAsModule = Set.of("io.jenkins.blueocean", "io.jenkins.plugins.mina-sshd-api");
+    // delete once all non standard multi module plugins are using
+    // https://github.com/jenkinsci/maven-hpi-plugin/pull/436
+    private final Set<String> groupIdsWithNameAsModule =
+            Set.of("io.jenkins.blueocean", "io.jenkins.plugins.mina-sshd-api");
 
     @Override
     public Optional<PluginMetadata> extractMetadata(String pluginId, Manifest manifest, Model model)
@@ -28,26 +31,35 @@ public class LegacyMultimoduleExtractor extends PluginMetadataExtractor {
                     "SCM URL " + scm + " is not supported by the pct - only git urls are allowed");
         }
 
-        PluginMetadata.Builder builder = new PluginMetadata.Builder().withPluginId(model.getArtifactId()).withName(model.getName()).withScmUrl(scm).withGitCommit(model.getScm().getTag());
+        PluginMetadata.Builder builder =
+                new PluginMetadata.Builder()
+                        .withPluginId(model.getArtifactId())
+                        .withName(model.getName())
+                        .withScmUrl(scm)
+                        .withGitCommit(model.getScm().getTag())
+                        .withVersion(model.getVersion());
 
         String groupId = manifest.getMainAttributes().getValue("Group-Id");
-        
+
         if (groupIdsWithNameAsModule.contains(groupId)) {
             return Optional.of(builder.withModulePath(pluginId).build());
         }
         // handle non standard aggregator projects.
 
         // https://github.com/jenkinsci/pipeline-model-definition-plugin
-        if (Set.of("pipeline-model-api",
-                "pipeline-model-definition",
-                "pipeline-model-extensions",
-                "pipeline-stage-tags-metadata").contains(pluginId)) {
+        if (Set.of(
+                        "pipeline-model-api",
+                        "pipeline-model-definition",
+                        "pipeline-model-extensions",
+                        "pipeline-stage-tags-metadata")
+                .contains(pluginId)) {
             return Optional.of(builder.withModulePath(pluginId).build());
         }
-        
         // https://github.com/jenkinsci/declarative-pipeline-migration-assistant-plugin
-        if (Set.of("declarative-pipeline-migration-assistant",
-                "declarative-pipeline-migration-assistant-api").contains(pluginId)) {
+        if (Set.of(
+                        "declarative-pipeline-migration-assistant",
+                        "declarative-pipeline-migration-assistant-api")
+                .contains(pluginId)) {
             return Optional.of(builder.withModulePath(pluginId).build());
         }
 
@@ -70,6 +82,11 @@ public class LegacyMultimoduleExtractor extends PluginMetadataExtractor {
         }
         // https://github.com/jenkinsci/workflow-cps-plugin/
         if ("workflow-cps".equals(pluginId)) {
+            return Optional.of(builder.withModulePath("plugin").build());
+        }
+
+        // https://github.com/jenkinsci/configuration-as-code-plugin
+        if ("configuration-as-code".equals(pluginId)) {
             return Optional.of(builder.withModulePath("plugin").build());
         }
 

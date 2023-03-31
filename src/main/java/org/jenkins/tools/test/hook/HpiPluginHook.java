@@ -22,4 +22,5 @@ public class HpiPluginHook extends PropertyVersionHook {
     public String getMinimumVersion() {
         return "3.41";
     }
+
 }

@@ -18,11 +18,14 @@ import org.kohsuke.MetaInfServices;
 public class ModernPluginMetaDataExtractor extends PluginMetadataExtractor {
 
     // https://github.com/jenkinsci/maven-hpi-plugin/pull/436
-    private static final Attributes.Name GIT_REVISION_ATTRIBUTE = new Attributes.Name("Plugin-Scm-Git-Hash");
+    private static final Attributes.Name GIT_REVISION_ATTRIBUTE =
+            new Attributes.Name("Plugin-Scm-Git-Hash");
     private static final Attributes.Name GIT_SCM_URL = new Attributes.Name("Plugin-Scm-Connection");
-    private static final Attributes.Name MAVEN_MODULE_LOCATION = new Attributes.Name("Plugin-Scm-Git-Module-Path");
+    private static final Attributes.Name MAVEN_MODULE_LOCATION =
+            new Attributes.Name("Plugin-Scm-Git-Module-Path");
     private static final Attributes.Name PLUGIN_ID = new Attributes.Name("Short-Name");
     private static final Attributes.Name PLUGIN_NAME = new Attributes.Name("Long-Name");
+    private static final Attributes.Name PLUGIN_VERSION = new Attributes.Name("Plugin-Version");
 
     @Override
     public Optional<PluginMetadata> extractMetadata(String pluginId, Manifest manifest, Model model)
@@ -41,6 +44,7 @@ public class ModernPluginMetaDataExtractor extends PluginMetadataExtractor {
                             .withScmUrl(mainAttributes.getValue(GIT_SCM_URL))
                             .withGitCommit(mainAttributes.getValue(GIT_REVISION_ATTRIBUTE))
                             .withModulePath(mainAttributes.getValue(MAVEN_MODULE_LOCATION))
+                            .withVersion(mainAttributes.getValue(PLUGIN_VERSION))
                             .build());
         }
         return Optional.empty();

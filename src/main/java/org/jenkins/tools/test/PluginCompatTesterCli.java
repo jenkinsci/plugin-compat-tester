@@ -197,6 +197,6 @@ public class PluginCompatTesterCli implements Callable<Integer> {
 
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
-        return 0;
+        return Integer.valueOf(0);
     }
 }

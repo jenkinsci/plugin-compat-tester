@@ -16,9 +16,6 @@ public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
             throws PluginSourcesUnavailableException {
         // any multimodule project must have been handled before now (either the modern hook or a
         // specific hook for a legacy multi module project)
-        if (pluginId.startsWith("aws-sdk")) {
-            throw new IllegalArgumentException(pluginId + " should be handled by the model extractor");
-        }
         String scm = model.getScm().getConnection();
         if (scm.startsWith("scm:git:")) {
             scm = scm.substring(8);
@@ -33,7 +30,10 @@ public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
                         .withName(model.getName())
                         .withScmUrl(scm)
                         .withGitCommit(model.getScm().getTag())
-                        .withModulePath(null) // any multi module projects have already been handled by now or require new hooks.
+                        .withModulePath(
+                                null) // any multi module projects have already been handled by now
+                        // or require new hooks.
+                        .withVersion(model.getVersion())
                         .build());
     }
 }

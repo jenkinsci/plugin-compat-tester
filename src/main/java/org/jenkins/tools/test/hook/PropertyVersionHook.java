@@ -39,17 +39,13 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
                         config.getExternalMaven(),
                         config.getMavenSettings(),
                         config.getMavenArgs());
-        File pluginDir = context.getPluginDir();
-        if (pluginDir != null) {
-            try {
-                String version = getPropertyVersion(pluginDir, getProperty(), runner);
-                return new VersionNumber(version)
-                        .isOlderThan(new VersionNumber(getMinimumVersion()));
-            } catch (PomExecutionException e) {
-                return false;
-            }
+        try {
+            String version = getPropertyVersion(context.getCloneDirectory(), context.getPluginMetadata().getModulePath(), getProperty(), runner);
+            return new VersionNumber(version)
+                    .isOlderThan(new VersionNumber(getMinimumVersion()));
+        } catch (PomExecutionException e) {
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -57,12 +53,13 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
         context.getArgs().add(String.format("-D%s=%s", getProperty(), getMinimumVersion()));
     }
 
-    private static String getPropertyVersion(File pluginPath, String property, MavenRunner runner)
+    private static String getPropertyVersion(File cloneDirectory, String module, String property, MavenRunner runner)
             throws PomExecutionException {
-        Path log = pluginPath.toPath().resolve(property + ".log");
+        Path log = cloneDirectory.toPath().resolve(property + ".log");
         runner.run(
                 Map.of("expression", property, "output", log.toAbsolutePath().toString()),
-                pluginPath,
+                cloneDirectory,
+                module,
                 null,
                 "-q",
                 "help:evaluate");
