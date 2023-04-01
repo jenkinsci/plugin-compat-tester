@@ -60,17 +60,15 @@ class PluginCompatTesterTest {
     @Test
     void smokes(@TempDir File tempDir) throws Exception {
         PluginCompatTesterConfig config =
-                new PluginCompatTesterConfig(
-                        new File("target", "megawar.war").getAbsoluteFile(), tempDir);
+                new PluginCompatTesterConfig(new File("target", "megawar.war").getAbsoluteFile(), tempDir);
         config.setMavenProperties(Map.of("test", "InjectedTest"));
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
-        Path report =
-                tempDir.toPath()
-                        .resolve("text-finder-plugin")
-                        .resolve("target")
-                        .resolve("surefire-reports")
-                        .resolve("TEST-InjectedTest.xml");
+        Path report = tempDir.toPath()
+                .resolve("text-finder-plugin")
+                .resolve("target")
+                .resolve("surefire-reports")
+                .resolve("TEST-InjectedTest.xml");
         assertTrue(Files.exists(report));
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -90,10 +88,8 @@ class PluginCompatTesterTest {
 
     @Test
     void updateSite() {
-        UpdateSite.Data data =
-                PluginCompatTester.scanWAR(
-                        new File("target", "megawar.war").getAbsoluteFile(),
-                        "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
+        UpdateSite.Data data = PluginCompatTester.scanWAR(
+                new File("target", "megawar.war").getAbsoluteFile(), "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
         assertEquals("core", data.core.name);
         assertNotNull(data.core.version);
         assertEquals("https://foobar", data.core.url);

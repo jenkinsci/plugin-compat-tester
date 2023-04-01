@@ -11,7 +11,8 @@ import java.nio.charset.Charset;
 
 public class StreamGobbler extends Thread {
 
-    @NonNull private final InputStream is;
+    @NonNull
+    private final InputStream is;
 
     private final StringBuilder output = new StringBuilder();
 

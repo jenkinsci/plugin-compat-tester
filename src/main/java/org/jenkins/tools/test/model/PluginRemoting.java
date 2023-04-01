@@ -75,9 +75,7 @@ public class PluginRemoting {
         }
     }
 
-    @SuppressFBWarnings(
-            value = "URLCONNECTION_SSRF_FD",
-            justification = "Only file: URLs are supported")
+    @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "Only file: URLs are supported")
     private String retrievePomContentFromHpi() throws IOException {
         URL url = new URL(hpiRemoteUrl);
         if (!url.getProtocol().equals("jar") || !url.getFile().startsWith("file:")) {
@@ -87,8 +85,7 @@ public class PluginRemoting {
                 ZipInputStream zis = new ZipInputStream(is)) {
             ZipEntry ze;
             while ((ze = zis.getNextEntry()) != null) {
-                if (ze.getName().startsWith("META-INF/maven/")
-                        && ze.getName().endsWith("/pom.xml")) {
+                if (ze.getName().startsWith("META-INF/maven/") && ze.getName().endsWith("/pom.xml")) {
                     return new String(zis.readAllBytes(), StandardCharsets.UTF_8);
                 }
             }

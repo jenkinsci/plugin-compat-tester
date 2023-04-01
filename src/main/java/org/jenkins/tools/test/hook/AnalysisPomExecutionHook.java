@@ -14,17 +14,16 @@ import org.kohsuke.MetaInfServices;
 @MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
 public class AnalysisPomExecutionHook extends PluginWithFailsafeIntegrationTestsHook {
 
-    private static final Set<String> ARTIFACT_IDS =
-            Set.of(
-                    "analysis-model-api",
-                    "bootstrap5-api",
-                    "checks-api",
-                    "echarts-api",
-                    "font-awesome-api",
-                    "forensics-api",
-                    "jquery3-api",
-                    "plugin-util-api",
-                    "popper2-api");
+    private static final Set<String> ARTIFACT_IDS = Set.of(
+            "analysis-model-api",
+            "bootstrap5-api",
+            "checks-api",
+            "echarts-api",
+            "font-awesome-api",
+            "forensics-api",
+            "jquery3-api",
+            "plugin-util-api",
+            "popper2-api");
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {

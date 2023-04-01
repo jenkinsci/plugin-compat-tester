@@ -19,12 +19,10 @@ public class TagValidationHook extends PluginCompatTesterHookBeforeCompile {
     }
 
     @Override
-    public void action(@NonNull BeforeCompilationContext context)
-            throws PluginSourcesUnavailableException {
+    public void action(@NonNull BeforeCompilationContext context) throws PluginSourcesUnavailableException {
         Model model = context.getModel();
         if (model.getScm().getTag() == null || model.getScm().getTag().equals("HEAD")) {
-            throw new PluginSourcesUnavailableException(
-                    "Failed to check out plugin sources for " + model.getVersion());
+            throw new PluginSourcesUnavailableException("Failed to check out plugin sources for " + model.getVersion());
         }
     }
 }

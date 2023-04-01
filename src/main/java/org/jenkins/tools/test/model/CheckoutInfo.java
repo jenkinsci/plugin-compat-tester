@@ -5,9 +5,11 @@ import java.util.Objects;
 
 public class CheckoutInfo {
 
-    @NonNull private final String connection;
+    @NonNull
+    private final String connection;
 
-    @NonNull private final String tag;
+    @NonNull
+    private final String tag;
 
     public CheckoutInfo(@NonNull String connection, @NonNull String tag) {
         this.connection = connection;

@@ -11,13 +11,17 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
 public final class BeforeExecutionContext extends StageContext {
 
-    @NonNull private final Model model;
+    @NonNull
+    private final Model model;
 
-    @CheckForNull private final File pluginDir;
+    @CheckForNull
+    private final File pluginDir;
 
-    @NonNull private final List<String> args;
+    @NonNull
+    private final List<String> args;
 
-    @NonNull private final MavenPom pom;
+    @NonNull
+    private final MavenPom pom;
 
     public BeforeExecutionContext(
             @NonNull Dependency coreCoordinates,
