@@ -12,13 +12,17 @@ import org.jenkins.tools.test.model.UpdateSite;
 
 public final class BeforeExecutionContext extends StageContext {
 
-    @CheckForNull private final File pluginDir;
+    @CheckForNull
+    private final File pluginDir;
 
-    @CheckForNull private final String parentFolder;
+    @CheckForNull
+    private final String parentFolder;
 
-    @NonNull private final List<String> args;
+    @NonNull
+    private final List<String> args;
 
-    @NonNull private final MavenPom pom;
+    @NonNull
+    private final MavenPom pom;
 
     public BeforeExecutionContext(
             @NonNull UpdateSite.Plugin plugin,

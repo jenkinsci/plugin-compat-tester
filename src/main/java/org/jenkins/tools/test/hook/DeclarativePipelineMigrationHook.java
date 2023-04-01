@@ -15,9 +15,7 @@ import org.kohsuke.MetaInfServices;
 public class DeclarativePipelineMigrationHook extends AbstractMultiParentHook {
 
     private static final Set<String> ARTIFACT_IDS =
-            Set.of(
-                    "declarative-pipeline-migration-assistant",
-                    "declarative-pipeline-migration-assistant-api");
+            Set.of("declarative-pipeline-migration-assistant", "declarative-pipeline-migration-assistant-api");
 
     @Override
     protected String getParentFolder() {

@@ -15,8 +15,7 @@ import java.util.logging.LogManager;
 public class LoggingConfiguration {
 
     public LoggingConfiguration() {
-        try (InputStream is =
-                LoggingConfiguration.class.getResourceAsStream("logging.properties")) {
+        try (InputStream is = LoggingConfiguration.class.getResourceAsStream("logging.properties")) {
             if (is == null) {
                 throw new MissingResourceException(
                         "Failed to load logging.properties",
@@ -33,8 +32,6 @@ public class LoggingConfiguration {
 
     private static BiFunction<String, String, String> updateConfiguration() {
         return (oldValue, newValue) ->
-                oldValue == null && newValue == null
-                        ? null
-                        : (newValue == null ? oldValue : newValue);
+                oldValue == null && newValue == null ? null : (newValue == null ? oldValue : newValue);
     }
 }

@@ -8,11 +8,20 @@ import org.jenkins.tools.test.model.UpdateSite;
 
 public abstract class StageContext {
 
-    @NonNull private final Stage stage;
-    @NonNull private final UpdateSite.Plugin plugin;
-    @NonNull private final Model model;
-    @NonNull private final Dependency coreCoordinates;
-    @NonNull private final PluginCompatTesterConfig config;
+    @NonNull
+    private final Stage stage;
+
+    @NonNull
+    private final UpdateSite.Plugin plugin;
+
+    @NonNull
+    private final Model model;
+
+    @NonNull
+    private final Dependency coreCoordinates;
+
+    @NonNull
+    private final PluginCompatTesterConfig config;
 
     public StageContext(
             @NonNull Stage stage,

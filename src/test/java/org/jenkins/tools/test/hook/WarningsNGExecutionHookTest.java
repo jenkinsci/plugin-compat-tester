@@ -35,11 +35,8 @@ class WarningsNGExecutionHookTest {
     void testAction() {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
-        List<String> args =
-                new ArrayList<>(
-                        List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test"));
-        BeforeExecutionContext context =
-                new BeforeExecutionContext(null, null, null, null, null, null, args, null);
+        List<String> args = new ArrayList<>(List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test"));
+        BeforeExecutionContext context = new BeforeExecutionContext(null, null, null, null, null, null, args, null);
         hook.action(context);
         assertThat(args.size(), is(4));
         assertTrue(args.contains("failsafe:integration-test"));

@@ -6,5 +6,4 @@ package org.jenkins.tools.test.model.hook;
  *
  * <p>This exists simply for the ability to check when a subclass should be implemented.
  */
-public abstract class PluginCompatTesterHookBeforeCheckout
-        extends PluginCompatTesterHook<BeforeCheckoutContext> {}
+public abstract class PluginCompatTesterHookBeforeCheckout extends PluginCompatTesterHook<BeforeCheckoutContext> {}

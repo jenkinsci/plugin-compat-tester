@@ -35,16 +35,12 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
     public boolean check(@NonNull BeforeExecutionContext context) {
         PluginCompatTesterConfig config = context.getConfig();
         MavenRunner runner =
-                new ExternalMavenRunner(
-                        config.getExternalMaven(),
-                        config.getMavenSettings(),
-                        config.getMavenArgs());
+                new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
         File pluginDir = context.getPluginDir();
         if (pluginDir != null) {
             try {
                 String version = getPropertyVersion(pluginDir, getProperty(), runner);
-                return new VersionNumber(version)
-                        .isOlderThan(new VersionNumber(getMinimumVersion()));
+                return new VersionNumber(version).isOlderThan(new VersionNumber(getMinimumVersion()));
             } catch (PomExecutionException e) {
                 return false;
             }

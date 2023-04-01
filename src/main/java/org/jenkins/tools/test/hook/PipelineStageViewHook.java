@@ -10,8 +10,7 @@ import org.kohsuke.MetaInfServices;
 @MetaInfServices(PluginCompatTesterHookBeforeCheckout.class)
 public class PipelineStageViewHook extends AbstractMultiParentHook {
 
-    private static final Set<String> ARTIFACT_IDS =
-            Set.of("pipeline-rest-api", "pipeline-stage-view");
+    private static final Set<String> ARTIFACT_IDS = Set.of("pipeline-rest-api", "pipeline-stage-view");
 
     @Override
     protected String getParentFolder() {

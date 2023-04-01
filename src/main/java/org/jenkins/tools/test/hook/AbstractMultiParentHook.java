@@ -20,8 +20,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
 
     @Override
     @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "intended behavior")
-    public void action(@NonNull BeforeCheckoutContext context)
-            throws PluginSourcesUnavailableException {
+    public void action(@NonNull BeforeCheckoutContext context) throws PluginSourcesUnavailableException {
 
         // We should not execute the hook if using localCheckoutDir
         File localCheckoutDir = context.getConfig().getLocalCheckoutDir();
@@ -37,10 +36,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
                 // Checkout to the parent directory. All other processes will be on the child
                 // directory
                 File parentPath =
-                        new File(
-                                context.getConfig().getWorkingDir().getAbsolutePath()
-                                        + "/"
-                                        + getParentFolder());
+                        new File(context.getConfig().getWorkingDir().getAbsolutePath() + "/" + getParentFolder());
 
                 Model model = context.getModel();
                 // Like the call in PluginCompatTester#runHooks but with subdirectories trimmed:
@@ -56,18 +52,15 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
             firstRun = false;
 
             // Change the "download"" directory; after download, it's simply used for reference
-            File childPath =
-                    new File(
-                            context.getConfig().getWorkingDir().getAbsolutePath()
-                                    + "/"
-                                    + getParentFolder()
-                                    + "/"
-                                    + getPluginFolderName(context));
+            File childPath = new File(context.getConfig().getWorkingDir().getAbsolutePath()
+                    + "/"
+                    + getParentFolder()
+                    + "/"
+                    + getPluginFolderName(context));
 
-            LOGGER.log(
-                    Level.INFO,
-                    "Child path for {0}: {1}",
-                    new Object[] {context.getPlugin().getDisplayName(), childPath.getPath()});
+            LOGGER.log(Level.INFO, "Child path for {0}: {1}", new Object[] {
+                context.getPlugin().getDisplayName(), childPath.getPath()
+            });
             context.setCheckoutDir(childPath);
             context.setPluginDir(childPath);
             context.setParentFolder(getParentFolder());
@@ -76,8 +69,7 @@ public abstract class AbstractMultiParentHook extends PluginCompatTesterHookBefo
         }
     }
 
-    protected void configureLocalCheckOut(
-            File localCheckoutDir, @NonNull BeforeCheckoutContext context) {
+    protected void configureLocalCheckOut(File localCheckoutDir, @NonNull BeforeCheckoutContext context) {
         // Do nothing to keep compatibility with pre-existing Hooks
         LOGGER.log(
                 Level.INFO,

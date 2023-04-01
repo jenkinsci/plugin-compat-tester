@@ -86,37 +86,29 @@ public class PluginCompatTester {
 
     public PluginCompatTester(PluginCompatTesterConfig config) {
         this.config = config;
-        runner =
-                new ExternalMavenRunner(
-                        config.getExternalMaven(),
-                        config.getMavenSettings(),
-                        config.getMavenArgs());
+        runner = new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
     }
 
     public void testPlugins() throws PluginCompatibilityTesterException {
         PluginCompatTesterHooks pcth =
-                new PluginCompatTesterHooks(
-                        config.getExternalHooksJars(), config.getExcludeHooks());
+                new PluginCompatTesterHooks(config.getExternalHooksJars(), config.getExcludeHooks());
         // Determine the plugin data
 
         // Scan bundled plugins. If there is any bundled plugin, only these plugins will be taken
         // under the consideration for the PCT run.
-        UpdateSite.Data data =
-                scanWAR(config.getWar(), "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
+        UpdateSite.Data data = scanWAR(config.getWar(), "WEB-INF/(?:optional-)?plugins/([^/.]+)[.][hj]pi");
         if (!data.plugins.isEmpty()) {
             // Scan detached plugins to recover proper Group IDs for them. At the moment, we are
             // considering that bomfile contains the info about the detached ones.
-            UpdateSite.Data detachedData =
-                    scanWAR(config.getWar(), "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
+            UpdateSite.Data detachedData = scanWAR(config.getWar(), "WEB-INF/(?:detached-)?plugins/([^/.]+)[.][hj]pi");
 
             // Add detached if and only if no added as normal one
             if (detachedData != null) {
-                detachedData.plugins.forEach(
-                        (key, value) -> {
-                            if (!data.plugins.containsKey(key)) {
-                                data.plugins.put(key, value);
-                            }
-                        });
+                detachedData.plugins.forEach((key, value) -> {
+                    if (!data.plugins.containsKey(key)) {
+                        data.plugins.put(key, value);
+                    }
+                });
             }
         }
 
@@ -164,8 +156,7 @@ public class PluginCompatTester {
                 // Local directory provided for more than one plugin, so each plugin is allocated in
                 // localCheckoutDir/plugin-name. If there is no subdirectory for the plugin, it will
                 // be cloned from SCM.
-                File pomFile =
-                        new File(new File(config.getLocalCheckoutDir(), plugin.name), "pom.xml");
+                File pomFile = new File(new File(config.getLocalCheckoutDir(), plugin.name), "pom.xml");
                 if (pomFile.exists()) {
                     remote = new PluginRemoting(pomFile);
                 } else {
@@ -192,9 +183,7 @@ public class PluginCompatTester {
                             Level.SEVERE,
                             String.format(
                                     "Internal error while executing a test for core %s and plugin %s at version %s.",
-                                    coreCoordinates.getVersion(),
-                                    plugin.getDisplayName(),
-                                    plugin.version),
+                                    coreCoordinates.getVersion(), plugin.getDisplayName(), plugin.version),
                             e);
                 }
             }
@@ -206,9 +195,7 @@ public class PluginCompatTester {
     }
 
     private UpdateSite.Plugin extractFromLocalCheckout() throws PluginSourcesUnavailableException {
-        Model model =
-                new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml"))
-                        .retrieveModel();
+        Model model = new PluginRemoting(new File(config.getLocalCheckoutDir(), "pom.xml")).retrieveModel();
         return new UpdateSite.Plugin(
                 model.getArtifactId(),
                 "" /* version is not required */,
@@ -218,14 +205,12 @@ public class PluginCompatTester {
 
     private static File createBuildLogFile(
             File workDirectory, String pluginName, String pluginVersion, Dependency coreCoords) {
-        return new File(
-                workDirectory.getAbsolutePath()
-                        + File.separator
-                        + createBuildLogFilePathFor(pluginName, pluginVersion, coreCoords));
+        return new File(workDirectory.getAbsolutePath()
+                + File.separator
+                + createBuildLogFilePathFor(pluginName, pluginVersion, coreCoords));
     }
 
-    private static String createBuildLogFilePathFor(
-            String pluginName, String pluginVersion, Dependency coreCoords) {
+    private static String createBuildLogFilePathFor(String pluginName, String pluginVersion, Dependency coreCoords) {
         return String.format(
                 "logs/%s/v%s_against_%s_%s_%s.log",
                 pluginName,
@@ -236,10 +221,7 @@ public class PluginCompatTester {
     }
 
     private void testPluginAgainst(
-            Dependency coreCoordinates,
-            UpdateSite.Plugin plugin,
-            Model model,
-            PluginCompatTesterHooks pcth)
+            Dependency coreCoordinates, UpdateSite.Plugin plugin, Model model, PluginCompatTesterHooks pcth)
             throws PluginCompatibilityTesterException {
         LOGGER.log(
                 Level.INFO,
@@ -254,16 +236,11 @@ public class PluginCompatTester {
                 new Object[] {plugin.name, plugin.version, coreCoordinates});
 
         File pluginCheckoutDir =
-                new File(
-                        config.getWorkingDir().getAbsolutePath()
-                                + File.separator
-                                + plugin.name
-                                + File.separator);
+                new File(config.getWorkingDir().getAbsolutePath() + File.separator + plugin.name + File.separator);
         String parentFolder = null;
 
         // Run any precheckout hooks
-        BeforeCheckoutContext beforeCheckout =
-                new BeforeCheckoutContext(plugin, model, coreCoordinates, config);
+        BeforeCheckoutContext beforeCheckout = new BeforeCheckoutContext(plugin, model, coreCoordinates, config);
         pcth.runBeforeCheckout(beforeCheckout);
 
         if (!beforeCheckout.ranCheckout()) {
@@ -273,26 +250,19 @@ public class PluginCompatTester {
             }
             try {
                 if (Files.isDirectory(pluginCheckoutDir.toPath())) {
-                    LOGGER.log(
-                            Level.INFO,
-                            "Deleting working directory {0}",
-                            pluginCheckoutDir.getAbsolutePath());
+                    LOGGER.log(Level.INFO, "Deleting working directory {0}", pluginCheckoutDir.getAbsolutePath());
                     FileUtils.deleteDirectory(pluginCheckoutDir);
                 }
 
                 Files.createDirectory(pluginCheckoutDir.toPath());
-                LOGGER.log(
-                        Level.INFO,
-                        "Created plugin checkout directory {0}",
-                        pluginCheckoutDir.getAbsolutePath());
+                LOGGER.log(Level.INFO, "Created plugin checkout directory {0}", pluginCheckoutDir.getAbsolutePath());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
 
             if (localCheckoutProvided()) {
                 if (!onlyOnePluginIncluded()) {
-                    File localCheckoutPluginDir =
-                            new File(config.getLocalCheckoutDir(), plugin.name);
+                    File localCheckoutPluginDir = new File(config.getLocalCheckoutDir(), plugin.name);
                     File pomLocalCheckoutPluginDir = new File(localCheckoutPluginDir, "pom.xml");
                     if (pomLocalCheckoutPluginDir.exists()) {
                         LOGGER.log(
@@ -320,16 +290,11 @@ public class PluginCompatTester {
                     // http://docs.oracle.com/javase/tutorial/displayCode.html?code=http://docs.oracle.com/javase/tutorial/essential/io/examples/Copy.java
                     File localCheckoutDir = config.getLocalCheckoutDir();
                     if (localCheckoutDir == null) {
-                        throw new AssertionError(
-                                "Could never happen, but needed to silence SpotBugs");
+                        throw new AssertionError("Could never happen, but needed to silence SpotBugs");
                     }
-                    LOGGER.log(
-                            Level.INFO,
-                            "Copy plugin directory from {0}",
-                            localCheckoutDir.getAbsolutePath());
+                    LOGGER.log(Level.INFO, "Copy plugin directory from {0}", localCheckoutDir.getAbsolutePath());
                     try {
-                        org.codehaus.plexus.util.FileUtils.copyDirectoryStructure(
-                                localCheckoutDir, pluginCheckoutDir);
+                        org.codehaus.plexus.util.FileUtils.copyDirectoryStructure(localCheckoutDir, pluginCheckoutDir);
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
@@ -353,13 +318,10 @@ public class PluginCompatTester {
             }
             LOGGER.log(
                     Level.INFO,
-                    "The plugin has already been checked out, likely due to a multi-module"
-                            + " situation; continuing");
+                    "The plugin has already been checked out, likely due to a multi-module" + " situation; continuing");
         }
 
-        File buildLogFile =
-                createBuildLogFile(
-                        config.getWorkingDir(), plugin.name, plugin.version, coreCoordinates);
+        File buildLogFile = createBuildLogFile(config.getWorkingDir(), plugin.name, plugin.version, coreCoordinates);
         try {
             FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
             FileUtils.touch(buildLogFile); // Creating log file
@@ -369,8 +331,7 @@ public class PluginCompatTester {
 
         // Ran the BeforeCompileHooks
         BeforeCompilationContext beforeCompile =
-                new BeforeCompilationContext(
-                        plugin, model, coreCoordinates, config, pluginCheckoutDir, parentFolder);
+                new BeforeCompilationContext(plugin, model, coreCoordinates, config, pluginCheckoutDir, parentFolder);
         pcth.runBeforeCompilation(beforeCompile);
 
         // First build against the original POM. This defends against source incompatibilities
@@ -392,24 +353,22 @@ public class PluginCompatTester {
         args.add("surefire:test");
 
         // Run preexecution hooks
-        BeforeExecutionContext forExecutionHooks =
-                new BeforeExecutionContext(
-                        plugin,
-                        model,
-                        coreCoordinates,
-                        config,
-                        pluginCheckoutDir,
-                        parentFolder,
-                        args,
-                        new MavenPom(pluginCheckoutDir));
+        BeforeExecutionContext forExecutionHooks = new BeforeExecutionContext(
+                plugin,
+                model,
+                coreCoordinates,
+                config,
+                pluginCheckoutDir,
+                parentFolder,
+                args,
+                new MavenPom(pluginCheckoutDir));
         pcth.runBeforeExecution(forExecutionHooks);
 
         Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
         properties.put("overrideWar", config.getWar().toString());
         properties.put("jenkins.version", coreCoordinates.getVersion());
         properties.put("useUpperBounds", "true");
-        if (new VersionNumber(coreCoordinates.getVersion())
-                .isOlderThan(new VersionNumber("2.382"))) {
+        if (new VersionNumber(coreCoordinates.getVersion()).isOlderThan(new VersionNumber("2.382"))) {
             /*
              * Versions of Jenkins prior to 2.382 are susceptible to JENKINS-68696, in which
              * javax.servlet:servlet-api comes from core at version 0. This is an intentional trick
@@ -422,10 +381,7 @@ public class PluginCompatTester {
 
         // Execute with tests
         runner.run(
-                Collections.unmodifiableMap(properties),
-                pluginCheckoutDir,
-                buildLogFile,
-                args.toArray(new String[0]));
+                Collections.unmodifiableMap(properties), pluginCheckoutDir, buildLogFile, args.toArray(new String[0]));
     }
 
     public static void cloneFromScm(
@@ -434,8 +390,7 @@ public class PluginCompatTester {
         List<String> connectionURLs = new ArrayList<>();
         connectionURLs.add(url);
         if (fallbackGitHubOrganization != null) {
-            connectionURLs =
-                    getFallbackConnectionURL(connectionURLs, url, fallbackGitHubOrganization);
+            connectionURLs = getFallbackConnectionURL(connectionURLs, url, fallbackGitHubOrganization);
         }
 
         PluginSourcesUnavailableException lastException = null;
@@ -449,178 +404,150 @@ public class PluginCompatTester {
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/antisamy-markup-formatter-plugin/pull/106
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/antisamy-markup-formatter-plugin",
-                                "https://github.com/jenkinsci/antisamy-markup-formatter-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/antisamy-markup-formatter-plugin",
+                        "https://github.com/jenkinsci/antisamy-markup-formatter-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/authentication-tokens-plugin/pull/106
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/authentication-tokens-plugin",
-                                "https://github.com/jenkinsci/authentication-tokens-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/authentication-tokens-plugin",
+                        "https://github.com/jenkinsci/authentication-tokens-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/aws-global-configuration-plugin/pull/51
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/aws-global-configuration-plugin",
-                                "https://github.com/jenkinsci/aws-global-configuration-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/aws-global-configuration-plugin",
+                        "https://github.com/jenkinsci/aws-global-configuration-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/blueocean-display-url-plugin/pull/227
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/blueocean-display-url-plugin",
-                                "https://github.com/jenkinsci/blueocean-display-url-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/blueocean-display-url-plugin",
+                        "https://github.com/jenkinsci/blueocean-display-url-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/bootstrap5-api-plugin/commit/8c5f60ab5e21c03b68d696e7b760caa991b25aa9
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/bootstrap5-api-plugin",
-                                "https://github.com/jenkinsci/bootstrap5-api-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/bootstrap5-api-plugin",
+                        "https://github.com/jenkinsci/bootstrap5-api-plugin");
 
                 // TODO pending backport of
                 // https://github.com/jenkinsci/cloudbees-folder-plugin/pull/260
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/cloudbees-folder-plugin",
-                                "https://github.com/jenkinsci/cloudbees-folder-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/cloudbees-folder-plugin",
+                        "https://github.com/jenkinsci/cloudbees-folder-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/configuration-as-code-plugin/pull/2166
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/configuration-as-code-plugin",
-                                "https://github.com/jenkinsci/configuration-as-code-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/configuration-as-code-plugin",
+                        "https://github.com/jenkinsci/configuration-as-code-plugin");
 
                 // TODO pending backport of
                 // https://github.com/jenkinsci/custom-folder-icon-plugin/pull/109
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/custom-folder-icon-plugin",
-                                "https://github.com/jenkinsci/custom-folder-icon-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/custom-folder-icon-plugin",
+                        "https://github.com/jenkinsci/custom-folder-icon-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/data-tables-api-plugin/commit/97dc7555017e6c7ea17f0b67cc292773f1114a54
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/data-tables-api-plugin",
-                                "https://github.com/jenkinsci/data-tables-api-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/data-tables-api-plugin",
+                        "https://github.com/jenkinsci/data-tables-api-plugin");
 
                 // TODO pending backport of
                 // https://github.com/jenkinsci/echarts-api-plugin/commit/d6951a26e6f1c27b82c8308359f7f76e182de3e3
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/echarts-api-plugin",
-                                "https://github.com/jenkinsci/echarts-api-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/echarts-api-plugin",
+                        "https://github.com/jenkinsci/echarts-api-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/file-parameters-plugin/pull/142
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/file-parameters-plugin",
-                                "https://github.com/jenkinsci/file-parameters-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/file-parameters-plugin",
+                        "https://github.com/jenkinsci/file-parameters-plugin");
 
                 // TODO pending release of https://github.com/jenkinsci/github-api-plugin/pull/182
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/github-api-plugin",
-                                "https://github.com/jenkinsci/github-api-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/github-api-plugin",
+                        "https://github.com/jenkinsci/github-api-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/google-kubernetes-engine-plugin/pull/312
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/google-kubernetes-engine-plugin",
-                                "https://github.com/jenkinsci/google-kubernetes-engine-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/google-kubernetes-engine-plugin",
+                        "https://github.com/jenkinsci/google-kubernetes-engine-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/google-metadata-plugin/pull/50
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/google-metadata-plugin",
-                                "https://github.com/jenkinsci/google-metadata-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/google-metadata-plugin",
+                        "https://github.com/jenkinsci/google-metadata-plugin");
 
                 // TODO pending release of https://github.com/jenkinsci/google-oauth-plugin/pull/176
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/google-oauth-plugin",
-                                "https://github.com/jenkinsci/google-oauth-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/google-oauth-plugin",
+                        "https://github.com/jenkinsci/google-oauth-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/kubernetes-credentials-plugin/pull/37
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/kubernetes-credentials-plugin",
-                                "https://github.com/jenkinsci/kubernetes-credentials-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/kubernetes-credentials-plugin",
+                        "https://github.com/jenkinsci/kubernetes-credentials-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/kubernetes-credentials-provider-plugin/pull/75
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/kubernetes-credentials-provider-plugin",
-                                "https://github.com/jenkinsci/kubernetes-credentials-provider-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/kubernetes-credentials-provider-plugin",
+                        "https://github.com/jenkinsci/kubernetes-credentials-provider-plugin");
 
                 // TODO pending adoption of https://github.com/jenkinsci/matrix-auth-plugin/pull/131
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/matrix-auth-plugin",
-                                "https://github.com/jenkinsci/matrix-auth-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/matrix-auth-plugin",
+                        "https://github.com/jenkinsci/matrix-auth-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/node-iterator-api-plugin/pull/11
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/node-iterator-api-plugin",
-                                "https://github.com/jenkinsci/node-iterator-api-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/node-iterator-api-plugin",
+                        "https://github.com/jenkinsci/node-iterator-api-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/oauth-credentials-plugin/pull/9
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/oauth-credentials-plugin",
-                                "https://github.com/jenkinsci/oauth-credentials-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/oauth-credentials-plugin",
+                        "https://github.com/jenkinsci/oauth-credentials-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/popper2-api-plugin/commit/bf781e31b072103f3f72d7195e9071863f7f4dd9
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/popper2-api-plugin",
-                                "https://github.com/jenkinsci/popper2-api-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/popper2-api-plugin",
+                        "https://github.com/jenkinsci/popper2-api-plugin");
 
                 // TODO pending release of https://github.com/jenkinsci/pubsub-light-plugin/pull/100
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/pubsub-light-plugin",
-                                "https://github.com/jenkinsci/pubsub-light-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/pubsub-light-plugin",
+                        "https://github.com/jenkinsci/pubsub-light-plugin");
 
                 // TODO pending release of https://github.com/jenkinsci/s3-plugin/pull/243
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/s3-plugin",
-                                "https://github.com/jenkinsci/s3-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/s3-plugin", "https://github.com/jenkinsci/s3-plugin");
 
                 // TODO pending release of https://github.com/jenkinsci/ssh-agent-plugin/pull/116
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/ssh-agent-plugin",
-                                "https://github.com/jenkinsci/ssh-agent-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/ssh-agent-plugin", "https://github.com/jenkinsci/ssh-agent-plugin");
 
                 // TODO pending release of https://github.com/jenkinsci/ssh-slaves-plugin/pull/352
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/ssh-slaves-plugin",
-                                "https://github.com/jenkinsci/ssh-slaves-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/ssh-slaves-plugin",
+                        "https://github.com/jenkinsci/ssh-slaves-plugin");
 
                 // TODO pending release of
                 // https://github.com/jenkinsci/theme-manager-plugin/pull/154
-                connectionURL =
-                        connectionURL.replace(
-                                "git://github.com/jenkinsci/theme-manager-plugin",
-                                "https://github.com/jenkinsci/theme-manager-plugin");
+                connectionURL = connectionURL.replace(
+                        "git://github.com/jenkinsci/theme-manager-plugin",
+                        "https://github.com/jenkinsci/theme-manager-plugin");
             }
             try {
                 cloneImpl(connectionURL, scmTag, checkoutDirectory);
@@ -661,10 +588,7 @@ public class PluginCompatTester {
     @SuppressFBWarnings(value = "COMMAND_INJECTION", justification = "intended behavior")
     private static void cloneImpl(String gitUrl, String scmTag, File checkoutDirectory)
             throws IOException, PluginSourcesUnavailableException {
-        LOGGER.log(
-                Level.INFO,
-                "Checking out from git repository {0} at {1}",
-                new Object[] {gitUrl, scmTag});
+        LOGGER.log(Level.INFO, "Checking out from git repository {0} at {1}", new Object[] {gitUrl, scmTag});
 
         /*
          * We previously used the Maven SCM API to clone the repository, which ran the following
@@ -688,12 +612,11 @@ public class PluginCompatTester {
         Files.createDirectories(checkoutDirectory.toPath());
 
         // git init
-        Process p =
-                new ProcessBuilder()
-                        .directory(checkoutDirectory)
-                        .command("git", "init")
-                        .redirectErrorStream(true)
-                        .start();
+        Process p = new ProcessBuilder()
+                .directory(checkoutDirectory)
+                .command("git", "init")
+                .redirectErrorStream(true)
+                .start();
         StreamGobbler gobbler = new StreamGobbler(p.getInputStream());
         gobbler.start();
         try {
@@ -708,12 +631,11 @@ public class PluginCompatTester {
             throw new PluginSourcesUnavailableException("git init was interrupted", e);
         }
 
-        p =
-                new ProcessBuilder()
-                        .directory(checkoutDirectory)
-                        .command("git", "fetch", gitUrl, scmTag)
-                        .redirectErrorStream(true)
-                        .start();
+        p = new ProcessBuilder()
+                .directory(checkoutDirectory)
+                .command("git", "fetch", gitUrl, scmTag)
+                .redirectErrorStream(true)
+                .start();
         gobbler = new StreamGobbler(p.getInputStream());
         gobbler.start();
         try {
@@ -729,12 +651,11 @@ public class PluginCompatTester {
         }
 
         // git checkout FETCH_HEAD
-        p =
-                new ProcessBuilder()
-                        .directory(checkoutDirectory)
-                        .command("git", "checkout", "FETCH_HEAD")
-                        .redirectErrorStream(true)
-                        .start();
+        p = new ProcessBuilder()
+                .directory(checkoutDirectory)
+                .command("git", "checkout", "FETCH_HEAD")
+                .redirectErrorStream(true)
+                .start();
         gobbler = new StreamGobbler(p.getInputStream());
         gobbler.start();
         try {
@@ -743,27 +664,19 @@ public class PluginCompatTester {
             String output = gobbler.getOutput().trim();
             if (exitStatus != 0) {
                 throw new PluginSourcesUnavailableException(
-                        "git checkout FETCH_HEAD failed with exit status "
-                                + exitStatus
-                                + ": "
-                                + output);
+                        "git checkout FETCH_HEAD failed with exit status " + exitStatus + ": " + output);
             }
         } catch (InterruptedException e) {
-            throw new PluginSourcesUnavailableException(
-                    "git checkout FETCH_HEAD was interrupted", e);
+            throw new PluginSourcesUnavailableException("git checkout FETCH_HEAD was interrupted", e);
         }
     }
 
     public static List<String> getFallbackConnectionURL(
-            List<String> connectionURLs,
-            String connectionURLPomData,
-            String fallbackGitHubOrganization) {
+            List<String> connectionURLs, String connectionURLPomData, String fallbackGitHubOrganization) {
         Pattern pattern = Pattern.compile("(.*github.com[:|/])([^/]*)(.*)");
         Matcher matcher = pattern.matcher(connectionURLPomData);
         matcher.find();
-        connectionURLs.add(
-                matcher.replaceFirst(
-                        "scm:git:git@github.com:" + fallbackGitHubOrganization + "$3"));
+        connectionURLs.add(matcher.replaceFirst("scm:git:git@github.com:" + fallbackGitHubOrganization + "$3"));
         pattern = Pattern.compile("(.*github.com[:|/])([^/]*)(.*)");
         matcher = pattern.matcher(connectionURLPomData);
         matcher.find();
@@ -829,8 +742,7 @@ public class PluginCompatTester {
                             version = matcher.group(1);
                         }
                         String url = "jar:" + war.toURI() + "!/" + name;
-                        UpdateSite.Plugin plugin =
-                                new UpdateSite.Plugin(shortName, version, url, longName);
+                        UpdateSite.Plugin plugin = new UpdateSite.Plugin(shortName, version, url, longName);
                         plugins.add(plugin);
                     }
                 }
@@ -841,10 +753,7 @@ public class PluginCompatTester {
         if (core == null) {
             throw new IllegalStateException("no jenkins-core.jar in " + war);
         }
-        LOGGER.log(
-                Level.INFO,
-                "Scanned contents of {0} with {1} plugins",
-                new Object[] {war, plugins.size()});
+        LOGGER.log(Level.INFO, "Scanned contents of {0} with {1} plugins", new Object[] {war, plugins.size()});
         return new UpdateSite.Data(core, plugins);
     }
 
@@ -880,7 +789,8 @@ public class PluginCompatTester {
             if (!StringUtils.startsWith(line.trim(), "<string>")) {
                 continue;
             }
-            String mvnModule = line.replace("<string>", "").replace("</string>", "").trim();
+            String mvnModule =
+                    line.replace("<string>", "").replace("</string>", "").trim();
             if (mvnModule != null && mvnModule.contains(module)) {
                 return mvnModule;
             }
