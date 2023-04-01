@@ -1,3 +1,5 @@
 # .git-blame-ignore-revs
 # Format code with Google Java Format (#434)
 ee1b80d521a7448a5f854dab94f06aa6ba43051f
+# Switch to Palantir Java Format (#506)
+88778f2117cfaaa2c7b148763e6350e465d56887
