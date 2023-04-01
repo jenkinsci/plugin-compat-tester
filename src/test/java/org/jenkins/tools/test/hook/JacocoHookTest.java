@@ -21,8 +21,7 @@ class JacocoHookTest {
         model.setGroupId("org.jenkins-ci.plugins");
         model.setArtifactId("jacoco");
         model.setPackaging("hpi");
-        BeforeExecutionContext context =
-                new BeforeExecutionContext(null, model, null, null, null, null, null, null);
+        BeforeExecutionContext context = new BeforeExecutionContext(null, model, null, null, null, null, null, null);
         assertTrue(hook.check(context));
 
         model.setArtifactId("other-plugin");
@@ -34,11 +33,8 @@ class JacocoHookTest {
     void testAction() {
         final JacocoHook hook = new JacocoHook();
 
-        List<String> args =
-                new ArrayList<>(
-                        List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test"));
-        BeforeExecutionContext context =
-                new BeforeExecutionContext(null, null, null, null, null, null, args, null);
+        List<String> args = new ArrayList<>(List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test"));
+        BeforeExecutionContext context = new BeforeExecutionContext(null, null, null, null, null, null, args, null);
         hook.action(context);
         assertThat(args.size(), is(4));
         assertThat(args.get(0), is("jacoco:prepare-agent"));

@@ -12,11 +12,14 @@ public final class BeforeCheckoutContext extends StageContext {
 
     private boolean ranCheckout;
 
-    @CheckForNull private File checkoutDir;
+    @CheckForNull
+    private File checkoutDir;
 
-    @CheckForNull private File pluginDir;
+    @CheckForNull
+    private File pluginDir;
 
-    @CheckForNull private String parentFolder;
+    @CheckForNull
+    private String parentFolder;
 
     public BeforeCheckoutContext(
             @NonNull UpdateSite.Plugin plugin,

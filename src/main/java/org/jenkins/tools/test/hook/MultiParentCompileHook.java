@@ -43,11 +43,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         LOGGER.log(Level.INFO, "Executing multi-parent compile hook");
         PluginCompatTesterConfig config = context.getConfig();
 
-        runner =
-                new ExternalMavenRunner(
-                        config.getExternalMaven(),
-                        config.getMavenSettings(),
-                        config.getMavenArgs());
+        runner = new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
 
         File pluginDir = context.getPluginDir();
         LOGGER.log(Level.INFO, "Plugin dir is {0}", pluginDir);
@@ -55,11 +51,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
         // We need to compile before generating effective pom overriding jenkins.version
         // only if the plugin is not already compiled
         if (!context.ranCompile()) {
-            compile(
-                    pluginDir,
-                    config.getLocalCheckoutDir(),
-                    context.getParentFolder(),
-                    context.getPlugin().name);
+            compile(pluginDir, config.getLocalCheckoutDir(), context.getParentFolder(), context.getPlugin().name);
             context.setRanCompile(true);
         }
 
@@ -73,12 +65,11 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             PluginCompatTesterHook<BeforeCheckoutContext> checkoutHook =
                     (PluginCompatTesterHook<BeforeCheckoutContext>) hook;
             if (checkoutHook instanceof AbstractMultiParentHook
-                    && checkoutHook.check(
-                            new BeforeCheckoutContext(
-                                    context.getPlugin(),
-                                    context.getModel(),
-                                    context.getCoreCoordinates(),
-                                    context.getConfig()))) {
+                    && checkoutHook.check(new BeforeCheckoutContext(
+                            context.getPlugin(),
+                            context.getModel(),
+                            context.getCoreCoordinates(),
+                            context.getConfig()))) {
                 return true;
             }
         }
@@ -94,9 +85,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             String mavenModule = PluginCompatTester.getMavenModule(pluginName, path, runner);
             if (mavenModule == null || mavenModule.isBlank()) {
                 throw new IllegalStateException(
-                        String.format(
-                                "Unable to retrieve the Maven module for plugin %s on %s",
-                                pluginName, path));
+                        String.format("Unable to retrieve the Maven module for plugin %s on %s", pluginName, path));
             }
             runner.run(
                     Map.of(
@@ -129,8 +118,8 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
      * Checks if a plugin is a multiparent plugin with a SNAPSHOT project.version and without local
      * checkout directory overriden.
      */
-    private boolean isSnapshotMultiParentPlugin(
-            String parentFolder, File path, File localCheckoutDir) throws PomExecutionException {
+    private boolean isSnapshotMultiParentPlugin(String parentFolder, File path, File localCheckoutDir)
+            throws PomExecutionException {
         if (localCheckoutDir != null) {
             return false;
         }
@@ -138,18 +127,16 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             return false;
         }
         if (!path.getAbsolutePath().contains(parentFolder)) {
-            LOGGER.log(
-                    Level.WARNING,
-                    "Parent folder {0} not present in path {1}",
-                    new Object[] {parentFolder, path.getAbsolutePath()});
+            LOGGER.log(Level.WARNING, "Parent folder {0} not present in path {1}", new Object[] {
+                parentFolder, path.getAbsolutePath()
+            });
             return false;
         }
         File parentFile = path.getParentFile();
         if (!StringUtils.equals(parentFolder, parentFile.getName())) {
-            LOGGER.log(
-                    Level.WARNING,
-                    "{0} is not the parent folder of {1}",
-                    new Object[] {parentFolder, path.getAbsolutePath()});
+            LOGGER.log(Level.WARNING, "{0} is not the parent folder of {1}", new Object[] {
+                parentFolder, path.getAbsolutePath()
+            });
             return false;
         }
 

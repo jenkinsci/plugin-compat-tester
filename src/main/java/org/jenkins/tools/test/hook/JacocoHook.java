@@ -26,17 +26,15 @@ public class JacocoHook extends PluginCompatTesterHookBeforeExecution {
     @Override
     public void action(@NonNull BeforeExecutionContext context) {
         List<String> args = context.getArgs();
-        int index =
-                IntStream.range(0, args.size())
-                        .filter(i -> args.get(i).startsWith("hpi:"))
-                        .findFirst()
-                        .orElse(-1);
+        int index = IntStream.range(0, args.size())
+                .filter(i -> args.get(i).startsWith("hpi:"))
+                .findFirst()
+                .orElse(-1);
         if (index == -1) {
-            index =
-                    IntStream.range(0, args.size())
-                            .filter(i -> args.get(i).equals("surefire:test"))
-                            .findFirst()
-                            .orElse(-1);
+            index = IntStream.range(0, args.size())
+                    .filter(i -> args.get(i).equals("surefire:test"))
+                    .findFirst()
+                    .orElse(-1);
         }
         if (index != -1) {
             args.add(index, "jacoco:prepare-agent");

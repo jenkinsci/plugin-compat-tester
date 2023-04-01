@@ -10,9 +10,11 @@ import org.jenkins.tools.test.model.UpdateSite;
 
 public final class BeforeCompilationContext extends StageContext {
 
-    @CheckForNull private final File pluginDir;
+    @CheckForNull
+    private final File pluginDir;
 
-    @CheckForNull private final String parentFolder;
+    @CheckForNull
+    private final String parentFolder;
 
     private boolean ranCompile;
 

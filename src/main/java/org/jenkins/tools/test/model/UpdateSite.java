@@ -11,7 +11,8 @@ public final class UpdateSite {
     /** In-memory representation of the update center data. */
     public static final class Data {
         /** The latest jenkins.war. */
-        @NonNull public final Entry core;
+        @NonNull
+        public final Entry core;
 
         /** Plugins in the repository, keyed by their artifact IDs. */
         @NonNull
@@ -27,13 +28,16 @@ public final class UpdateSite {
 
     public static class Entry {
         /** Artifact ID. */
-        @NonNull public final String name;
+        @NonNull
+        public final String name;
 
         /** The version. */
-        @NonNull public final String version;
+        @NonNull
+        public final String version;
 
         /** Download URL. */
-        @NonNull public final String url;
+        @NonNull
+        public final String url;
 
         public Entry(@NonNull String name, @NonNull String version, @NonNull String url) {
             this.name = name;
@@ -44,13 +48,10 @@ public final class UpdateSite {
 
     public static class Plugin extends Entry {
         /** Human readable title of the plugin. */
-        @CheckForNull public final String title;
+        @CheckForNull
+        public final String title;
 
-        public Plugin(
-                @NonNull String name,
-                @NonNull String version,
-                @NonNull String url,
-                @CheckForNull String title) {
+        public Plugin(@NonNull String name, @NonNull String version, @NonNull String url, @CheckForNull String title) {
             super(name, version, url);
             this.title = title;
         }

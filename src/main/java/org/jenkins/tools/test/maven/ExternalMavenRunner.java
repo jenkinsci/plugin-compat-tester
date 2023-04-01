@@ -30,11 +30,14 @@ public class ExternalMavenRunner implements MavenRunner {
 
     private static final Logger LOGGER = Logger.getLogger(ExternalMavenRunner.class.getName());
 
-    @CheckForNull private final File externalMaven;
+    @CheckForNull
+    private final File externalMaven;
 
-    @CheckForNull private final File mavenSettings;
+    @CheckForNull
+    private final File mavenSettings;
 
-    @NonNull private final List<String> mavenArgs;
+    @NonNull
+    private final List<String> mavenArgs;
 
     /**
      * Constructor.
@@ -43,9 +46,7 @@ public class ExternalMavenRunner implements MavenRunner {
      *     PATH} will be used
      */
     public ExternalMavenRunner(
-            @CheckForNull File externalMaven,
-            @CheckForNull File mavenSettings,
-            @NonNull List<String> mavenArgs) {
+            @CheckForNull File externalMaven, @CheckForNull File mavenSettings, @NonNull List<String> mavenArgs) {
         this.externalMaven = externalMaven;
         this.mavenSettings = mavenSettings;
         this.mavenArgs = mavenArgs;
@@ -53,8 +54,7 @@ public class ExternalMavenRunner implements MavenRunner {
 
     @Override
     @SuppressFBWarnings(value = "COMMAND_INJECTION", justification = "intended behavior")
-    public void run(
-            Map<String, String> properties, File baseDirectory, File buildLogFile, String... args)
+    public void run(Map<String, String> properties, File baseDirectory, File buildLogFile, String... args)
             throws PomExecutionException {
         List<String> cmd = new ArrayList<>();
         if (externalMaven != null) {
@@ -76,19 +76,18 @@ public class ExternalMavenRunner implements MavenRunner {
         cmd.addAll(mavenArgs);
         cmd.addAll(List.of(args));
         if (buildLogFile != null) {
-            LOGGER.log(
-                    Level.INFO,
-                    "Running {0} in {1} >> {2}",
-                    new Object[] {String.join(" ", cmd), baseDirectory, buildLogFile});
+            LOGGER.log(Level.INFO, "Running {0} in {1} >> {2}", new Object[] {
+                String.join(" ", cmd), baseDirectory, buildLogFile
+            });
         } else {
-            LOGGER.log(
-                    Level.INFO,
-                    "Running {0} in {1}",
-                    new Object[] {String.join(" ", cmd), baseDirectory});
+            LOGGER.log(Level.INFO, "Running {0} in {1}", new Object[] {String.join(" ", cmd), baseDirectory});
         }
         Process p;
         try {
-            p = new ProcessBuilder(cmd).directory(baseDirectory).redirectErrorStream(true).start();
+            p = new ProcessBuilder(cmd)
+                    .directory(baseDirectory)
+                    .redirectErrorStream(true)
+                    .start();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -103,19 +102,17 @@ public class ExternalMavenRunner implements MavenRunner {
         }
         if (exitStatus != 0) {
             throw new PomExecutionException(
-                    String.join(" ", cmd)
-                            + " in "
-                            + baseDirectory
-                            + " failed with exit status "
-                            + exitStatus);
+                    String.join(" ", cmd) + " in " + baseDirectory + " failed with exit status " + exitStatus);
         }
     }
 
     private static class MavenGobbler extends Thread {
 
-        @NonNull private final Process p;
+        @NonNull
+        private final Process p;
 
-        @CheckForNull private final File buildLogFile;
+        @CheckForNull
+        private final File buildLogFile;
 
         public MavenGobbler(@NonNull Process p, @Nullable File buildLogFile) {
             this.p = p;
@@ -127,10 +124,9 @@ public class ExternalMavenRunner implements MavenRunner {
             try (InputStream is = p.getInputStream();
                     Reader isr = new InputStreamReader(is, Charset.defaultCharset());
                     BufferedReader r = new BufferedReader(isr);
-                    OutputStream os =
-                            buildLogFile == null
-                                    ? OutputStream.nullOutputStream()
-                                    : new FileOutputStream(buildLogFile, true);
+                    OutputStream os = buildLogFile == null
+                            ? OutputStream.nullOutputStream()
+                            : new FileOutputStream(buildLogFile, true);
                     Writer osw = new OutputStreamWriter(os, Charset.defaultCharset());
                     PrintWriter w = new PrintWriter(osw)) {
                 String line;

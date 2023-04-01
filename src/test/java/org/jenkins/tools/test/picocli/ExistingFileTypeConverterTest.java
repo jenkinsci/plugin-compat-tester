@@ -23,9 +23,7 @@ class ExistingFileTypeConverterTest {
     void testMissingFile(@TempDir File f) throws Exception {
         ExistingFileTypeConverter converter = new ExistingFileTypeConverter();
         TypeConversionException tce =
-                assertThrows(
-                        TypeConversionException.class,
-                        () -> converter.convert(new File(f, "whatever").getPath()));
+                assertThrows(TypeConversionException.class, () -> converter.convert(new File(f, "whatever").getPath()));
         assertThat(tce.getMessage(), containsString("whatever"));
     }
 }

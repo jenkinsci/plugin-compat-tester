@@ -14,5 +14,4 @@ package org.jenkins.tools.test.model.hook;
  * hook that performs the compilation must check before if it has already been performed by another
  * hook and decide on the consequences.
  */
-public abstract class PluginCompatTesterHookBeforeCompile
-        extends PluginCompatTesterHook<BeforeCompilationContext> {}
+public abstract class PluginCompatTesterHookBeforeCompile extends PluginCompatTesterHook<BeforeCompilationContext> {}

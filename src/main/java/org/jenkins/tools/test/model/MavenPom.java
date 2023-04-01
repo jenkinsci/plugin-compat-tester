@@ -145,10 +145,7 @@ public class MavenPom {
 
             Element groupIdElem = mavenDependency.element(GROUP_ID_ELEMENT);
             if (groupIdElem != null && groupId.equalsIgnoreCase(groupIdElem.getText())) {
-                LOGGER.log(
-                        Level.WARNING,
-                        "Removing dependency on {0}:{1}",
-                        new Object[] {groupId, artifactId});
+                LOGGER.log(Level.WARNING, "Removing dependency on {0}:{1}", new Object[] {groupId, artifactId});
                 dependencies.remove(mavenDependency);
             }
         }
@@ -246,15 +243,7 @@ public class MavenPom {
             dependencies = doc.getRootElement().addElement("dependencies");
         }
 
-        manageDependencies(
-                toAdd,
-                toReplace,
-                toAddTest,
-                toReplaceTest,
-                pluginGroupIds,
-                doc,
-                dependencies,
-                true);
+        manageDependencies(toAdd, toReplace, toAddTest, toReplaceTest, pluginGroupIds, doc, dependencies, true);
         Element profiles = doc.getRootElement().element("profiles");
         if (profiles != null) {
             Map<String, VersionNumber> empty = new HashMap<>();
@@ -266,14 +255,7 @@ public class MavenPom {
                     continue;
                 }
                 manageDependencies(
-                        empty,
-                        toReplace,
-                        empty,
-                        toReplaceTest,
-                        pluginGroupIds,
-                        doc,
-                        profileDependencies,
-                        false);
+                        empty, toReplace, empty, toReplaceTest, pluginGroupIds, doc, profileDependencies, false);
             }
         }
         writeDocument(pom, doc);
@@ -327,7 +309,8 @@ public class MavenPom {
                     String property = version.getTextTrim().replace("${", "").replace("}", "");
                     Element propertyToUpdate = null;
                     for (Element mavenProperty : properties.elements()) {
-                        if (StringUtils.equals(property, mavenProperty.getQName().getName())) {
+                        if (StringUtils.equals(
+                                property, mavenProperty.getQName().getName())) {
                             propertyToUpdate = mavenProperty;
                             break;
                         }
@@ -381,10 +364,7 @@ public class MavenPom {
 
     /** Add the given new plugins to the pom file. */
     private void addPlugins(
-            Map<String, VersionNumber> adding,
-            Map<String, String> pluginGroupIds,
-            Element dependencies,
-            String scope) {
+            Map<String, VersionNumber> adding, Map<String, String> pluginGroupIds, Element dependencies, String scope) {
         for (Map.Entry<String, VersionNumber> dep : adding.entrySet()) {
             Element dependency = dependencies.addElement("dependency");
             String group = pluginGroupIds.get(dep.getKey());

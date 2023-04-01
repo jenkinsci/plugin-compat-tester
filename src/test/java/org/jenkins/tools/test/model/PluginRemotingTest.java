@@ -14,19 +14,12 @@ class PluginRemotingTest {
 
     @Test
     void testStringInterpolation() {
-        assertThat(
-                PluginRemoting.interpolateString("${project.artifactId}", "wibble"), is("wibble"));
-        assertThat(
-                PluginRemoting.interpolateString("prefix-${project.artifactId}", "blah"),
-                is("prefix-blah"));
-        assertThat(
-                PluginRemoting.interpolateString("${project.artifactId}suffix", "something"),
-                is("somethingsuffix"));
+        assertThat(PluginRemoting.interpolateString("${project.artifactId}", "wibble"), is("wibble"));
+        assertThat(PluginRemoting.interpolateString("prefix-${project.artifactId}", "blah"), is("prefix-blah"));
+        assertThat(PluginRemoting.interpolateString("${project.artifactId}suffix", "something"), is("somethingsuffix"));
 
         // no interpolation - contains neither ${artifactId} not ${project.artifactId}
-        assertThat(
-                PluginRemoting.interpolateString("${aartifactId}suffix", "something"),
-                is("${aartifactId}suffix"));
+        assertThat(PluginRemoting.interpolateString("${aartifactId}suffix", "something"), is("${aartifactId}suffix"));
         assertThat(
                 PluginRemoting.interpolateString("${projectXartifactId}suffix", "something"),
                 is("${projectXartifactId}suffix"));
@@ -41,9 +34,7 @@ class PluginRemotingTest {
         assertThat(model.getGroupId(), is("com.example.jenkins"));
         assertThat(model.getArtifactId(), is("example"));
         assertThat(model.getPackaging(), is("hpi"));
-        assertThat(
-                model.getScm().getConnection(),
-                is("scm:git:https://jenkins.example.com/example-plugin.git"));
+        assertThat(model.getScm().getConnection(), is("scm:git:https://jenkins.example.com/example-plugin.git"));
         assertThat(model.getScm().getTag(), is("example-4.1"));
     }
 
@@ -58,9 +49,7 @@ class PluginRemotingTest {
         assertThat(model.getGroupId(), nullValue());
         assertThat(model.getArtifactId(), is("example"));
         assertThat(model.getPackaging(), is("hpi"));
-        assertThat(
-                model.getScm().getConnection(),
-                is("scm:git:https://jenkins.example.com/example-plugin.git"));
+        assertThat(model.getScm().getConnection(), is("scm:git:https://jenkins.example.com/example-plugin.git"));
         assertThat(model.getScm().getTag(), is("example-4.1"));
     }
 
@@ -69,8 +58,7 @@ class PluginRemotingTest {
         File pomFile = new File(getClass().getResource("negative/pom.xml").toURI());
         PluginRemoting pluginRemoting = new PluginRemoting(pomFile);
         PluginSourcesUnavailableException e =
-                assertThrows(
-                        PluginSourcesUnavailableException.class, pluginRemoting::retrieveModel);
+                assertThrows(PluginSourcesUnavailableException.class, pluginRemoting::retrieveModel);
         assertThat(e.getMessage(), is("Failed to parse pom.xml"));
     }
 }

@@ -32,10 +32,10 @@ public class PluginCompatTesterHooks {
     public static final Map<Stage, List<PluginCompatTesterHook<StageContext>>> hooksByStage =
             new EnumMap<>(Stage.class);
 
-    @NonNull private final List<String> excludeHooks;
+    @NonNull
+    private final List<String> excludeHooks;
 
-    public PluginCompatTesterHooks(
-            @NonNull List<File> externalJars, @NonNull List<String> excludeHooks) {
+    public PluginCompatTesterHooks(@NonNull List<File> externalJars, @NonNull List<String> excludeHooks) {
         this.excludeHooks = excludeHooks;
         setupExternalClassLoaders(externalJars);
         setupHooksByStage();
@@ -62,8 +62,7 @@ public class PluginCompatTesterHooks {
         classLoader = new URLClassLoader(urls.toArray(new URL[0]), classLoader);
     }
 
-    public void runBeforeCheckout(@NonNull BeforeCheckoutContext context)
-            throws PluginCompatibilityTesterException {
+    public void runBeforeCheckout(@NonNull BeforeCheckoutContext context) throws PluginCompatibilityTesterException {
         runHooks(context);
     }
 
@@ -72,8 +71,7 @@ public class PluginCompatTesterHooks {
         runHooks(context);
     }
 
-    public void runBeforeExecution(@NonNull BeforeExecutionContext context)
-            throws PluginCompatibilityTesterException {
+    public void runBeforeExecution(@NonNull BeforeExecutionContext context) throws PluginCompatibilityTesterException {
         runHooks(context);
     }
 
@@ -97,8 +95,7 @@ public class PluginCompatTesterHooks {
     private List<PluginCompatTesterHook<StageContext>> findHooks(
             Class<? extends PluginCompatTesterHook<? extends StageContext>> clazz) {
         List<PluginCompatTesterHook<StageContext>> sortedHooks = new ArrayList<>();
-        for (PluginCompatTesterHook<? extends StageContext> hook :
-                ServiceLoader.load(clazz, classLoader)) {
+        for (PluginCompatTesterHook<? extends StageContext> hook : ServiceLoader.load(clazz, classLoader)) {
             sortedHooks.add((PluginCompatTesterHook<StageContext>) hook);
         }
         sortedHooks.sort(Comparator.comparing(hook -> hook.getClass().getName()));
