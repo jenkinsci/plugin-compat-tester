@@ -46,7 +46,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
@@ -106,8 +105,7 @@ public class PluginCompatTester {
         // and group by Git URL
         Map<String, List<PluginMetadata>> pluginsByrepo;
         try {
-            pluginsByrepo =
-                    filterPluginList(pluginMetadataList)
+            pluginsByrepo = pluginMetadataList.stream()
                             .map(new RunAndMapBeforeCheckoutHooks(pcth, coreVersion, config))
                             .collect(
                                     Collectors.groupingBy(
@@ -164,37 +162,6 @@ public class PluginCompatTester {
         if (lastException != null) {
             throw lastException;
         }
-    }
-
-    /**
-     * create a stream of pluginMetadata where any excluded plugins are ommited, and iff provided
-     * only included plugins are included
-     */
-    private Stream<PluginMetadata> filterPluginList(List<PluginMetadata> pluginMetadataList) {
-        return pluginMetadataList.stream()
-                .filter(
-                        t -> {
-                            if (config.getExcludePlugins().contains(t.getPluginId())) {
-                                LOGGER.log(
-                                        Level.INFO,
-                                        "Plugin ''{0}'' ({1}) in excluded plugins; skipping",
-                                        new Object[] {t.getName(), t.getPluginId()});
-                                return false;
-                            }
-                            return true;
-                        })
-                .filter(
-                        t -> {
-                            if (!config.getIncludePlugins().isEmpty()
-                                    && config.getIncludePlugins().contains(t.getPluginId())) {
-                                LOGGER.log(
-                                        Level.INFO,
-                                        "Plugin ''{0}'' ({1}) not in included plugins; skipping",
-                                        new Object[] {t.getName(), t.getPluginId()});
-                                return false;
-                            }
-                            return true;
-                        });
     }
 
     private static File createBuildLogFile(

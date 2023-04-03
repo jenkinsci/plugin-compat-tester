@@ -14,8 +14,6 @@ import org.kohsuke.MetaInfServices;
 // https://github.com/jenkinsci/maven-hpi-plugin/pull/436
 public class LegacyMultimoduleExtractor extends PluginMetadataExtractor {
 
-    // delete once all non standard multi module plugins are using
-    // https://github.com/jenkinsci/maven-hpi-plugin/pull/436
     private final Set<String> groupIdsWithNameAsModule =
             Set.of("io.jenkins.blueocean", "io.jenkins.plugins.mina-sshd-api");
 
@@ -25,19 +23,12 @@ public class LegacyMultimoduleExtractor extends PluginMetadataExtractor {
         if (model.getScm() == null) {
             return Optional.empty();
         }
-        String scm = model.getScm().getConnection();
-        if (scm.startsWith("scm:git:")) {
-            scm = scm.substring(8);
-        } else {
-            throw new MetadataExtractionException(
-                    "SCM URL " + scm + " is not supported by the pct - only git urls are allowed");
-        }
 
         PluginMetadata.Builder builder =
                 new PluginMetadata.Builder()
                         .withPluginId(model.getArtifactId())
                         .withName(model.getName())
-                        .withSCMURL(scm)
+                        .withSCMURL(model.getScm().getConnection())
                         .withGitCommit(model.getScm().getTag())
                         .withVersion(model.getVersion() == null ? model.getParent().getVersion() : model.getVersion());
 
