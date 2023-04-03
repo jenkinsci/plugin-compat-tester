@@ -20,7 +20,7 @@ class WarningsNGExecutionHookTest {
         PluginMetadata pm =
                 new PluginMetadata.Builder()
                         .withGitCommit("ignored")
-                        .withScmUrl("ignored")
+                        .withGitURL("ignored")
                         .withVersion("ignored")
                         .withPluginId("warnings-ng")
                         .build();

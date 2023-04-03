@@ -3,7 +3,7 @@ package org.jenkins.tools.test.model.plugin_metadata;
 import java.util.Optional;
 import java.util.jar.Manifest;
 import org.apache.maven.model.Model;
-import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
+import org.jenkins.tools.test.exception.MetadataExtractionException;
 
 /**
  * @author jnord
@@ -19,5 +19,5 @@ public abstract class PluginMetadataExtractor {
      */
     public abstract Optional<PluginMetadata> extractMetadata(
             String pluginId, Manifest manifest, Model model)
-            throws PluginSourcesUnavailableException;
+            throws MetadataExtractionException;
 }

@@ -22,7 +22,8 @@ class WarUtilsTest {
         File megaWar = new File("target", "megawar.war");
         List<PluginMetadata> pms =
                 WarUtils.extractPluginMetadataFromWar(
-                        megaWar, PluginMetadataHooks.loadExtractors(Collections.emptyList()));
+                        megaWar, PluginMetadataHooks.loadExtractors(Collections.emptyList()),
+                        Collections.emptySet(), Collections.emptySet());
         assertThat(pms, hasSize(1));
         PluginMetadata pm = pms.get(0);
 

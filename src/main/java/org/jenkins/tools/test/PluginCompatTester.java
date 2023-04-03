@@ -97,7 +97,9 @@ public class PluginCompatTester {
         List<PluginMetadata> pluginMetadataList =
                 WarUtils.extractPluginMetadataFromWar(
                         config.getWar(),
-                        PluginMetadataHooks.loadExtractors(config.getExternalHooksJars()));
+                        PluginMetadataHooks.loadExtractors(config.getExternalHooksJars()),
+                        config.getIncludePlugins(),
+                        config.getExcludePlugins());
 
         // filter any plugins that are not being tested and group by git URL
         // and run through the pre-checkout hooks
@@ -109,7 +111,7 @@ public class PluginCompatTester {
                             .map(new RunAndMapBeforeCheckoutHooks(pcth, coreVersion, config))
                             .collect(
                                     Collectors.groupingBy(
-                                            PluginMetadata::getScmUrl,
+                                            PluginMetadata::getGitURL,
                                             HashMap::new,
                                             Collectors.toList()));
         } catch (WrappedPluginCompatabilityException e) {

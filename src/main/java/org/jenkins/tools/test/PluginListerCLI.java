@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,18 +57,39 @@ public class PluginListerCLI implements Callable<Integer> {
             description = "location of the file to write containing the plugin and reposiries.")
     private File output;
 
+    @CheckForNull
+    @CommandLine.Option(
+            names = "--include-plugins",
+            split = ",",
+            arity = "1",
+            paramLabel = "plugin",
+            description =
+                    "Comma-separated list of plugin artifact IDs to test. If not set, every plugin in the WAR will be listed.")
+    private Set<String> includePlugins;
+
+    @CheckForNull
+    @CommandLine.Option(
+            names = "--exclude-plugins",
+            split = ",",
+            arity = "1",
+            paramLabel = "plugin",
+            description =
+                    "Comma-separated list of plugin artifact IDs to skip. If not set, only the plugins specified by --plugins will be listed (or all plugins otherwise).")
+    private Set<String> excludePlugins;
+
+    
     @Override
     public Integer call() throws PluginCompatibilityTesterException {
         List<PluginMetadataExtractor> metadataExtractors =
                 PluginMetadataHooks.loadExtractors(externalHooksJars);
 
         List<PluginMetadata> pluginMetadataList =
-                WarUtils.extractPluginMetadataFromWar(warFile, metadataExtractors);
+                WarUtils.extractPluginMetadataFromWar(warFile, metadataExtractors, includePlugins, excludePlugins);
 
         // group the plugins into their actual repositories.
         Map<String, List<PluginMetadata>> metaDataByRepoMap =
                 pluginMetadataList.stream()
-                        .collect(Collectors.groupingBy(PluginMetadata::getScmUrl));
+                        .collect(Collectors.groupingBy(PluginMetadata::getGitURL));
 
         if (metaDataByRepoMap.isEmpty()) {
             LOGGER.log(Level.WARNING, "found no plugins in ", warFile);

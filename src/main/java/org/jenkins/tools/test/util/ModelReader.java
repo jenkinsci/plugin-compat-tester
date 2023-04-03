@@ -26,9 +26,7 @@ public class ModelReader {
      * @return the maven model for the plugin as read from the META-INF directory.
      * @throws PluginSourcesUnavailableException if the entry could not be loaded or found.
      * @throws IOException
-     * @deprecated This is here for legacy support and is likely be removed in a future version. 
      */
-    @Deprecated
     public static Model getPluginsModelFromHpi(
             String groupId, String artifactId, JarInputStream jarInputStream)
             throws PluginSourcesUnavailableException, IOException {

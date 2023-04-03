@@ -14,8 +14,11 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.apache.maven.model.Model;
+import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.WrappedPluginCompatabilityException;
@@ -23,6 +26,8 @@ import org.jenkins.tools.test.model.hook.HookOrderComprator;
 import org.jenkins.tools.test.util.ModelReader;
 
 public class PluginMetadataHooks {
+
+    private static final Logger LOGGER = Logger.getLogger(PluginMetadataHooks.class.getName());
 
     public static List<PluginMetadataExtractor> loadExtractors(List<File> externalJars) {
         ClassLoader cl = setupExternalClassLoaders(externalJars);
@@ -78,6 +83,7 @@ public class PluginMetadataHooks {
         }
         try {
             // once all plugins have adopted https://github.com/jenkinsci/maven-hpi-plugin/pull/436 this can be simpliied
+            LOGGER.log(Level.INFO, "Extracting metadata about {0}", pluginId);
             for (PluginMetadataExtractor e : extractors) {
                 Optional<PluginMetadata> optionalMetadata =
                         e.extractMetadata(pluginId, manifest, model);
@@ -85,7 +91,7 @@ public class PluginMetadataHooks {
                     return optionalMetadata.get();
                 }
             }
-        } catch (PluginSourcesUnavailableException e) {
+        } catch (MetadataExtractionException e) {
             throw new WrappedPluginCompatabilityException(e);
         }
         throw new WrappedPluginCompatabilityException(

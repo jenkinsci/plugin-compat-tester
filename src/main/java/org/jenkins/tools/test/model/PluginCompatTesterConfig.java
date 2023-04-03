@@ -32,6 +32,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * POJO used to configure Plugin Compatibility Tester execution
@@ -46,13 +47,13 @@ public class PluginCompatTesterConfig {
     // A working directory where the tested plugin's sources will be checked out
     @NonNull private final File workingDir;
 
-    // List of plugin artifact ids on which tests will be performed
-    // If empty, tests will be performed on every plugins retrieved from update center
-    @NonNull private List<String> includePlugins = List.of();
+    // Set of plugin artifact ids on which tests will be performed
+    // If empty, tests will be performed on every plugins retrieved from the war
+    @NonNull private Set<String> includePlugins = Set.of();
 
-    // List of plugin artifact ids on which tests will be not performed
+    // Set of plugin artifact ids on which tests will be not performed
     // If empty, tests will be performed on every includePlugins found
-    @NonNull private List<String> excludePlugins = List.of();
+    @NonNull private Set<String> excludePlugins = Set.of();
 
     // List of hooks that will not be executed
     // If empty, all hooks will be executed
@@ -98,21 +99,21 @@ public class PluginCompatTesterConfig {
     }
 
     @NonNull
-    public List<String> getIncludePlugins() {
+    public Set<String> getIncludePlugins() {
         return includePlugins;
     }
 
-    public void setIncludePlugins(@NonNull List<String> includePlugins) {
-        this.includePlugins = List.copyOf(includePlugins);
+    public void setIncludePlugins(@NonNull Set<String> includePlugins) {
+        this.includePlugins = Set.copyOf(includePlugins);
     }
 
     @NonNull
-    public List<String> getExcludePlugins() {
+    public Set<String> getExcludePlugins() {
         return excludePlugins;
     }
 
-    public void setExcludePlugins(@NonNull List<String> excludePlugins) {
-        this.excludePlugins = List.copyOf(excludePlugins);
+    public void setExcludePlugins(@NonNull Set<String> excludePlugins) {
+        this.excludePlugins = Set.copyOf(excludePlugins);
     }
 
     @NonNull

@@ -2,6 +2,7 @@ package org.jenkins.tools.test.model.plugin_metadata;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import java.util.Objects;
+import org.jenkins.tools.test.exception.MetadataExtractionException;
 
 /**
  * Metadata representing a specific plugin for testing.
@@ -9,19 +10,19 @@ import java.util.Objects;
 public class PluginMetadata {
 
     private final String pluginId;
-    private final String scmUrl;
+    private final String gitURL;
     private final String modulePath;
     private final String gitCommit;
     private final String name;
     private final String version;
 
     private PluginMetadata(Builder builder) {
-        this.pluginId = Objects.requireNonNull(builder.pluginId);
-        this.scmUrl = Objects.requireNonNull(builder.scmUrl);
+        this.pluginId = Objects.requireNonNull(builder.pluginId, "pluginId may not be null");
+        this.gitURL = Objects.requireNonNull(builder.gitURL, "gitURL may not be null");
         this.modulePath = builder.modulePath;
         this.gitCommit = builder.gitCommit;
         this.name = builder.name;
-        this.version = Objects.requireNonNull(builder.version);
+        this.version = Objects.requireNonNull(builder.version, "version may not be null");
     }
 
     /** The unique plugin id for this plugin. */
@@ -29,9 +30,9 @@ public class PluginMetadata {
         return pluginId;
     }
 
-    /** The git URL for the source repository that contains this plugin, may be {@code null} for a local checkout. */
-    public String getScmUrl() {
-        return scmUrl;
+    /** The git URL for the source repository that contains this plugin, may be file based for a local checkout. */
+    public String getGitURL() {
+        return gitURL;
     }
 
     /**
@@ -63,7 +64,7 @@ public class PluginMetadata {
 
     public static final class Builder {
         private String pluginId;
-        private String scmUrl;
+        private String gitURL;
         private String modulePath;
         private String gitCommit;
         private String name;
@@ -73,7 +74,7 @@ public class PluginMetadata {
 
         public Builder(PluginMetadata from) {
             this.pluginId = from.pluginId;
-            this.scmUrl = from.scmUrl;
+            this.gitURL = from.gitURL;
             this.modulePath = from.modulePath;
             this.gitCommit = from.gitCommit;
             this.name = from.name;
@@ -85,8 +86,21 @@ public class PluginMetadata {
             return this;
         }
 
-        public Builder withScmUrl(String scmUrl) {
-            this.scmUrl = scmUrl;
+        /**
+         * Conviencice method that strips "scm:git:" from the URL and sets the git URL.
+         * @param scmUrl the maven model SCM URL 
+         * @throws MetadataExtractionException the the underlying SCM is not a git URL
+         * @see #withGitURL(String)
+         */
+        public Builder withSCMURL(String scmUrl) throws MetadataExtractionException {
+            if (scmUrl.startsWith("scm:git:")) {
+                return withGitURL(scmUrl.substring(8));
+            }
+            throw new MetadataExtractionException("SCM URL" + scmUrl + " is not supported, only git SCM urls are supported");
+        }
+
+        public Builder withGitURL(String gitURL) {
+            this.gitURL = gitURL;
             return this;
         }
 

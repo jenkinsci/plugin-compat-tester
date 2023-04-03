@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.jar.Manifest;
 import org.apache.maven.model.Model;
-import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
+import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.model.hook.HookOrder;
 import org.kohsuke.MetaInfServices;
 
@@ -21,13 +21,15 @@ public class LegacyMultimoduleExtractor extends PluginMetadataExtractor {
 
     @Override
     public Optional<PluginMetadata> extractMetadata(String pluginId, Manifest manifest, Model model)
-            throws PluginSourcesUnavailableException {
-
+            throws MetadataExtractionException {
+        if (model.getScm() == null) {
+            return Optional.empty();
+        }
         String scm = model.getScm().getConnection();
         if (scm.startsWith("scm:git:")) {
             scm = scm.substring(8);
         } else {
-            throw new PluginSourcesUnavailableException(
+            throw new MetadataExtractionException(
                     "SCM URL " + scm + " is not supported by the pct - only git urls are allowed");
         }
 
@@ -35,9 +37,9 @@ public class LegacyMultimoduleExtractor extends PluginMetadataExtractor {
                 new PluginMetadata.Builder()
                         .withPluginId(model.getArtifactId())
                         .withName(model.getName())
-                        .withScmUrl(scm)
+                        .withSCMURL(scm)
                         .withGitCommit(model.getScm().getTag())
-                        .withVersion(model.getVersion());
+                        .withVersion(model.getVersion() == null ? model.getParent().getVersion() : model.getVersion());
 
         String groupId = manifest.getMainAttributes().getValue("Group-Id");
 

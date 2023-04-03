@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import org.apache.maven.model.Model;
-import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
+import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.model.hook.HookOrder;
 import org.kohsuke.MetaInfServices;
 
@@ -29,7 +29,7 @@ public class ModernPluginMetaDataExtractor extends PluginMetadataExtractor {
 
     @Override
     public Optional<PluginMetadata> extractMetadata(String pluginId, Manifest manifest, Model model)
-            throws PluginSourcesUnavailableException {
+            throws MetadataExtractionException {
         // all of the information os stored in the plugins Manifest
         Attributes mainAttributes = manifest.getMainAttributes();
 
@@ -37,11 +37,12 @@ public class ModernPluginMetaDataExtractor extends PluginMetadataExtractor {
 
         if (mainAttributes.containsKey(GIT_REVISION_ATTRIBUTE)) {
             // we are new enought to be a modern plugin
+
             return Optional.of(
                     new PluginMetadata.Builder()
                             .withPluginId(mainAttributes.getValue(PLUGIN_ID))
                             .withName(mainAttributes.getValue(PLUGIN_NAME))
-                            .withScmUrl(mainAttributes.getValue(GIT_SCM_URL))
+                            .withSCMURL(mainAttributes.getValue(GIT_SCM_URL))
                             .withGitCommit(mainAttributes.getValue(GIT_REVISION_ATTRIBUTE))
                             .withModulePath(mainAttributes.getValue(MAVEN_MODULE_LOCATION))
                             .withVersion(mainAttributes.getValue(PLUGIN_VERSION))
