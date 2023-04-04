@@ -9,6 +9,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
@@ -20,6 +23,8 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata.Builder;
 
 public class LocalCheckoutMetadataExtractor {
+
+    private static final Logger LOGGER = Logger.getLogger(LocalCheckoutMetadataExtractor.class.getName());
 
     // artifactId\tversion\t\directory
     private static Pattern p =
@@ -34,6 +39,8 @@ public class LocalCheckoutMetadataExtractor {
                         config.getExternalMaven(),
                         config.getMavenSettings(),
                         config.getMavenArgs());
+        Set<String> excludedPlugins = config.getExcludePlugins();
+        Set<String> includedPlugins = config.getIncludePlugins();
         try {
             runner.run(
                     Map.of("output", log.getAbsolutePath()),
@@ -50,7 +57,19 @@ public class LocalCheckoutMetadataExtractor {
             List<PluginMetadata> metadata = new ArrayList<>();
             for (String line : lines) {
                 if (!line.isBlank()) {
-                    metadata.add(toPluginMetadata(localCheckoutDir, line.trim()));
+                    PluginMetadata pm = toPluginMetadata(localCheckoutDir, line.trim());
+                    if (excludedPlugins != null && excludedPlugins.contains(pm.getPluginId())) {
+                        LOGGER.log(Level.INFO,
+                                "Plugin {0} in excluded plugins; skipping",
+                                pm.getPluginId());
+                    } else  if (includedPlugins != null && !includedPlugins.isEmpty() && !includedPlugins.contains(pm.getPluginId())) {
+                        LOGGER.log(
+                                Level.INFO,
+                                "Plugin {0} not in included plugins; skipping",
+                                pm.getPluginId());
+                    } else {
+                        metadata.add(toPluginMetadata(localCheckoutDir, line.trim()));
+                    }
                 }
             }
             if (metadata.isEmpty()) {
@@ -83,7 +102,7 @@ public class LocalCheckoutMetadataExtractor {
         builder.withVersion(m.group("version"));
         builder.withGitURL(cloneDirectory.toURI().toString());
         builder.withModulePath(relativePath(cloneDirectory, m.group("path")));
-        
+
         return builder.build();
     }
 
