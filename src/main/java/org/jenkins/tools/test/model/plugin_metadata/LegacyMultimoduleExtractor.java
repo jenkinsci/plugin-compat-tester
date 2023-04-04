@@ -24,13 +24,12 @@ public class LegacyMultimoduleExtractor extends PluginMetadataExtractor {
             return Optional.empty();
         }
 
-        PluginMetadata.Builder builder =
-                new PluginMetadata.Builder()
-                        .withPluginId(model.getArtifactId())
-                        .withName(model.getName())
-                        .withSCMURL(model.getScm().getConnection())
-                        .withGitCommit(model.getScm().getTag())
-                        .withVersion(model.getVersion() == null ? model.getParent().getVersion() : model.getVersion());
+        PluginMetadata.Builder builder = new PluginMetadata.Builder()
+                .withPluginId(model.getArtifactId())
+                .withName(model.getName())
+                .withSCMURL(model.getScm().getConnection())
+                .withGitCommit(model.getScm().getTag())
+                .withVersion(model.getVersion() == null ? model.getParent().getVersion() : model.getVersion());
 
         String groupId = manifest.getMainAttributes().getValue("Group-Id");
 
@@ -49,9 +48,7 @@ public class LegacyMultimoduleExtractor extends PluginMetadataExtractor {
             return Optional.of(builder.withModulePath(pluginId).build());
         }
         // https://github.com/jenkinsci/declarative-pipeline-migration-assistant-plugin
-        if (Set.of(
-                        "declarative-pipeline-migration-assistant",
-                        "declarative-pipeline-migration-assistant-api")
+        if (Set.of("declarative-pipeline-migration-assistant", "declarative-pipeline-migration-assistant-api")
                 .contains(pluginId)) {
             return Optional.of(builder.withModulePath(pluginId).build());
         }

@@ -35,17 +35,10 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
     public boolean check(@NonNull BeforeExecutionContext context) {
         PluginCompatTesterConfig config = context.getConfig();
         MavenRunner runner =
-                new ExternalMavenRunner(
-                        config.getExternalMaven(),
-                        config.getMavenSettings(),
-                        config.getMavenArgs());
+                new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
         try {
-            String version =
-                    getPropertyVersion(
-                            context.getCloneDirectory(),
-                            context.getPluginMetadata().getModulePath(),
-                            getProperty(),
-                            runner);
+            String version = getPropertyVersion(
+                    context.getCloneDirectory(), context.getPluginMetadata().getModulePath(), getProperty(), runner);
             return new VersionNumber(version).isOlderThan(new VersionNumber(getMinimumVersion()));
         } catch (PomExecutionException e) {
             return false;
@@ -57,8 +50,7 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
         context.getArgs().add(String.format("-D%s=%s", getProperty(), getMinimumVersion()));
     }
 
-    private static String getPropertyVersion(
-            File cloneDirectory, String module, String property, MavenRunner runner)
+    private static String getPropertyVersion(File cloneDirectory, String module, String property, MavenRunner runner)
             throws PomExecutionException {
         Path log = cloneDirectory.toPath().resolve(property + ".log");
         runner.run(

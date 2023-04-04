@@ -8,7 +8,8 @@ import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
 
 public final class BeforeCompilationContext extends StageContext {
 
-    @CheckForNull private final File cloneDirectory;
+    @CheckForNull
+    private final File cloneDirectory;
 
     public BeforeCompilationContext(
             @NonNull PluginMetadata pluginMetadata,

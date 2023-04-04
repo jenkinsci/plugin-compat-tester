@@ -27,8 +27,7 @@ public class ModelReader {
      * @throws PluginSourcesUnavailableException if the entry could not be loaded or found.
      * @throws IOException
      */
-    public static Model getPluginsModelFromHpi(
-            String groupId, String artifactId, JarInputStream jarInputStream)
+    public static Model getPluginsModelFromHpi(String groupId, String artifactId, JarInputStream jarInputStream)
             throws PluginSourcesUnavailableException, IOException {
         String pom = getPomFromHpi(groupId, artifactId, jarInputStream);
         Model model;
@@ -50,8 +49,7 @@ public class ModelReader {
         return model;
     }
 
-    private static String getPomFromHpi(
-            String groupId, String artifactId, JarInputStream jarInputStream)
+    private static String getPomFromHpi(String groupId, String artifactId, JarInputStream jarInputStream)
             throws PluginSourcesUnavailableException, IOException {
         final String entryName = "META-INF/maven/" + groupId + "/" + artifactId + "/pom.xml";
         JarEntry jarEntry;

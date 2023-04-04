@@ -19,8 +19,7 @@ public class VersionProvider implements CommandLine.IVersionProvider {
             justification =
                     "spotbugs false poisitive due to try-with-resources / https://github.com/spotbugs/spotbugs/issues/2191")
     private static String getPCTVersionString() {
-        try (InputStream manifestStream =
-                VersionProvider.class.getResourceAsStream("/META-INF/MANIFEST.MF")) {
+        try (InputStream manifestStream = VersionProvider.class.getResourceAsStream("/META-INF/MANIFEST.MF")) {
             if (manifestStream != null) {
                 Manifest mf = new Manifest(manifestStream);
                 System.out.println(mf);

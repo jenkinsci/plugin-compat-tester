@@ -31,11 +31,10 @@ public class PluginMetadataHooks {
 
     public static List<PluginMetadataExtractor> loadExtractors(List<File> externalJars) {
         ClassLoader cl = setupExternalClassLoaders(externalJars);
-        List<PluginMetadataExtractor> extractors =
-                ServiceLoader.load(PluginMetadataExtractor.class, cl).stream()
-                        .map(e -> e.get())
-                        .sorted(new HookOrderComprator())
-                        .collect(Collectors.toList());
+        List<PluginMetadataExtractor> extractors = ServiceLoader.load(PluginMetadataExtractor.class, cl).stream()
+                .map(e -> e.get())
+                .sorted(new HookOrderComprator())
+                .collect(Collectors.toList());
         return extractors;
     }
 
@@ -63,8 +62,7 @@ public class PluginMetadataHooks {
      * @return and Entry whose key is the SCM url and value is the plugin id.
      * @throws WrappedPluginCompatabilityException if an
      */
-    public static PluginMetadata getPluginDetails(
-            List<PluginMetadataExtractor> extractors, JarFile f, JarEntry je)
+    public static PluginMetadata getPluginDetails(List<PluginMetadataExtractor> extractors, JarFile f, JarEntry je)
             throws WrappedPluginCompatabilityException {
         // the entry is the HPI file
 
@@ -82,11 +80,11 @@ public class PluginMetadataHooks {
             throw new WrappedPluginCompatabilityException(e);
         }
         try {
-            // once all plugins have adopted https://github.com/jenkinsci/maven-hpi-plugin/pull/436 this can be simpliied
+            // once all plugins have adopted https://github.com/jenkinsci/maven-hpi-plugin/pull/436 this can be
+            // simpliied
             LOGGER.log(Level.INFO, "Extracting metadata about {0}", pluginId);
             for (PluginMetadataExtractor e : extractors) {
-                Optional<PluginMetadata> optionalMetadata =
-                        e.extractMetadata(pluginId, manifest, model);
+                Optional<PluginMetadata> optionalMetadata = e.extractMetadata(pluginId, manifest, model);
                 if (optionalMetadata.isPresent()) {
                     return optionalMetadata.get();
                 }
@@ -95,7 +93,6 @@ public class PluginMetadataHooks {
             throw new WrappedPluginCompatabilityException(e);
         }
         throw new WrappedPluginCompatabilityException(
-                new PluginSourcesUnavailableException(
-                        "No metadata could be extracted for entry " + je.getName()));
+                new PluginSourcesUnavailableException("No metadata could be extracted for entry " + je.getName()));
     }
 }

@@ -27,18 +27,13 @@ public class LocalCheckoutMetadataExtractor {
     private static final Logger LOGGER = Logger.getLogger(LocalCheckoutMetadataExtractor.class.getName());
 
     // artifactId\tversion\t\directory
-    private static Pattern p =
-            Pattern.compile("(?<id>[^\t]+)\t(?<version>[^\t]+)\t(?<path>[^\t]+)");
+    private static Pattern p = Pattern.compile("(?<id>[^\t]+)\t(?<version>[^\t]+)\t(?<path>[^\t]+)");
 
-    public static List<PluginMetadata> extractMetadata(
-            File localCheckoutDir, PluginCompatTesterConfig config)
+    public static List<PluginMetadata> extractMetadata(File localCheckoutDir, PluginCompatTesterConfig config)
             throws MetadataExtractionException {
         File log = new File(config.getWorkingDir(), "local-metadata.log");
         MavenRunner runner =
-                new ExternalMavenRunner(
-                        config.getExternalMaven(),
-                        config.getMavenSettings(),
-                        config.getMavenArgs());
+                new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
         Set<String> excludedPlugins = config.getExcludePlugins();
         Set<String> includedPlugins = config.getIncludePlugins();
         try {
@@ -50,8 +45,9 @@ public class LocalCheckoutMetadataExtractor {
                     "-q",
                     // TODO to switch to release version
                     // https://github.com/jenkinsci/maven-hpi-plugin/pull/463
-                    "org.jenkins-ci.tools:maven-hpi-plugin:3.42-rc1408.71cefb_fc63b_d:list-plugins"
-                    , "-P", "consume-incrementals");
+                    "org.jenkins-ci.tools:maven-hpi-plugin:3.42-rc1408.71cefb_fc63b_d:list-plugins",
+                    "-P",
+                    "consume-incrementals");
 
             List<String> lines = Files.readAllLines(log.toPath(), StandardCharsets.UTF_8);
             List<PluginMetadata> metadata = new ArrayList<>();
@@ -59,30 +55,25 @@ public class LocalCheckoutMetadataExtractor {
                 if (!line.isBlank()) {
                     PluginMetadata pm = toPluginMetadata(localCheckoutDir, line.trim());
                     if (excludedPlugins != null && excludedPlugins.contains(pm.getPluginId())) {
-                        LOGGER.log(Level.INFO,
-                                "Plugin {0} in excluded plugins; skipping",
-                                pm.getPluginId());
-                    } else  if (includedPlugins != null && !includedPlugins.isEmpty() && !includedPlugins.contains(pm.getPluginId())) {
-                        LOGGER.log(
-                                Level.INFO,
-                                "Plugin {0} not in included plugins; skipping",
-                                pm.getPluginId());
+                        LOGGER.log(Level.INFO, "Plugin {0} in excluded plugins; skipping", pm.getPluginId());
+                    } else if (includedPlugins != null
+                            && !includedPlugins.isEmpty()
+                            && !includedPlugins.contains(pm.getPluginId())) {
+                        LOGGER.log(Level.INFO, "Plugin {0} not in included plugins; skipping", pm.getPluginId());
                     } else {
                         metadata.add(toPluginMetadata(localCheckoutDir, line.trim()));
                     }
                 }
             }
             if (metadata.isEmpty()) {
-                throw new MetadataExtractionException(
-                        "failed to locate any plguins in local checkout");
+                throw new MetadataExtractionException("failed to locate any plguins in local checkout");
             }
             Files.deleteIfExists(log.toPath());
             return metadata;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (PomExecutionException e) {
-            throw new MetadataExtractionException (
-                    "failed to extract plguins from local checkout", e);
+            throw new MetadataExtractionException("failed to extract plguins from local checkout", e);
         }
     }
 
@@ -90,9 +81,10 @@ public class LocalCheckoutMetadataExtractor {
      * COnveret a line in the output from hpi:list-plugins to a PluginMetadata entry.
      *
      * @param cloneDirectory the directory in which to make paths relative to.
-     * @throws PluginSourcesUnavailableException 
+     * @throws PluginSourcesUnavailableException
      */
-    private static PluginMetadata toPluginMetadata(File cloneDirectory, String hpiListEntry) throws MetadataExtractionException {
+    private static PluginMetadata toPluginMetadata(File cloneDirectory, String hpiListEntry)
+            throws MetadataExtractionException {
         Builder builder = new PluginMetadata.Builder();
         Matcher m = p.matcher(hpiListEntry);
         if (!m.matches()) {

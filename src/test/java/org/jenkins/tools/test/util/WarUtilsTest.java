@@ -20,10 +20,11 @@ class WarUtilsTest {
     @Test
     void testPlugins() throws Exception {
         File megaWar = new File("target", "megawar.war");
-        List<PluginMetadata> pms =
-                WarUtils.extractPluginMetadataFromWar(
-                        megaWar, PluginMetadataHooks.loadExtractors(Collections.emptyList()),
-                        Collections.emptySet(), Collections.emptySet());
+        List<PluginMetadata> pms = WarUtils.extractPluginMetadataFromWar(
+                megaWar,
+                PluginMetadataHooks.loadExtractors(Collections.emptyList()),
+                Collections.emptySet(),
+                Collections.emptySet());
         assertThat(pms, hasSize(1));
         PluginMetadata pm = pms.get(0);
 
@@ -31,9 +32,7 @@ class WarUtilsTest {
                 pm,
                 allOf(
                         hasProperty("pluginId", is("text-finder")),
-                        hasProperty(
-                                "scmUrl",
-                                is("https://github.com/jenkinsci/text-finder-plugin.git")),
+                        hasProperty("scmUrl", is("https://github.com/jenkinsci/text-finder-plugin.git")),
                         hasProperty("modulePath", nullValue()), // not a multi module
                         hasProperty("gitCommit", startsWith("text-finder-1.")),
                         hasProperty("name", is("Text Finder")),

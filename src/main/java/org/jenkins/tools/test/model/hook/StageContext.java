@@ -6,10 +6,17 @@ import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
 
 public abstract class StageContext {
 
-    @NonNull private final Stage stage;
-    @NonNull private final PluginMetadata pluginMetadata;
-    @NonNull private final String coreVersion;
-    @NonNull private final PluginCompatTesterConfig config;
+    @NonNull
+    private final Stage stage;
+
+    @NonNull
+    private final PluginMetadata pluginMetadata;
+
+    @NonNull
+    private final String coreVersion;
+
+    @NonNull
+    private final PluginCompatTesterConfig config;
 
     public StageContext(
             @NonNull Stage stage,

@@ -27,8 +27,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
         name = "list-plugins",
         mixinStandardHelpOptions = true,
-        description =
-                "List (non-detached) plugins and their associated repositories that the bundled in the war.",
+        description = "List (non-detached) plugins and their associated repositories that the bundled in the war.",
         versionProvider = VersionProvider.class)
 public class PluginListerCLI implements Callable<Integer> {
 
@@ -77,19 +76,16 @@ public class PluginListerCLI implements Callable<Integer> {
                     "Comma-separated list of plugin artifact IDs to skip. If not set, only the plugins specified by --plugins will be listed (or all plugins otherwise).")
     private Set<String> excludePlugins;
 
-    
     @Override
     public Integer call() throws PluginCompatibilityTesterException {
-        List<PluginMetadataExtractor> metadataExtractors =
-                PluginMetadataHooks.loadExtractors(externalHooksJars);
+        List<PluginMetadataExtractor> metadataExtractors = PluginMetadataHooks.loadExtractors(externalHooksJars);
 
         List<PluginMetadata> pluginMetadataList =
                 WarUtils.extractPluginMetadataFromWar(warFile, metadataExtractors, includePlugins, excludePlugins);
 
         // group the plugins into their actual repositories.
         Map<String, List<PluginMetadata>> metaDataByRepoMap =
-                pluginMetadataList.stream()
-                        .collect(Collectors.groupingBy(PluginMetadata::getGitURL));
+                pluginMetadataList.stream().collect(Collectors.groupingBy(PluginMetadata::getGitURL));
 
         if (metaDataByRepoMap.isEmpty()) {
             LOGGER.log(Level.WARNING, "found no plugins in ", warFile);
@@ -97,12 +93,11 @@ public class PluginListerCLI implements Callable<Integer> {
         }
 
         if (output != null) {
-            try (BufferedWriter writer =
-                    Files.newBufferedWriter(
-                            output.toPath(),
-                            StandardOpenOption.CREATE,
-                            StandardOpenOption.TRUNCATE_EXISTING,
-                            StandardOpenOption.WRITE)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(
+                    output.toPath(),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.WRITE)) {
                 for (Map.Entry<String, List<PluginMetadata>> entry : metaDataByRepoMap.entrySet()) {
                     writer.write(formatEntry(entry));
                     writer.write("\\n");

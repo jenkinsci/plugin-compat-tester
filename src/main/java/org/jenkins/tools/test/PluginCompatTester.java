@@ -79,26 +79,20 @@ public class PluginCompatTester {
 
     public PluginCompatTester(PluginCompatTesterConfig config) {
         this.config = config;
-        runner =
-                new ExternalMavenRunner(
-                        config.getExternalMaven(),
-                        config.getMavenSettings(),
-                        config.getMavenArgs());
+        runner = new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
     }
 
     public void testPlugins() throws PluginCompatibilityTesterException {
         PluginCompatTesterHooks pcth =
-                new PluginCompatTesterHooks(
-                        config.getExternalHooksJars(), config.getExcludeHooks());
+                new PluginCompatTesterHooks(config.getExternalHooksJars(), config.getExcludeHooks());
         // Determine the plugin data
 
         String coreVersion = WarUtils.extractCoreVersionFromWar(config.getWar());
-        List<PluginMetadata> pluginMetadataList =
-                WarUtils.extractPluginMetadataFromWar(
-                        config.getWar(),
-                        PluginMetadataHooks.loadExtractors(config.getExternalHooksJars()),
-                        config.getIncludePlugins(),
-                        config.getExcludePlugins());
+        List<PluginMetadata> pluginMetadataList = WarUtils.extractPluginMetadataFromWar(
+                config.getWar(),
+                PluginMetadataHooks.loadExtractors(config.getExternalHooksJars()),
+                config.getIncludePlugins(),
+                config.getExcludePlugins());
 
         // filter any plugins that are not being tested and group by git URL
         // and run through the pre-checkout hooks
@@ -106,12 +100,8 @@ public class PluginCompatTester {
         Map<String, List<PluginMetadata>> pluginsByrepo;
         try {
             pluginsByrepo = pluginMetadataList.stream()
-                            .map(new RunAndMapBeforeCheckoutHooks(pcth, coreVersion, config))
-                            .collect(
-                                    Collectors.groupingBy(
-                                            PluginMetadata::getGitURL,
-                                            HashMap::new,
-                                            Collectors.toList()));
+                    .map(new RunAndMapBeforeCheckoutHooks(pcth, coreVersion, config))
+                    .collect(Collectors.groupingBy(PluginMetadata::getGitURL, HashMap::new, Collectors.toList()));
         } catch (WrappedPluginCompatabilityException e) {
             throw e.getCause();
         }
@@ -119,8 +109,7 @@ public class PluginCompatTester {
         if (localCheckoutProvided()) {
             // do not no BeforeCheckoutHooks on a local checkout
             List<PluginMetadata> localMetaData =
-                    LocalCheckoutMetadataExtractor.extractMetadata(
-                            config.getLocalCheckoutDir(), config);
+                    LocalCheckoutMetadataExtractor.extractMetadata(config.getLocalCheckoutDir(), config);
             pluginsByrepo.put(null, localMetaData);
         }
 
@@ -164,17 +153,11 @@ public class PluginCompatTester {
         }
     }
 
-    private static File createBuildLogFile(
-            File workDirectory, PluginMetadata metadata, String coreVersion) {
+    private static File createBuildLogFile(File workDirectory, PluginMetadata metadata, String coreVersion) {
 
-        File f =
-                new File(
-                        workDirectory.getAbsolutePath()
-                                + File.separator
-                                + createBuildLogFilePathFor(
-                                        metadata.getPluginId(),
-                                        metadata.getVersion(),
-                                        coreVersion));
+        File f = new File(workDirectory.getAbsolutePath()
+                + File.separator
+                + createBuildLogFilePathFor(metadata.getPluginId(), metadata.getVersion(), coreVersion));
         try {
             Files.createDirectories(f.getParentFile().toPath());
             Files.deleteIfExists(f.toPath());
@@ -185,17 +168,12 @@ public class PluginCompatTester {
         return f;
     }
 
-    private static String createBuildLogFilePathFor(
-            String pluginId, String pluginVersion, String coreVersion) {
-        return String.format(
-                "logs/%s/v%s_against_jenkins_%s.log", pluginId, pluginVersion, coreVersion);
+    private static String createBuildLogFilePathFor(String pluginId, String pluginVersion, String coreVersion) {
+        return String.format("logs/%s/v%s_against_jenkins_%s.log", pluginId, pluginVersion, coreVersion);
     }
 
     private void testPluginAgainst(
-            String coreVersion,
-            PluginMetadata pluginMetadata,
-            File cloneLocation,
-            PluginCompatTesterHooks pcth)
+            String coreVersion, PluginMetadata pluginMetadata, File cloneLocation, PluginCompatTesterHooks pcth)
             throws PluginCompatibilityTesterException {
         LOGGER.log(
                 Level.INFO,
@@ -240,8 +218,7 @@ public class PluginCompatTester {
 
         // Run preexecution hooks
         BeforeExecutionContext forExecutionHooks =
-                new BeforeExecutionContext(
-                        pluginMetadata, coreVersion, config, cloneLocation, args);
+                new BeforeExecutionContext(pluginMetadata, coreVersion, config, cloneLocation, args);
         pcth.runBeforeExecution(forExecutionHooks);
 
         Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
@@ -289,178 +266,144 @@ public class PluginCompatTester {
 
             // TODO pending release of
             // https://github.com/jenkinsci/antisamy-markup-formatter-plugin/pull/106
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/antisamy-markup-formatter-plugin",
-                            "https://github.com/jenkinsci/antisamy-markup-formatter-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/antisamy-markup-formatter-plugin",
+                    "https://github.com/jenkinsci/antisamy-markup-formatter-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/authentication-tokens-plugin/pull/106
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/authentication-tokens-plugin",
-                            "https://github.com/jenkinsci/authentication-tokens-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/authentication-tokens-plugin",
+                    "https://github.com/jenkinsci/authentication-tokens-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/aws-global-configuration-plugin/pull/51
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/aws-global-configuration-plugin",
-                            "https://github.com/jenkinsci/aws-global-configuration-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/aws-global-configuration-plugin",
+                    "https://github.com/jenkinsci/aws-global-configuration-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/blueocean-display-url-plugin/pull/227
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/blueocean-display-url-plugin",
-                            "https://github.com/jenkinsci/blueocean-display-url-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/blueocean-display-url-plugin",
+                    "https://github.com/jenkinsci/blueocean-display-url-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/bootstrap5-api-plugin/commit/8c5f60ab5e21c03b68d696e7b760caa991b25aa9
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/bootstrap5-api-plugin",
-                            "https://github.com/jenkinsci/bootstrap5-api-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/bootstrap5-api-plugin",
+                    "https://github.com/jenkinsci/bootstrap5-api-plugin");
 
             // TODO pending backport of
             // https://github.com/jenkinsci/cloudbees-folder-plugin/pull/260
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/cloudbees-folder-plugin",
-                            "https://github.com/jenkinsci/cloudbees-folder-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/cloudbees-folder-plugin",
+                    "https://github.com/jenkinsci/cloudbees-folder-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/configuration-as-code-plugin/pull/2166
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/configuration-as-code-plugin",
-                            "https://github.com/jenkinsci/configuration-as-code-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/configuration-as-code-plugin",
+                    "https://github.com/jenkinsci/configuration-as-code-plugin");
 
             // TODO pending backport of
             // https://github.com/jenkinsci/custom-folder-icon-plugin/pull/109
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/custom-folder-icon-plugin",
-                            "https://github.com/jenkinsci/custom-folder-icon-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/custom-folder-icon-plugin",
+                    "https://github.com/jenkinsci/custom-folder-icon-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/data-tables-api-plugin/commit/97dc7555017e6c7ea17f0b67cc292773f1114a54
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/data-tables-api-plugin",
-                            "https://github.com/jenkinsci/data-tables-api-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/data-tables-api-plugin",
+                    "https://github.com/jenkinsci/data-tables-api-plugin");
 
             // TODO pending backport of
             // https://github.com/jenkinsci/echarts-api-plugin/commit/d6951a26e6f1c27b82c8308359f7f76e182de3e3
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/echarts-api-plugin",
-                            "https://github.com/jenkinsci/echarts-api-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/echarts-api-plugin", "https://github.com/jenkinsci/echarts-api-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/file-parameters-plugin/pull/142
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/file-parameters-plugin",
-                            "https://github.com/jenkinsci/file-parameters-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/file-parameters-plugin",
+                    "https://github.com/jenkinsci/file-parameters-plugin");
 
             // TODO pending release of https://github.com/jenkinsci/github-api-plugin/pull/182
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/github-api-plugin",
-                            "https://github.com/jenkinsci/github-api-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/github-api-plugin", "https://github.com/jenkinsci/github-api-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/google-kubernetes-engine-plugin/pull/312
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/google-kubernetes-engine-plugin",
-                            "https://github.com/jenkinsci/google-kubernetes-engine-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/google-kubernetes-engine-plugin",
+                    "https://github.com/jenkinsci/google-kubernetes-engine-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/google-metadata-plugin/pull/50
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/google-metadata-plugin",
-                            "https://github.com/jenkinsci/google-metadata-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/google-metadata-plugin",
+                    "https://github.com/jenkinsci/google-metadata-plugin");
 
             // TODO pending release of https://github.com/jenkinsci/google-oauth-plugin/pull/176
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/google-oauth-plugin",
-                            "https://github.com/jenkinsci/google-oauth-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/google-oauth-plugin",
+                    "https://github.com/jenkinsci/google-oauth-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/kubernetes-credentials-plugin/pull/37
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/kubernetes-credentials-plugin",
-                            "https://github.com/jenkinsci/kubernetes-credentials-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/kubernetes-credentials-plugin",
+                    "https://github.com/jenkinsci/kubernetes-credentials-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/kubernetes-credentials-provider-plugin/pull/75
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/kubernetes-credentials-provider-plugin",
-                            "https://github.com/jenkinsci/kubernetes-credentials-provider-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/kubernetes-credentials-provider-plugin",
+                    "https://github.com/jenkinsci/kubernetes-credentials-provider-plugin");
 
             // TODO pending adoption of https://github.com/jenkinsci/matrix-auth-plugin/pull/131
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/matrix-auth-plugin",
-                            "https://github.com/jenkinsci/matrix-auth-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/matrix-auth-plugin", "https://github.com/jenkinsci/matrix-auth-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/node-iterator-api-plugin/pull/11
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/node-iterator-api-plugin",
-                            "https://github.com/jenkinsci/node-iterator-api-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/node-iterator-api-plugin",
+                    "https://github.com/jenkinsci/node-iterator-api-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/oauth-credentials-plugin/pull/9
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/oauth-credentials-plugin",
-                            "https://github.com/jenkinsci/oauth-credentials-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/oauth-credentials-plugin",
+                    "https://github.com/jenkinsci/oauth-credentials-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/popper2-api-plugin/commit/bf781e31b072103f3f72d7195e9071863f7f4dd9
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/popper2-api-plugin",
-                            "https://github.com/jenkinsci/popper2-api-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/popper2-api-plugin", "https://github.com/jenkinsci/popper2-api-plugin");
 
             // TODO pending release of https://github.com/jenkinsci/pubsub-light-plugin/pull/100
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/pubsub-light-plugin",
-                            "https://github.com/jenkinsci/pubsub-light-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/pubsub-light-plugin",
+                    "https://github.com/jenkinsci/pubsub-light-plugin");
 
             // TODO pending release of https://github.com/jenkinsci/s3-plugin/pull/243
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/s3-plugin",
-                            "https://github.com/jenkinsci/s3-plugin");
+            gitURL = gitURL.replace("git://github.com/jenkinsci/s3-plugin", "https://github.com/jenkinsci/s3-plugin");
 
             // TODO pending release of https://github.com/jenkinsci/ssh-agent-plugin/pull/116
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/ssh-agent-plugin",
-                            "https://github.com/jenkinsci/ssh-agent-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/ssh-agent-plugin", "https://github.com/jenkinsci/ssh-agent-plugin");
 
             // TODO pending release of https://github.com/jenkinsci/ssh-slaves-plugin/pull/352
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/ssh-slaves-plugin",
-                            "https://github.com/jenkinsci/ssh-slaves-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/ssh-slaves-plugin", "https://github.com/jenkinsci/ssh-slaves-plugin");
 
             // TODO pending release of
             // https://github.com/jenkinsci/theme-manager-plugin/pull/154
-            gitURL =
-                    gitURL.replace(
-                            "git://github.com/jenkinsci/theme-manager-plugin",
-                            "https://github.com/jenkinsci/theme-manager-plugin");
+            gitURL = gitURL.replace(
+                    "git://github.com/jenkinsci/theme-manager-plugin",
+                    "https://github.com/jenkinsci/theme-manager-plugin");
             try {
                 cloneImpl(gitURL, scmTag, checkoutDirectory);
                 return; // checkout was ok
@@ -497,10 +440,7 @@ public class PluginCompatTester {
     @SuppressFBWarnings(value = "COMMAND_INJECTION", justification = "intended behavior")
     private static void cloneImpl(String gitUrl, String scmTag, File checkoutDirectory)
             throws IOException, PluginSourcesUnavailableException {
-        LOGGER.log(
-                Level.INFO,
-                "Checking out from git repository {0} at {1}",
-                new Object[] {gitUrl, scmTag});
+        LOGGER.log(Level.INFO, "Checking out from git repository {0} at {1}", new Object[] {gitUrl, scmTag});
 
         /*
          * We previously used the Maven SCM API to clone the repository, which ran the following
@@ -524,12 +464,11 @@ public class PluginCompatTester {
         Files.createDirectories(checkoutDirectory.toPath());
 
         // git init
-        Process p =
-                new ProcessBuilder()
-                        .directory(checkoutDirectory)
-                        .command("git", "init")
-                        .redirectErrorStream(true)
-                        .start();
+        Process p = new ProcessBuilder()
+                .directory(checkoutDirectory)
+                .command("git", "init")
+                .redirectErrorStream(true)
+                .start();
         StreamGobbler gobbler = new StreamGobbler(p.getInputStream());
         gobbler.start();
         try {
@@ -544,12 +483,11 @@ public class PluginCompatTester {
             throw new PluginSourcesUnavailableException("git init was interrupted", e);
         }
 
-        p =
-                new ProcessBuilder()
-                        .directory(checkoutDirectory)
-                        .command("git", "fetch", gitUrl, scmTag)
-                        .redirectErrorStream(true)
-                        .start();
+        p = new ProcessBuilder()
+                .directory(checkoutDirectory)
+                .command("git", "fetch", gitUrl, scmTag)
+                .redirectErrorStream(true)
+                .start();
         gobbler = new StreamGobbler(p.getInputStream());
         gobbler.start();
         try {
@@ -565,12 +503,11 @@ public class PluginCompatTester {
         }
 
         // git checkout FETCH_HEAD
-        p =
-                new ProcessBuilder()
-                        .directory(checkoutDirectory)
-                        .command("git", "checkout", "FETCH_HEAD")
-                        .redirectErrorStream(true)
-                        .start();
+        p = new ProcessBuilder()
+                .directory(checkoutDirectory)
+                .command("git", "checkout", "FETCH_HEAD")
+                .redirectErrorStream(true)
+                .start();
         gobbler = new StreamGobbler(p.getInputStream());
         gobbler.start();
         try {
@@ -579,14 +516,10 @@ public class PluginCompatTester {
             String output = gobbler.getOutput().trim();
             if (exitStatus != 0) {
                 throw new PluginSourcesUnavailableException(
-                        "git checkout FETCH_HEAD failed with exit status "
-                                + exitStatus
-                                + ": "
-                                + output);
+                        "git checkout FETCH_HEAD failed with exit status " + exitStatus + ": " + output);
             }
         } catch (InterruptedException e) {
-            throw new PluginSourcesUnavailableException(
-                    "git checkout FETCH_HEAD was interrupted", e);
+            throw new PluginSourcesUnavailableException("git checkout FETCH_HEAD was interrupted", e);
         }
     }
 
@@ -608,8 +541,7 @@ public class PluginCompatTester {
         return localCheckoutDir != null && localCheckoutDir.exists();
     }
 
-    public static String getGitURLFromLocalCheckout(
-            File workingDirectory, File localCheckout, MavenRunner runner)
+    public static String getGitURLFromLocalCheckout(File workingDirectory, File localCheckout, MavenRunner runner)
             throws PluginSourcesUnavailableException, PomExecutionException {
         try {
             File log = new File(workingDirectory, "localcheckout-scm-connection.log");
@@ -633,13 +565,11 @@ public class PluginCompatTester {
         }
     }
 
-    public static String getRepoNameFromGitURL(String gitURL)
-            throws PluginSourcesUnavailableException {
+    public static String getRepoNameFromGitURL(String gitURL) throws PluginSourcesUnavailableException {
         // obtain the the last path component (and strip any trailing .git)
         int index = gitURL.lastIndexOf("/");
         if (index < 0) {
-            throw new PluginSourcesUnavailableException(
-                    "Failed to obtain local directory for " + gitURL);
+            throw new PluginSourcesUnavailableException("Failed to obtain local directory for " + gitURL);
         }
         String name = gitURL.substring(++index);
         if (name.endsWith(".git")) {
@@ -662,10 +592,8 @@ public class PluginCompatTester {
         }
 
         @Override
-        public PluginMetadata apply(PluginMetadata pluginMetadata)
-                throws WrappedPluginCompatabilityException {
-            BeforeCheckoutContext c =
-                    new BeforeCheckoutContext(pluginMetadata, coreVersion, config);
+        public PluginMetadata apply(PluginMetadata pluginMetadata) throws WrappedPluginCompatabilityException {
+            BeforeCheckoutContext c = new BeforeCheckoutContext(pluginMetadata, coreVersion, config);
             try {
                 pcth.runBeforeCheckout(c);
             } catch (PluginCompatibilityTesterException e) {
@@ -689,10 +617,7 @@ public class PluginCompatTester {
      *     is thrown.
      */
     private static <T extends PluginCompatibilityTesterException> T throwOrAddSupressed(
-            @CheckForNull PluginCompatibilityTesterException current,
-            T caught,
-            boolean throwException)
-            throws T {
+            @CheckForNull PluginCompatibilityTesterException current, T caught, boolean throwException) throws T {
         if (throwException) {
             throw caught;
         }

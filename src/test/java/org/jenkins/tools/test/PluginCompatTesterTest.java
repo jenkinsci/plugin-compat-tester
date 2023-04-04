@@ -53,17 +53,15 @@ class PluginCompatTesterTest {
     @Test
     void smokes(@TempDir File tempDir) throws Exception {
         PluginCompatTesterConfig config =
-                new PluginCompatTesterConfig(
-                        new File("target", "megawar.war").getAbsoluteFile(), tempDir);
+                new PluginCompatTesterConfig(new File("target", "megawar.war").getAbsoluteFile(), tempDir);
         config.setMavenProperties(Map.of("test", "InjectedTest"));
         PluginCompatTester tester = new PluginCompatTester(config);
         tester.testPlugins();
-        Path report =
-                tempDir.toPath()
-                        .resolve("text-finder-plugin")
-                        .resolve("target")
-                        .resolve("surefire-reports")
-                        .resolve("TEST-InjectedTest.xml");
+        Path report = tempDir.toPath()
+                .resolve("text-finder-plugin")
+                .resolve("target")
+                .resolve("surefire-reports")
+                .resolve("TEST-InjectedTest.xml");
         assertTrue(Files.exists(report));
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -85,27 +83,21 @@ class PluginCompatTesterTest {
     void testDirectoryFromGitUrl() throws Exception {
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL(
-                        "ssh://git@github.com/jenkinsci/plugin-compat-tester.git"));
+                PluginCompatTester.getRepoNameFromGitURL("ssh://git@github.com/jenkinsci/plugin-compat-tester.git"));
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL(
-                        "https://github.com/jenkinsci/plugin-compat-tester.git"));
+                PluginCompatTester.getRepoNameFromGitURL("https://github.com/jenkinsci/plugin-compat-tester.git"));
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL(
-                        "git@host.xz:jenkinsci/plugin-compat-tester.git"));
+                PluginCompatTester.getRepoNameFromGitURL("git@host.xz:jenkinsci/plugin-compat-tester.git"));
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL(
-                        "ssh://git@github.com/jenkinsci/plugin-compat-tester"));
+                PluginCompatTester.getRepoNameFromGitURL("ssh://git@github.com/jenkinsci/plugin-compat-tester"));
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL(
-                        "https://github.com/jenkinsci/plugin-compat-tester"));
+                PluginCompatTester.getRepoNameFromGitURL("https://github.com/jenkinsci/plugin-compat-tester"));
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL(
-                        "git@host.xz:jenkinsci/plugin-compat-tester"));
+                PluginCompatTester.getRepoNameFromGitURL("git@host.xz:jenkinsci/plugin-compat-tester"));
     }
 }

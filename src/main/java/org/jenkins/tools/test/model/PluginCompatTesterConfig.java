@@ -42,42 +42,54 @@ import java.util.Set;
 public class PluginCompatTesterConfig {
 
     // The megawar
-    @NonNull private final File war;
+    @NonNull
+    private final File war;
 
     // A working directory where the tested plugin's sources will be checked out
-    @NonNull private final File workingDir;
+    @NonNull
+    private final File workingDir;
 
     // Set of plugin artifact ids on which tests will be performed
     // If empty, tests will be performed on every plugins retrieved from the war
-    @NonNull private Set<String> includePlugins = Set.of();
+    @NonNull
+    private Set<String> includePlugins = Set.of();
 
     // Set of plugin artifact ids on which tests will be not performed
     // If empty, tests will be performed on every includePlugins found
-    @NonNull private Set<String> excludePlugins = Set.of();
+    @NonNull
+    private Set<String> excludePlugins = Set.of();
 
     // List of hooks that will not be executed
     // If empty, all hooks will be executed
-    @NonNull private List<String> excludeHooks = List.of();
+    @NonNull
+    private List<String> excludeHooks = List.of();
 
     // URL to be used as an alternative to download plugin source from fallback
     // organizations, like your own fork
-    @CheckForNull private String fallbackGitHubOrganization;
+    @CheckForNull
+    private String fallbackGitHubOrganization;
 
-    @CheckForNull private File externalMaven;
+    @CheckForNull
+    private File externalMaven;
 
     // Path for maven settings file where repository will be provided allowing to
     // download jenkins-core artifact (and dependencies)
-    @CheckForNull private File mavenSettings;
+    @CheckForNull
+    private File mavenSettings;
 
-    @NonNull private Map<String, String> mavenProperties = Map.of();
+    @NonNull
+    private Map<String, String> mavenProperties = Map.of();
 
-    @NonNull private List<String> mavenArgs = List.of();
+    @NonNull
+    private List<String> mavenArgs = List.of();
 
     // External hooks jar files path locations
-    @NonNull private List<File> externalHooksJars = List.of();
+    @NonNull
+    private List<File> externalHooksJars = List.of();
 
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
-    @CheckForNull private File localCheckoutDir;
+    @CheckForNull
+    private File localCheckoutDir;
 
     // If multiple plugins are specified, fail the overall run after the first plugin failure occurs
     // rather than continuing to test other plugins.

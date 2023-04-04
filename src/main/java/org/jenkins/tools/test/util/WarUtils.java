@@ -36,18 +36,19 @@ public class WarUtils {
             Manifest manifest = jf.getManifest();
             String value = manifest.getMainAttributes().getValue("Jenkins-Version");
             if (value == null) {
-                throw new MetadataExtractionException(
-                        "Jenkis war is missing required Manifest entry");
+                throw new MetadataExtractionException("Jenkis war is missing required Manifest entry");
             }
             return value;
         } catch (IOException e) {
-            throw new UncheckedIOException(
-                    "Failed to extract Jenkins core version from " + war.toString(), e);
+            throw new UncheckedIOException("Failed to extract Jenkins core version from " + war.toString(), e);
         }
     }
 
     public static List<PluginMetadata> extractPluginMetadataFromWar(
-            File warFile, List<PluginMetadataExtractor> extractors, Set<String> includedPlugins, Set<String> excludedPlugins)
+            File warFile,
+            List<PluginMetadataExtractor> extractors,
+            Set<String> includedPlugins,
+            Set<String> excludedPlugins)
             throws PluginCompatibilityTesterException {
         try (JarFile war = new JarFile(warFile);
                 Stream<JarEntry> entries = war.stream()) {
@@ -57,19 +58,18 @@ public class WarUtils {
         } catch (WrappedPluginCompatabilityException e) {
             throw e.getCause();
         } catch (IOException e) {
-            throw new UncheckedIOException(
-                    "I/O error occured whilst extracting plugin metadata from war", e);
+            throw new UncheckedIOException("I/O error occured whilst extracting plugin metadata from war", e);
         }
     }
 
     /**
-     * Predicate that will check if the given {@link JarEntry} is an interesting plugin. 
+     * Predicate that will check if the given {@link JarEntry} is an interesting plugin.
      * Detached plugins are ignored.
      * If the plugin is excluded it will be ignored.
-     * if the set of included plugins is not empty it will be ignored if it is not included 
+     * if the set of included plugins is not empty it will be ignored if it is not included
      */
     private static class InterestingPluginFilter implements Predicate<JarEntry> {
-    
+
         private final Set<String> include;
         private final Set<String> exclude;
 
@@ -85,18 +85,13 @@ public class WarUtils {
         public boolean test(JarEntry je) {
             // ignore detached plugins;
             if (je.getName().startsWith("WEB-INF/plugins/") && je.getName().endsWith(".hpi")) {
-                String pluginName = je.getName().substring(16, je.getName().length() -4);
+                String pluginName = je.getName().substring(16, je.getName().length() - 4);
                 if (exclude != null && exclude.contains(pluginName)) {
-                    LOGGER.log(Level.INFO,
-                            "Plugin {0} in excluded plugins; skipping",
-                            pluginName);
+                    LOGGER.log(Level.INFO, "Plugin {0} in excluded plugins; skipping", pluginName);
                     return false;
                 }
                 if (include != null && !include.isEmpty() && !include.contains(pluginName)) {
-                    LOGGER.log(
-                            Level.INFO,
-                            "Plugin {0} not in included plugins; skipping",
-                            pluginName);
+                    LOGGER.log(Level.INFO, "Plugin {0} not in included plugins; skipping", pluginName);
                     return false;
                 }
                 return true;

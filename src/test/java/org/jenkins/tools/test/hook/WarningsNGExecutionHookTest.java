@@ -17,13 +17,12 @@ class WarningsNGExecutionHookTest {
     void testCheckMethod() {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
-        PluginMetadata pm =
-                new PluginMetadata.Builder()
-                        .withGitCommit("ignored")
-                        .withGitURL("ignored")
-                        .withVersion("ignored")
-                        .withPluginId("warnings-ng")
-                        .build();
+        PluginMetadata pm = new PluginMetadata.Builder()
+                .withGitCommit("ignored")
+                .withGitURL("ignored")
+                .withVersion("ignored")
+                .withPluginId("warnings-ng")
+                .build();
 
         BeforeExecutionContext context = new BeforeExecutionContext(pm, null, null, null, null);
         assertTrue(hook.check(context));
@@ -37,18 +36,13 @@ class WarningsNGExecutionHookTest {
     void testAction() {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
-        List<String> args =
-                new ArrayList<>(
-                        List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test"));
+        List<String> args = new ArrayList<>(List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test"));
         BeforeExecutionContext context = new BeforeExecutionContext(null, null, null, null, args);
         hook.action(context);
         // failsafe tests after surefire to match a general build.
         assertThat(
                 args,
                 contains(
-                        "hpi:resolve-test-dependencies",
-                        "hpi:test-hpl",
-                        "surefire:test",
-                        "failsafe:integration-test"));
+                        "hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test", "failsafe:integration-test"));
     }
 }

@@ -20,16 +20,14 @@ public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
             return Optional.empty();
         }
         assert pluginId.equals(model.getArtifactId());
-        return Optional.of(
-                new PluginMetadata.Builder()
-                        .withPluginId(model.getArtifactId())
-                        .withName(model.getName())
-                        .withSCMURL(model.getScm().getConnection())
-                        .withGitCommit(model.getScm().getTag())
-                        .withModulePath(
-                                null) // any multi module projects have already been handled by now
-                        // or require new hooks.
-                        .withVersion(model.getVersion())
-                        .build());
+        return Optional.of(new PluginMetadata.Builder()
+                .withPluginId(model.getArtifactId())
+                .withName(model.getName())
+                .withSCMURL(model.getScm().getConnection())
+                .withGitCommit(model.getScm().getTag())
+                .withModulePath(null) // any multi module projects have already been handled by now
+                // or require new hooks.
+                .withVersion(model.getVersion())
+                .build());
     }
 }

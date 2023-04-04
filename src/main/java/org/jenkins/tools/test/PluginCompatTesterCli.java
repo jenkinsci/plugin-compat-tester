@@ -44,8 +44,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
         name = "test-plugins",
         mixinStandardHelpOptions = true,
-        description =
-                "Perform a compatibility test for plugins against Jenkins core and other plugins.",
+        description = "Perform a compatibility test for plugins against Jenkins core and other plugins.",
         versionProvider = VersionProvider.class)
 public class PluginCompatTesterCli implements Callable<Integer> {
 
@@ -96,8 +95,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             split = ",",
             arity = "1",
             paramLabel = "hook",
-            description =
-                    "Comma-separated list of hooks to skip. If not set, all hooks will be executed.")
+            description = "Comma-separated list of hooks to skip. If not set, all hooks will be executed.")
     private List<String> excludeHooks;
 
     @CheckForNull
