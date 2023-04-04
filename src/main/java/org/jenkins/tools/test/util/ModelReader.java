@@ -25,7 +25,7 @@ public class ModelReader {
      * @param jarInputStream the inputStream created from from Plugins jar file.
      * @return the maven model for the plugin as read from the META-INF directory.
      * @throws PluginSourcesUnavailableException if the entry could not be loaded or found.
-     * @throws IOException
+     * @throws IOException if there was an I/O related issue obtaining the model.
      */
     public static Model getPluginsModelFromHpi(String groupId, String artifactId, JarInputStream jarInputStream)
             throws PluginSourcesUnavailableException, IOException {
