@@ -159,13 +159,11 @@
         <configuration>
           <java>
             <endWithNewline />
-            <googleJavaFormat>
-              <style>AOSP</style>
-            </googleJavaFormat>
             <importOrder />
             <indent>
               <spaces>true</spaces>
             </indent>
+            <palantirJavaFormat />
             <removeUnusedImports />
             <trimTrailingWhitespace />
           </java>
