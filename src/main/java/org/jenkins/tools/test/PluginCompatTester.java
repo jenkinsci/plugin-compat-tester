@@ -107,7 +107,7 @@ public class PluginCompatTester {
         }
 
         if (localCheckoutProvided()) {
-            // do not no BeforeCheckoutHooks on a local checkout
+            // do not perform BeforeCheckoutHooks on a local checkout
             List<PluginMetadata> localMetaData =
                     LocalCheckoutMetadataExtractor.extractMetadata(config.getLocalCheckoutDir(), config);
             pluginsByrepo.put(null, localMetaData);
