@@ -136,7 +136,8 @@ public class PluginCompatTester {
                     cloneFromScm(gitUrl, config.getFallbackGitHubOrganization(), tag, cloneDir);
                 } catch (PluginCompatibilityTesterException e) {
                     lastException = throwOrAddSupressed(lastException, e, config.isFailFast());
-                    LOGGER.log(Level.SEVERE, 
+                    LOGGER.log(
+                            Level.SEVERE,
                             String.format("Internal error while clonging repository %s at commit %s.", gitUrl, tag),
                             e);
                     continue;
@@ -148,7 +149,8 @@ public class PluginCompatTester {
                     testPluginAgainst(coreVersion, pm, cloneDir, pcth);
                 } catch (PluginCompatibilityTesterException e) {
                     lastException = throwOrAddSupressed(lastException, e, config.isFailFast());
-                    LOGGER.log(Level.SEVERE,
+                    LOGGER.log(
+                            Level.SEVERE,
                             String.format(
                                     "Internal error while executing a test for core %s and plugin %s at version %s.",
                                     coreVersion, pm.getName(), pm.getVersion()),
