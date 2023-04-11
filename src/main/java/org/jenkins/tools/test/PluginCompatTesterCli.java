@@ -33,6 +33,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.logging.LoggingConfiguration;
@@ -76,7 +77,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             paramLabel = "plugin",
             description =
                     "Comma-separated list of plugin artifact IDs to test. If not set, every plugin in the WAR will be tested.")
-    private List<String> includePlugins;
+    private Set<String> includePlugins;
 
     @CheckForNull
     @CommandLine.Option(
@@ -86,7 +87,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             paramLabel = "plugin",
             description =
                     "Comma-separated list of plugin artifact IDs to skip. If not set, only the plugins specified by --plugins will be tested (or all plugins otherwise).")
-    private List<String> excludePlugins;
+    private Set<String> excludePlugins;
 
     @CheckForNull
     @CommandLine.Option(
@@ -95,7 +96,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             arity = "1",
             paramLabel = "hook",
             description = "Comma-separated list of hooks to skip. If not set, all hooks will be executed.")
-    private List<String> excludeHooks;
+    private Set<String> excludeHooks;
 
     @CheckForNull
     @CommandLine.Option(
@@ -143,7 +144,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             paramLabel = "jar",
             description = "Comma-separated list of paths to external hooks JARs.",
             converter = ExistingFileTypeConverter.class)
-    private List<File> externalHooksJars;
+    private Set<File> externalHooksJars;
 
     @CheckForNull
     @CommandLine.Option(

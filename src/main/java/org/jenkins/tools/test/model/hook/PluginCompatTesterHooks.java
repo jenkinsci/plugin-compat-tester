@@ -12,6 +12,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
@@ -33,9 +34,9 @@ public class PluginCompatTesterHooks {
             new EnumMap<>(Stage.class);
 
     @NonNull
-    private final List<String> excludeHooks;
+    private final Set<String> excludeHooks;
 
-    public PluginCompatTesterHooks(@NonNull List<File> externalJars, @NonNull List<String> excludeHooks) {
+    public PluginCompatTesterHooks(@NonNull Set<File> externalJars, @NonNull Set<String> excludeHooks) {
         this.excludeHooks = excludeHooks;
         setupExternalClassLoaders(externalJars);
         setupHooksByStage();
@@ -47,7 +48,7 @@ public class PluginCompatTesterHooks {
         hooksByStage.put(Stage.EXECUTION, findHooks(PluginCompatTesterHookBeforeExecution.class));
     }
 
-    private void setupExternalClassLoaders(List<File> externalJars) {
+    private void setupExternalClassLoaders(Set<File> externalJars) {
         if (externalJars.isEmpty()) {
             return;
         }

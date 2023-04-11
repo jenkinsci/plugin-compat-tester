@@ -32,6 +32,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * POJO used to configure Plugin Compatibility Tester execution
@@ -51,17 +52,17 @@ public class PluginCompatTesterConfig {
     // List of plugin artifact ids on which tests will be performed
     // If empty, tests will be performed on every plugins retrieved from update center
     @NonNull
-    private List<String> includePlugins = List.of();
+    private Set<String> includePlugins = Set.of();
 
     // List of plugin artifact ids on which tests will be not performed
     // If empty, tests will be performed on every includePlugins found
     @NonNull
-    private List<String> excludePlugins = List.of();
+    private Set<String> excludePlugins = Set.of();
 
     // List of hooks that will not be executed
     // If empty, all hooks will be executed
     @NonNull
-    private List<String> excludeHooks = List.of();
+    private Set<String> excludeHooks = Set.of();
 
     // URL to be used as an alternative to download plugin source from fallback
     // organizations, like your own fork
@@ -84,7 +85,7 @@ public class PluginCompatTesterConfig {
 
     // External hooks jar files path locations
     @NonNull
-    private List<File> externalHooksJars = List.of();
+    private Set<File> externalHooksJars = Set.of();
 
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
     @CheckForNull
@@ -110,30 +111,30 @@ public class PluginCompatTesterConfig {
     }
 
     @NonNull
-    public List<String> getIncludePlugins() {
+    public Set<String> getIncludePlugins() {
         return includePlugins;
     }
 
-    public void setIncludePlugins(@NonNull List<String> includePlugins) {
-        this.includePlugins = List.copyOf(includePlugins);
+    public void setIncludePlugins(@NonNull Set<String> includePlugins) {
+        this.includePlugins = Set.copyOf(includePlugins);
     }
 
     @NonNull
-    public List<String> getExcludePlugins() {
+    public Set<String> getExcludePlugins() {
         return excludePlugins;
     }
 
-    public void setExcludePlugins(@NonNull List<String> excludePlugins) {
-        this.excludePlugins = List.copyOf(excludePlugins);
+    public void setExcludePlugins(@NonNull Set<String> excludePlugins) {
+        this.excludePlugins = Set.copyOf(excludePlugins);
     }
 
     @NonNull
-    public List<String> getExcludeHooks() {
+    public Set<String> getExcludeHooks() {
         return excludeHooks;
     }
 
-    public void setExcludeHooks(@NonNull List<String> excludeHooks) {
-        this.excludeHooks = List.copyOf(excludeHooks);
+    public void setExcludeHooks(@NonNull Set<String> excludeHooks) {
+        this.excludeHooks = Set.copyOf(excludeHooks);
     }
 
     @CheckForNull
@@ -182,12 +183,12 @@ public class PluginCompatTesterConfig {
     }
 
     @NonNull
-    public List<File> getExternalHooksJars() {
+    public Set<File> getExternalHooksJars() {
         return externalHooksJars;
     }
 
-    public void setExternalHooksJars(@NonNull List<File> externalHooksJars) {
-        this.externalHooksJars = List.copyOf(externalHooksJars);
+    public void setExternalHooksJars(@NonNull Set<File> externalHooksJars) {
+        this.externalHooksJars = Set.copyOf(externalHooksJars);
     }
 
     @CheckForNull
