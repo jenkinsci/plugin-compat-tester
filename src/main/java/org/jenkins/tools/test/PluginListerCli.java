@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -92,11 +91,7 @@ public class PluginListerCli implements Callable<Integer> {
         }
 
         if (output != null) {
-            try (BufferedWriter writer = Files.newBufferedWriter(
-                    output.toPath(),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING,
-                    StandardOpenOption.WRITE)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(output.toPath())) {
                 for (Map.Entry<String, List<PluginMetadata>> entry : metaDataByRepoMap.entrySet()) {
                     writer.write(formatEntry(entry));
                     writer.write("\\n");
