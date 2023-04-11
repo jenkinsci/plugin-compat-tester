@@ -132,7 +132,7 @@ public class PluginCompatTester {
                 try {
                     cloneFromScm(gitUrl, config.getFallbackGitHubOrganization(), tag, cloneDir);
                 } catch (PluginCompatibilityTesterException e) {
-                    lastException = throwOrAddSupressed(lastException, e, config.isFailFast());
+                    lastException = throwOrAddSuppressed(lastException, e, config.isFailFast());
                     LOGGER.log(
                             Level.SEVERE,
                             String.format("Internal error while cloning repository %s at commit %s.", gitUrl, tag),
@@ -145,7 +145,7 @@ public class PluginCompatTester {
                 try {
                     testPluginAgainst(coreVersion, pm, cloneDir, pcth);
                 } catch (PluginCompatibilityTesterException e) {
-                    lastException = throwOrAddSupressed(lastException, e, config.isFailFast());
+                    lastException = throwOrAddSuppressed(lastException, e, config.isFailFast());
                     LOGGER.log(
                             Level.SEVERE,
                             String.format(
@@ -417,7 +417,7 @@ public class PluginCompatTester {
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             } catch (PluginSourcesUnavailableException e) {
-                lastException = throwOrAddSupressed(lastException, e, false);
+                lastException = throwOrAddSuppressed(lastException, e, false);
             }
         }
 
@@ -611,19 +611,19 @@ public class PluginCompatTester {
     }
 
     /**
-     * Throws {@code current} if {@code throwException} is {@code true} or returns {@cod caught}
-     * with {@code current} added (if non-null) as a supressed exception.
+     * Throws {@code current} if {@code throwException} is {@code true} or returns {@code caught}
+     * with {@code current} added (if non-null) as a suppressed exception.
      *
      * @param <T>
      * @param current the PluginCompatibilityTesterException if any
      * @param caught the newly caught exception
-     * @param throwException {@code true} if we should immediatly rethrow {@code caught}, {@code
+     * @param throwException {@code true} if we should immediately rethrow {@code caught}, {@code
      *     false} indicating we should return {@caught}.
      * @return {@code caught}
-     * @throws PluginCompatibilityTesterException if {@code ethrowException == true} then {@caught}
+     * @throws PluginCompatibilityTesterException if {@code throwException == true} then {@caught}
      *     is thrown.
      */
-    private static <T extends PluginCompatibilityTesterException> T throwOrAddSupressed(
+    private static <T extends PluginCompatibilityTesterException> T throwOrAddSuppressed(
             @CheckForNull PluginCompatibilityTesterException current, T caught, boolean throwException) throws T {
         if (throwException) {
             throw caught;
