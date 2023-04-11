@@ -66,10 +66,7 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
                     (PluginCompatTesterHook<BeforeCheckoutContext>) hook;
             if (checkoutHook instanceof AbstractMultiParentHook
                     && checkoutHook.check(new BeforeCheckoutContext(
-                            context.getPlugin(),
-                            context.getModel(),
-                            context.getCoreCoordinates(),
-                            context.getConfig()))) {
+                            context.getPlugin(), context.getModel(), context.getCoreVersion(), context.getConfig()))) {
                 return true;
             }
         }
