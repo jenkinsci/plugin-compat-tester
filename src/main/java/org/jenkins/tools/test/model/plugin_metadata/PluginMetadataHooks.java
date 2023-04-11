@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -29,7 +30,7 @@ public class PluginMetadataHooks {
 
     private static final Logger LOGGER = Logger.getLogger(PluginMetadataHooks.class.getName());
 
-    public static List<PluginMetadataExtractor> loadExtractors(List<File> externalJars) {
+    public static List<PluginMetadataExtractor> loadExtractors(Set<File> externalJars) {
         ClassLoader cl = setupExternalClassLoaders(externalJars);
         List<PluginMetadataExtractor> extractors = ServiceLoader.load(PluginMetadataExtractor.class, cl).stream()
                 .map(e -> e.get())
@@ -38,7 +39,7 @@ public class PluginMetadataHooks {
         return extractors;
     }
 
-    private static ClassLoader setupExternalClassLoaders(List<File> externalJars) {
+    private static ClassLoader setupExternalClassLoaders(Set<File> externalJars) {
         ClassLoader base = PluginMetadataHooks.class.getClassLoader();
         if (externalJars.isEmpty()) {
             return base;

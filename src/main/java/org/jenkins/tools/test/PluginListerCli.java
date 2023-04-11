@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,7 +46,7 @@ public class PluginListerCli implements Callable<Integer> {
             paramLabel = "jar",
             description = "Comma-separated list of paths to external hooks JARs.",
             converter = ExistingFileTypeConverter.class)
-    private List<File> externalHooksJars = Collections.emptyList();
+    private Set<File> externalHooksJars = Set.of();
 
     @CheckForNull
     @CommandLine.Option(

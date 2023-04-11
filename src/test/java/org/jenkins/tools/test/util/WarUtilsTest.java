@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.startsWith;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataHooks;
 import org.junit.jupiter.api.Test;
@@ -21,10 +22,7 @@ class WarUtilsTest {
     void testPlugins() throws Exception {
         File megaWar = new File("target", "megawar.war");
         List<PluginMetadata> pms = WarUtils.extractPluginMetadataFromWar(
-                megaWar,
-                PluginMetadataHooks.loadExtractors(Collections.emptyList()),
-                Collections.emptySet(),
-                Collections.emptySet());
+                megaWar, PluginMetadataHooks.loadExtractors(Set.of()), Collections.emptySet(), Collections.emptySet());
         assertThat(pms, hasSize(1));
         PluginMetadata pm = pms.get(0);
 
