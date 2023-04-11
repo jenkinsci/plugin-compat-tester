@@ -12,7 +12,7 @@ import org.kohsuke.MetaInfServices;
 @HookOrder(order = -500)
 // delete once all non standard multi module plugins are using
 // https://github.com/jenkinsci/maven-hpi-plugin/pull/436
-public class LegacyMultimoduleExtractor extends PluginMetadataExtractor {
+public class LegacyMultiModuleExtractor extends PluginMetadataExtractor {
 
     private final Set<String> groupIdsWithNameAsModule =
             Set.of("io.jenkins.blueocean", "io.jenkins.plugins.mina-sshd-api");
