@@ -121,8 +121,9 @@ public class PluginCompatTester {
         // local checkout available then it needs to be added to the plugins to check
         if (onlyOnePluginIncluded()
                 && localCheckoutProvided()
-                && !data.plugins.containsKey(config.getIncludePlugins().get(0))) {
-            String artifactId = config.getIncludePlugins().get(0);
+                && !data.plugins.containsKey(
+                        config.getIncludePlugins().iterator().next())) {
+            String artifactId = config.getIncludePlugins().iterator().next();
             UpdateSite.Plugin extracted = extractFromLocalCheckout();
             data.plugins.put(artifactId, extracted);
         }
