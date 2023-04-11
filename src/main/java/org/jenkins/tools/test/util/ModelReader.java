@@ -27,7 +27,7 @@ public class ModelReader {
      * @throws PluginSourcesUnavailableException if the entry could not be loaded or found.
      * @throws IOException if there was an I/O related issue obtaining the model.
      */
-    public static Model getPluginsModelFromHpi(String groupId, String artifactId, JarInputStream jarInputStream)
+    public static Model getPluginModelFromHpi(String groupId, String artifactId, JarInputStream jarInputStream)
             throws PluginSourcesUnavailableException, IOException {
         String pom = getPomFromHpi(groupId, artifactId, jarInputStream);
         Model model;
