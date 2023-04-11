@@ -113,10 +113,7 @@ public class PluginCompatTester {
             pluginsByrepo.put(null, localMetadata);
         }
 
-        LOGGER.log(
-                Level.INFO,
-                "Starting plugin tests on core coordinates org.jenkins-ci.main:jenkins-war:{0}:executable-war",
-                coreVersion);
+        LOGGER.log(Level.INFO, "Starting plugin tests on core version {0}", coreVersion);
 
         PluginCompatibilityTesterException lastException = null;
 
@@ -179,7 +176,7 @@ public class PluginCompatTester {
     }
 
     private static String createBuildLogFilePathFor(String pluginId, String pluginVersion, String coreVersion) {
-        return String.format("logs/%s/v%s_against_jenkins_%s.log", pluginId, pluginVersion, coreVersion);
+        return String.format("logs/%s/v%s_against_core_version_%s.log", pluginId, pluginVersion, coreVersion);
     }
 
     private void testPluginAgainst(
@@ -191,7 +188,7 @@ public class PluginCompatTester {
                         + "#############################################\n"
                         + "#############################################\n"
                         + "##\n"
-                        + "## Starting to test {0} {1} against Jenkins {2}\n"
+                        + "## Starting to test {0} {1} against core version {2}\n"
                         + "##\n"
                         + "#############################################\n"
                         + "#############################################\n\n\n\n\n",
