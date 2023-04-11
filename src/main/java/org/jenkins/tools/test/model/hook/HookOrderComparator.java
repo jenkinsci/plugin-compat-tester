@@ -8,7 +8,7 @@ import java.util.Comparator;
  * missing the annotation order will be treated as if they have the default order. Where two objects
  * have the same order sorting will occur based on the classname.
  */
-public class HookOrderComprator implements Comparator<Object>, Serializable {
+public class HookOrderComparator implements Comparator<Object>, Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -98,7 +98,7 @@ public class PluginCompatTesterHooks {
         for (PluginCompatTesterHook<? extends StageContext> hook : ServiceLoader.load(clazz, classLoader)) {
             sortedHooks.add((PluginCompatTesterHook<StageContext>) hook);
         }
-        sortedHooks.sort(new HookOrderComprator());
+        sortedHooks.sort(new HookOrderComparator());
         return sortedHooks;
     }
 }

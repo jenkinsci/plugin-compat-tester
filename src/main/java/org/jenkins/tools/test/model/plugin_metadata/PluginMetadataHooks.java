@@ -23,7 +23,7 @@ import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.WrappedPluginCompatabilityException;
-import org.jenkins.tools.test.model.hook.HookOrderComprator;
+import org.jenkins.tools.test.model.hook.HookOrderComparator;
 import org.jenkins.tools.test.util.ModelReader;
 
 public class PluginMetadataHooks {
@@ -34,7 +34,7 @@ public class PluginMetadataHooks {
         ClassLoader cl = setupExternalClassLoaders(externalJars);
         List<PluginMetadataExtractor> extractors = ServiceLoader.load(PluginMetadataExtractor.class, cl).stream()
                 .map(e -> e.get())
-                .sorted(new HookOrderComprator())
+                .sorted(new HookOrderComparator())
                 .collect(Collectors.toList());
         return extractors;
     }
