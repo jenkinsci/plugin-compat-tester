@@ -4,10 +4,10 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * Comparator that will order first based on the {@code @HookOrder}. Objects whose classes are
- * missing the annotation order will be treated as if they have the default order. Where two objects
- * have the same order sorting will occur based on the classname.
- * This Compatator is not {@code null} safe.
+ * Comparator that will order first based on the {@link HookOrder}.
+ * Objects whose classes are missing the annotation order will be treated as if they have the default order.
+ * Where two objects have the same order sorting will occur based on the classname.
+ * This {@link Comparator} is not {@code null} safe.
  */
 public class HookOrderComparator implements Comparator<Object>, Serializable {
 

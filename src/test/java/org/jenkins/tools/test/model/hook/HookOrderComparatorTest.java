@@ -113,10 +113,7 @@ class HookOrderComparatorTest {
     }
 
     private List<Object> toSortedList(Object... objects) {
-        ArrayList<Object> l = new ArrayList<>();
-        for (Object o : objects) {
-            l.add(o);
-        }
+        List<Object> l = new ArrayList<>(List.of(objects));
         l.sort(new HookOrderComparator());
         return l;
     }
