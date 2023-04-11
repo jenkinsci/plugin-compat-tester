@@ -5,7 +5,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
         name = "pct",
         mixinStandardHelpOptions = true,
-        subcommands = {PluginCompatTesterCli.class, PluginListerCLI.class},
+        subcommands = {PluginCompatTesterCli.class, PluginListerCli.class},
         versionProvider = VersionProvider.class)
 public class CLI {
 

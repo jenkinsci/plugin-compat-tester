@@ -29,9 +29,9 @@ import picocli.CommandLine;
         mixinStandardHelpOptions = true,
         description = "List (non-detached) plugins and their associated repositories that the bundled in the war.",
         versionProvider = VersionProvider.class)
-public class PluginListerCLI implements Callable<Integer> {
+public class PluginListerCli implements Callable<Integer> {
 
-    private static final Logger LOGGER = Logger.getLogger(PluginListerCLI.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PluginListerCli.class.getName());
 
     @CommandLine.Option(
             names = {"-w", "--war"},
