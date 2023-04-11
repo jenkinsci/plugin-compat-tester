@@ -43,7 +43,8 @@ import picocli.CommandLine;
 @CommandLine.Command(
         name = "pct",
         mixinStandardHelpOptions = true,
-        description = "Perform a compatibility test for plugins against Jenkins core and other plugins.")
+        description = "Perform a compatibility test for plugins against Jenkins core and other plugins.",
+        versionProvider = VersionProvider.class)
 public class PluginCompatTesterCli implements Callable<Integer> {
 
     static {
