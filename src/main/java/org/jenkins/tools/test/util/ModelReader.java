@@ -21,9 +21,9 @@ public class ModelReader {
     /**
      * Load the model that is embedded inside the plugin in {@code META-INF/maven/${groupId}/${artifactId}/pom.xml}
      * @param groupId the groupId of the plugin
-     * @param artifactId the artifact of the plugin
-     * @param jarInputStream the inputStream created from Plugins jar file.
-     * @return the maven model for the plugin as read from the META-INF directory.
+     * @param artifactId the artifactId of the plugin
+     * @param jarInputStream the input stream created from the plugin's JAR file.
+     * @return the Maven model for the plugin as read from the {@code META-INF} directory.
      * @throws PluginSourcesUnavailableException if the entry could not be loaded or found.
      * @throws IOException if there was an I/O related issue obtaining the model.
      */
@@ -43,7 +43,7 @@ public class ModelReader {
 
         Scm scm = model.getScm();
         if (scm != null) {
-            // scm may contain properties so it needs to be resolved.
+            // scm may contain properties, so it needs to be resolved.
             scm.setConnection(interpolateString(scm.getConnection(), model.getArtifactId()));
         }
         return model;
@@ -62,7 +62,7 @@ public class ModelReader {
     }
 
     /**
-     * Replaces any occurrence of {@code "${project.artifactId}"} or {@code "${artifactId}"} with the
+     * Replace any occurrence of {@code "${project.artifactId}"} or {@code "${artifactId}"} with the
      * supplied value of the artifactId/
      *
      * @param original the original string

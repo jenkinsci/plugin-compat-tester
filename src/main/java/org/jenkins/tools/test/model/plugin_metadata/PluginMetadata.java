@@ -25,18 +25,18 @@ public class PluginMetadata {
         this.version = Objects.requireNonNull(builder.version, "version may not be null");
     }
 
-    /** The unique plugin id for this plugin. */
+    /** The unique plugin ID for this plugin. */
     public String getPluginId() {
         return pluginId;
     }
 
-    /** The Git URL for the source repository that contains this plugin, may be file based for a local checkout. */
+    /** The Git URL for the source repository that contains this plugin; may be file based for a local checkout. */
     public String getGitUrl() {
         return gitUrl;
     }
 
     /**
-     * The sha or tag of the git commit representing this plugin, may be {@code null} for a local checkout.
+     * The sha or tag of the git commit representing this plugin; may be {@code null} for a local checkout.
      */
     @CheckForNull
     public String getGitCommit() {
@@ -44,8 +44,8 @@ public class PluginMetadata {
     }
 
     /**
-     * The module path of the plugin inside it's source repository, will be {@code null} or the
-     * empty string ({@code ""}) if the plugin is not part of a multi module build.
+     * The module path of the plugin inside its source repository; will be {@code null} or the
+     * empty string ({@code ""}) if the plugin is not part of a multi-module build.
      */
     @CheckForNull
     public String getModulePath() {
@@ -87,7 +87,7 @@ public class PluginMetadata {
         }
 
         /**
-         * Convenience method that strips "scm:git:" from the URL and sets the Git URL.
+         * Convenience method that strips {@code scm:git:} from the URL and sets the Git URL.
          * @param scmUrl the Maven model SCM URL
          * @throws MetadataExtractionException If the underlying SCM is not a Git URL
          * @see #withGitUrl(String)

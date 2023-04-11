@@ -9,8 +9,8 @@ import org.jenkins.tools.test.model.hook.HookOrder;
 import org.kohsuke.MetaInfServices;
 
 /**
- * Extractor that obtains all the information from the plugins Manifiest file. This requires the
- * plugin was built with a version of maven-hpi-plugin with
+ * Extractor that obtains all the information from the plugin's manifiest file. This requires the
+ * plugin to have been built with a version of {@code maven-hpi-plugin} with
  * https://github.com/jenkinsci/maven-hpi-plugin/pull/436
  */
 @MetaInfServices(PluginMetadataExtractor.class)
@@ -28,13 +28,13 @@ public class ModernPluginMetadataExtractor extends PluginMetadataExtractor {
     @Override
     public Optional<PluginMetadata> extractMetadata(String pluginId, Manifest manifest, Model model)
             throws MetadataExtractionException {
-        // all of the information os stored in the plugins Manifest
+        // All the information is stored in the plugin's manifest
         Attributes mainAttributes = manifest.getMainAttributes();
 
         assert pluginId.equals(mainAttributes.getValue(PLUGIN_ID));
 
         if (mainAttributes.containsKey(GIT_REVISION_ATTRIBUTE)) {
-            // we are new enough to be a modern plugin
+            // We are new enough to be a modern plugin
 
             return Optional.of(new PluginMetadata.Builder()
                     .withPluginId(mainAttributes.getValue(PLUGIN_ID))

@@ -94,9 +94,7 @@ public class PluginCompatTester {
                 config.getIncludePlugins(),
                 config.getExcludePlugins());
 
-        // filter any plugins that are not being tested and group by Git URL
-        // and run through the pre-checkout hooks
-        // and group by Git URL
+        // Filter any plugins that are not being tested, group by Git URL, and run through the before checkout hooks
         Map<String, List<PluginMetadata>> pluginsByrepo;
         try {
             pluginsByrepo = pluginMetadataList.stream()
@@ -107,7 +105,7 @@ public class PluginCompatTester {
         }
 
         if (localCheckoutProvided()) {
-            // do not perform BeforeCheckoutHooks on a local checkout
+            // Do not perform the before checkout hooks on a local checkout
             List<PluginMetadata> localMetadata =
                     LocalCheckoutMetadataExtractor.extractMetadata(config.getLocalCheckoutDir(), config);
             pluginsByrepo.put(null, localMetadata);
@@ -118,7 +116,7 @@ public class PluginCompatTester {
         PluginCompatibilityTesterException lastException = null;
 
         for (Map.Entry<String, List<PluginMetadata>> entry : pluginsByrepo.entrySet()) {
-            // construct a single working directory for the clone.
+            // Construct a single working directory for the clone
             String gitUrl = entry.getKey();
 
             File cloneDir;
@@ -126,7 +124,7 @@ public class PluginCompatTester {
                 cloneDir = config.getLocalCheckoutDir();
             } else {
                 cloneDir = new File(config.getWorkingDir(), getRepoNameFromGitUrl(gitUrl));
-                // all plugins from the same reactor are assumed to be of the same version
+                // All plugins from the same reactor are assumed to be of the same version
                 String tag = entry.getValue().get(0).getGitCommit();
 
                 try {
@@ -140,7 +138,7 @@ public class PluginCompatTester {
                     continue;
                 }
             }
-            // for each of the PluginMetadataEntries, go test the plugin!
+            // For each of the PluginMetadata entries, go test the plugin
             for (PluginMetadata pm : entry.getValue()) {
                 try {
                     testPluginAgainst(coreVersion, pm, cloneDir, pcth);
@@ -196,7 +194,7 @@ public class PluginCompatTester {
 
         File buildLogFile = createBuildLogFile(config.getWorkingDir(), pluginMetadata, coreVersion);
 
-        // Run the BeforeCompileHooks
+        // Run the before compile hooks
         BeforeCompilationContext beforeCompile =
                 new BeforeCompilationContext(pluginMetadata, coreVersion, config, cloneLocation);
         pcth.runBeforeCompilation(beforeCompile);

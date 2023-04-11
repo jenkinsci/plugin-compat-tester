@@ -14,8 +14,8 @@ public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
     @Override
     public Optional<PluginMetadata> extractMetadata(String pluginId, Manifest manifest, Model model)
             throws MetadataExtractionException {
-        // any multimodule project must have been handled before now (either the modern hook or a
-        // specific hook for a legacy multi module project)
+        // Any multi-module project must have been handled before now (either the modern hook or a
+        // specific hook for a legacy multi-module project)
         if (model.getScm() == null) {
             return Optional.empty();
         }
@@ -25,8 +25,8 @@ public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
                 .withName(model.getName())
                 .withScmUrl(model.getScm().getConnection())
                 .withGitCommit(model.getScm().getTag())
-                .withModulePath(null) // any multi module projects have already been handled by now
-                // or require new hooks.
+                // Any multi-module projects have already been handled by now or require new hooks
+                .withModulePath(null)
                 .withVersion(model.getVersion())
                 .build());
     }

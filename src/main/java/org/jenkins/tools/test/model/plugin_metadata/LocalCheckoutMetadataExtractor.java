@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
-import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
@@ -66,22 +65,21 @@ public class LocalCheckoutMetadataExtractor {
                 }
             }
             if (metadata.isEmpty()) {
-                throw new MetadataExtractionException("failed to locate any plugins in local checkout");
+                throw new MetadataExtractionException("Failed to locate any plugins in local checkout");
             }
             Files.deleteIfExists(log.toPath());
             return metadata;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (PomExecutionException e) {
-            throw new MetadataExtractionException("failed to extract plugins from local checkout", e);
+            throw new MetadataExtractionException("Failed to extract plugins from local checkout", e);
         }
     }
 
     /**
-     * COnveret a line in the output from hpi:list-plugins to a PluginMetadata entry.
+     * Convert a line in the output from {@code hpi:list-plugins} to a {@link PluginMetadata} entry.
      *
      * @param cloneDirectory the directory in which to make paths relative to.
-     * @throws PluginSourcesUnavailableException
      */
     private static PluginMetadata toPluginMetadata(File cloneDirectory, String hpiListEntry)
             throws MetadataExtractionException {

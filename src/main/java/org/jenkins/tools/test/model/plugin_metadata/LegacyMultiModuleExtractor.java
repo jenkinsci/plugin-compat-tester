@@ -8,10 +8,10 @@ import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.model.hook.HookOrder;
 import org.kohsuke.MetaInfServices;
 
-@MetaInfServices(PluginMetadataExtractor.class)
-@HookOrder(order = -500)
 // delete once all non standard multi module plugins are using
 // https://github.com/jenkinsci/maven-hpi-plugin/pull/436
+@MetaInfServices(PluginMetadataExtractor.class)
+@HookOrder(order = -500)
 public class LegacyMultiModuleExtractor extends PluginMetadataExtractor {
 
     private final Set<String> groupIdsWithNameAsModule =
@@ -36,7 +36,8 @@ public class LegacyMultiModuleExtractor extends PluginMetadataExtractor {
         if (groupIdsWithNameAsModule.contains(groupId)) {
             return Optional.of(builder.withModulePath(pluginId).build());
         }
-        // handle non standard aggregator projects.
+
+        // Handle nonstandard aggregator projects
 
         // https://github.com/jenkinsci/pipeline-model-definition-plugin
         if (Set.of(
@@ -47,6 +48,7 @@ public class LegacyMultiModuleExtractor extends PluginMetadataExtractor {
                 .contains(pluginId)) {
             return Optional.of(builder.withModulePath(pluginId).build());
         }
+
         // https://github.com/jenkinsci/declarative-pipeline-migration-assistant-plugin
         if (Set.of("declarative-pipeline-migration-assistant", "declarative-pipeline-migration-assistant-api")
                 .contains(pluginId)) {
@@ -70,6 +72,7 @@ public class LegacyMultiModuleExtractor extends PluginMetadataExtractor {
         if ("warnings-ng".equals(pluginId)) {
             return Optional.of(builder.withModulePath("plugin").build());
         }
+
         // https://github.com/jenkinsci/workflow-cps-plugin/
         if ("workflow-cps".equals(pluginId)) {
             return Optional.of(builder.withModulePath("plugin").build());

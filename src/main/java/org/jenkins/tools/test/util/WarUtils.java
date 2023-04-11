@@ -13,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.maven.model.Dependency;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.WrappedPluginCompatibilityException;
@@ -29,7 +28,7 @@ public class WarUtils {
      * Extract the Jenkins core version from the given WAR.
      *
      * @param war the Jenkins WAR file.
-     * @return a {@link Dependency} representing the jenkins-core artifact in the WAR.
+     * @return the Jenkins core version number
      */
     public static String extractCoreVersionFromWar(File war) throws MetadataExtractionException {
         try (JarFile jf = new JarFile(war)) {
@@ -78,10 +77,10 @@ public class WarUtils {
             this.exclude = excludedPlugins;
         }
 
-        @Override
         /**
          * @return {@code true} iff {@code je} represents a plugin in {@code WEB-INF/plugins/}
          */
+        @Override
         public boolean test(JarEntry je) {
             // ignore detached plugins;
             if (je.getName().startsWith("WEB-INF/plugins/") && je.getName().endsWith(".hpi")) {

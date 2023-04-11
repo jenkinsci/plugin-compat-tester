@@ -56,12 +56,11 @@ public class PluginMetadataHooks {
     }
 
     /**
-     * obtain the repository URL and plugin name from the given jar entry. The Given jar entry must
-     * be a plugin otherwise the behaviour is undefined.
+     * Obtain the repository URL and plugin name from the given JAR entry.
+     * The given JAR entry must be a plugin; otherwise, the behaviour is undefined.
      *
      * @param je the {@link JarEntry} representing the plugin.
-     * @return an Entry whose key is the SCM url and value is the plugin id.
-     * @throws WrappedPluginCompatibilityException if an
+     * @return an entry whose key is the SCM URL and whose value is the plugin ID.
      */
     public static PluginMetadata getPluginDetails(List<PluginMetadataExtractor> extractors, JarFile f, JarEntry je)
             throws WrappedPluginCompatibilityException {
