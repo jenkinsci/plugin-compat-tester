@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.model.Dependency;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.jvnet.hudson.test.Issue;
@@ -158,22 +157,6 @@ class MavenPomTest {
         new MavenPom(prj).addDependencies(toAdd, toReplace, toAddTest, toReplaceTest, pluginGroupIds, toConvert);
 
         assertResourceEqualsXmlFile("credentials-binding-pom-after.xml", pom);
-    }
-
-    @Issue("https://github.com/jenkinsci/plugin-compat-tester/pull/287")
-    @Test
-    void transformPOMwithSpecialCharacters(@TempDir File folder) throws Exception {
-        File pomFile = createPomFileFromResource(folder, "demo-plugin-pom-before.xml");
-
-        Dependency coreCoordinates = new Dependency();
-        coreCoordinates.setGroupId("org.jenkins-ci.plugins");
-        coreCoordinates.setArtifactId("plugin");
-        coreCoordinates.setVersion("2.235.1");
-
-        MavenPom mavenPom = new MavenPom(pomFile.getParentFile());
-        mavenPom.transformPom(coreCoordinates);
-
-        assertResourceEqualsXmlFile("demo-plugin-pom-after.xml", pomFile);
     }
 
     @Test

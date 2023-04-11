@@ -36,7 +36,6 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -83,43 +82,6 @@ public class MavenPom {
     private MavenPom(File rootDir, String pomFileName) {
         this.rootDir = rootDir;
         this.pomFileName = pomFileName;
-    }
-
-    public void transformPom(Dependency coreCoordinates) throws PomTransformationException {
-        File pom = new File(rootDir.getAbsolutePath() + "/" + pomFileName);
-        File backupPom = new File(rootDir.getAbsolutePath() + "/" + pomFileName + ".backup");
-        try {
-            Files.move(pom.toPath(), backupPom.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        Document doc;
-        try {
-            doc = new SAXReader().read(backupPom);
-        } catch (DocumentException x) {
-            throw new PomTransformationException("Failed to parse pom.xml", x);
-        }
-
-        Element parent = doc.getRootElement().element("parent");
-        if (parent != null) {
-            Element groupIdElem = parent.element(GROUP_ID_ELEMENT);
-            if (groupIdElem != null) {
-                groupIdElem.setText(coreCoordinates.getGroupId());
-            }
-
-            Element artifactIdElem = parent.element(ARTIFACT_ID_ELEMENT);
-            if (artifactIdElem != null) {
-                artifactIdElem.setText(coreCoordinates.getArtifactId());
-            }
-
-            Element versionIdElem = parent.element(VERSION_ELEMENT);
-            if (versionIdElem != null) {
-                versionIdElem.setText(coreCoordinates.getVersion());
-            }
-        }
-
-        writeDocument(pom, doc);
     }
 
     /** Removes the dependency if it exists. */
