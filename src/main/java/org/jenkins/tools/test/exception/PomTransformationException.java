@@ -32,6 +32,9 @@ package org.jenkins.tools.test.exception;
  * @author Frederic Camblor
  */
 public class PomTransformationException extends PluginCompatibilityTesterException {
+
+    private static final long serialVersionUID = 1L;
+
     public PomTransformationException(String message) {
         super(message);
     }

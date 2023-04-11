@@ -33,6 +33,8 @@ package org.jenkins.tools.test.exception;
  */
 public class PomExecutionException extends PluginCompatibilityTesterException {
 
+    private static final long serialVersionUID = 1L;
+
     public PomExecutionException(String message) {
         super(message);
     }
