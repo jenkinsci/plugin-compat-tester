@@ -52,7 +52,7 @@ public class PluginListerCli implements Callable<Integer> {
     @CommandLine.Option(
             names = {"-o", "--output"},
             required = false,
-            description = "location of the file to write containing the plugin and reposiries.")
+            description = "Location of the file to write containing the plugin and repositories.")
     private File output;
 
     @CheckForNull
@@ -82,12 +82,12 @@ public class PluginListerCli implements Callable<Integer> {
         List<PluginMetadata> pluginMetadataList =
                 WarUtils.extractPluginMetadataFromWar(warFile, metadataExtractors, includePlugins, excludePlugins);
 
-        // group the plugins into their actual repositories.
+        // Group the plugins into their actual repositories.
         Map<String, List<PluginMetadata>> metaDataByRepoMap =
                 pluginMetadataList.stream().collect(Collectors.groupingBy(PluginMetadata::getGitURL));
 
         if (metaDataByRepoMap.isEmpty()) {
-            LOGGER.log(Level.WARNING, "found no plugins in ", warFile);
+            LOGGER.log(Level.WARNING, "Found no plugins in ", warFile);
             return Integer.valueOf(5);
         }
 
