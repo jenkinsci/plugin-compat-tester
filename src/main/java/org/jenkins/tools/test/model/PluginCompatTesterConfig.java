@@ -50,7 +50,7 @@ public class PluginCompatTesterConfig {
     private final File workingDir;
 
     // Set of plugin artifact ids on which tests will be performed
-    // If empty, tests will be performed on every plugins retrieved from the war
+    // If empty, tests will be performed on every plugin retrieved from the WAR
     @NonNull
     private Set<String> includePlugins = Set.of();
 
@@ -59,7 +59,7 @@ public class PluginCompatTesterConfig {
     @NonNull
     private Set<String> excludePlugins = Set.of();
 
-    // List of hooks that will not be executed
+    // Set of hooks that will not be executed
     // If empty, all hooks will be executed
     @NonNull
     private Set<String> excludeHooks = Set.of();

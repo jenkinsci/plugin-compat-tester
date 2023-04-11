@@ -76,7 +76,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             arity = "1",
             paramLabel = "plugin",
             description =
-                    "Comma-separated list of plugin artifact IDs to test. If not set, every plugin in the WAR will be tested.")
+                    "Comma-separated set of plugin artifact IDs to test. If not set, every plugin in the WAR will be tested.")
     private Set<String> includePlugins;
 
     @CheckForNull
@@ -86,7 +86,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             arity = "1",
             paramLabel = "plugin",
             description =
-                    "Comma-separated list of plugin artifact IDs to skip. If not set, only the plugins specified by --plugins will be tested (or all plugins otherwise).")
+                    "Comma-separated set of plugin artifact IDs to skip. If not set, only the plugins specified by --plugins will be tested (or all plugins otherwise).")
     private Set<String> excludePlugins;
 
     @CheckForNull
@@ -95,7 +95,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             split = ",",
             arity = "1",
             paramLabel = "hook",
-            description = "Comma-separated list of hooks to skip. If not set, all hooks will be executed.")
+            description = "Comma-separated set of hooks to skip. If not set, all hooks will be executed.")
     private Set<String> excludeHooks;
 
     @CheckForNull
@@ -142,7 +142,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             split = ",",
             arity = "1",
             paramLabel = "jar",
-            description = "Comma-separated list of paths to external hooks JARs.",
+            description = "Comma-separated set of paths to external hooks JARs.",
             converter = ExistingFileTypeConverter.class)
     private Set<File> externalHooksJars;
 
