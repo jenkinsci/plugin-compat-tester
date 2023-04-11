@@ -138,7 +138,7 @@ public class PluginCompatTester {
                     lastException = throwOrAddSupressed(lastException, e, config.isFailFast());
                     LOGGER.log(
                             Level.SEVERE,
-                            String.format("Internal error while clonging repository %s at commit %s.", gitUrl, tag),
+                            String.format("Internal error while cloning repository %s at commit %s.", gitUrl, tag),
                             e);
                     continue;
                 }
