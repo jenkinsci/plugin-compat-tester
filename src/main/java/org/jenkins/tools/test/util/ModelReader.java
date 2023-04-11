@@ -1,10 +1,6 @@
 package org.jenkins.tools.test.util;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.apache.maven.model.Model;
@@ -29,16 +25,22 @@ public class ModelReader {
      */
     public static Model getPluginModelFromHpi(String groupId, String artifactId, JarInputStream jarInputStream)
             throws PluginSourcesUnavailableException, IOException {
-        String pom = getPomFromHpi(groupId, artifactId, jarInputStream);
-        Model model;
-
-        try (Reader r = new StringReader(pom)) {
-            MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
-            model = mavenXpp3Reader.read(r);
-        } catch (XmlPullParserException e) {
-            throw new PluginSourcesUnavailableException("Failed to parse pom.xml", e);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        Model model = null;
+        final String entryName = "META-INF/maven/" + groupId + "/" + artifactId + "/pom.xml";
+        JarEntry jarEntry;
+        while ((jarEntry = jarInputStream.getNextJarEntry()) != null) {
+            if (entryName.equals(jarEntry.getName())) {
+                try {
+                    MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
+                    model = mavenXpp3Reader.read(jarInputStream);
+                    break;
+                } catch (XmlPullParserException e) {
+                    throw new PluginSourcesUnavailableException("Failed to parse pom.xml", e);
+                }
+            }
+        }
+        if (model == null) {
+            throw new PluginSourcesUnavailableException(entryName + " was not found in the plugin HPI");
         }
 
         Scm scm = model.getScm();
@@ -47,18 +49,6 @@ public class ModelReader {
             scm.setConnection(interpolateString(scm.getConnection(), model.getArtifactId()));
         }
         return model;
-    }
-
-    private static String getPomFromHpi(String groupId, String artifactId, JarInputStream jarInputStream)
-            throws PluginSourcesUnavailableException, IOException {
-        final String entryName = "META-INF/maven/" + groupId + "/" + artifactId + "/pom.xml";
-        JarEntry jarEntry;
-        while ((jarEntry = jarInputStream.getNextJarEntry()) != null) {
-            if (entryName.equals(jarEntry.getName())) {
-                return new String(jarInputStream.readAllBytes(), StandardCharsets.UTF_8);
-            }
-        }
-        throw new PluginSourcesUnavailableException(entryName + " was not found in the plugin HPI");
     }
 
     /**
