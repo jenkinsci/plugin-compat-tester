@@ -1,7 +1,7 @@
 package org.jenkins.tools.test.exception;
 
 /**
- * Exception used when extracting metadata from the war fails, e.g. the list of plugins or Jenkins
+ * Exception used when extracting metadata from the WAR fails; e.g. the list of plugins or Jenkins
  * version could not be obtained.
  */
 public class MetadataExtractionException extends PluginCompatibilityTesterException {

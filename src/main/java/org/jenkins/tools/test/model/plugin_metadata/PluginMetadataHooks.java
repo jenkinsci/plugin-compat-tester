@@ -22,7 +22,7 @@ import org.apache.maven.model.Model;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
-import org.jenkins.tools.test.exception.WrappedPluginCompatabilityException;
+import org.jenkins.tools.test.exception.WrappedPluginCompatibilityException;
 import org.jenkins.tools.test.model.hook.HookOrderComparator;
 import org.jenkins.tools.test.util.ModelReader;
 
@@ -61,10 +61,10 @@ public class PluginMetadataHooks {
      *
      * @param je the {@link JarEntry} representing the plugin.
      * @return and Entry whose key is the SCM url and value is the plugin id.
-     * @throws WrappedPluginCompatabilityException if an
+     * @throws WrappedPluginCompatibilityException if an
      */
     public static PluginMetadata getPluginDetails(List<PluginMetadataExtractor> extractors, JarFile f, JarEntry je)
-            throws WrappedPluginCompatabilityException {
+            throws WrappedPluginCompatibilityException {
         // the entry is the HPI file
 
         Manifest manifest;
@@ -78,7 +78,7 @@ public class PluginMetadataHooks {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (PluginCompatibilityTesterException e) {
-            throw new WrappedPluginCompatabilityException(e);
+            throw new WrappedPluginCompatibilityException(e);
         }
         try {
             // once all plugins have adopted https://github.com/jenkinsci/maven-hpi-plugin/pull/436 this can be
@@ -91,9 +91,9 @@ public class PluginMetadataHooks {
                 }
             }
         } catch (MetadataExtractionException e) {
-            throw new WrappedPluginCompatabilityException(e);
+            throw new WrappedPluginCompatibilityException(e);
         }
-        throw new WrappedPluginCompatabilityException(
+        throw new WrappedPluginCompatibilityException(
                 new PluginSourcesUnavailableException("No metadata could be extracted for entry " + je.getName()));
     }
 }

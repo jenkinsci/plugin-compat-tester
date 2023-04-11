@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 import org.apache.maven.model.Dependency;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
-import org.jenkins.tools.test.exception.WrappedPluginCompatabilityException;
+import org.jenkins.tools.test.exception.WrappedPluginCompatibilityException;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataExtractor;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataHooks;
@@ -55,7 +55,7 @@ public class WarUtils {
             return entries.filter(new InterestingPluginFilter(includedPlugins, excludedPlugins))
                     .map(e -> PluginMetadataHooks.getPluginDetails(extractors, war, e))
                     .collect(Collectors.toList());
-        } catch (WrappedPluginCompatabilityException e) {
+        } catch (WrappedPluginCompatibilityException e) {
             throw e.getCause();
         } catch (IOException e) {
             throw new UncheckedIOException("I/O error occured whilst extracting plugin metadata from war", e);

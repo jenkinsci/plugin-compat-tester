@@ -50,7 +50,7 @@ import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.exception.WrappedPluginCompatabilityException;
+import org.jenkins.tools.test.exception.WrappedPluginCompatibilityException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
@@ -102,7 +102,7 @@ public class PluginCompatTester {
             pluginsByrepo = pluginMetadataList.stream()
                     .map(new RunAndMapBeforeCheckoutHooks(pcth, coreVersion, config))
                     .collect(Collectors.groupingBy(PluginMetadata::getGitUrl, HashMap::new, Collectors.toList()));
-        } catch (WrappedPluginCompatabilityException e) {
+        } catch (WrappedPluginCompatibilityException e) {
             throw e.getCause();
         }
 
@@ -602,12 +602,12 @@ public class PluginCompatTester {
         }
 
         @Override
-        public PluginMetadata apply(PluginMetadata pluginMetadata) throws WrappedPluginCompatabilityException {
+        public PluginMetadata apply(PluginMetadata pluginMetadata) throws WrappedPluginCompatibilityException {
             BeforeCheckoutContext c = new BeforeCheckoutContext(pluginMetadata, coreVersion, config);
             try {
                 pcth.runBeforeCheckout(c);
             } catch (PluginCompatibilityTesterException e) {
-                throw new WrappedPluginCompatabilityException(e);
+                throw new WrappedPluginCompatibilityException(e);
             }
             return c.getPluginMetadata();
         }

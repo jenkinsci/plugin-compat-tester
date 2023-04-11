@@ -15,11 +15,11 @@ public class HookOrderComparator implements Comparator<Object>, Serializable {
     @Override
     public int compare(Object left, Object right) {
         int leftOrder = getHookOrder(left);
-        int rightOder = getHookOrder(right);
-        if (leftOrder < rightOder) {
+        int rightOrder = getHookOrder(right);
+        if (leftOrder < rightOrder) {
             return 1;
         }
-        if (leftOrder > rightOder) {
+        if (leftOrder > rightOrder) {
             return -1;
         }
         return left.getClass().getName().compareTo(right.getClass().getName());
