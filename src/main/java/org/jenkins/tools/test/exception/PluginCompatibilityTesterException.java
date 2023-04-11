@@ -8,6 +8,8 @@ package org.jenkins.tools.test.exception;
  */
 public class PluginCompatibilityTesterException extends Exception {
 
+    private static final long serialVersionUID = 1L;
+
     public PluginCompatibilityTesterException(String message) {
         super(message);
     }

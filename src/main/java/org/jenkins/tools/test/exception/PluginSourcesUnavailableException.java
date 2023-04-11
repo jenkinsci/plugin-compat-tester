@@ -33,6 +33,9 @@ package org.jenkins.tools.test.exception;
  * @author Frederic Camblor
  */
 public class PluginSourcesUnavailableException extends PluginCompatibilityTesterException {
+
+    private static final long serialVersionUID = 1L;
+
     public PluginSourcesUnavailableException(String message) {
         super(message);
     }
