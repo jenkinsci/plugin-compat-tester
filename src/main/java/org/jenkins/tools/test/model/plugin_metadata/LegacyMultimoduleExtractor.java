@@ -27,7 +27,7 @@ public class LegacyMultimoduleExtractor extends PluginMetadataExtractor {
         PluginMetadata.Builder builder = new PluginMetadata.Builder()
                 .withPluginId(model.getArtifactId())
                 .withName(model.getName())
-                .withSCMURL(model.getScm().getConnection())
+                .withScmUrl(model.getScm().getConnection())
                 .withGitCommit(model.getScm().getTag())
                 .withVersion(model.getVersion() == null ? model.getParent().getVersion() : model.getVersion());
 

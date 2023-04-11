@@ -23,7 +23,7 @@ public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
         return Optional.of(new PluginMetadata.Builder()
                 .withPluginId(model.getArtifactId())
                 .withName(model.getName())
-                .withSCMURL(model.getScm().getConnection())
+                .withScmUrl(model.getScm().getConnection())
                 .withGitCommit(model.getScm().getTag())
                 .withModulePath(null) // any multi module projects have already been handled by now
                 // or require new hooks.

@@ -39,7 +39,7 @@ public class ModernPluginMetaDataExtractor extends PluginMetadataExtractor {
             return Optional.of(new PluginMetadata.Builder()
                     .withPluginId(mainAttributes.getValue(PLUGIN_ID))
                     .withName(mainAttributes.getValue(PLUGIN_NAME))
-                    .withSCMURL(mainAttributes.getValue(GIT_SCM_URL))
+                    .withScmUrl(mainAttributes.getValue(GIT_SCM_URL))
                     .withGitCommit(mainAttributes.getValue(GIT_REVISION_ATTRIBUTE))
                     .withModulePath(mainAttributes.getValue(MAVEN_MODULE_LOCATION))
                     .withVersion(mainAttributes.getValue(PLUGIN_VERSION))

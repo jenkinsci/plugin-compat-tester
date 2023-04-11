@@ -83,21 +83,21 @@ class PluginCompatTesterTest {
     void testDirectoryFromGitUrl() throws Exception {
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL("ssh://git@github.com/jenkinsci/plugin-compat-tester.git"));
+                PluginCompatTester.getRepoNameFromGitUrl("ssh://git@github.com/jenkinsci/plugin-compat-tester.git"));
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL("https://github.com/jenkinsci/plugin-compat-tester.git"));
+                PluginCompatTester.getRepoNameFromGitUrl("https://github.com/jenkinsci/plugin-compat-tester.git"));
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL("git@host.xz:jenkinsci/plugin-compat-tester.git"));
+                PluginCompatTester.getRepoNameFromGitUrl("git@host.xz:jenkinsci/plugin-compat-tester.git"));
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL("ssh://git@github.com/jenkinsci/plugin-compat-tester"));
+                PluginCompatTester.getRepoNameFromGitUrl("ssh://git@github.com/jenkinsci/plugin-compat-tester"));
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL("https://github.com/jenkinsci/plugin-compat-tester"));
+                PluginCompatTester.getRepoNameFromGitUrl("https://github.com/jenkinsci/plugin-compat-tester"));
         assertEquals(
                 "plugin-compat-tester",
-                PluginCompatTester.getRepoNameFromGitURL("git@host.xz:jenkinsci/plugin-compat-tester"));
+                PluginCompatTester.getRepoNameFromGitUrl("git@host.xz:jenkinsci/plugin-compat-tester"));
     }
 }

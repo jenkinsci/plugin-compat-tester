@@ -10,7 +10,7 @@ import org.jenkins.tools.test.exception.MetadataExtractionException;
 public class PluginMetadata {
 
     private final String pluginId;
-    private final String gitURL;
+    private final String gitUrl;
     private final String modulePath;
     private final String gitCommit;
     private final String name;
@@ -18,7 +18,7 @@ public class PluginMetadata {
 
     private PluginMetadata(Builder builder) {
         this.pluginId = Objects.requireNonNull(builder.pluginId, "pluginId may not be null");
-        this.gitURL = Objects.requireNonNull(builder.gitURL, "gitURL may not be null");
+        this.gitUrl = Objects.requireNonNull(builder.gitUrl, "gitUrl may not be null");
         this.modulePath = builder.modulePath;
         this.gitCommit = builder.gitCommit;
         this.name = builder.name;
@@ -32,7 +32,7 @@ public class PluginMetadata {
 
     /** The git URL for the source repository that contains this plugin, may be file based for a local checkout. */
     public String getGitUrl() {
-        return gitURL;
+        return gitUrl;
     }
 
     /**
@@ -64,7 +64,7 @@ public class PluginMetadata {
 
     public static final class Builder {
         private String pluginId;
-        private String gitURL;
+        private String gitUrl;
         private String modulePath;
         private String gitCommit;
         private String name;
@@ -74,7 +74,7 @@ public class PluginMetadata {
 
         public Builder(PluginMetadata from) {
             this.pluginId = from.pluginId;
-            this.gitURL = from.gitURL;
+            this.gitUrl = from.gitUrl;
             this.modulePath = from.modulePath;
             this.gitCommit = from.gitCommit;
             this.name = from.name;
@@ -90,18 +90,18 @@ public class PluginMetadata {
          * Conviencice method that strips "scm:git:" from the URL and sets the git URL.
          * @param scmUrl the maven model SCM URL
          * @throws MetadataExtractionException the the underlying SCM is not a git URL
-         * @see #withGitURL(String)
+         * @see #withGitUrl(String)
          */
-        public Builder withSCMURL(String scmUrl) throws MetadataExtractionException {
+        public Builder withScmUrl(String scmUrl) throws MetadataExtractionException {
             if (scmUrl.startsWith("scm:git:")) {
-                return withGitURL(scmUrl.substring(8));
+                return withGitUrl(scmUrl.substring(8));
             }
             throw new MetadataExtractionException(
                     "SCM URL" + scmUrl + " is not supported, only git SCM urls are supported");
         }
 
-        public Builder withGitURL(String gitURL) {
-            this.gitURL = gitURL;
+        public Builder withGitUrl(String gitUrl) {
+            this.gitUrl = gitUrl;
             return this;
         }
 

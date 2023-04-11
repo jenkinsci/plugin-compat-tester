@@ -36,7 +36,7 @@ class ModernPluginMetaDataExtractorTest {
                     optionalMetadata.get(),
                     allOf(
                             hasProperty("pluginId", is("aws-java-sdk-ec2")),
-                            hasProperty("gitURL", is("https://github.com/jenkinsci/aws-java-sdk-plugin.git")),
+                            hasProperty("gitUrl", is("https://github.com/jenkinsci/aws-java-sdk-plugin.git")),
                             hasProperty("modulePath", is("aws-java-sdk-ec2")),
                             hasProperty("gitCommit", is("59d2bd41281b30c7fcfd8536bf4177ccb3d6b49c")),
                             hasProperty("name", is("Amazon Web Services SDK :: EC2")),
