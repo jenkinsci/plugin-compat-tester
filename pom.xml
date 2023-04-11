@@ -265,37 +265,15 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
           <archive>
             <manifest>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
             </manifest>
-            <manifestEntries>
-              <scmRevision>${buildNumber} ${buildIsTainted}</scmRevision>
-            </manifestEntries>
           </archive>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>3.0.0</version>
-        <configuration>
-          <doCheck>true</doCheck>
-          <doUpdate>false</doUpdate>
-          <failTheBuild>false</failTheBuild>
-          <getRevisionOnlyOnce>true</getRevisionOnlyOnce>
-          <shortRevisionLength>7</shortRevisionLength>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>create</goal>
-            </goals>
-            <phase>validate</phase>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
