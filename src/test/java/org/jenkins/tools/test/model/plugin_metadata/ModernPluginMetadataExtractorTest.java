@@ -14,21 +14,21 @@ import java.util.Optional;
 import java.util.jar.Manifest;
 import org.junit.jupiter.api.Test;
 
-class ModernPluginMetaDataExtractorTest {
+class ModernPluginMetadataExtractorTest {
 
     @Test
     void extractModernMetadata() throws Exception {
         // from https://github.com/jenkinsci/aws-java-sdk-plugin/pull/956/checks?check_run_id=12250637623
-        try (InputStream resourceAsStream = ModernPluginMetaDataExtractorTest.class.getResourceAsStream(
-                "ModernPluginMetaDataExtractorTest/modern/MANIFEST.MF")) {
+        try (InputStream resourceAsStream = ModernPluginMetadataExtractorTest.class.getResourceAsStream(
+                "ModernPluginMetadataExtractorTest/modern/MANIFEST.MF")) {
 
             assertNotNull(resourceAsStream);
             Manifest mf = new Manifest(resourceAsStream);
 
-            ModernPluginMetaDataExtractor modernPluginMetaDataExtractor = new ModernPluginMetaDataExtractor();
+            ModernPluginMetadataExtractor modernPluginMetadataExtractor = new ModernPluginMetadataExtractor();
 
             Optional<PluginMetadata> optionalMetadata =
-                    modernPluginMetaDataExtractor.extractMetadata("aws-java-sdk-ec2", mf, null);
+                    modernPluginMetadataExtractor.extractMetadata("aws-java-sdk-ec2", mf, null);
 
             assertTrue(optionalMetadata.isPresent(), "metadata should be extracted from a modern manifest");
 
@@ -47,16 +47,16 @@ class ModernPluginMetaDataExtractorTest {
     @Test
     void extractLegacyMetadata() throws Exception {
         // from https://updates.jenkins.io/download/plugins/text-finder/1.23/text-finder.hpi
-        try (InputStream resourceAsStream = ModernPluginMetaDataExtractorTest.class.getResourceAsStream(
-                "ModernPluginMetaDataExtractorTest/legacy/MANIFEST.MF")) {
+        try (InputStream resourceAsStream = ModernPluginMetadataExtractorTest.class.getResourceAsStream(
+                "ModernPluginMetadataExtractorTest/legacy/MANIFEST.MF")) {
 
             assertNotNull(resourceAsStream);
             Manifest mf = new Manifest(resourceAsStream);
 
-            ModernPluginMetaDataExtractor modernPluginMetaDataExtractor = new ModernPluginMetaDataExtractor();
+            ModernPluginMetadataExtractor modernPluginMetadataExtractor = new ModernPluginMetadataExtractor();
 
             Optional<PluginMetadata> optionalMetadata =
-                    modernPluginMetaDataExtractor.extractMetadata("text-finder", mf, null);
+                    modernPluginMetadataExtractor.extractMetadata("text-finder", mf, null);
 
             assertFalse(optionalMetadata.isPresent(), "metadata should not be extracted from a legacy manifest");
         }

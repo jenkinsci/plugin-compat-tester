@@ -15,7 +15,7 @@ import org.kohsuke.MetaInfServices;
  */
 @MetaInfServices(PluginMetadataExtractor.class)
 @HookOrder(order = 1000) // just incase it ever needs to be overridden
-public class ModernPluginMetaDataExtractor extends PluginMetadataExtractor {
+public class ModernPluginMetadataExtractor extends PluginMetadataExtractor {
 
     // https://github.com/jenkinsci/maven-hpi-plugin/pull/436
     private static final Attributes.Name GIT_REVISION_ATTRIBUTE = new Attributes.Name("Plugin-Scm-Git-Hash");
