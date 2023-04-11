@@ -60,7 +60,7 @@ public class PluginMetadataHooks {
      * be a plugin otherwise the behaviour is undefined.
      *
      * @param je the {@link JarEntry} representing the plugin.
-     * @return and Entry whose key is the SCM url and value is the plugin id.
+     * @return an Entry whose key is the SCM url and value is the plugin id.
      * @throws WrappedPluginCompatibilityException if an
      */
     public static PluginMetadata getPluginDetails(List<PluginMetadataExtractor> extractors, JarFile f, JarEntry je)
@@ -82,7 +82,7 @@ public class PluginMetadataHooks {
         }
         try {
             // once all plugins have adopted https://github.com/jenkinsci/maven-hpi-plugin/pull/436 this can be
-            // simpliied
+            // simplified
             LOGGER.log(Level.INFO, "Extracting metadata about {0}", pluginId);
             for (PluginMetadataExtractor e : extractors) {
                 Optional<PluginMetadata> optionalMetadata = e.extractMetadata(pluginId, manifest, model);

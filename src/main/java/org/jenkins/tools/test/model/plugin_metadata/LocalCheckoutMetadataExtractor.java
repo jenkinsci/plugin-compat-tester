@@ -66,14 +66,14 @@ public class LocalCheckoutMetadataExtractor {
                 }
             }
             if (metadata.isEmpty()) {
-                throw new MetadataExtractionException("failed to locate any plguins in local checkout");
+                throw new MetadataExtractionException("failed to locate any plugins in local checkout");
             }
             Files.deleteIfExists(log.toPath());
             return metadata;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (PomExecutionException e) {
-            throw new MetadataExtractionException("failed to extract plguins from local checkout", e);
+            throw new MetadataExtractionException("failed to extract plugins from local checkout", e);
         }
     }
 

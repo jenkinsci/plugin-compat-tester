@@ -87,7 +87,7 @@ public class PluginMetadata {
         }
 
         /**
-         * Conviencice method that strips "scm:git:" from the URL and sets the Git URL.
+         * Convenience method that strips "scm:git:" from the URL and sets the Git URL.
          * @param scmUrl the maven model SCM URL
          * @throws MetadataExtractionException If the underlying SCM is not a Git URL
          * @see #withGitUrl(String)

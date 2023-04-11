@@ -19,10 +19,10 @@ import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 public class ModelReader {
 
     /**
-     * Load the model that is embeded inside the plugin in {@code META-INF/maven/${groupId}/${artifactId}/pom.xml}
+     * Load the model that is embedded inside the plugin in {@code META-INF/maven/${groupId}/${artifactId}/pom.xml}
      * @param groupId the groupId of the plugin
      * @param artifactId the artifact of the plugin
-     * @param jarInputStream the inputStream created from from Plugins jar file.
+     * @param jarInputStream the inputStream created from Plugins jar file.
      * @return the maven model for the plugin as read from the META-INF directory.
      * @throws PluginSourcesUnavailableException if the entry could not be loaded or found.
      * @throws IOException if there was an I/O related issue obtaining the model.
@@ -62,7 +62,7 @@ public class ModelReader {
     }
 
     /**
-     * Replaces any occurence of {@code "${project.artifactId}"} or {@code "${artifactId}"} with the
+     * Replaces any occurrence of {@code "${project.artifactId}"} or {@code "${artifactId}"} with the
      * supplied value of the artifactId/
      *
      * @param original the original string

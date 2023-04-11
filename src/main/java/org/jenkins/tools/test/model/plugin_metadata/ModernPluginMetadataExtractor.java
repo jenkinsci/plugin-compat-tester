@@ -34,7 +34,7 @@ public class ModernPluginMetadataExtractor extends PluginMetadataExtractor {
         assert pluginId.equals(mainAttributes.getValue(PLUGIN_ID));
 
         if (mainAttributes.containsKey(GIT_REVISION_ATTRIBUTE)) {
-            // we are new enought to be a modern plugin
+            // we are new enough to be a modern plugin
 
             return Optional.of(new PluginMetadata.Builder()
                     .withPluginId(mainAttributes.getValue(PLUGIN_ID))
