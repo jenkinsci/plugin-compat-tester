@@ -62,7 +62,7 @@ public class PluginCompatTesterConfig {
     // List of hooks that will not be executed
     // If empty, all hooks will be executed
     @NonNull
-    private List<String> excludeHooks = List.of();
+    private Set<String> excludeHooks = Set.of();
 
     // URL to be used as an alternative to download plugin source from fallback
     // organizations, like your own fork
@@ -85,7 +85,7 @@ public class PluginCompatTesterConfig {
 
     // External hooks jar files path locations
     @NonNull
-    private List<File> externalHooksJars = List.of();
+    private Set<File> externalHooksJars = Set.of();
 
     // Path for a folder containing a local (possibly modified) clone of a plugin repository
     @CheckForNull
@@ -129,12 +129,12 @@ public class PluginCompatTesterConfig {
     }
 
     @NonNull
-    public List<String> getExcludeHooks() {
+    public Set<String> getExcludeHooks() {
         return excludeHooks;
     }
 
-    public void setExcludeHooks(@NonNull List<String> excludeHooks) {
-        this.excludeHooks = List.copyOf(excludeHooks);
+    public void setExcludeHooks(@NonNull Set<String> excludeHooks) {
+        this.excludeHooks = Set.copyOf(excludeHooks);
     }
 
     @CheckForNull
@@ -183,12 +183,12 @@ public class PluginCompatTesterConfig {
     }
 
     @NonNull
-    public List<File> getExternalHooksJars() {
+    public Set<File> getExternalHooksJars() {
         return externalHooksJars;
     }
 
-    public void setExternalHooksJars(@NonNull List<File> externalHooksJars) {
-        this.externalHooksJars = List.copyOf(externalHooksJars);
+    public void setExternalHooksJars(@NonNull Set<File> externalHooksJars) {
+        this.externalHooksJars = Set.copyOf(externalHooksJars);
     }
 
     @CheckForNull

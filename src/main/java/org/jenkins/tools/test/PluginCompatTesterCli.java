@@ -96,7 +96,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             arity = "1",
             paramLabel = "hook",
             description = "Comma-separated list of hooks to skip. If not set, all hooks will be executed.")
-    private List<String> excludeHooks;
+    private Set<String> excludeHooks;
 
     @CheckForNull
     @CommandLine.Option(
@@ -144,7 +144,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             paramLabel = "jar",
             description = "Comma-separated list of paths to external hooks JARs.",
             converter = ExistingFileTypeConverter.class)
-    private List<File> externalHooksJars;
+    private Set<File> externalHooksJars;
 
     @CheckForNull
     @CommandLine.Option(

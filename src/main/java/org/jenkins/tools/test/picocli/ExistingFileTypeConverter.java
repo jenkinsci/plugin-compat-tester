@@ -10,7 +10,7 @@ public class ExistingFileTypeConverter implements ITypeConverter<File> {
 
     @SuppressFBWarnings(
             value = "PATH_TRAVERSAL_IN",
-            justification = "by deign, we are converting an argument from the CLI")
+            justification = "by design, we are converting an argument from the CLI")
     @Override
     public File convert(String value) throws Exception {
         File f = new File(value);
