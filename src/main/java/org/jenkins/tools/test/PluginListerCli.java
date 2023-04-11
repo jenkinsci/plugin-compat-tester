@@ -27,7 +27,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
         name = "list-plugins",
         mixinStandardHelpOptions = true,
-        description = "List (non-detached) plugins and their associated repositories that the bundled in the war.",
+        description = "List (non-detached) plugins and their associated repositories that the bundled in the WAR.",
         versionProvider = VersionProvider.class)
 public class PluginListerCli implements Callable<Integer> {
 
