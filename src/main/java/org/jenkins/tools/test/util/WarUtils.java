@@ -36,7 +36,7 @@ public class WarUtils {
             Manifest manifest = jf.getManifest();
             String value = manifest.getMainAttributes().getValue("Jenkins-Version");
             if (value == null) {
-                throw new MetadataExtractionException("Jenkis war is missing required Manifest entry");
+                throw new MetadataExtractionException("Jenkins war is missing required Manifest entry");
             }
             return value;
         } catch (IOException e) {
@@ -58,7 +58,7 @@ public class WarUtils {
         } catch (WrappedPluginCompatibilityException e) {
             throw e.getCause();
         } catch (IOException e) {
-            throw new UncheckedIOException("I/O error occured whilst extracting plugin metadata from war", e);
+            throw new UncheckedIOException("I/O error occurred whilst extracting plugin metadata from WAR", e);
         }
     }
 
