@@ -26,17 +26,17 @@ public class WarUtils {
     private static final Logger LOGGER = Logger.getLogger(WarUtils.class.getName());
 
     /**
-     * Extract the Jenkins core version from the given war.
+     * Extract the Jenkins core version from the given WAR.
      *
-     * @param war the jenkins war file.
-     * @return a {@link Dependency} representing the jenkins-core artifact in the war.
+     * @param war the Jenkins WAR file.
+     * @return a {@link Dependency} representing the jenkins-core artifact in the WAR.
      */
     public static String extractCoreVersionFromWar(File war) throws MetadataExtractionException {
         try (JarFile jf = new JarFile(war)) {
             Manifest manifest = jf.getManifest();
             String value = manifest.getMainAttributes().getValue("Jenkins-Version");
             if (value == null) {
-                throw new MetadataExtractionException("Jenkins war is missing required Manifest entry");
+                throw new MetadataExtractionException("Jenkins WAR is missing required Manifest entry");
             }
             return value;
         } catch (IOException e) {
