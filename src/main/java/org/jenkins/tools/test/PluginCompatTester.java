@@ -576,7 +576,7 @@ public class PluginCompatTester {
     }
 
     public static String getRepoNameFromGitUrl(String gitUrl) throws PluginSourcesUnavailableException {
-        // obtain the the last path component (and strip any trailing .git)
+        // obtain the last path component (and strip any trailing .git)
         int index = gitUrl.lastIndexOf("/");
         if (index < 0) {
             throw new PluginSourcesUnavailableException("Failed to obtain local directory for " + gitUrl);
