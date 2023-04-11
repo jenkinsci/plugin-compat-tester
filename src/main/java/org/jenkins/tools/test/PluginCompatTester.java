@@ -94,7 +94,7 @@ public class PluginCompatTester {
                 config.getIncludePlugins(),
                 config.getExcludePlugins());
 
-        // filter any plugins that are not being tested and group by git URL
+        // filter any plugins that are not being tested and group by Git URL
         // and run through the pre-checkout hooks
         // and group by Git URL
         Map<String, List<PluginMetadata>> pluginsByrepo;
