@@ -87,7 +87,7 @@ public class PluginListerCli implements Callable<Integer> {
                 pluginMetadataList.stream().collect(Collectors.groupingBy(PluginMetadata::getGitURL));
 
         if (metaDataByRepoMap.isEmpty()) {
-            LOGGER.log(Level.WARNING, "Found no plugins in ", warFile);
+            LOGGER.log(Level.WARNING, "Found no plugins in {0}", warFile);
             return Integer.valueOf(5);
         }
 
