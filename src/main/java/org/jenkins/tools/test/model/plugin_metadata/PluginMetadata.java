@@ -88,7 +88,7 @@ public class PluginMetadata {
 
         /**
          * Convenience method that strips "scm:git:" from the URL and sets the Git URL.
-         * @param scmUrl the maven model SCM URL
+         * @param scmUrl the Maven model SCM URL
          * @throws MetadataExtractionException If the underlying SCM is not a Git URL
          * @see #withGitUrl(String)
          */
@@ -97,7 +97,7 @@ public class PluginMetadata {
                 return withGitUrl(scmUrl.substring(8));
             }
             throw new MetadataExtractionException(
-                    "SCM URL" + scmUrl + " is not supported, only git SCM urls are supported");
+                    "SCM URL" + scmUrl + " is not supported, only Git SCM URLs are supported");
         }
 
         public Builder withGitUrl(String gitUrl) {

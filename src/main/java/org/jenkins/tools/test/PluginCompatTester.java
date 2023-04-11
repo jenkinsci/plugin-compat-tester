@@ -447,7 +447,7 @@ public class PluginCompatTester {
     @SuppressFBWarnings(value = "COMMAND_INJECTION", justification = "intended behavior")
     private static void cloneImpl(String gitUrl, String scmTag, File checkoutDirectory)
             throws IOException, PluginSourcesUnavailableException {
-        LOGGER.log(Level.INFO, "Checking out from git repository {0} at {1}", new Object[] {gitUrl, scmTag});
+        LOGGER.log(Level.INFO, "Checking out from Git repository {0} at {1}", new Object[] {gitUrl, scmTag});
 
         /*
          * We previously used the Maven SCM API to clone the repository, which ran the following
@@ -566,7 +566,7 @@ public class PluginCompatTester {
                 return scm.substring(8);
             }
             throw new PluginSourcesUnavailableException(
-                    "SCM " + scm + " is not a supported URL, only git is supported by the PCT");
+                    "SCM " + scm + " is not a supported URL, only Git is supported by the PCT");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
