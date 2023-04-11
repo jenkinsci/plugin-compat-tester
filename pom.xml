@@ -299,6 +299,35 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <doCheck>true</doCheck>
+          <failTheBuild>false</failTheBuild>
+          <getRevisionOnlyOnce>true</getRevisionOnlyOnce>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>create</goal>
+            </goals>
+            <phase>validate</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.4.1</version>
         <executions>
@@ -312,6 +341,10 @@
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>org.jenkins.tools.test.CLI</mainClass>
+                  <manifestEntries>
+                    <Implementation-Build>${buildNumber}</Implementation-Build>
+                    <Implementation-Build-Is-Tainted>${buildIsTainted}</Implementation-Build-Is-Tainted>
+                  </manifestEntries>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer" />
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
