@@ -50,7 +50,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
@@ -128,14 +127,10 @@ public class PluginCompatTester {
             data.plugins.put(artifactId, extracted);
         }
 
-        Dependency coreCoordinates = new Dependency();
-        coreCoordinates.setGroupId("org.jenkins-ci.main");
-        coreCoordinates.setArtifactId("jenkins-war");
-        coreCoordinates.setVersion(data.core.version);
-        coreCoordinates.setType("executable-war");
+        String coreVersion = data.core.version;
 
         PluginCompatibilityTesterException lastException = null;
-        LOGGER.log(Level.INFO, "Starting plugin tests on core coordinates {0}", coreCoordinates);
+        LOGGER.log(Level.INFO, "Starting plugin tests on core version {0}", coreVersion);
         for (UpdateSite.Plugin plugin : data.plugins.values()) {
             if (!config.getIncludePlugins().isEmpty()
                     && !config.getIncludePlugins().contains(plugin.name.toLowerCase())) {
@@ -171,7 +166,7 @@ public class PluginCompatTester {
 
             try {
                 Model model = remote.retrieveModel();
-                testPluginAgainst(coreCoordinates, plugin, model, pcth);
+                testPluginAgainst(coreVersion, plugin, model, pcth);
             } catch (PluginCompatibilityTesterException e) {
                 if (lastException != null) {
                     e.addSuppressed(lastException);
@@ -184,7 +179,7 @@ public class PluginCompatTester {
                             Level.SEVERE,
                             String.format(
                                     "Internal error while executing a test for core %s and plugin %s at version %s.",
-                                    coreCoordinates.getVersion(), plugin.getDisplayName(), plugin.version),
+                                    coreVersion, plugin.getDisplayName(), plugin.version),
                             e);
                 }
             }
@@ -205,24 +200,18 @@ public class PluginCompatTester {
     }
 
     private static File createBuildLogFile(
-            File workDirectory, String pluginName, String pluginVersion, Dependency coreCoords) {
+            File workDirectory, String pluginName, String pluginVersion, String coreVersion) {
         return new File(workDirectory.getAbsolutePath()
                 + File.separator
-                + createBuildLogFilePathFor(pluginName, pluginVersion, coreCoords));
+                + createBuildLogFilePathFor(pluginName, pluginVersion, coreVersion));
     }
 
-    private static String createBuildLogFilePathFor(String pluginName, String pluginVersion, Dependency coreCoords) {
-        return String.format(
-                "logs/%s/v%s_against_%s_%s_%s.log",
-                pluginName,
-                pluginVersion,
-                coreCoords.getGroupId(),
-                coreCoords.getArtifactId(),
-                coreCoords.getVersion());
+    private static String createBuildLogFilePathFor(String pluginName, String pluginVersion, String coreVersion) {
+        return String.format("logs/%s/v%s_against_core_version_%s.log", pluginName, pluginVersion, coreVersion);
     }
 
     private void testPluginAgainst(
-            Dependency coreCoordinates, UpdateSite.Plugin plugin, Model model, PluginCompatTesterHooks pcth)
+            String coreVersion, UpdateSite.Plugin plugin, Model model, PluginCompatTesterHooks pcth)
             throws PluginCompatibilityTesterException {
         LOGGER.log(
                 Level.INFO,
@@ -230,18 +219,18 @@ public class PluginCompatTester {
                         + "#############################################\n"
                         + "#############################################\n"
                         + "##\n"
-                        + "## Starting to test {0} {1} against {2}\n"
+                        + "## Starting to test {0} {1} against core version {2}\n"
                         + "##\n"
                         + "#############################################\n"
                         + "#############################################\n\n\n\n\n",
-                new Object[] {plugin.name, plugin.version, coreCoordinates});
+                new Object[] {plugin.name, plugin.version, coreVersion});
 
         File pluginCheckoutDir =
                 new File(config.getWorkingDir().getAbsolutePath() + File.separator + plugin.name + File.separator);
         String parentFolder = null;
 
         // Run any precheckout hooks
-        BeforeCheckoutContext beforeCheckout = new BeforeCheckoutContext(plugin, model, coreCoordinates, config);
+        BeforeCheckoutContext beforeCheckout = new BeforeCheckoutContext(plugin, model, coreVersion, config);
         pcth.runBeforeCheckout(beforeCheckout);
 
         if (!beforeCheckout.ranCheckout()) {
@@ -322,7 +311,7 @@ public class PluginCompatTester {
                     "The plugin has already been checked out, likely due to a multi-module" + " situation; continuing");
         }
 
-        File buildLogFile = createBuildLogFile(config.getWorkingDir(), plugin.name, plugin.version, coreCoordinates);
+        File buildLogFile = createBuildLogFile(config.getWorkingDir(), plugin.name, plugin.version, coreVersion);
         try {
             FileUtils.forceMkdir(buildLogFile.getParentFile()); // Creating log directory
             FileUtils.touch(buildLogFile); // Creating log file
@@ -332,7 +321,7 @@ public class PluginCompatTester {
 
         // Ran the BeforeCompileHooks
         BeforeCompilationContext beforeCompile =
-                new BeforeCompilationContext(plugin, model, coreCoordinates, config, pluginCheckoutDir, parentFolder);
+                new BeforeCompilationContext(plugin, model, coreVersion, config, pluginCheckoutDir, parentFolder);
         pcth.runBeforeCompilation(beforeCompile);
 
         // First build against the original POM. This defends against source incompatibilities
@@ -357,7 +346,7 @@ public class PluginCompatTester {
         BeforeExecutionContext forExecutionHooks = new BeforeExecutionContext(
                 plugin,
                 model,
-                coreCoordinates,
+                coreVersion,
                 config,
                 pluginCheckoutDir,
                 parentFolder,
@@ -367,9 +356,9 @@ public class PluginCompatTester {
 
         Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
         properties.put("overrideWar", config.getWar().toString());
-        properties.put("jenkins.version", coreCoordinates.getVersion());
+        properties.put("jenkins.version", coreVersion);
         properties.put("useUpperBounds", "true");
-        if (new VersionNumber(coreCoordinates.getVersion()).isOlderThan(new VersionNumber("2.382"))) {
+        if (new VersionNumber(coreVersion).isOlderThan(new VersionNumber("2.382"))) {
             /*
              * Versions of Jenkins prior to 2.382 are susceptible to JENKINS-68696, in which
              * javax.servlet:servlet-api comes from core at version 0. This is an intentional trick
