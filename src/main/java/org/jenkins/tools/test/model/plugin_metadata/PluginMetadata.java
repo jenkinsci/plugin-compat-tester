@@ -31,7 +31,7 @@ public class PluginMetadata {
     }
 
     /** The git URL for the source repository that contains this plugin, may be file based for a local checkout. */
-    public String getGitURL() {
+    public String getGitUrl() {
         return gitURL;
     }
 

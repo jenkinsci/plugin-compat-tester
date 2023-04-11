@@ -101,7 +101,7 @@ public class PluginCompatTester {
         try {
             pluginsByrepo = pluginMetadataList.stream()
                     .map(new RunAndMapBeforeCheckoutHooks(pcth, coreVersion, config))
-                    .collect(Collectors.groupingBy(PluginMetadata::getGitURL, HashMap::new, Collectors.toList()));
+                    .collect(Collectors.groupingBy(PluginMetadata::getGitUrl, HashMap::new, Collectors.toList()));
         } catch (WrappedPluginCompatabilityException e) {
             throw e.getCause();
         }

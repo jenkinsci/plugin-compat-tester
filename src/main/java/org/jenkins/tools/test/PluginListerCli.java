@@ -83,7 +83,7 @@ public class PluginListerCli implements Callable<Integer> {
 
         // Group the plugins into their actual repositories.
         Map<String, List<PluginMetadata>> metaDataByRepoMap =
-                pluginMetadataList.stream().collect(Collectors.groupingBy(PluginMetadata::getGitURL));
+                pluginMetadataList.stream().collect(Collectors.groupingBy(PluginMetadata::getGitUrl));
 
         if (metaDataByRepoMap.isEmpty()) {
             LOGGER.log(Level.WARNING, "Found no plugins in {0}", warFile);
