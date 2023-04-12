@@ -1,6 +1,7 @@
 package org.jenkins.tools.test.model.plugin_metadata;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Objects;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
 
@@ -8,37 +9,53 @@ import org.jenkins.tools.test.exception.MetadataExtractionException;
  * Metadata representing a specific plugin for testing.
  */
 public class PluginMetadata {
-
+    @NonNull
     private final String pluginId;
+
+    @NonNull
+    private final String version;
+
+    @NonNull
     private final String gitUrl;
+
     private final String tag;
     private final String module;
     private final String gitHash;
     private final String name;
-    private final String version;
 
     private PluginMetadata(Builder builder) {
         this.pluginId = Objects.requireNonNull(builder.pluginId, "pluginId may not be null");
+        this.version = Objects.requireNonNull(builder.version, "version may not be null");
         this.gitUrl = Objects.requireNonNull(builder.gitUrl, "gitUrl may not be null");
         this.tag = builder.tag;
         this.module = builder.module;
         this.gitHash = builder.gitHash;
         this.name = builder.name;
-        this.version = Objects.requireNonNull(builder.version, "version may not be null");
     }
 
-    /** The unique plugin ID for this plugin. */
+    /**
+     * The unique plugin ID for this plugin.
+     */
     public String getPluginId() {
         return pluginId;
     }
 
-    /** The Git URL for the source repository that contains this plugin; may be file based for a local checkout. */
+    /**
+     * The Git URL for the source repository that contains this plugin; may be file based for a local checkout.
+     */
     public String getGitUrl() {
         return gitUrl;
     }
 
     /**
-     * The Git tag for this plugin as reported by Maven; may be {@code null} if Maven is not aware of a tag.
+     * The version of the plugin.
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * The Git tag for this plugin as reported by Maven; may be {@code null} if Maven is not aware of a tag or for a local checkout.
      */
     @CheckForNull
     public String getTag() {
@@ -61,39 +78,41 @@ public class PluginMetadata {
         return module;
     }
 
-    /** The plugin name if known, otherwise the plugin id. */
+    /**
+     * The plugin name if known, otherwise the plugin ID.
+     */
     public String getName() {
         return name == null ? pluginId : name;
     }
 
-    /** The version of the plugin. */
-    public String getVersion() {
-        return version;
-    }
-
     public static final class Builder {
         private String pluginId;
+        private String version;
         private String gitUrl;
         private String tag;
         private String module;
         private String gitHash;
         private String name;
-        private String version;
 
         public Builder() {}
 
         public Builder(PluginMetadata from) {
             this.pluginId = from.pluginId;
+            this.version = from.version;
             this.gitUrl = from.gitUrl;
             this.tag = from.tag;
             this.module = from.module;
             this.gitHash = from.gitHash;
             this.name = from.name;
-            this.version = from.version;
         }
 
         public Builder withPluginId(String pluginId) {
             this.pluginId = pluginId;
+            return this;
+        }
+
+        public Builder withVersion(String version) {
+            this.version = version;
             return this;
         }
 
@@ -136,13 +155,31 @@ public class PluginMetadata {
             return this;
         }
 
-        public Builder withVersion(String version) {
-            this.version = version;
-            return this;
-        }
-
         public PluginMetadata build() {
             return new PluginMetadata(this);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PluginMetadata that = (PluginMetadata) o;
+        return getPluginId().equals(that.getPluginId())
+                && getVersion().equals(that.getVersion())
+                && getGitUrl().equals(that.getGitUrl())
+                && Objects.equals(getTag(), that.getTag())
+                && Objects.equals(getModule(), that.getModule())
+                && Objects.equals(getGitHash(), that.getGitHash())
+                && Objects.equals(getName(), that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getPluginId(), getVersion(), getGitUrl(), getTag(), getModule(), getGitHash(), getName());
     }
 }
