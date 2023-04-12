@@ -62,6 +62,9 @@ public class WarUtils {
         } catch (IOException e) {
             throw new UncheckedIOException("I/O error occurred whilst extracting plugin metadata from WAR", e);
         }
+        if (result.isEmpty()) {
+            throw new MetadataExtractionException("Found no plugins in " + warFile);
+        }
         return result;
     }
 

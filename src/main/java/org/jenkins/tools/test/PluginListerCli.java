@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
@@ -83,11 +82,6 @@ public class PluginListerCli implements Callable<Integer> {
 
         List<PluginMetadata> pluginMetadataList =
                 WarUtils.extractPluginMetadataFromWar(warFile, metadataExtractors, includePlugins, excludePlugins);
-
-        if (pluginMetadataList.isEmpty()) {
-            LOGGER.log(Level.WARNING, "Found no plugins in {0}", warFile);
-            return Integer.valueOf(5);
-        }
 
         if (output != null) {
             // Group the plugins by repository
