@@ -18,7 +18,7 @@ class JacocoHookTest {
         final JacocoHook hook = new JacocoHook();
 
         PluginMetadata pm = new PluginMetadata.Builder()
-                .withGitCommit("ignored")
+                .withGitHash("ignored")
                 .withGitUrl("ignored")
                 .withVersion("ignored")
                 .withPluginId("jacoco")

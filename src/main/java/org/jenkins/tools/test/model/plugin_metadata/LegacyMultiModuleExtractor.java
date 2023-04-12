@@ -27,14 +27,16 @@ public class LegacyMultiModuleExtractor extends PluginMetadataExtractor {
         PluginMetadata.Builder builder = new PluginMetadata.Builder()
                 .withPluginId(model.getArtifactId())
                 .withName(model.getName())
-                .withScmUrl(model.getScm().getConnection())
-                .withGitCommit(model.getScm().getTag())
+                .withScmConnection(model.getScm().getConnection())
+                .withTag(model.getScm().getTag())
+                // Not guaranteed to be a hash, but close enough for this legacy code path
+                .withGitHash(model.getScm().getTag())
                 .withVersion(model.getVersion() == null ? model.getParent().getVersion() : model.getVersion());
 
         String groupId = manifest.getMainAttributes().getValue("Group-Id");
 
         if (groupIdsWithNameAsModule.contains(groupId)) {
-            return Optional.of(builder.withModulePath(pluginId).build());
+            return Optional.of(builder.withModule(pluginId).build());
         }
 
         // Handle nonstandard aggregator projects
@@ -46,41 +48,41 @@ public class LegacyMultiModuleExtractor extends PluginMetadataExtractor {
                         "pipeline-model-extensions",
                         "pipeline-stage-tags-metadata")
                 .contains(pluginId)) {
-            return Optional.of(builder.withModulePath(pluginId).build());
+            return Optional.of(builder.withModule(pluginId).build());
         }
 
         // https://github.com/jenkinsci/declarative-pipeline-migration-assistant-plugin
         if (Set.of("declarative-pipeline-migration-assistant", "declarative-pipeline-migration-assistant-api")
                 .contains(pluginId)) {
-            return Optional.of(builder.withModulePath(pluginId).build());
+            return Optional.of(builder.withModule(pluginId).build());
         }
 
         // https://github.com/jenkinsci/pipeline-stage-view-plugin
         if ("pipeline-rest-api".equals(pluginId)) {
-            return Optional.of(builder.withModulePath("rest-api").build());
+            return Optional.of(builder.withModule("rest-api").build());
         }
         if ("pipeline-stage-view".equals(pluginId)) {
-            return Optional.of(builder.withModulePath("ui").build());
+            return Optional.of(builder.withModule("ui").build());
         }
 
         // https://github.com/jenkinsci/swarm-plugin
         if ("swarm".equals(pluginId)) {
-            return Optional.of(builder.withModulePath("plugin").build());
+            return Optional.of(builder.withModule("plugin").build());
         }
 
         // https://github.com/jenkinsci/warnings-ng-plugin
         if ("warnings-ng".equals(pluginId)) {
-            return Optional.of(builder.withModulePath("plugin").build());
+            return Optional.of(builder.withModule("plugin").build());
         }
 
         // https://github.com/jenkinsci/workflow-cps-plugin/
         if ("workflow-cps".equals(pluginId)) {
-            return Optional.of(builder.withModulePath("plugin").build());
+            return Optional.of(builder.withModule("plugin").build());
         }
 
         // https://github.com/jenkinsci/configuration-as-code-plugin
         if ("configuration-as-code".equals(pluginId)) {
-            return Optional.of(builder.withModulePath("plugin").build());
+            return Optional.of(builder.withModule("plugin").build());
         }
 
         return Optional.empty();

@@ -18,9 +18,10 @@ import org.kohsuke.MetaInfServices;
 public class ModernPluginMetadataExtractor extends PluginMetadataExtractor {
 
     // https://github.com/jenkinsci/maven-hpi-plugin/pull/436
-    private static final Attributes.Name GIT_REVISION_ATTRIBUTE = new Attributes.Name("Plugin-Scm-Git-Hash");
-    private static final Attributes.Name GIT_SCM_URL = new Attributes.Name("Plugin-Scm-Connection");
-    private static final Attributes.Name MAVEN_MODULE_LOCATION = new Attributes.Name("Plugin-Scm-Git-Module-Path");
+    private static final Attributes.Name PLUGIN_GIT_HASH = new Attributes.Name("Plugin-GitHash");
+    private static final Attributes.Name PLUGIN_SCM_CONNECTION = new Attributes.Name("Plugin-ScmConnection");
+    private static final Attributes.Name PLUGIN_SCM_TAG = new Attributes.Name("Plugin-ScmTag");
+    private static final Attributes.Name PLUGIN_MODULE = new Attributes.Name("Plugin-Module");
     private static final Attributes.Name PLUGIN_ID = new Attributes.Name("Short-Name");
     private static final Attributes.Name PLUGIN_NAME = new Attributes.Name("Long-Name");
     private static final Attributes.Name PLUGIN_VERSION = new Attributes.Name("Plugin-Version");
@@ -33,15 +34,16 @@ public class ModernPluginMetadataExtractor extends PluginMetadataExtractor {
 
         assert pluginId.equals(mainAttributes.getValue(PLUGIN_ID));
 
-        if (mainAttributes.containsKey(GIT_REVISION_ATTRIBUTE)) {
+        if (mainAttributes.containsKey(PLUGIN_GIT_HASH)) {
             // We are new enough to be a modern plugin
 
             return Optional.of(new PluginMetadata.Builder()
                     .withPluginId(mainAttributes.getValue(PLUGIN_ID))
                     .withName(mainAttributes.getValue(PLUGIN_NAME))
-                    .withScmUrl(mainAttributes.getValue(GIT_SCM_URL))
-                    .withGitCommit(mainAttributes.getValue(GIT_REVISION_ATTRIBUTE))
-                    .withModulePath(mainAttributes.getValue(MAVEN_MODULE_LOCATION))
+                    .withScmConnection(mainAttributes.getValue(PLUGIN_SCM_CONNECTION))
+                    .withTag(mainAttributes.getValue(PLUGIN_SCM_TAG))
+                    .withGitHash(mainAttributes.getValue(PLUGIN_GIT_HASH))
+                    .withModule(mainAttributes.getValue(PLUGIN_MODULE))
                     .withVersion(mainAttributes.getValue(PLUGIN_VERSION))
                     .build());
         }

@@ -11,16 +11,18 @@ public class PluginMetadata {
 
     private final String pluginId;
     private final String gitUrl;
-    private final String modulePath;
-    private final String gitCommit;
+    private final String tag;
+    private final String module;
+    private final String gitHash;
     private final String name;
     private final String version;
 
     private PluginMetadata(Builder builder) {
         this.pluginId = Objects.requireNonNull(builder.pluginId, "pluginId may not be null");
         this.gitUrl = Objects.requireNonNull(builder.gitUrl, "gitUrl may not be null");
-        this.modulePath = builder.modulePath;
-        this.gitCommit = builder.gitCommit;
+        this.tag = builder.tag;
+        this.module = builder.module;
+        this.gitHash = builder.gitHash;
         this.name = builder.name;
         this.version = Objects.requireNonNull(builder.version, "version may not be null");
     }
@@ -36,20 +38,27 @@ public class PluginMetadata {
     }
 
     /**
-     * The sha or tag of the git commit representing this plugin; may be {@code null} for a local checkout.
+     * The Git tag for this plugin as reported by Maven; may be {@code null} if Maven is not aware of a tag.
      */
     @CheckForNull
-    public String getGitCommit() {
-        return gitCommit;
+    public String getTag() {
+        return tag;
     }
 
     /**
-     * The module path of the plugin inside its source repository; will be {@code null} or the
-     * empty string ({@code ""}) if the plugin is not part of a multi-module build.
+     * The Git hash for this plugin; will be {@code null} for a local checkout.
      */
     @CheckForNull
-    public String getModulePath() {
-        return modulePath;
+    public String getGitHash() {
+        return gitHash;
+    }
+
+    /**
+     * The module name for this plugin; will be {@code null} if the plugin is not part of a multi-module build.
+     */
+    @CheckForNull
+    public String getModule() {
+        return module;
     }
 
     /** The plugin name if known, otherwise the plugin id. */
@@ -65,8 +74,9 @@ public class PluginMetadata {
     public static final class Builder {
         private String pluginId;
         private String gitUrl;
-        private String modulePath;
-        private String gitCommit;
+        private String tag;
+        private String module;
+        private String gitHash;
         private String name;
         private String version;
 
@@ -75,8 +85,9 @@ public class PluginMetadata {
         public Builder(PluginMetadata from) {
             this.pluginId = from.pluginId;
             this.gitUrl = from.gitUrl;
-            this.modulePath = from.modulePath;
-            this.gitCommit = from.gitCommit;
+            this.tag = from.tag;
+            this.module = from.module;
+            this.gitHash = from.gitHash;
             this.name = from.name;
             this.version = from.version;
         }
@@ -92,7 +103,7 @@ public class PluginMetadata {
          * @throws MetadataExtractionException If the underlying SCM is not a Git URL
          * @see #withGitUrl(String)
          */
-        public Builder withScmUrl(String scmUrl) throws MetadataExtractionException {
+        public Builder withScmConnection(String scmUrl) throws MetadataExtractionException {
             if (scmUrl.startsWith("scm:git:")) {
                 return withGitUrl(scmUrl.substring(8));
             }
@@ -105,13 +116,18 @@ public class PluginMetadata {
             return this;
         }
 
-        public Builder withModulePath(String modulePath) {
-            this.modulePath = modulePath;
+        public Builder withTag(String tag) {
+            this.tag = tag;
             return this;
         }
 
-        public Builder withGitCommit(String gitCommit) {
-            this.gitCommit = gitCommit;
+        public Builder withModule(String module) {
+            this.module = module;
+            return this;
+        }
+
+        public Builder withGitHash(String gitHash) {
+            this.gitHash = gitHash;
             return this;
         }
 

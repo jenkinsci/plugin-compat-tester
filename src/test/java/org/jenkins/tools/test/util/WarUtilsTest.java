@@ -31,8 +31,8 @@ class WarUtilsTest {
                 allOf(
                         hasProperty("pluginId", is("text-finder")),
                         hasProperty("gitUrl", is("https://github.com/jenkinsci/text-finder-plugin.git")),
-                        hasProperty("modulePath", nullValue()), // not a multi module
-                        hasProperty("gitCommit", startsWith("text-finder-1.")),
+                        hasProperty("module", nullValue()), // not a multi-module project
+                        hasProperty("tag", startsWith("text-finder-1.")),
                         hasProperty("name", is("Text Finder")),
                         hasProperty("version", startsWith("1."))));
     }

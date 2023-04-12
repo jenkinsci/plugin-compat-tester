@@ -91,7 +91,7 @@ public class LocalCheckoutMetadataExtractor {
         builder.withPluginId(m.group("id"));
         builder.withVersion(m.group("version"));
         builder.withGitUrl(cloneDirectory.toURI().toString());
-        builder.withModulePath(relativePath(cloneDirectory, m.group("path")));
+        builder.withModule(relativePath(cloneDirectory, m.group("path")));
 
         return builder.build();
     }

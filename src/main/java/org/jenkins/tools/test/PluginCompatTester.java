@@ -124,7 +124,7 @@ public class PluginCompatTester {
             } else {
                 cloneDir = new File(config.getWorkingDir(), getRepoNameFromGitUrl(gitUrl));
                 // All plugins from the same reactor are assumed to be of the same version
-                String tag = entry.getValue().get(0).getGitCommit();
+                String tag = entry.getValue().get(0).getGitHash();
 
                 try {
                     cloneFromScm(gitUrl, config.getFallbackGitHubOrganization(), tag, cloneDir);
@@ -210,7 +210,7 @@ public class PluginCompatTester {
                         "maven.javadoc.skip", "true",
                         "set.changelist", "true"),
                 cloneLocation,
-                pluginMetadata.getModulePath(),
+                pluginMetadata.getModule(),
                 buildLogFile,
                 "clean",
                 "process-test-classes");
@@ -250,7 +250,7 @@ public class PluginCompatTester {
         runner.run(
                 Collections.unmodifiableMap(properties),
                 cloneLocation,
-                pluginMetadata.getModulePath(),
+                pluginMetadata.getModule(),
                 buildLogFile,
                 args.toArray(new String[0]));
     }

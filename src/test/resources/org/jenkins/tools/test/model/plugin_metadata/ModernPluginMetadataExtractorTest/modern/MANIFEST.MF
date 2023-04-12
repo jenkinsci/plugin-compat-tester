@@ -18,9 +18,10 @@ Plugin-Developers: Vincent Latombe:vlatombe:vincent@latombe.net
 Support-Dynamic-Loading: true
 Plugin-License-Name: MIT License
 Plugin-License-Url: https://opensource.org/licenses/MIT
+Plugin-ScmConnection: scm:git:https://github.com/jenkinsci/aws-java-sdk-
+ plugin.git
+Plugin-ScmTag: 938ad577f750694635f3c0160ac2110db5d6eb98
 Plugin-ScmUrl: https://github.com/jenkinsci/aws-java-sdk-plugin/
-Plugin-Scm-Connection: scm:git:https://github.com/jenkinsci/aws-java-sdk
- -plugin.git
-Plugin-Scm-Git-Hash: 59d2bd41281b30c7fcfd8536bf4177ccb3d6b49c
-Plugin-Scm-Git-Module-Path: aws-java-sdk-ec2
+Plugin-GitHash: 938ad577f750694635f3c0160ac2110db5d6eb98
+Plugin-Module: aws-java-sdk-ec2
 
