@@ -42,9 +42,8 @@ public class LocalCheckoutMetadataExtractor {
                     null,
                     null,
                     "-q",
-                    // TODO to switch to release version
-                    // https://github.com/jenkinsci/maven-hpi-plugin/pull/463
-                    "org.jenkins-ci.tools:maven-hpi-plugin:3.42-rc1408.71cefb_fc63b_d:list-plugins",
+                    // TODO only upgrade to 3.42 if necessary
+                    "org.jenkins-ci.tools:maven-hpi-plugin:3.42:list-plugins",
                     "-P",
                     "consume-incrementals");
 
