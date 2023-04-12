@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
@@ -53,9 +52,9 @@ public class PluginListerCli implements Callable<Integer> {
     @CommandLine.Option(
             names = {"-o", "--output"},
             required = false,
-            description = "Location of the file to write containing the plugin and repositories. "
-                    + "The format of the file is a line per repository consiting of the repository URL followed "
-                    + "by a tab followed by a tab separated list of plugins in that repository.")
+            description = "Location of the file to write containing the plugins grouped by repository."
+                    + " The format of the file is a line per repository; each line consists of"
+                    + " a comma-separated list of plugins in that repository.")
     private File output;
 
     @CheckForNull
@@ -97,41 +96,28 @@ public class PluginListerCli implements Callable<Integer> {
 
             try (BufferedWriter writer = Files.newBufferedWriter(output.toPath())) {
                 for (Map.Entry<String, List<PluginMetadata>> entry : pluginsByRepository.entrySet()) {
-                    writer.write(formatFileEntry(entry));
-                    writer.write("\n");
+                    writer.write(entry.getValue().stream()
+                            .map(PluginMetadata::getPluginId)
+                            .collect(Collectors.joining(",")));
+                    writer.newLine();
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         } else {
             // First find the longest String so we can pad correctly
-            int max_length = 0;
+            int maxLength = 0;
             for (PluginMetadata pm : pluginMetadataList) {
-                max_length = Math.max(max_length, pm.getPluginId().length());
+                maxLength = Math.max(maxLength, pm.getPluginId().length());
             }
-            // Add a couple of spaced padding for the longest entry.
-            max_length += 2;
-            System.out.println(
-                    String.format(Locale.ROOT, "%-" + max_length + "s%s", "Plugin ID", "Git Repository URL"));
+            // Add some padding for the longest entry
+            maxLength += 4;
+            System.out.println(String.format(Locale.ROOT, "%-" + maxLength + "s%s", "PLUGIN", "REPOSITORY"));
             for (PluginMetadata pm : pluginMetadataList) {
                 System.out.println(
-                        String.format(Locale.ROOT, "%-" + max_length + "s%s", pm.getPluginId(), pm.getGitUrl()));
+                        String.format(Locale.ROOT, "%-" + maxLength + "s%s", pm.getPluginId(), pm.getGitUrl()));
             }
         }
         return Integer.valueOf(0);
-    }
-
-    /**
-     * Format a list of plugins and git URLs as s ginel line consiting of the repository URL, followed by a tab character,
-     * followed by the plugins each separated by the tab character.
-     * @param entry the list of {@link PluginMetadata} describing the plugins in the
-     * @return A single line of text describing the repositiry URL and the discovered plugins within it.
-     */
-    private static String formatFileEntry(Entry<String, List<PluginMetadata>> entry) {
-        StringBuilder sb = new StringBuilder(entry.getKey());
-        for (PluginMetadata pm : entry.getValue()) {
-            sb.append("\t").append(pm.getPluginId());
-        }
-        return sb.toString();
     }
 }

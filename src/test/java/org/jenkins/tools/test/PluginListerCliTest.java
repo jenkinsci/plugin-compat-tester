@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
@@ -24,7 +25,7 @@ class PluginListerCliTest {
                 "--war", new File("target", "megawar.war").getAbsolutePath(), "--output", outputFile.getAbsolutePath());
         assertEquals(retVal, 0);
         assertThat(outputFile, aReadableFile());
-        String data = Files.readString(outputFile.toPath(), StandardCharsets.UTF_8);
-        assertThat(data, is("https://github.com/jenkinsci/text-finder-plugin.git\ttext-finder\n"));
+        List<String> plugins = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertThat(plugins, is(List.of("text-finder")));
     }
 }
