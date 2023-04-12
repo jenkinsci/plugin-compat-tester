@@ -9,7 +9,7 @@ import org.kohsuke.MetaInfServices;
 
 @MetaInfServices(PluginMetadataExtractor.class)
 @HookOrder(order = -1000)
-public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
+public class LegacyPluginMetadataExtractor extends PluginMetadataExtractor {
 
     @Override
     public Optional<Plugin> extractMetadata(String pluginId, Manifest manifest, Model model)

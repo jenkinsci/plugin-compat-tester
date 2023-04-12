@@ -8,14 +8,13 @@ import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.model.hook.HookOrder;
 import org.kohsuke.MetaInfServices;
 
-// delete once all non standard multi module plugins are using
+// TODO delete once all non standard multi module plugins are using
 // https://github.com/jenkinsci/maven-hpi-plugin/pull/436
 @MetaInfServices(PluginMetadataExtractor.class)
 @HookOrder(order = -500)
-public class LegacyMultiModuleExtractor extends PluginMetadataExtractor {
+public class LegacyMultiModulePluginMetadataExtractor extends PluginMetadataExtractor {
 
-    private final Set<String> groupIdsWithNameAsModule =
-            Set.of("io.jenkins.blueocean", "io.jenkins.plugins.mina-sshd-api");
+    private final Set<String> NAME_AS_MODULE = Set.of("io.jenkins.blueocean", "io.jenkins.plugins.mina-sshd-api");
 
     @Override
     public Optional<Plugin> extractMetadata(String pluginId, Manifest manifest, Model model)
@@ -35,7 +34,7 @@ public class LegacyMultiModuleExtractor extends PluginMetadataExtractor {
 
         String groupId = manifest.getMainAttributes().getValue("Group-Id");
 
-        if (groupIdsWithNameAsModule.contains(groupId)) {
+        if (NAME_AS_MODULE.contains(groupId)) {
             return Optional.of(builder.withModule(pluginId).build());
         }
 
