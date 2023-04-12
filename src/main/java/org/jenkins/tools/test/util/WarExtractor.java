@@ -5,23 +5,29 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.apache.maven.model.Model;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
+import org.jenkins.tools.test.model.hook.HookOrderComparator;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataExtractor;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataHooks;
 
 public class WarExtractor {
 
@@ -46,9 +52,34 @@ public class WarExtractor {
     public WarExtractor(
             File warFile, Set<File> externalHooksJars, Set<String> includedPlugins, Set<String> excludedPlugins) {
         this.warFile = warFile;
-        this.extractors = PluginMetadataHooks.loadExtractors(externalHooksJars);
+        this.extractors = loadExtractors(externalHooksJars);
         this.includedPlugins = includedPlugins;
         this.excludedPlugins = excludedPlugins;
+    }
+
+    private static List<PluginMetadataExtractor> loadExtractors(Set<File> externalHooksJars) {
+        ClassLoader cl = setupExternalClassLoaders(externalHooksJars);
+        List<PluginMetadataExtractor> extractors = ServiceLoader.load(PluginMetadataExtractor.class, cl).stream()
+                .map(e -> e.get())
+                .sorted(new HookOrderComparator())
+                .collect(Collectors.toList());
+        return extractors;
+    }
+
+    private static ClassLoader setupExternalClassLoaders(Set<File> externalHooksJars) {
+        ClassLoader base = WarExtractor.class.getClassLoader();
+        if (externalHooksJars.isEmpty()) {
+            return base;
+        }
+        List<URL> urls = new ArrayList<>();
+        for (File jar : externalHooksJars) {
+            try {
+                urls.add(jar.toURI().toURL());
+            } catch (MalformedURLException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+        return new URLClassLoader(urls.toArray(new URL[0]), base);
     }
 
     /**
@@ -81,7 +112,7 @@ public class WarExtractor {
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 if (isInteresting(entry)) {
-                    plugins.add(PluginMetadataHooks.getPluginDetails(extractors, jf, entry));
+                    plugins.add(getPlugin(jf, entry));
                 }
             }
         } catch (IOException e) {
@@ -116,6 +147,36 @@ public class WarExtractor {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Obtain the plugin metadata from the given JAR entry.
+     * The given JAR entry must be a plugin; otherwise, the behaviour is undefined.
+     *
+     * @param entry The {@link JarEntry} representing the plugin.
+     * @return The plugin metadata.
+     */
+    private Plugin getPlugin(JarFile jf, JarEntry entry) throws MetadataExtractionException {
+        // The entry is the HPI file
+        Manifest manifest;
+        Model model;
+        String pluginId;
+        try (JarInputStream jis = new JarInputStream(jf.getInputStream(entry))) {
+            manifest = jis.getManifest();
+            String groupId = manifest.getMainAttributes().getValue("Group-Id");
+            String artifactId = pluginId = manifest.getMainAttributes().getValue("Short-Name");
+            model = ModelReader.getPluginModelFromHpi(groupId, artifactId, jis);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        // Once all plugins have adopted https://github.com/jenkinsci/maven-hpi-plugin/pull/436 this can be simplified
+        LOGGER.log(Level.INFO, "Extracting metadata for {0}", pluginId);
+        for (PluginMetadataExtractor extractor : extractors) {
+            if (extractor.isApplicable(pluginId, manifest, model)) {
+                return extractor.extractMetadata(pluginId, manifest, model);
+            }
+        }
+        throw new MetadataExtractionException("No metadata could be extracted for entry " + entry.getName());
     }
 
     /**

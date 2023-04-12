@@ -55,7 +55,7 @@ import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 import org.jenkins.tools.test.model.hook.BeforeCompilationContext;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
-import org.jenkins.tools.test.model.plugin_metadata.LocalCheckoutMetadataExtractor;
+import org.jenkins.tools.test.model.plugin_metadata.LocalCheckoutPluginMetadataExtractor;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 import org.jenkins.tools.test.util.StreamGobbler;
 import org.jenkins.tools.test.util.WarExtractor;
@@ -101,7 +101,7 @@ public class PluginCompatTester {
         if (localCheckoutProvided()) {
             // Do not perform the before checkout hooks on a local checkout
             List<Plugin> localMetadata =
-                    LocalCheckoutMetadataExtractor.extractMetadata(config.getLocalCheckoutDir(), config);
+                    LocalCheckoutPluginMetadataExtractor.extractMetadata(config.getLocalCheckoutDir(), config);
             pluginsByRepository.put(null, localMetadata);
         }
 

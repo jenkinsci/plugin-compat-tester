@@ -21,9 +21,9 @@ import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin.Builder;
 
-public class LocalCheckoutMetadataExtractor {
+public class LocalCheckoutPluginMetadataExtractor {
 
-    private static final Logger LOGGER = Logger.getLogger(LocalCheckoutMetadataExtractor.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LocalCheckoutPluginMetadataExtractor.class.getName());
 
     // artifactId\tversion\t\directory
     private static Pattern p = Pattern.compile("(?<id>[^\t]+)\t(?<version>[^\t]+)\t(?<path>[^\t]+)");
@@ -90,7 +90,6 @@ public class LocalCheckoutMetadataExtractor {
         builder.withVersion(m.group("version"));
         builder.withGitUrl(cloneDirectory.toURI().toString());
         builder.withModule(relativePath(cloneDirectory, m.group("path")));
-
         return builder.build();
     }
 
