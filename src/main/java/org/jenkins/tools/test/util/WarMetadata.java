@@ -1,9 +1,12 @@
 package org.jenkins.tools.test.util;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
@@ -17,22 +20,41 @@ import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataExtractor;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataHooks;
 
-public class WarUtils {
+public class WarMetadata {
 
-    private static final Logger LOGGER = Logger.getLogger(WarUtils.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(WarMetadata.class.getName());
 
     private static final String PREFIX = "WEB-INF/plugins/";
 
     private static final String SUFFIX = ".hpi";
 
+    @NonNull
+    private final File warFile;
+
+    @NonNull
+    private final List<PluginMetadataExtractor> extractors;
+
+    @CheckForNull
+    private final Set<String> includedPlugins;
+
+    @CheckForNull
+    private final Set<String> excludedPlugins;
+
+    public WarMetadata(
+            File warFile, Set<File> externalHooksJars, Set<String> includedPlugins, Set<String> excludedPlugins) {
+        this.warFile = warFile;
+        this.extractors = PluginMetadataHooks.loadExtractors(externalHooksJars);
+        this.includedPlugins = includedPlugins;
+        this.excludedPlugins = excludedPlugins;
+    }
+
     /**
      * Extract the Jenkins core version from the given WAR.
      *
-     * @param war the Jenkins WAR file.
      * @return the Jenkins core version number
      */
-    public static String extractCoreVersionFromWar(File war) throws MetadataExtractionException {
-        try (JarFile jf = new JarFile(war)) {
+    public String getCoreVersion() throws MetadataExtractionException {
+        try (JarFile jf = new JarFile(warFile)) {
             Manifest manifest = jf.getManifest();
             String value = manifest.getMainAttributes().getValue("Jenkins-Version");
             if (value == null) {
@@ -40,22 +62,17 @@ public class WarUtils {
             }
             return value;
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed to extract Jenkins core version from " + war.toString(), e);
+            throw new UncheckedIOException("Failed to extract Jenkins core version from " + warFile.toString(), e);
         }
     }
 
-    public static List<PluginMetadata> extractPluginMetadataFromWar(
-            File warFile,
-            List<PluginMetadataExtractor> extractors,
-            Set<String> includedPlugins,
-            Set<String> excludedPlugins)
-            throws MetadataExtractionException {
+    public List<PluginMetadata> getPluginMetadata() throws MetadataExtractionException {
         List<PluginMetadata> result = new ArrayList<>();
         try (JarFile jf = new JarFile(warFile)) {
             Enumeration<JarEntry> entries = jf.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
-                if (isInteresting(entry, includedPlugins, excludedPlugins)) {
+                if (isInteresting(entry)) {
                     result.add(PluginMetadataHooks.getPluginDetails(extractors, jf, entry));
                 }
             }
@@ -65,17 +82,18 @@ public class WarUtils {
         if (result.isEmpty()) {
             throw new MetadataExtractionException("Found no plugins in " + warFile);
         }
-        return result;
+        result.sort(Comparator.comparing(PluginMetadata::getPluginId));
+        return List.copyOf(result);
     }
 
     /**
      * Predicate that will check if the given {@link JarEntry} is an interesting plugin. Detached
-     * plugins are ignored. If the plugin is excluded it will be ignored. if the set of included
-     * plugins is not empty it will be ignored if it is not included
+     * plugins are ignored. If the plugin is excluded it will be ignored. If the set of included
+     * plugins is not empty it will be ignored if it is not included.
      *
      * @return {@code true} iff {@code entry} represents a plugin in {@code WEB-INF/plugins/}
      */
-    private static boolean isInteresting(JarEntry entry, Set<String> includedPlugins, Set<String> excludedPlugins) {
+    private boolean isInteresting(JarEntry entry) {
         // Ignore detached plugins
         if (entry.getName().startsWith(PREFIX) && entry.getName().endsWith(SUFFIX)) {
             String pluginId =

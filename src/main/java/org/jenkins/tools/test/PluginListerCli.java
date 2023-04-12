@@ -16,10 +16,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataExtractor;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataHooks;
 import org.jenkins.tools.test.picocli.ExistingFileTypeConverter;
-import org.jenkins.tools.test.util.WarUtils;
+import org.jenkins.tools.test.util.WarMetadata;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -78,14 +76,12 @@ public class PluginListerCli implements Callable<Integer> {
 
     @Override
     public Integer call() throws PluginCompatibilityTesterException {
-        List<PluginMetadataExtractor> metadataExtractors = PluginMetadataHooks.loadExtractors(externalHooksJars);
-
-        List<PluginMetadata> pluginMetadataList =
-                WarUtils.extractPluginMetadataFromWar(warFile, metadataExtractors, includePlugins, excludePlugins);
+        WarMetadata warMetadata = new WarMetadata(warFile, externalHooksJars, includePlugins, excludePlugins);
+        List<PluginMetadata> pluginMetadata = warMetadata.getPluginMetadata();
 
         if (output != null) {
             // Group the plugins by repository
-            Map<String, List<PluginMetadata>> pluginsByRepository = pluginMetadataList.stream()
+            Map<String, List<PluginMetadata>> pluginsByRepository = pluginMetadata.stream()
                     .collect(Collectors.groupingBy(PluginMetadata::getGitUrl, TreeMap::new, Collectors.toList()));
 
             try (BufferedWriter writer = Files.newBufferedWriter(output.toPath())) {
@@ -100,14 +96,17 @@ public class PluginListerCli implements Callable<Integer> {
             }
         } else {
             // First find the longest String so we can pad correctly
-            int maxLength = 0;
-            for (PluginMetadata pm : pluginMetadataList) {
-                maxLength = Math.max(maxLength, pm.getPluginId().length());
-            }
+            int maxLength = pluginMetadata.stream()
+                    .map(PluginMetadata::getPluginId)
+                    .map(String::length)
+                    .max(Integer::compareTo)
+                    .get();
+
             // Add some padding for the longest entry
             maxLength += 4;
+
             System.out.println(String.format(Locale.ROOT, "%-" + maxLength + "s%s", "PLUGIN", "REPOSITORY"));
-            for (PluginMetadata pm : pluginMetadataList) {
+            for (PluginMetadata pm : pluginMetadata) {
                 System.out.println(
                         String.format(Locale.ROOT, "%-" + maxLength + "s%s", pm.getPluginId(), pm.getGitUrl()));
             }

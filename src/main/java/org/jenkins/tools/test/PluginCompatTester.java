@@ -58,9 +58,8 @@ import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.model.plugin_metadata.LocalCheckoutMetadataExtractor;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataHooks;
 import org.jenkins.tools.test.util.StreamGobbler;
-import org.jenkins.tools.test.util.WarUtils;
+import org.jenkins.tools.test.util.WarMetadata;
 
 /**
  * Frontend for plugin compatibility tests
@@ -86,12 +85,10 @@ public class PluginCompatTester {
                 new PluginCompatTesterHooks(config.getExternalHooksJars(), config.getExcludeHooks());
 
         // Extract the plugin metadata
-        String coreVersion = WarUtils.extractCoreVersionFromWar(config.getWar());
-        List<PluginMetadata> pluginMetadataList = WarUtils.extractPluginMetadataFromWar(
-                config.getWar(),
-                PluginMetadataHooks.loadExtractors(config.getExternalHooksJars()),
-                config.getIncludePlugins(),
-                config.getExcludePlugins());
+        WarMetadata warMetadata = new WarMetadata(
+                config.getWar(), config.getExternalHooksJars(), config.getIncludePlugins(), config.getExcludePlugins());
+        String coreVersion = warMetadata.getCoreVersion();
+        List<PluginMetadata> pluginMetadataList = warMetadata.getPluginMetadata();
 
         // Run the before checkout hooks
         for (PluginMetadata pluginMetadata : pluginMetadataList) {

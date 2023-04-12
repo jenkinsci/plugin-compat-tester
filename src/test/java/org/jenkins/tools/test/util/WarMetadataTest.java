@@ -9,23 +9,19 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataHooks;
 import org.junit.jupiter.api.Test;
 
-class WarUtilsTest {
+class WarMetadataTest {
 
     @Test
     void testPlugins() throws Exception {
-        File megaWar = new File("target", "megawar.war");
-        List<PluginMetadata> pms = WarUtils.extractPluginMetadataFromWar(
-                megaWar, PluginMetadataHooks.loadExtractors(Set.of()), Collections.emptySet(), Collections.emptySet());
-        assertThat(pms, hasSize(1));
-        PluginMetadata pm = pms.get(0);
-
+        WarMetadata warMetadata = new WarMetadata(new File("target", "megawar.war"), Set.of(), Set.of(), Set.of());
+        List<PluginMetadata> pluginMetadata = warMetadata.getPluginMetadata();
+        assertThat(pluginMetadata, hasSize(1));
+        PluginMetadata pm = pluginMetadata.get(0);
         assertThat(
                 pm,
                 allOf(
@@ -39,8 +35,8 @@ class WarUtilsTest {
 
     @Test
     void testJenkinsVersion() throws Exception {
-        File megaWar = new File("target", "megawar.war");
-        String extractCoreVersionFromWar = WarUtils.extractCoreVersionFromWar(megaWar);
-        assertThat(extractCoreVersionFromWar, startsWith("2."));
+        WarMetadata warMetadata = new WarMetadata(new File("target", "megawar.war"), Set.of(), Set.of(), Set.of());
+        String coreVersion = warMetadata.getCoreVersion();
+        assertThat(coreVersion, startsWith("2."));
     }
 }
