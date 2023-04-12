@@ -81,6 +81,7 @@ public class PluginMetadata {
     /**
      * The plugin name if known, otherwise the plugin ID.
      */
+    @NonNull
     public String getName() {
         return name == null ? pluginId : name;
     }
