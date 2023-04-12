@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -51,7 +52,9 @@ public class PluginListerCli implements Callable<Integer> {
     @CommandLine.Option(
             names = {"-o", "--output"},
             required = false,
-            description = "Location of the file to write containing the plugin and repositories.")
+            description = "Location of the file to write containing the plugin and repositories. "
+                    + "The format of the file is a line per repository consiting of the repository URL followed "
+                    + "by a tab followed by a tab separated list of plugins in that repository.")
     private File output;
 
     @CheckForNull
@@ -81,33 +84,49 @@ public class PluginListerCli implements Callable<Integer> {
         List<PluginMetadata> pluginMetadataList =
                 WarUtils.extractPluginMetadataFromWar(warFile, metadataExtractors, includePlugins, excludePlugins);
 
-        // Group the plugins into their actual repositories.
-        Map<String, List<PluginMetadata>> metaDataByRepoMap =
-                pluginMetadataList.stream().collect(Collectors.groupingBy(PluginMetadata::getGitUrl));
-
-        if (metaDataByRepoMap.isEmpty()) {
+        if (pluginMetadataList.isEmpty()) {
             LOGGER.log(Level.WARNING, "Found no plugins in {0}", warFile);
             return Integer.valueOf(5);
         }
 
         if (output != null) {
+            // Group the plugins into their actual repositories.
+            Map<String, List<PluginMetadata>> metaDataByRepoMap =
+                    pluginMetadataList.stream().collect(Collectors.groupingBy(PluginMetadata::getGitUrl));
+
             try (BufferedWriter writer = Files.newBufferedWriter(output.toPath())) {
                 for (Map.Entry<String, List<PluginMetadata>> entry : metaDataByRepoMap.entrySet()) {
-                    writer.write(formatEntry(entry));
-                    writer.write("\\n");
+                    writer.write(formatFileEntry(entry));
+                    writer.write("\n");
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         } else {
-            for (Map.Entry<String, List<PluginMetadata>> entry : metaDataByRepoMap.entrySet()) {
-                System.out.println(formatEntry(entry));
+            // First find the longest String so we can pad correctly
+            int max_length = 0;
+            for (PluginMetadata pm : pluginMetadataList) {
+                max_length = Math.max(max_length, pm.getPluginId().length());
+            }
+            // Add a couple of spaced padding for the longest entry.
+            max_length += 2;
+            System.out.println(
+                    String.format(Locale.ROOT, "%-" + max_length + "s%s", "Plugin ID", "Git Repository URL"));
+            for (PluginMetadata pm : pluginMetadataList) {
+                System.out.println(
+                        String.format(Locale.ROOT, "%-" + max_length + "s%s", pm.getPluginId(), pm.getGitUrl()));
             }
         }
         return Integer.valueOf(0);
     }
 
-    private static String formatEntry(Entry<String, List<PluginMetadata>> entry) {
+    /**
+     * Format a list of plugins and git URLs as s ginel line consiting of the repository URL, followed by a tab character,
+     * followed by the plugins each separated by the tab character.
+     * @param entry the list of {@link PluginMetadata} describing the plugins in the
+     * @return A single line of text describing the repositiry URL and the discovered plugins within it.
+     */
+    private static String formatFileEntry(Entry<String, List<PluginMetadata>> entry) {
         StringBuilder sb = new StringBuilder(entry.getKey());
         for (PluginMetadata pm : entry.getValue()) {
             sb.append("\t").append(pm.getPluginId());
