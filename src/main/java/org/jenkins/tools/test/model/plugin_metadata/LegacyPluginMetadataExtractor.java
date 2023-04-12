@@ -1,6 +1,5 @@
 package org.jenkins.tools.test.model.plugin_metadata;
 
-import java.util.Optional;
 import java.util.jar.Manifest;
 import org.apache.maven.model.Model;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
@@ -9,18 +8,21 @@ import org.kohsuke.MetaInfServices;
 
 @MetaInfServices(PluginMetadataExtractor.class)
 @HookOrder(order = -1000)
-public class LegacyPluginMetadataExtractor extends PluginMetadataExtractor {
+public class LegacyPluginMetadataExtractor implements PluginMetadataExtractor {
 
     @Override
-    public Optional<Plugin> extractMetadata(String pluginId, Manifest manifest, Model model)
-            throws MetadataExtractionException {
-        // Any multi-module project must have been handled before now (either the modern hook or a
-        // specific hook for a legacy multi-module project)
-        if (model.getScm() == null) {
-            return Optional.empty();
-        }
+    public boolean isApplicable(String pluginId, Manifest manifest, Model model) {
+        /*
+         * Any multi-module project must have been handled before now (either the modern hook or a specific hook for a
+         * legacy multi-module project).
+         */
+        return model.getScm() != null;
+    }
+
+    @Override
+    public Plugin extractMetadata(String pluginId, Manifest manifest, Model model) throws MetadataExtractionException {
         assert pluginId.equals(model.getArtifactId());
-        return Optional.of(new Plugin.Builder()
+        return new Plugin.Builder()
                 .withPluginId(model.getArtifactId())
                 .withName(model.getName())
                 .withScmConnection(model.getScm().getConnection())
@@ -30,6 +32,6 @@ public class LegacyPluginMetadataExtractor extends PluginMetadataExtractor {
                 // Any multi-module projects have already been handled by now or require new hooks
                 .withModule(null)
                 .withVersion(model.getVersion())
-                .build());
+                .build();
     }
 }

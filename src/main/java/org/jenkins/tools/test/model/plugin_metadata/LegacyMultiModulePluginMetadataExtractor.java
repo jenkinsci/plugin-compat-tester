@@ -1,6 +1,6 @@
 package org.jenkins.tools.test.model.plugin_metadata;
 
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.Manifest;
 import org.apache.maven.model.Model;
@@ -12,17 +12,43 @@ import org.kohsuke.MetaInfServices;
 // https://github.com/jenkinsci/maven-hpi-plugin/pull/436
 @MetaInfServices(PluginMetadataExtractor.class)
 @HookOrder(order = -500)
-public class LegacyMultiModulePluginMetadataExtractor extends PluginMetadataExtractor {
+public class LegacyMultiModulePluginMetadataExtractor implements PluginMetadataExtractor {
 
-    private final Set<String> NAME_AS_MODULE = Set.of("io.jenkins.blueocean", "io.jenkins.plugins.mina-sshd-api");
+    private final Set<String> GROUP_IDS = Set.of("io.jenkins.blueocean", "io.jenkins.plugins.mina-sshd-api");
+
+    private final Set<String> STANDARD_PLUGIN_IDS = Set.of(
+            "declarative-pipeline-migration-assistant",
+            "declarative-pipeline-migration-assistant-api",
+            "pipeline-model-api",
+            "pipeline-model-definition",
+            "pipeline-model-extensions",
+            "pipeline-stage-tags-metadata");
+
+    private final Map<String, String> NONSTANDARD_PLUGIN_IDS = Map.of(
+            "configuration-as-code", "plugin",
+            "pipeline-rest-api", "rest-api",
+            "pipeline-stage-view", "ui",
+            "swarm", "plugin",
+            "warnings-ng", "plugin",
+            "workflow-cps", "plugin");
 
     @Override
-    public Optional<Plugin> extractMetadata(String pluginId, Manifest manifest, Model model)
-            throws MetadataExtractionException {
+    public boolean isApplicable(String pluginId, Manifest manifest, Model model) {
         if (model.getScm() == null) {
-            return Optional.empty();
+            return false;
         }
+        String groupId = manifest.getMainAttributes().getValue("Group-Id");
+        if (GROUP_IDS.contains(groupId) || STANDARD_PLUGIN_IDS.contains(pluginId)) {
+            return true;
+        } else {
+            return NONSTANDARD_PLUGIN_IDS.containsKey(pluginId);
+        }
+    }
 
+    @Override
+    public Plugin extractMetadata(String pluginId, Manifest manifest, Model model) throws MetadataExtractionException {
+        assert pluginId.equals(model.getArtifactId());
+        String groupId = manifest.getMainAttributes().getValue("Group-Id");
         Plugin.Builder builder = new Plugin.Builder()
                 .withPluginId(model.getArtifactId())
                 .withName(model.getName())
@@ -31,59 +57,12 @@ public class LegacyMultiModulePluginMetadataExtractor extends PluginMetadataExtr
                 // Not guaranteed to be a hash, but close enough for this legacy code path
                 .withGitHash(model.getScm().getTag())
                 .withVersion(model.getVersion() == null ? model.getParent().getVersion() : model.getVersion());
-
-        String groupId = manifest.getMainAttributes().getValue("Group-Id");
-
-        if (NAME_AS_MODULE.contains(groupId)) {
-            return Optional.of(builder.withModule(pluginId).build());
+        if (GROUP_IDS.contains(groupId) || STANDARD_PLUGIN_IDS.contains(pluginId)) {
+            return builder.withModule(pluginId).build();
+        } else if (NONSTANDARD_PLUGIN_IDS.containsKey(pluginId)) {
+            return builder.withModule(NONSTANDARD_PLUGIN_IDS.get(pluginId)).build();
+        } else {
+            throw new MetadataExtractionException("No metadata could be extracted for " + pluginId);
         }
-
-        // Handle nonstandard aggregator projects
-
-        // https://github.com/jenkinsci/pipeline-model-definition-plugin
-        if (Set.of(
-                        "pipeline-model-api",
-                        "pipeline-model-definition",
-                        "pipeline-model-extensions",
-                        "pipeline-stage-tags-metadata")
-                .contains(pluginId)) {
-            return Optional.of(builder.withModule(pluginId).build());
-        }
-
-        // https://github.com/jenkinsci/declarative-pipeline-migration-assistant-plugin
-        if (Set.of("declarative-pipeline-migration-assistant", "declarative-pipeline-migration-assistant-api")
-                .contains(pluginId)) {
-            return Optional.of(builder.withModule(pluginId).build());
-        }
-
-        // https://github.com/jenkinsci/pipeline-stage-view-plugin
-        if ("pipeline-rest-api".equals(pluginId)) {
-            return Optional.of(builder.withModule("rest-api").build());
-        }
-        if ("pipeline-stage-view".equals(pluginId)) {
-            return Optional.of(builder.withModule("ui").build());
-        }
-
-        // https://github.com/jenkinsci/swarm-plugin
-        if ("swarm".equals(pluginId)) {
-            return Optional.of(builder.withModule("plugin").build());
-        }
-
-        // https://github.com/jenkinsci/warnings-ng-plugin
-        if ("warnings-ng".equals(pluginId)) {
-            return Optional.of(builder.withModule("plugin").build());
-        }
-
-        // https://github.com/jenkinsci/workflow-cps-plugin/
-        if ("workflow-cps".equals(pluginId)) {
-            return Optional.of(builder.withModule("plugin").build());
-        }
-
-        // https://github.com/jenkinsci/configuration-as-code-plugin
-        if ("configuration-as-code".equals(pluginId)) {
-            return Optional.of(builder.withModule("plugin").build());
-        }
-
-        return Optional.empty();
     }
 }

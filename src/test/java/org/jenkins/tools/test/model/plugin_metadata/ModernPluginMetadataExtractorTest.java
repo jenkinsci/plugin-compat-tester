@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
-import java.util.Optional;
 import java.util.jar.Manifest;
 import org.junit.jupiter.api.Test;
 
@@ -21,19 +20,14 @@ class ModernPluginMetadataExtractorTest {
         // from https://github.com/jenkinsci/aws-java-sdk-plugin/pull/956/checks?check_run_id=12250637623
         try (InputStream resourceAsStream = ModernPluginMetadataExtractorTest.class.getResourceAsStream(
                 "ModernPluginMetadataExtractorTest/modern/MANIFEST.MF")) {
-
             assertNotNull(resourceAsStream);
-            Manifest mf = new Manifest(resourceAsStream);
-
+            Manifest manifest = new Manifest(resourceAsStream);
             ModernPluginMetadataExtractor modernPluginMetadataExtractor = new ModernPluginMetadataExtractor();
-
-            Optional<Plugin> optionalMetadata =
-                    modernPluginMetadataExtractor.extractMetadata("aws-java-sdk-ec2", mf, null);
-
-            assertTrue(optionalMetadata.isPresent(), "metadata should be extracted from a modern manifest");
-
+            assertTrue(modernPluginMetadataExtractor.isApplicable("aws-java-sdk-ec2", manifest, null));
+            Plugin plugin = modernPluginMetadataExtractor.extractMetadata("aws-java-sdk-ec2", manifest, null);
+            assertNotNull(plugin, "metadata should be extracted from a modern manifest");
             assertThat(
-                    optionalMetadata.get(),
+                    plugin,
                     allOf(
                             hasProperty("pluginId", is("aws-java-sdk-ec2")),
                             hasProperty("gitUrl", is("https://github.com/jenkinsci/aws-java-sdk-plugin.git")),
@@ -49,15 +43,10 @@ class ModernPluginMetadataExtractorTest {
         // from https://updates.jenkins.io/download/plugins/text-finder/1.23/text-finder.hpi
         try (InputStream resourceAsStream = ModernPluginMetadataExtractorTest.class.getResourceAsStream(
                 "ModernPluginMetadataExtractorTest/legacy/MANIFEST.MF")) {
-
             assertNotNull(resourceAsStream);
-            Manifest mf = new Manifest(resourceAsStream);
-
+            Manifest manifest = new Manifest(resourceAsStream);
             ModernPluginMetadataExtractor modernPluginMetadataExtractor = new ModernPluginMetadataExtractor();
-
-            Optional<Plugin> optionalMetadata = modernPluginMetadataExtractor.extractMetadata("text-finder", mf, null);
-
-            assertFalse(optionalMetadata.isPresent(), "metadata should not be extracted from a legacy manifest");
+            assertFalse(modernPluginMetadataExtractor.isApplicable("aws-java-sdk-ec2", manifest, null));
         }
     }
 }

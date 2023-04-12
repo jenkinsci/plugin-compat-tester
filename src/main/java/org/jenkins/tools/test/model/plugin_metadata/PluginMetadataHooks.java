@@ -8,7 +8,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -75,10 +74,9 @@ public class PluginMetadataHooks {
         }
         // Once all plugins have adopted https://github.com/jenkinsci/maven-hpi-plugin/pull/436 this can be simplified
         LOGGER.log(Level.INFO, "Extracting metadata about {0}", pluginId);
-        for (PluginMetadataExtractor e : extractors) {
-            Optional<Plugin> optionalMetadata = e.extractMetadata(pluginId, manifest, model);
-            if (optionalMetadata.isPresent()) {
-                return optionalMetadata.get();
+        for (PluginMetadataExtractor extractor : extractors) {
+            if (extractor.isApplicable(pluginId, manifest, model)) {
+                return extractor.extractMetadata(pluginId, manifest, model);
             }
         }
         throw new MetadataExtractionException("No metadata could be extracted for entry " + je.getName());

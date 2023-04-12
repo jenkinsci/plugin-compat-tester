@@ -24,8 +24,8 @@ public class VersionProvider implements CommandLine.IVersionProvider {
         StringBuilder sb = new StringBuilder("Plugin Compatibility Tester ");
         try (InputStream manifestStream = VersionProvider.class.getResourceAsStream("/META-INF/MANIFEST.MF")) {
             if (manifestStream != null) {
-                Manifest mf = new Manifest(manifestStream);
-                Attributes mainAttributes = mf.getMainAttributes();
+                Manifest manifest = new Manifest(manifestStream);
+                Attributes mainAttributes = manifest.getMainAttributes();
                 if (mainAttributes.containsKey(new Attributes.Name("Implementation-Version"))) {
                     sb.append(mainAttributes.getValue("Implementation-Version"));
                 } else {

@@ -1,6 +1,5 @@
 package org.jenkins.tools.test.model.plugin_metadata;
 
-import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import org.apache.maven.model.Model;
@@ -15,7 +14,7 @@ import org.kohsuke.MetaInfServices;
  */
 @MetaInfServices(PluginMetadataExtractor.class)
 @HookOrder(order = 1000) // just incase it ever needs to be overridden
-public class ModernPluginMetadataExtractor extends PluginMetadataExtractor {
+public class ModernPluginMetadataExtractor implements PluginMetadataExtractor {
 
     // https://github.com/jenkinsci/maven-hpi-plugin/pull/436
     private static final Attributes.Name PLUGIN_GIT_HASH = new Attributes.Name("Plugin-GitHash");
@@ -27,26 +26,26 @@ public class ModernPluginMetadataExtractor extends PluginMetadataExtractor {
     private static final Attributes.Name PLUGIN_VERSION = new Attributes.Name("Plugin-Version");
 
     @Override
-    public Optional<Plugin> extractMetadata(String pluginId, Manifest manifest, Model model)
-            throws MetadataExtractionException {
+    public boolean isApplicable(String pluginId, Manifest manifest, Model model) {
+        // We are new enough to be a modern plugin
+        return manifest.getMainAttributes().containsKey(PLUGIN_SCM_CONNECTION);
+    }
+
+    @Override
+    public Plugin extractMetadata(String pluginId, Manifest manifest, Model model) throws MetadataExtractionException {
         // All the information is stored in the plugin's manifest
         Attributes mainAttributes = manifest.getMainAttributes();
 
         assert pluginId.equals(mainAttributes.getValue(PLUGIN_ID));
 
-        if (mainAttributes.containsKey(PLUGIN_GIT_HASH)) {
-            // We are new enough to be a modern plugin
-
-            return Optional.of(new Plugin.Builder()
-                    .withPluginId(mainAttributes.getValue(PLUGIN_ID))
-                    .withName(mainAttributes.getValue(PLUGIN_NAME))
-                    .withScmConnection(mainAttributes.getValue(PLUGIN_SCM_CONNECTION))
-                    .withTag(mainAttributes.getValue(PLUGIN_SCM_TAG))
-                    .withGitHash(mainAttributes.getValue(PLUGIN_GIT_HASH))
-                    .withModule(mainAttributes.getValue(PLUGIN_MODULE))
-                    .withVersion(mainAttributes.getValue(PLUGIN_VERSION))
-                    .build());
-        }
-        return Optional.empty();
+        return new Plugin.Builder()
+                .withPluginId(mainAttributes.getValue(PLUGIN_ID))
+                .withName(mainAttributes.getValue(PLUGIN_NAME))
+                .withScmConnection(mainAttributes.getValue(PLUGIN_SCM_CONNECTION))
+                .withTag(mainAttributes.getValue(PLUGIN_SCM_TAG))
+                .withGitHash(mainAttributes.getValue(PLUGIN_GIT_HASH))
+                .withModule(mainAttributes.getValue(PLUGIN_MODULE))
+                .withVersion(mainAttributes.getValue(PLUGIN_VERSION))
+                .build();
     }
 }
