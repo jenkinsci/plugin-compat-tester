@@ -16,7 +16,7 @@ public class JacocoHook extends PluginCompatTesterHookBeforeExecution {
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
-        return context.getPluginMetadata().getPluginId().equals("jacoco");
+        return context.getPlugin().getPluginId().equals("jacoco");
     }
 
     @Override

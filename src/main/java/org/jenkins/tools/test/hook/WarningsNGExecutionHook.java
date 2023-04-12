@@ -15,6 +15,6 @@ public class WarningsNGExecutionHook extends PluginWithFailsafeIntegrationTestsH
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
-        return ARTIFACT_IDS.contains(context.getPluginMetadata().getPluginId());
+        return ARTIFACT_IDS.contains(context.getPlugin().getPluginId());
     }
 }

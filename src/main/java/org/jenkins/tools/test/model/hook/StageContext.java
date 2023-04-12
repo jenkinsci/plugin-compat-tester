@@ -10,10 +10,10 @@ public abstract class StageContext {
     private final Stage stage;
 
     @NonNull
-    private final Plugin plugin;
+    private final String coreVersion;
 
     @NonNull
-    private final String coreVersion;
+    private final Plugin plugin;
 
     @NonNull
     private final PluginCompatTesterConfig config;
@@ -35,13 +35,13 @@ public abstract class StageContext {
     }
 
     @NonNull
-    public Plugin getPluginMetadata() {
-        return plugin;
+    public String getCoreVersion() {
+        return coreVersion;
     }
 
     @NonNull
-    public String getCoreVersion() {
-        return coreVersion;
+    public Plugin getPlugin() {
+        return plugin;
     }
 
     @NonNull

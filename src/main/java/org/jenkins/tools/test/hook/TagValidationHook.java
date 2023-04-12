@@ -16,10 +16,10 @@ public class TagValidationHook extends PluginCompatTesterHookBeforeCheckout {
 
     @Override
     public void action(@NonNull BeforeCheckoutContext context) throws PluginSourcesUnavailableException {
-        String tag = context.getPluginMetadata().getTag();
+        String tag = context.getPlugin().getTag();
         if (tag == null || tag.equals("HEAD")) {
             throw new PluginSourcesUnavailableException("Failed to check out plugin sources for "
-                    + context.getPluginMetadata().getPluginId());
+                    + context.getPlugin().getPluginId());
         }
     }
 }
