@@ -96,6 +96,29 @@ public class Plugin {
         return name == null ? pluginId : name;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Plugin that = (Plugin) o;
+        return getPluginId().equals(that.getPluginId())
+                && getVersion().equals(that.getVersion())
+                && getGitUrl().equals(that.getGitUrl())
+                && Objects.equals(getTag(), that.getTag())
+                && Objects.equals(getModule(), that.getModule())
+                && Objects.equals(getGitHash(), that.getGitHash())
+                && Objects.equals(getName(), that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getPluginId(), getVersion(), getGitUrl(), getTag(), getModule(), getGitHash(), getName());
+    }
+
     public static final class Builder {
         private String pluginId;
         private String version;
@@ -169,28 +192,5 @@ public class Plugin {
         public Plugin build() {
             return new Plugin(this);
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Plugin that = (Plugin) o;
-        return getPluginId().equals(that.getPluginId())
-                && getVersion().equals(that.getVersion())
-                && getGitUrl().equals(that.getGitUrl())
-                && Objects.equals(getTag(), that.getTag())
-                && Objects.equals(getModule(), that.getModule())
-                && Objects.equals(getGitHash(), that.getGitHash())
-                && Objects.equals(getName(), that.getName());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getPluginId(), getVersion(), getGitUrl(), getTag(), getModule(), getGitHash(), getName());
     }
 }
