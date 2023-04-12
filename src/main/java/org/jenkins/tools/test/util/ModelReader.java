@@ -7,6 +7,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Scm;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 
 /**
@@ -15,7 +16,9 @@ import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 public class ModelReader {
 
     /**
-     * Load the model that is embedded inside the plugin in {@code META-INF/maven/${groupId}/${artifactId}/pom.xml}
+     * Load the model that is embedded inside the plugin in {@code
+     * META-INF/maven/${groupId}/${artifactId}/pom.xml}
+     *
      * @param groupId the groupId of the plugin
      * @param artifactId the artifactId of the plugin
      * @param jarInputStream the input stream created from the plugin's JAR file.
@@ -24,7 +27,7 @@ public class ModelReader {
      * @throws IOException if there was an I/O related issue obtaining the model.
      */
     public static Model getPluginModelFromHpi(String groupId, String artifactId, JarInputStream jarInputStream)
-            throws PluginSourcesUnavailableException, IOException {
+            throws MetadataExtractionException, IOException {
         Model model = null;
         final String entryName = "META-INF/maven/" + groupId + "/" + artifactId + "/pom.xml";
         JarEntry jarEntry;
@@ -35,12 +38,12 @@ public class ModelReader {
                     model = mavenXpp3Reader.read(jarInputStream);
                     break;
                 } catch (XmlPullParserException e) {
-                    throw new PluginSourcesUnavailableException("Failed to parse pom.xml", e);
+                    throw new MetadataExtractionException("Failed to parse pom.xml", e);
                 }
             }
         }
         if (model == null) {
-            throw new PluginSourcesUnavailableException(entryName + " was not found in the plugin HPI");
+            throw new MetadataExtractionException(entryName + " was not found in the plugin HPI");
         }
 
         Scm scm = model.getScm();

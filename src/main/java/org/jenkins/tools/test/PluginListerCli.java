@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -90,12 +91,12 @@ public class PluginListerCli implements Callable<Integer> {
         }
 
         if (output != null) {
-            // Group the plugins into their actual repositories.
-            Map<String, List<PluginMetadata>> metaDataByRepoMap =
-                    pluginMetadataList.stream().collect(Collectors.groupingBy(PluginMetadata::getGitUrl));
+            // Group the plugins by repository
+            Map<String, List<PluginMetadata>> pluginsByRepository = pluginMetadataList.stream()
+                    .collect(Collectors.groupingBy(PluginMetadata::getGitUrl, TreeMap::new, Collectors.toList()));
 
             try (BufferedWriter writer = Files.newBufferedWriter(output.toPath())) {
-                for (Map.Entry<String, List<PluginMetadata>> entry : metaDataByRepoMap.entrySet()) {
+                for (Map.Entry<String, List<PluginMetadata>> entry : pluginsByRepository.entrySet()) {
                     writer.write(formatFileEntry(entry));
                     writer.write("\n");
                 }

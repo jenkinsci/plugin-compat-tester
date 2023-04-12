@@ -39,7 +39,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -49,7 +49,6 @@ import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.exception.WrappedPluginCompatibilityException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
@@ -74,6 +73,7 @@ public class PluginCompatTester {
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTester.class.getName());
 
     private final PluginCompatTesterConfig config;
+
     private final ExternalMavenRunner runner;
 
     public PluginCompatTester(PluginCompatTesterConfig config) {
@@ -84,8 +84,8 @@ public class PluginCompatTester {
     public void testPlugins() throws PluginCompatibilityTesterException {
         PluginCompatTesterHooks pcth =
                 new PluginCompatTesterHooks(config.getExternalHooksJars(), config.getExcludeHooks());
-        // Determine the plugin data
 
+        // Extract the plugin metadata
         String coreVersion = WarUtils.extractCoreVersionFromWar(config.getWar());
         List<PluginMetadata> pluginMetadataList = WarUtils.extractPluginMetadataFromWar(
                 config.getWar(),
@@ -93,28 +93,28 @@ public class PluginCompatTester {
                 config.getIncludePlugins(),
                 config.getExcludePlugins());
 
-        // Filter any plugins that are not being tested, group by Git URL, and run through the before checkout hooks
-        Map<String, List<PluginMetadata>> pluginsByrepo;
-        try {
-            pluginsByrepo = pluginMetadataList.stream()
-                    .map(new RunAndMapBeforeCheckoutHooks(pcth, coreVersion, config))
-                    .collect(Collectors.groupingBy(PluginMetadata::getGitUrl, LinkedHashMap::new, Collectors.toList()));
-        } catch (WrappedPluginCompatibilityException e) {
-            throw e.getCause();
+        // Run the before checkout hooks
+        for (PluginMetadata pluginMetadata : pluginMetadataList) {
+            BeforeCheckoutContext c = new BeforeCheckoutContext(pluginMetadata, coreVersion, config);
+            pcth.runBeforeCheckout(c);
         }
+
+        // Group the plugins by repository
+        Map<String, List<PluginMetadata>> pluginsByRepository = pluginMetadataList.stream()
+                .collect(Collectors.groupingBy(PluginMetadata::getGitUrl, TreeMap::new, Collectors.toList()));
 
         if (localCheckoutProvided()) {
             // Do not perform the before checkout hooks on a local checkout
             List<PluginMetadata> localMetadata =
                     LocalCheckoutMetadataExtractor.extractMetadata(config.getLocalCheckoutDir(), config);
-            pluginsByrepo.put(null, localMetadata);
+            pluginsByRepository.put(null, localMetadata);
         }
 
         LOGGER.log(Level.INFO, "Starting plugin tests on core version {0}", coreVersion);
 
         PluginCompatibilityTesterException lastException = null;
 
-        for (Map.Entry<String, List<PluginMetadata>> entry : pluginsByrepo.entrySet()) {
+        for (Map.Entry<String, List<PluginMetadata>> entry : pluginsByRepository.entrySet()) {
             // Construct a single working directory for the clone
             String gitUrl = entry.getKey();
 
@@ -580,31 +580,6 @@ public class PluginCompatTester {
             return name.substring(0, name.length() - 4);
         }
         return name;
-    }
-
-    static class RunAndMapBeforeCheckoutHooks implements Function<PluginMetadata, PluginMetadata> {
-
-        private PluginCompatTesterHooks pcth;
-        private String coreVersion;
-        private PluginCompatTesterConfig config;
-
-        RunAndMapBeforeCheckoutHooks(
-                PluginCompatTesterHooks pcth, String coreVersion, PluginCompatTesterConfig config) {
-            this.pcth = pcth;
-            this.coreVersion = coreVersion;
-            this.config = config;
-        }
-
-        @Override
-        public PluginMetadata apply(PluginMetadata pluginMetadata) throws WrappedPluginCompatibilityException {
-            BeforeCheckoutContext c = new BeforeCheckoutContext(pluginMetadata, coreVersion, config);
-            try {
-                pcth.runBeforeCheckout(c);
-            } catch (PluginCompatibilityTesterException e) {
-                throw new WrappedPluginCompatibilityException(e);
-            }
-            return c.getPluginMetadata();
-        }
     }
 
     /**
