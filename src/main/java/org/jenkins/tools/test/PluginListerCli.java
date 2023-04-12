@@ -9,12 +9,12 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
+import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 import org.jenkins.tools.test.picocli.ExistingFileTypeConverter;
 import org.jenkins.tools.test.util.WarExtractor;
@@ -75,14 +75,12 @@ public class PluginListerCli implements Callable<Integer> {
     private Set<String> excludePlugins;
 
     @Override
-    public Integer call() throws PluginCompatibilityTesterException {
+    public Integer call() throws MetadataExtractionException {
         WarExtractor warExtractor = new WarExtractor(warFile, externalHooksJars, includePlugins, excludePlugins);
         List<Plugin> plugins = warExtractor.extractPlugins();
 
         if (output != null) {
-            // Group the plugins by repository
-            Map<String, List<Plugin>> pluginsByRepository = plugins.stream()
-                    .collect(Collectors.groupingBy(Plugin::getGitUrl, TreeMap::new, Collectors.toList()));
+            NavigableMap<String, List<Plugin>> pluginsByRepository = WarExtractor.byRepository(plugins);
 
             try (BufferedWriter writer = Files.newBufferedWriter(output.toPath())) {
                 for (Map.Entry<String, List<Plugin>> entry : pluginsByRepository.entrySet()) {
@@ -110,6 +108,7 @@ public class PluginListerCli implements Callable<Integer> {
                         String.format(Locale.ROOT, "%-" + maxLength + "s%s", plugin.getPluginId(), plugin.getGitUrl()));
             }
         }
+
         return Integer.valueOf(0);
     }
 }

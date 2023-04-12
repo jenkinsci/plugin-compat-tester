@@ -9,12 +9,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.NavigableMap;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataExtractor;
@@ -51,7 +54,7 @@ public class WarExtractor {
     /**
      * Extract the Jenkins core version from the given WAR.
      *
-     * @return the Jenkins core version number
+     * @return The Jenkins core version..
      */
     public String extractCoreVersion() throws MetadataExtractionException {
         try (JarFile jf = new JarFile(warFile)) {
@@ -66,6 +69,11 @@ public class WarExtractor {
         }
     }
 
+    /**
+     * Extract the list of plugins to be tested from the given WAR.
+     *
+     * @return An unmodifiable list of plugins to be tested, sorted by plugin ID.
+     */
     public List<Plugin> extractPlugins() throws MetadataExtractionException {
         List<Plugin> plugins = new ArrayList<>();
         try (JarFile jf = new JarFile(warFile)) {
@@ -88,13 +96,12 @@ public class WarExtractor {
 
     /**
      * Predicate that will check if the given {@link JarEntry} is an interesting plugin. Detached
-     * plugins are ignored. If the plugin is excluded it will be ignored. If the set of included
-     * plugins is not empty it will be ignored if it is not included.
+     * plugins are ignored. If the plugin is excluded, it will be ignored. If the set of included
+     * plugins is not empty, the plugin will be ignored if it is not in the set of included plugins.
      *
      * @return {@code true} iff {@code entry} represents a plugin in {@code WEB-INF/plugins/}
      */
     private boolean isInteresting(JarEntry entry) {
-        // Ignore detached plugins
         if (entry.getName().startsWith(PREFIX) && entry.getName().endsWith(SUFFIX)) {
             String pluginId =
                     entry.getName().substring(PREFIX.length(), entry.getName().length() - SUFFIX.length());
@@ -109,5 +116,14 @@ public class WarExtractor {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Group the plugins by repository.
+     *
+     * @return A map of repositories to plugins, sorted by the plugin Git URL.
+     */
+    public static NavigableMap<String, List<Plugin>> byRepository(List<Plugin> plugins) {
+        return plugins.stream().collect(Collectors.groupingBy(Plugin::getGitUrl, TreeMap::new, Collectors.toList()));
     }
 }

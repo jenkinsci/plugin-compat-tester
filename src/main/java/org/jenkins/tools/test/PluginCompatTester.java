@@ -39,12 +39,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.NavigableMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
@@ -84,7 +83,7 @@ public class PluginCompatTester {
         PluginCompatTesterHooks pcth =
                 new PluginCompatTesterHooks(config.getExternalHooksJars(), config.getExcludeHooks());
 
-        // Extract the plugin metadata
+        // Extract the metadata
         WarExtractor warExtractor = new WarExtractor(
                 config.getWar(), config.getExternalHooksJars(), config.getIncludePlugins(), config.getExcludePlugins());
         String coreVersion = warExtractor.extractCoreVersion();
@@ -97,8 +96,7 @@ public class PluginCompatTester {
         }
 
         // Group the plugins by repository
-        Map<String, List<Plugin>> pluginsByRepository =
-                plugins.stream().collect(Collectors.groupingBy(Plugin::getGitUrl, TreeMap::new, Collectors.toList()));
+        NavigableMap<String, List<Plugin>> pluginsByRepository = WarExtractor.byRepository(plugins);
 
         if (localCheckoutProvided()) {
             // Do not perform the before checkout hooks on a local checkout
