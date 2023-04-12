@@ -16,13 +16,13 @@ import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
+import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataExtractor;
 import org.jenkins.tools.test.model.plugin_metadata.PluginMetadataHooks;
 
-public class WarMetadata {
+public class WarExtractor {
 
-    private static final Logger LOGGER = Logger.getLogger(WarMetadata.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(WarExtractor.class.getName());
 
     private static final String PREFIX = "WEB-INF/plugins/";
 
@@ -40,7 +40,7 @@ public class WarMetadata {
     @CheckForNull
     private final Set<String> excludedPlugins;
 
-    public WarMetadata(
+    public WarExtractor(
             File warFile, Set<File> externalHooksJars, Set<String> includedPlugins, Set<String> excludedPlugins) {
         this.warFile = warFile;
         this.extractors = PluginMetadataHooks.loadExtractors(externalHooksJars);
@@ -53,7 +53,7 @@ public class WarMetadata {
      *
      * @return the Jenkins core version number
      */
-    public String getCoreVersion() throws MetadataExtractionException {
+    public String extractCoreVersion() throws MetadataExtractionException {
         try (JarFile jf = new JarFile(warFile)) {
             Manifest manifest = jf.getManifest();
             String value = manifest.getMainAttributes().getValue("Jenkins-Version");
@@ -66,24 +66,24 @@ public class WarMetadata {
         }
     }
 
-    public List<PluginMetadata> getPluginMetadata() throws MetadataExtractionException {
-        List<PluginMetadata> result = new ArrayList<>();
+    public List<Plugin> extractPlugins() throws MetadataExtractionException {
+        List<Plugin> plugins = new ArrayList<>();
         try (JarFile jf = new JarFile(warFile)) {
             Enumeration<JarEntry> entries = jf.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
                 if (isInteresting(entry)) {
-                    result.add(PluginMetadataHooks.getPluginDetails(extractors, jf, entry));
+                    plugins.add(PluginMetadataHooks.getPluginDetails(extractors, jf, entry));
                 }
             }
         } catch (IOException e) {
             throw new UncheckedIOException("I/O error occurred whilst extracting plugin metadata from WAR", e);
         }
-        if (result.isEmpty()) {
+        if (plugins.isEmpty()) {
             throw new MetadataExtractionException("Found no plugins in " + warFile);
         }
-        result.sort(Comparator.comparing(PluginMetadata::getPluginId));
-        return List.copyOf(result);
+        plugins.sort(Comparator.comparing(Plugin::getPluginId));
+        return List.copyOf(plugins);
     }
 
     /**

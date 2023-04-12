@@ -4,7 +4,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.util.List;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
+import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 
 public final class BeforeExecutionContext extends StageContext {
 
@@ -15,12 +15,12 @@ public final class BeforeExecutionContext extends StageContext {
     private final List<String> args;
 
     public BeforeExecutionContext(
-            @NonNull PluginMetadata pluginMetadata,
             @NonNull String coreVersion,
+            @NonNull Plugin plugin,
             @NonNull PluginCompatTesterConfig config,
             @NonNull File cloneDirectory,
             @NonNull List<String> args) {
-        super(Stage.EXECUTION, pluginMetadata, coreVersion, config);
+        super(Stage.EXECUTION, coreVersion, plugin, config);
         this.cloneDirectory = cloneDirectory;
         this.args = args;
     }

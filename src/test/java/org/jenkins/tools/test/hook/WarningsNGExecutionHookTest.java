@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
+import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 import org.junit.jupiter.api.Test;
 
 class WarningsNGExecutionHookTest {
@@ -17,18 +17,18 @@ class WarningsNGExecutionHookTest {
     void testCheckMethod() {
         final WarningsNGExecutionHook hook = new WarningsNGExecutionHook();
 
-        PluginMetadata pm = new PluginMetadata.Builder()
+        Plugin plugin = new Plugin.Builder()
                 .withGitHash("ignored")
                 .withGitUrl("ignored")
                 .withVersion("ignored")
                 .withPluginId("warnings-ng")
                 .build();
 
-        BeforeExecutionContext context = new BeforeExecutionContext(pm, null, null, null, null);
+        BeforeExecutionContext context = new BeforeExecutionContext(null, plugin, null, null, null);
         assertTrue(hook.check(context));
 
-        pm = new PluginMetadata.Builder(pm).withPluginId("other-plugin").build();
-        context = new BeforeExecutionContext(pm, null, null, null, null);
+        plugin = new Plugin.Builder(plugin).withPluginId("other-plugin").build();
+        context = new BeforeExecutionContext(null, plugin, null, null, null);
         assertFalse(hook.check(context));
     }
 

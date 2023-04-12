@@ -2,7 +2,7 @@ package org.jenkins.tools.test.model.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
+import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 
 public abstract class StageContext {
 
@@ -10,7 +10,7 @@ public abstract class StageContext {
     private final Stage stage;
 
     @NonNull
-    private final PluginMetadata pluginMetadata;
+    private final Plugin plugin;
 
     @NonNull
     private final String coreVersion;
@@ -20,11 +20,11 @@ public abstract class StageContext {
 
     public StageContext(
             @NonNull Stage stage,
-            @NonNull PluginMetadata pluginMetadata,
             @NonNull String coreVersion,
+            @NonNull Plugin plugin,
             @NonNull PluginCompatTesterConfig config) {
         this.stage = stage;
-        this.pluginMetadata = pluginMetadata;
+        this.plugin = plugin;
         this.coreVersion = coreVersion;
         this.config = config;
     }
@@ -35,8 +35,8 @@ public abstract class StageContext {
     }
 
     @NonNull
-    public PluginMetadata getPluginMetadata() {
-        return pluginMetadata;
+    public Plugin getPluginMetadata() {
+        return plugin;
     }
 
     @NonNull

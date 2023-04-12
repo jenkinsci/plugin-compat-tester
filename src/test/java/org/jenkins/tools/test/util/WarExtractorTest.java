@@ -11,19 +11,26 @@ import static org.hamcrest.Matchers.startsWith;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
+import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 import org.junit.jupiter.api.Test;
 
-class WarMetadataTest {
+class WarExtractorTest {
 
     @Test
-    void testPlugins() throws Exception {
-        WarMetadata warMetadata = new WarMetadata(new File("target", "megawar.war"), Set.of(), Set.of(), Set.of());
-        List<PluginMetadata> pluginMetadata = warMetadata.getPluginMetadata();
-        assertThat(pluginMetadata, hasSize(1));
-        PluginMetadata pm = pluginMetadata.get(0);
+    void testExtractCoreVersion() throws Exception {
+        WarExtractor warExtractor = new WarExtractor(new File("target", "megawar.war"), Set.of(), Set.of(), Set.of());
+        String coreVersion = warExtractor.extractCoreVersion();
+        assertThat(coreVersion, startsWith("2."));
+    }
+
+    @Test
+    void testExtractPlugins() throws Exception {
+        WarExtractor warExtractor = new WarExtractor(new File("target", "megawar.war"), Set.of(), Set.of(), Set.of());
+        List<Plugin> plugins = warExtractor.extractPlugins();
+        assertThat(plugins, hasSize(1));
+        Plugin plugin = plugins.get(0);
         assertThat(
-                pm,
+                plugin,
                 allOf(
                         hasProperty("pluginId", is("text-finder")),
                         hasProperty("gitUrl", is("https://github.com/jenkinsci/text-finder-plugin.git")),
@@ -31,12 +38,5 @@ class WarMetadataTest {
                         hasProperty("tag", startsWith("text-finder-1.")),
                         hasProperty("name", is("Text Finder")),
                         hasProperty("version", startsWith("1."))));
-    }
-
-    @Test
-    void testJenkinsVersion() throws Exception {
-        WarMetadata warMetadata = new WarMetadata(new File("target", "megawar.war"), Set.of(), Set.of(), Set.of());
-        String coreVersion = warMetadata.getCoreVersion();
-        assertThat(coreVersion, startsWith("2."));
     }
 }

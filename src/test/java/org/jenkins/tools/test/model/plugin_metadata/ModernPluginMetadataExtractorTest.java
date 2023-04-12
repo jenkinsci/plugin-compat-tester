@@ -27,7 +27,7 @@ class ModernPluginMetadataExtractorTest {
 
             ModernPluginMetadataExtractor modernPluginMetadataExtractor = new ModernPluginMetadataExtractor();
 
-            Optional<PluginMetadata> optionalMetadata =
+            Optional<Plugin> optionalMetadata =
                     modernPluginMetadataExtractor.extractMetadata("aws-java-sdk-ec2", mf, null);
 
             assertTrue(optionalMetadata.isPresent(), "metadata should be extracted from a modern manifest");
@@ -55,8 +55,7 @@ class ModernPluginMetadataExtractorTest {
 
             ModernPluginMetadataExtractor modernPluginMetadataExtractor = new ModernPluginMetadataExtractor();
 
-            Optional<PluginMetadata> optionalMetadata =
-                    modernPluginMetadataExtractor.extractMetadata("text-finder", mf, null);
+            Optional<Plugin> optionalMetadata = modernPluginMetadataExtractor.extractMetadata("text-finder", mf, null);
 
             assertFalse(optionalMetadata.isPresent(), "metadata should not be extracted from a legacy manifest");
         }

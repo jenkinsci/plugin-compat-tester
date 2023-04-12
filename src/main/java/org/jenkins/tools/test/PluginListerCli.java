@@ -15,9 +15,9 @@ import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
+import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 import org.jenkins.tools.test.picocli.ExistingFileTypeConverter;
-import org.jenkins.tools.test.util.WarMetadata;
+import org.jenkins.tools.test.util.WarExtractor;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -76,19 +76,18 @@ public class PluginListerCli implements Callable<Integer> {
 
     @Override
     public Integer call() throws PluginCompatibilityTesterException {
-        WarMetadata warMetadata = new WarMetadata(warFile, externalHooksJars, includePlugins, excludePlugins);
-        List<PluginMetadata> pluginMetadata = warMetadata.getPluginMetadata();
+        WarExtractor warExtractor = new WarExtractor(warFile, externalHooksJars, includePlugins, excludePlugins);
+        List<Plugin> plugins = warExtractor.extractPlugins();
 
         if (output != null) {
             // Group the plugins by repository
-            Map<String, List<PluginMetadata>> pluginsByRepository = pluginMetadata.stream()
-                    .collect(Collectors.groupingBy(PluginMetadata::getGitUrl, TreeMap::new, Collectors.toList()));
+            Map<String, List<Plugin>> pluginsByRepository = plugins.stream()
+                    .collect(Collectors.groupingBy(Plugin::getGitUrl, TreeMap::new, Collectors.toList()));
 
             try (BufferedWriter writer = Files.newBufferedWriter(output.toPath())) {
-                for (Map.Entry<String, List<PluginMetadata>> entry : pluginsByRepository.entrySet()) {
-                    writer.write(entry.getValue().stream()
-                            .map(PluginMetadata::getPluginId)
-                            .collect(Collectors.joining(",")));
+                for (Map.Entry<String, List<Plugin>> entry : pluginsByRepository.entrySet()) {
+                    writer.write(
+                            entry.getValue().stream().map(Plugin::getPluginId).collect(Collectors.joining(",")));
                     writer.newLine();
                 }
             } catch (IOException e) {
@@ -96,8 +95,8 @@ public class PluginListerCli implements Callable<Integer> {
             }
         } else {
             // First find the longest String so we can pad correctly
-            int maxLength = pluginMetadata.stream()
-                    .map(PluginMetadata::getPluginId)
+            int maxLength = plugins.stream()
+                    .map(Plugin::getPluginId)
                     .map(String::length)
                     .max(Integer::compareTo)
                     .get();
@@ -106,9 +105,9 @@ public class PluginListerCli implements Callable<Integer> {
             maxLength += 4;
 
             System.out.println(String.format(Locale.ROOT, "%-" + maxLength + "s%s", "PLUGIN", "REPOSITORY"));
-            for (PluginMetadata pm : pluginMetadata) {
+            for (Plugin plugin : plugins) {
                 System.out.println(
-                        String.format(Locale.ROOT, "%-" + maxLength + "s%s", pm.getPluginId(), pm.getGitUrl()));
+                        String.format(Locale.ROOT, "%-" + maxLength + "s%s", plugin.getPluginId(), plugin.getGitUrl()));
             }
         }
         return Integer.valueOf(0);

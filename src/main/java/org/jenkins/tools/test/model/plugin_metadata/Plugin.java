@@ -8,7 +8,7 @@ import org.jenkins.tools.test.exception.MetadataExtractionException;
 /**
  * Metadata representing a specific plugin for testing.
  */
-public class PluginMetadata {
+public class Plugin {
     @NonNull
     private final String pluginId;
 
@@ -18,12 +18,19 @@ public class PluginMetadata {
     @NonNull
     private final String gitUrl;
 
+    @CheckForNull
     private final String tag;
+
+    @CheckForNull
     private final String module;
+
+    @CheckForNull
     private final String gitHash;
+
+    @CheckForNull
     private final String name;
 
-    private PluginMetadata(Builder builder) {
+    private Plugin(Builder builder) {
         this.pluginId = Objects.requireNonNull(builder.pluginId, "pluginId may not be null");
         this.version = Objects.requireNonNull(builder.version, "version may not be null");
         this.gitUrl = Objects.requireNonNull(builder.gitUrl, "gitUrl may not be null");
@@ -36,6 +43,7 @@ public class PluginMetadata {
     /**
      * The unique plugin ID for this plugin.
      */
+    @NonNull
     public String getPluginId() {
         return pluginId;
     }
@@ -43,6 +51,7 @@ public class PluginMetadata {
     /**
      * The Git URL for the source repository that contains this plugin; may be file based for a local checkout.
      */
+    @NonNull
     public String getGitUrl() {
         return gitUrl;
     }
@@ -50,6 +59,7 @@ public class PluginMetadata {
     /**
      * The version of the plugin.
      */
+    @NonNull
     public String getVersion() {
         return version;
     }
@@ -97,7 +107,7 @@ public class PluginMetadata {
 
         public Builder() {}
 
-        public Builder(PluginMetadata from) {
+        public Builder(Plugin from) {
             this.pluginId = from.pluginId;
             this.version = from.version;
             this.gitUrl = from.gitUrl;
@@ -156,8 +166,8 @@ public class PluginMetadata {
             return this;
         }
 
-        public PluginMetadata build() {
-            return new PluginMetadata(this);
+        public Plugin build() {
+            return new Plugin(this);
         }
     }
 
@@ -169,7 +179,7 @@ public class PluginMetadata {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PluginMetadata that = (PluginMetadata) o;
+        Plugin that = (Plugin) o;
         return getPluginId().equals(that.getPluginId())
                 && getVersion().equals(that.getVersion())
                 && getGitUrl().equals(that.getGitUrl())

@@ -12,7 +12,7 @@ import org.kohsuke.MetaInfServices;
 public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
 
     @Override
-    public Optional<PluginMetadata> extractMetadata(String pluginId, Manifest manifest, Model model)
+    public Optional<Plugin> extractMetadata(String pluginId, Manifest manifest, Model model)
             throws MetadataExtractionException {
         // Any multi-module project must have been handled before now (either the modern hook or a
         // specific hook for a legacy multi-module project)
@@ -20,7 +20,7 @@ public class LegacyPluginMetadateExtractor extends PluginMetadataExtractor {
             return Optional.empty();
         }
         assert pluginId.equals(model.getArtifactId());
-        return Optional.of(new PluginMetadata.Builder()
+        return Optional.of(new Plugin.Builder()
                 .withPluginId(model.getArtifactId())
                 .withName(model.getName())
                 .withScmConnection(model.getScm().getConnection())

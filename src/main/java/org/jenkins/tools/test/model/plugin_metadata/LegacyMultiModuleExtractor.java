@@ -18,13 +18,13 @@ public class LegacyMultiModuleExtractor extends PluginMetadataExtractor {
             Set.of("io.jenkins.blueocean", "io.jenkins.plugins.mina-sshd-api");
 
     @Override
-    public Optional<PluginMetadata> extractMetadata(String pluginId, Manifest manifest, Model model)
+    public Optional<Plugin> extractMetadata(String pluginId, Manifest manifest, Model model)
             throws MetadataExtractionException {
         if (model.getScm() == null) {
             return Optional.empty();
         }
 
-        PluginMetadata.Builder builder = new PluginMetadata.Builder()
+        Plugin.Builder builder = new Plugin.Builder()
                 .withPluginId(model.getArtifactId())
                 .withName(model.getName())
                 .withScmConnection(model.getScm().getConnection())

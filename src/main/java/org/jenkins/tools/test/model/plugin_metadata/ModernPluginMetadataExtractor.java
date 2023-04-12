@@ -27,7 +27,7 @@ public class ModernPluginMetadataExtractor extends PluginMetadataExtractor {
     private static final Attributes.Name PLUGIN_VERSION = new Attributes.Name("Plugin-Version");
 
     @Override
-    public Optional<PluginMetadata> extractMetadata(String pluginId, Manifest manifest, Model model)
+    public Optional<Plugin> extractMetadata(String pluginId, Manifest manifest, Model model)
             throws MetadataExtractionException {
         // All the information is stored in the plugin's manifest
         Attributes mainAttributes = manifest.getMainAttributes();
@@ -37,7 +37,7 @@ public class ModernPluginMetadataExtractor extends PluginMetadataExtractor {
         if (mainAttributes.containsKey(PLUGIN_GIT_HASH)) {
             // We are new enough to be a modern plugin
 
-            return Optional.of(new PluginMetadata.Builder()
+            return Optional.of(new Plugin.Builder()
                     .withPluginId(mainAttributes.getValue(PLUGIN_ID))
                     .withName(mainAttributes.getValue(PLUGIN_NAME))
                     .withScmConnection(mainAttributes.getValue(PLUGIN_SCM_CONNECTION))

@@ -59,7 +59,7 @@ public class PluginMetadataHooks {
      * @param je the {@link JarEntry} representing the plugin.
      * @return an entry whose key is the SCM URL and whose value is the plugin ID.
      */
-    public static PluginMetadata getPluginDetails(List<PluginMetadataExtractor> extractors, JarFile f, JarEntry je)
+    public static Plugin getPluginDetails(List<PluginMetadataExtractor> extractors, JarFile f, JarEntry je)
             throws MetadataExtractionException {
         // The entry is the HPI file
         Manifest manifest;
@@ -76,7 +76,7 @@ public class PluginMetadataHooks {
         // Once all plugins have adopted https://github.com/jenkinsci/maven-hpi-plugin/pull/436 this can be simplified
         LOGGER.log(Level.INFO, "Extracting metadata about {0}", pluginId);
         for (PluginMetadataExtractor e : extractors) {
-            Optional<PluginMetadata> optionalMetadata = e.extractMetadata(pluginId, manifest, model);
+            Optional<Plugin> optionalMetadata = e.extractMetadata(pluginId, manifest, model);
             if (optionalMetadata.isPresent()) {
                 return optionalMetadata.get();
             }

@@ -57,9 +57,9 @@ import org.jenkins.tools.test.model.hook.BeforeCompilationContext;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.model.plugin_metadata.LocalCheckoutMetadataExtractor;
-import org.jenkins.tools.test.model.plugin_metadata.PluginMetadata;
+import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 import org.jenkins.tools.test.util.StreamGobbler;
-import org.jenkins.tools.test.util.WarMetadata;
+import org.jenkins.tools.test.util.WarExtractor;
 
 /**
  * Frontend for plugin compatibility tests
@@ -85,24 +85,24 @@ public class PluginCompatTester {
                 new PluginCompatTesterHooks(config.getExternalHooksJars(), config.getExcludeHooks());
 
         // Extract the plugin metadata
-        WarMetadata warMetadata = new WarMetadata(
+        WarExtractor warExtractor = new WarExtractor(
                 config.getWar(), config.getExternalHooksJars(), config.getIncludePlugins(), config.getExcludePlugins());
-        String coreVersion = warMetadata.getCoreVersion();
-        List<PluginMetadata> pluginMetadataList = warMetadata.getPluginMetadata();
+        String coreVersion = warExtractor.extractCoreVersion();
+        List<Plugin> plugins = warExtractor.extractPlugins();
 
         // Run the before checkout hooks
-        for (PluginMetadata pluginMetadata : pluginMetadataList) {
-            BeforeCheckoutContext c = new BeforeCheckoutContext(pluginMetadata, coreVersion, config);
+        for (Plugin plugin : plugins) {
+            BeforeCheckoutContext c = new BeforeCheckoutContext(coreVersion, plugin, config);
             pcth.runBeforeCheckout(c);
         }
 
         // Group the plugins by repository
-        Map<String, List<PluginMetadata>> pluginsByRepository = pluginMetadataList.stream()
-                .collect(Collectors.groupingBy(PluginMetadata::getGitUrl, TreeMap::new, Collectors.toList()));
+        Map<String, List<Plugin>> pluginsByRepository =
+                plugins.stream().collect(Collectors.groupingBy(Plugin::getGitUrl, TreeMap::new, Collectors.toList()));
 
         if (localCheckoutProvided()) {
             // Do not perform the before checkout hooks on a local checkout
-            List<PluginMetadata> localMetadata =
+            List<Plugin> localMetadata =
                     LocalCheckoutMetadataExtractor.extractMetadata(config.getLocalCheckoutDir(), config);
             pluginsByRepository.put(null, localMetadata);
         }
@@ -111,7 +111,7 @@ public class PluginCompatTester {
 
         PluginCompatibilityTesterException lastException = null;
 
-        for (Map.Entry<String, List<PluginMetadata>> entry : pluginsByRepository.entrySet()) {
+        for (Map.Entry<String, List<Plugin>> entry : pluginsByRepository.entrySet()) {
             // Construct a single working directory for the clone
             String gitUrl = entry.getKey();
 
@@ -135,16 +135,16 @@ public class PluginCompatTester {
                 }
             }
             // For each of the PluginMetadata entries, go test the plugin
-            for (PluginMetadata pm : entry.getValue()) {
+            for (Plugin plugin : entry.getValue()) {
                 try {
-                    testPluginAgainst(coreVersion, pm, cloneDir, pcth);
+                    testPluginAgainst(coreVersion, plugin, cloneDir, pcth);
                 } catch (PluginCompatibilityTesterException e) {
                     lastException = throwOrAddSuppressed(lastException, e, config.isFailFast());
                     LOGGER.log(
                             Level.SEVERE,
                             String.format(
                                     "Internal error while executing a test for core %s and plugin %s at version %s.",
-                                    coreVersion, pm.getName(), pm.getVersion()),
+                                    coreVersion, plugin.getName(), plugin.getVersion()),
                             e);
                 }
             }
@@ -154,7 +154,7 @@ public class PluginCompatTester {
         }
     }
 
-    private static File createBuildLogFile(File workDirectory, PluginMetadata metadata, String coreVersion) {
+    private static File createBuildLogFile(File workDirectory, Plugin metadata, String coreVersion) {
 
         File f = new File(workDirectory.getAbsolutePath()
                 + File.separator
@@ -173,8 +173,7 @@ public class PluginCompatTester {
         return String.format("logs/%s/v%s_against_core_version_%s.log", pluginId, pluginVersion, coreVersion);
     }
 
-    private void testPluginAgainst(
-            String coreVersion, PluginMetadata pluginMetadata, File cloneLocation, PluginCompatTesterHooks pcth)
+    private void testPluginAgainst(String coreVersion, Plugin plugin, File cloneLocation, PluginCompatTesterHooks pcth)
             throws PluginCompatibilityTesterException {
         LOGGER.log(
                 Level.INFO,
@@ -186,13 +185,13 @@ public class PluginCompatTester {
                         + "##\n"
                         + "#############################################\n"
                         + "#############################################\n\n\n\n\n",
-                new Object[] {pluginMetadata.getName(), pluginMetadata.getVersion(), coreVersion});
+                new Object[] {plugin.getName(), plugin.getVersion(), coreVersion});
 
-        File buildLogFile = createBuildLogFile(config.getWorkingDir(), pluginMetadata, coreVersion);
+        File buildLogFile = createBuildLogFile(config.getWorkingDir(), plugin, coreVersion);
 
         // Run the before compile hooks
         BeforeCompilationContext beforeCompile =
-                new BeforeCompilationContext(pluginMetadata, coreVersion, config, cloneLocation);
+                new BeforeCompilationContext(coreVersion, plugin, config, cloneLocation);
         pcth.runBeforeCompilation(beforeCompile);
 
         // First build against the original POM. This defends against source incompatibilities
@@ -207,7 +206,7 @@ public class PluginCompatTester {
                         "maven.javadoc.skip", "true",
                         "set.changelist", "true"),
                 cloneLocation,
-                pluginMetadata.getModule(),
+                plugin.getModule(),
                 buildLogFile,
                 "clean",
                 "process-test-classes");
@@ -219,7 +218,7 @@ public class PluginCompatTester {
 
         // Run preexecution hooks
         BeforeExecutionContext forExecutionHooks =
-                new BeforeExecutionContext(pluginMetadata, coreVersion, config, cloneLocation, args);
+                new BeforeExecutionContext(coreVersion, plugin, config, cloneLocation, args);
         pcth.runBeforeExecution(forExecutionHooks);
 
         Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
@@ -247,7 +246,7 @@ public class PluginCompatTester {
         runner.run(
                 Collections.unmodifiableMap(properties),
                 cloneLocation,
-                pluginMetadata.getModule(),
+                plugin.getModule(),
                 buildLogFile,
                 args.toArray(new String[0]));
     }
