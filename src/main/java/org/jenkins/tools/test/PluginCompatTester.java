@@ -124,7 +124,7 @@ public class PluginCompatTester {
             } else {
                 cloneDir = new File(config.getWorkingDir(), getRepoNameFromGitUrl(gitUrl));
                 // All plugins from the same reactor are assumed to be of the same version
-                String tag = entry.getValue().get(0).getGitHash();
+                String tag = entry.getValue().get(0).getTag();
 
                 try {
                     cloneFromScm(gitUrl, config.getFallbackGitHubOrganization(), tag, cloneDir);
