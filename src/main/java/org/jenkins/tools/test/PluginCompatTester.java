@@ -206,7 +206,7 @@ public class PluginCompatTester {
          * for the second module.
          */
         boolean setChangelist = false;
-        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(cloneLocation, plugin.getModule(), runner);
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(cloneLocation, null, runner);
         if (!expressionEvaluator.evaluateList("project.modules").isEmpty()) {
             String version = expressionEvaluator.evaluateString("project.version");
             if (version.contains("999999-SNAPSHOT") && !plugin.getVersion().equals(version)) {
