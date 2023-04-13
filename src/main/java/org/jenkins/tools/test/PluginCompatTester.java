@@ -32,7 +32,6 @@ import hudson.util.VersionNumber;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,9 +46,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
-import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
-import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
 import org.jenkins.tools.test.model.hook.BeforeCompilationContext;
@@ -70,6 +67,11 @@ public class PluginCompatTester {
 
     private static final Logger LOGGER = Logger.getLogger(PluginCompatTester.class.getName());
 
+    /**
+     * A sentinel value for the Git URL to be used for local checkouts.
+     */
+    private static final String LOCAL_CHECKOUT = "<local checkout>";
+
     private final PluginCompatTesterConfig config;
 
     private final ExternalMavenRunner runner;
@@ -88,33 +90,30 @@ public class PluginCompatTester {
                 config.getWar(), config.getExternalHooksJars(), config.getIncludePlugins(), config.getExcludePlugins());
         String coreVersion = warExtractor.extractCoreVersion();
         List<Plugin> plugins = warExtractor.extractPlugins();
-
-        // Run the before checkout hooks
-        for (Plugin plugin : plugins) {
-            BeforeCheckoutContext c = new BeforeCheckoutContext(coreVersion, plugin, config);
-            pcth.runBeforeCheckout(c);
-        }
-
-        // Group the plugins by repository
         NavigableMap<String, List<Plugin>> pluginsByRepository = WarExtractor.byRepository(plugins);
 
         if (localCheckoutProvided()) {
             // Do not perform the before checkout hooks on a local checkout
             List<Plugin> localMetadata =
                     LocalCheckoutPluginMetadataExtractor.extractMetadata(config.getLocalCheckoutDir(), config);
-            pluginsByRepository.put(null, localMetadata);
+            pluginsByRepository.put(LOCAL_CHECKOUT, localMetadata);
+        } else {
+            // Run the before checkout hooks
+            for (Plugin plugin : plugins) {
+                BeforeCheckoutContext c = new BeforeCheckoutContext(coreVersion, plugin, config);
+                pcth.runBeforeCheckout(c);
+            }
         }
 
-        LOGGER.log(Level.INFO, "Starting plugin tests on core version {0}", coreVersion);
-
         PluginCompatibilityTesterException lastException = null;
+        LOGGER.log(Level.INFO, "Starting plugin tests on core version {0}", coreVersion);
 
         for (Map.Entry<String, List<Plugin>> entry : pluginsByRepository.entrySet()) {
             // Construct a single working directory for the clone
             String gitUrl = entry.getKey();
 
             File cloneDir;
-            if (gitUrl == null) {
+            if (gitUrl.equals(LOCAL_CHECKOUT)) {
                 cloneDir = config.getLocalCheckoutDir();
             } else {
                 cloneDir = new File(config.getWorkingDir(), getRepoNameFromGitUrl(gitUrl));
@@ -123,7 +122,7 @@ public class PluginCompatTester {
 
                 try {
                     cloneFromScm(gitUrl, config.getFallbackGitHubOrganization(), tag, cloneDir);
-                } catch (PluginCompatibilityTesterException e) {
+                } catch (PluginSourcesUnavailableException e) {
                     lastException = throwOrAddSuppressed(lastException, e, config.isFailFast());
                     LOGGER.log(
                             Level.SEVERE,
@@ -132,7 +131,7 @@ public class PluginCompatTester {
                     continue;
                 }
             }
-            // For each of the PluginMetadata entries, go test the plugin
+            // For each of the plugin metadata entries, go test the plugin
             for (Plugin plugin : entry.getValue()) {
                 try {
                     testPluginAgainst(coreVersion, plugin, cloneDir, pcth);
@@ -152,11 +151,10 @@ public class PluginCompatTester {
         }
     }
 
-    private static File createBuildLogFile(File workDirectory, Plugin metadata, String coreVersion) {
-
+    private static File createBuildLogFile(File workDirectory, Plugin plugin, String coreVersion) {
         File f = new File(workDirectory.getAbsolutePath()
                 + File.separator
-                + createBuildLogFilePathFor(metadata.getPluginId(), metadata.getVersion(), coreVersion));
+                + createBuildLogFilePathFor(plugin.getPluginId(), plugin.getVersion(), coreVersion));
         try {
             Files.createDirectories(f.getParentFile().toPath());
             Files.deleteIfExists(f.toPath());
@@ -214,7 +212,7 @@ public class PluginCompatTester {
         args.add("hpi:test-hpl");
         args.add("surefire:test");
 
-        // Run preexecution hooks
+        // Run before execution hooks
         BeforeExecutionContext forExecutionHooks =
                 new BeforeExecutionContext(coreVersion, plugin, config, cloneLocation, args);
         pcth.runBeforeExecution(forExecutionHooks);
@@ -249,7 +247,7 @@ public class PluginCompatTester {
                 args.toArray(new String[0]));
     }
 
-    public static void cloneFromScm(
+    private static void cloneFromScm(
             String url, String fallbackGitHubOrganization, String scmTag, File checkoutDirectory)
             throws PluginSourcesUnavailableException {
         List<String> gitUrls = new ArrayList<>();
@@ -521,7 +519,7 @@ public class PluginCompatTester {
         }
     }
 
-    public static List<String> getFallbackGitUrl(
+    private static List<String> getFallbackGitUrl(
             List<String> gitUrls, String gitUrlFromMetadata, String fallbackGitHubOrganization) {
         Pattern pattern = Pattern.compile("(.*github.com[:|/])([^/]*)(.*)");
         Matcher matcher = pattern.matcher(gitUrlFromMetadata);
@@ -537,30 +535,6 @@ public class PluginCompatTester {
     private boolean localCheckoutProvided() {
         File localCheckoutDir = config.getLocalCheckoutDir();
         return localCheckoutDir != null && localCheckoutDir.exists();
-    }
-
-    public static String getGitUrlFromLocalCheckout(File workingDirectory, File localCheckout, MavenRunner runner)
-            throws PluginSourcesUnavailableException, PomExecutionException {
-        try {
-            File log = new File(workingDirectory, "localcheckout-scm-connection.log");
-            runner.run(
-                    Map.of("expression", "project.scm.connection", "output", log.getAbsolutePath()),
-                    localCheckout,
-                    null,
-                    null,
-                    "-q",
-                    "help:evaluate");
-            List<String> output = Files.readAllLines(log.toPath(), Charset.defaultCharset());
-            String scm = output.get(output.size() - 1);
-            if (scm.startsWith("scm:git:")) {
-                Files.deleteIfExists(log.toPath());
-                return scm.substring(8);
-            }
-            throw new PluginSourcesUnavailableException(
-                    "SCM " + scm + " is not a supported URL, only Git is supported by the PCT");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     public static String getRepoNameFromGitUrl(String gitUrl) throws PluginSourcesUnavailableException {
