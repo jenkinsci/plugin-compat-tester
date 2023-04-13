@@ -22,7 +22,7 @@ public class ServiceHelper {
 
     /**
      * Creates a new {@code ServiceHelper} instance that will load services from a {@link ClassLoader} constructed from
-     * the {@ServiceHelper}'s classloader with the addition of classes in {@code externalJars}.
+     * the {@link ServiceHelper}'s classloader with the addition of classes in {@code externalJars}.
      *
      * @param externalJars a possibly empty set of extra files to add to the {@link ClassLoader}
      */
@@ -34,7 +34,6 @@ public class ServiceHelper {
      * Locate and loads any services of the specified type, ordering the returned list according to the services {@link HookOrder} annotation.
      * @param <T> the class of the service type
      * @param cls the interface or abstract class representing the service
-     * @param externalJars list of extra jars to be searched for services in addition to the current classloader
      * @return an List of discovered services of type {@code T} sorted by {@link HookOrderComparator}
      */
     public <T> List<T> loadServices(Class<T> cls) {
