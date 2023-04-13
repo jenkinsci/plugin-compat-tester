@@ -3,17 +3,13 @@ package org.jenkins.tools.test.hook;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.PluginCompatTester;
 import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.maven.ExpressionEvaluator;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
@@ -137,20 +133,8 @@ public class MultiParentCompileHook extends PluginCompatTesterHookBeforeCompile 
             return false;
         }
 
-        File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "version.log");
-        runner.run(
-                Map.of("expression", "project.version", "output", log.getAbsolutePath()),
-                parentFile,
-                null,
-                "-q",
-                "help:evaluate");
-        List<String> output;
-        try {
-            output = Files.readAllLines(log.toPath(), Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return output.get(output.size() - 1).endsWith("-SNAPSHOT");
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(parentFile, runner);
+        return expressionEvaluator.evaluateString("project.version").endsWith("-SNAPSHOT");
     }
 
     private File setupCompileResources(File path) {
