@@ -14,6 +14,9 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
 
+/**
+ * A high-level wrapper over {@link MavenRunner} that allows for the evaluation of arbitrary expressions.
+ */
 public class ExpressionEvaluator {
 
     @NonNull

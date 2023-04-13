@@ -74,7 +74,6 @@ public class PluginCompatTester {
     private static final String LOCAL_CHECKOUT = "<local checkout>";
 
     private final PluginCompatTesterConfig config;
-
     private final ExternalMavenRunner runner;
 
     public PluginCompatTester(PluginCompatTesterConfig config) {
@@ -223,7 +222,7 @@ public class PluginCompatTester {
         args.add("hpi:test-hpl");
         args.add("surefire:test");
 
-        // Run before execution hooks
+        // Run preexecution hooks
         BeforeExecutionContext forExecutionHooks =
                 new BeforeExecutionContext(coreVersion, plugin, config, cloneLocation, args);
         pcth.runBeforeExecution(forExecutionHooks);
