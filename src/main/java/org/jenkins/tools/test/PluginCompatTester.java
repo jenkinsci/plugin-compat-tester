@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +53,7 @@ import org.apache.maven.model.Model;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.maven.ExpressionEvaluator;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.MavenPom;
@@ -757,32 +757,16 @@ public class PluginCompatTester {
         if (absolutePath.endsWith(plugin)) {
             return plugin;
         }
-        String module = absolutePath.substring(absolutePath.lastIndexOf(File.separatorChar) + 1);
+        String target = absolutePath.substring(absolutePath.lastIndexOf(File.separatorChar) + 1);
         File parentFile = pluginPath.getParentFile();
         if (parentFile == null) {
             return null;
         }
-        File log = new File(parentFile.getAbsolutePath() + File.separatorChar + "modules.log");
-        runner.run(
-                Map.of("expression", "project.modules", "output", log.getAbsolutePath()),
-                parentFile,
-                null,
-                "-q",
-                "help:evaluate");
-        List<String> lines;
-        try {
-            lines = Files.readAllLines(log.toPath(), Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        for (String line : lines) {
-            if (!StringUtils.startsWith(line.trim(), "<string>")) {
-                continue;
-            }
-            String mvnModule =
-                    line.replace("<string>", "").replace("</string>", "").trim();
-            if (mvnModule != null && mvnModule.contains(module)) {
-                return mvnModule;
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(parentFile, runner);
+        List<String> modules = expressionEvaluator.evaluateList("project.modules");
+        for (String module : modules) {
+            if (module.contains(target)) {
+                return module;
             }
         }
         return null;
