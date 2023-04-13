@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
+import org.jenkins.tools.test.maven.ExpressionEvaluator;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.BeforeCheckoutContext;
@@ -194,18 +195,27 @@ public class PluginCompatTester {
         // (which we do not care about for this purpose); and ensures that we are testing a
         // plugin binary as close as possible to what was actually released. We also skip
         // potential javadoc execution to avoid general test failure.
-        // as we may need to resolve artifacts of incrementals or CD releases ensure we
-        // use the same version so parents and other dependencies can be found
-        // if not an incremental this property is ignored so is safe to set.
-        runner.run(
-                Map.of(
-                        "maven.javadoc.skip", "true",
-                        "set.changelist", "true"),
-                cloneLocation,
-                plugin.getModule(),
-                buildLogFile,
-                "clean",
-                "process-test-classes");
+
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("maven.javadoc.skip", "true");
+
+        /*
+         * For multi-module projects where one plugin depends on another plugin in the same multi-module project, pass
+         * -Dset.changelist for incrementals releases so that Maven can find the first module when compiling the classes
+         * for the second module.
+         */
+        boolean setChangelist = false;
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(cloneLocation, plugin.getModule(), runner);
+        if (!expressionEvaluator.evaluateList("project.modules").isEmpty()) {
+            String version = expressionEvaluator.evaluateString("project.version");
+            if (version.contains("999999-SNAPSHOT") && !plugin.getVersion().equals(version)) {
+                setChangelist = true;
+            }
+        }
+        if (setChangelist) {
+            properties.put("set.changelist", "true");
+        }
+        runner.run(properties, cloneLocation, plugin.getModule(), buildLogFile, "clean", "process-test-classes");
 
         List<String> args = new ArrayList<>();
         args.add("hpi:resolve-test-dependencies");
@@ -217,16 +227,15 @@ public class PluginCompatTester {
                 new BeforeExecutionContext(coreVersion, plugin, config, cloneLocation, args);
         pcth.runBeforeExecution(forExecutionHooks);
 
-        Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
+        properties = new LinkedHashMap<>(config.getMavenProperties());
         properties.put("overrideWar", config.getWar().toString());
         properties.put("jenkins.version", coreVersion);
         properties.put("useUpperBounds", "true");
-        // enable setting the incremental / CD release so if a multi-module reactor
-        // any other projects can be obtained from the repo
-        properties.put("set.changelist", "true");
-        // as hooks may be adjusting the POMs tell the git-changelist extension to ignore dirty
-        // commits
-        properties.put("ignore.dirt", "true");
+        if (setChangelist) {
+            properties.put("set.changelist", "true");
+            // As hooks may be adjusting the POMs, tell git-changelist-extension to ignore dirty commits.
+            properties.put("ignore.dirt", "true");
+        }
         if (new VersionNumber(coreVersion).isOlderThan(new VersionNumber("2.382"))) {
             /*
              * Versions of Jenkins prior to 2.382 are susceptible to JENKINS-68696, in which
