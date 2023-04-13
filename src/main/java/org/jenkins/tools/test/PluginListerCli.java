@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
@@ -27,8 +26,6 @@ import picocli.CommandLine;
         description = "List (non-detached) plugins and their associated repositories that the bundled in the WAR.",
         versionProvider = VersionProvider.class)
 public class PluginListerCli implements Callable<Integer> {
-
-    private static final Logger LOGGER = Logger.getLogger(PluginListerCli.class.getName());
 
     @CommandLine.Option(
             names = {"-w", "--war"},
