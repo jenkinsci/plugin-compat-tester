@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.util;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
@@ -17,6 +18,18 @@ import org.jenkins.tools.test.model.hook.HookOrderComparator;
  */
 public class ServiceHelper {
 
+    private final ClassLoader classLoader;
+
+    /**
+     * Creates a new {@code ServiceHelper} instance that will load services from a {@link ClassLoader} constructed from
+     * the {@ServiceHelper}'s classloader with the addition of classes in {@code externalJars}.
+     *
+     * @param externalJars a possibly empty set of extra files to add to the {@link ClassLoader}
+     */
+    public ServiceHelper(@NonNull Set<File> externalJars) {
+        classLoader = createExternalClassLoader(externalJars);
+    }
+
     /**
      * Locate and loads any services of the specified type, ordering the returned list according to the services {@link HookOrder} annotation.
      * @param <T> the class of the service type
@@ -24,9 +37,8 @@ public class ServiceHelper {
      * @param externalJars list of extra jars to be searched for services in addition to the current classloader
      * @return an List of discovered services of type {@code T} sorted by {@link HookOrderComparator}
      */
-    public static <T> List<T> loadServices(Class<T> cls, Set<File> externalJars) {
-        ClassLoader cl = createExternalClassLoader(externalJars);
-        ServiceLoader<T> sl = ServiceLoader.load(cls, cl);
+    public <T> List<T> loadServices(Class<T> cls) {
+        ServiceLoader<T> sl = ServiceLoader.load(cls, classLoader);
         ArrayList<T> serviceList = new ArrayList<>();
         for (T service : sl) {
             serviceList.add(service);
@@ -35,7 +47,7 @@ public class ServiceHelper {
         return serviceList;
     }
 
-    private static ClassLoader createExternalClassLoader(Set<File> externalJars) {
+    private ClassLoader createExternalClassLoader(Set<File> externalJars) {
         if (externalJars.isEmpty()) {
             ServiceHelper.class.getClassLoader();
         }

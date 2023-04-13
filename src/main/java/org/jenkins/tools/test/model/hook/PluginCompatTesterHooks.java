@@ -1,7 +1,6 @@
 package org.jenkins.tools.test.model.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.io.File;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -28,18 +27,15 @@ public class PluginCompatTesterHooks {
     @NonNull
     private final Set<String> excludeHooks;
 
-    public PluginCompatTesterHooks(@NonNull Set<File> externalJars, @NonNull Set<String> excludeHooks) {
+    public PluginCompatTesterHooks(@NonNull ServiceHelper serviceHelper, @NonNull Set<String> excludeHooks) {
         this.excludeHooks = excludeHooks;
-        setupHooksByStage(externalJars);
+        setupHooksByStage(serviceHelper);
     }
 
-    private void setupHooksByStage(@NonNull Set<File> externalJars) {
-        hooksByStage.put(
-                Stage.CHECKOUT, ServiceHelper.loadServices(PluginCompatTesterHookBeforeCheckout.class, externalJars));
-        hooksByStage.put(
-                Stage.COMPILATION, ServiceHelper.loadServices(PluginCompatTesterHookBeforeCompile.class, externalJars));
-        hooksByStage.put(
-                Stage.EXECUTION, ServiceHelper.loadServices(PluginCompatTesterHookBeforeExecution.class, externalJars));
+    private void setupHooksByStage(@NonNull ServiceHelper serviceHelper) {
+        hooksByStage.put(Stage.CHECKOUT, serviceHelper.loadServices(PluginCompatTesterHookBeforeCheckout.class));
+        hooksByStage.put(Stage.COMPILATION, serviceHelper.loadServices(PluginCompatTesterHookBeforeCompile.class));
+        hooksByStage.put(Stage.EXECUTION, serviceHelper.loadServices(PluginCompatTesterHookBeforeExecution.class));
     }
 
     public void runBeforeCheckout(@NonNull BeforeCheckoutContext context) throws PluginCompatibilityTesterException {

@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 import org.jenkins.tools.test.picocli.ExistingFileTypeConverter;
+import org.jenkins.tools.test.util.ServiceHelper;
 import org.jenkins.tools.test.util.WarExtractor;
 import picocli.CommandLine;
 
@@ -76,7 +77,8 @@ public class PluginListerCli implements Callable<Integer> {
 
     @Override
     public Integer call() throws MetadataExtractionException {
-        WarExtractor warExtractor = new WarExtractor(warFile, externalHooksJars, includePlugins, excludePlugins);
+        ServiceHelper serviceHelper = new ServiceHelper(externalHooksJars);
+        WarExtractor warExtractor = new WarExtractor(warFile, serviceHelper, includePlugins, excludePlugins);
         List<Plugin> plugins = warExtractor.extractPlugins();
 
         if (output != null) {

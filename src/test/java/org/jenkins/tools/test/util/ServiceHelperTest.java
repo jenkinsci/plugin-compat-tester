@@ -22,7 +22,8 @@ class ServiceHelperTest {
     @Test
     void testServiceLocationWithoutExteneralJar() {
         // Use a service that is not from our code as our services will not be found until we are packaged
-        List<?> loadServices = ServiceHelper.loadServices(TestEngine.class, Collections.emptySet());
+        ServiceHelper sh = new ServiceHelper(Collections.emptySet());
+        List<?> loadServices = sh.loadServices(TestEngine.class);
         assertThat(loadServices, not(empty()));
     }
 
@@ -33,8 +34,8 @@ class ServiceHelperTest {
         // anotation-indexer has an implemtation of this
         File annotationIndexer = locateAnnotationIndexerJar();
 
-        List<?> baseServices = ServiceHelper.loadServices(Processor.class, Collections.emptySet());
-        List<?> extraServices = ServiceHelper.loadServices(Processor.class, Set.of(annotationIndexer));
+        List<?> baseServices = new ServiceHelper(Collections.emptySet()).loadServices(Processor.class);
+        List<?> extraServices = new ServiceHelper(Set.of(annotationIndexer)).loadServices(Processor.class);
 
         assertThat(extraServices.size(), greaterThan(baseServices.size()));
     }

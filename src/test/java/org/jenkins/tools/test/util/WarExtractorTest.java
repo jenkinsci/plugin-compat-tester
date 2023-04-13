@@ -18,14 +18,16 @@ class WarExtractorTest {
 
     @Test
     void testExtractCoreVersion() throws Exception {
-        WarExtractor warExtractor = new WarExtractor(new File("target", "megawar.war"), Set.of(), Set.of(), Set.of());
+        WarExtractor warExtractor =
+                new WarExtractor(new File("target", "megawar.war"), new ServiceHelper(Set.of()), Set.of(), Set.of());
         String coreVersion = warExtractor.extractCoreVersion();
         assertThat(coreVersion, startsWith("2."));
     }
 
     @Test
     void testExtractPlugins() throws Exception {
-        WarExtractor warExtractor = new WarExtractor(new File("target", "megawar.war"), Set.of(), Set.of(), Set.of());
+        WarExtractor warExtractor =
+                new WarExtractor(new File("target", "megawar.war"), new ServiceHelper(Set.of()), Set.of(), Set.of());
         List<Plugin> plugins = warExtractor.extractPlugins();
         assertThat(plugins, hasSize(1));
         Plugin plugin = plugins.get(0);

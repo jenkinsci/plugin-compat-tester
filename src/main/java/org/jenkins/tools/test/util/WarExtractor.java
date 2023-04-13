@@ -45,9 +45,9 @@ public class WarExtractor {
     private final Set<String> excludedPlugins;
 
     public WarExtractor(
-            File warFile, Set<File> externalHooksJars, Set<String> includedPlugins, Set<String> excludedPlugins) {
+            File warFile, ServiceHelper serviceHelper, Set<String> includedPlugins, Set<String> excludedPlugins) {
         this.warFile = warFile;
-        this.extractors = ServiceHelper.loadServices(PluginMetadataExtractor.class, externalHooksJars);
+        this.extractors = serviceHelper.loadServices(PluginMetadataExtractor.class);
         this.includedPlugins = includedPlugins;
         this.excludedPlugins = excludedPlugins;
     }

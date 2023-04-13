@@ -55,6 +55,7 @@ import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.model.plugin_metadata.LocalCheckoutPluginMetadataExtractor;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
+import org.jenkins.tools.test.util.ServiceHelper;
 import org.jenkins.tools.test.util.StreamGobbler;
 import org.jenkins.tools.test.util.WarExtractor;
 
@@ -82,12 +83,12 @@ public class PluginCompatTester {
     }
 
     public void testPlugins() throws PluginCompatibilityTesterException {
-        PluginCompatTesterHooks pcth =
-                new PluginCompatTesterHooks(config.getExternalHooksJars(), config.getExcludeHooks());
+        ServiceHelper serviceHelper = new ServiceHelper(config.getExternalHooksJars());
+        PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(serviceHelper, config.getExcludeHooks());
 
         // Extract the metadata
         WarExtractor warExtractor = new WarExtractor(
-                config.getWar(), config.getExternalHooksJars(), config.getIncludePlugins(), config.getExcludePlugins());
+                config.getWar(), serviceHelper, config.getIncludePlugins(), config.getExcludePlugins());
         String coreVersion = warExtractor.extractCoreVersion();
         List<Plugin> plugins = warExtractor.extractPlugins();
         NavigableMap<String, List<Plugin>> pluginsByRepository = WarExtractor.byRepository(plugins);
