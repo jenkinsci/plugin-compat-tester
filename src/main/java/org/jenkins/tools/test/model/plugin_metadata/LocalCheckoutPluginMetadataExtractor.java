@@ -1,101 +1,97 @@
 package org.jenkins.tools.test.model.plugin_metadata;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.exception.PomExecutionException;
-import org.jenkins.tools.test.maven.ExternalMavenRunner;
+import org.jenkins.tools.test.maven.ExpressionEvaluator;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.plugin_metadata.Plugin.Builder;
 
 public class LocalCheckoutPluginMetadataExtractor {
 
     private static final Logger LOGGER = Logger.getLogger(LocalCheckoutPluginMetadataExtractor.class.getName());
 
-    // artifactId\tversion\t\directory
-    private static Pattern p = Pattern.compile("(?<id>[^\t]+)\t(?<version>[^\t]+)\t(?<path>[^\t]+)");
+    @NonNull
+    private final File localCheckoutDir;
 
-    public static List<Plugin> extractMetadata(File localCheckoutDir, PluginCompatTesterConfig config)
-            throws MetadataExtractionException {
-        File log = new File(config.getWorkingDir(), "local-metadata.log");
-        MavenRunner runner =
-                new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
-        Set<String> excludedPlugins = config.getExcludePlugins();
-        Set<String> includedPlugins = config.getIncludePlugins();
-        try {
-            runner.run(
-                    Map.of("output", log.getAbsolutePath()),
-                    localCheckoutDir,
-                    null,
-                    null,
-                    "-q",
-                    // TODO only upgrade to 3.42 if necessary
-                    "org.jenkins-ci.tools:maven-hpi-plugin:3.42:list-plugins",
-                    "-P",
-                    "consume-incrementals");
+    @NonNull
+    private final PluginCompatTesterConfig config;
 
-            List<String> lines = Files.readAllLines(log.toPath(), StandardCharsets.UTF_8);
-            List<Plugin> plugins = new ArrayList<>();
-            for (String line : lines) {
-                if (!line.isBlank()) {
-                    Plugin plugin = toPlugin(localCheckoutDir, line.trim());
-                    if (excludedPlugins != null && excludedPlugins.contains(plugin.getPluginId())) {
-                        LOGGER.log(Level.INFO, "Plugin {0} in excluded plugins; skipping", plugin.getPluginId());
-                    } else if (includedPlugins != null
-                            && !includedPlugins.isEmpty()
-                            && !includedPlugins.contains(plugin.getPluginId())) {
-                        LOGGER.log(Level.INFO, "Plugin {0} not in included plugins; skipping", plugin.getPluginId());
-                    } else {
-                        plugins.add(toPlugin(localCheckoutDir, line.trim()));
-                    }
-                }
-            }
-            if (plugins.isEmpty()) {
-                throw new MetadataExtractionException("Failed to locate any plugins in local checkout");
-            }
-            Files.deleteIfExists(log.toPath());
-            return plugins;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        } catch (PomExecutionException e) {
-            throw new MetadataExtractionException("Failed to extract plugins from local checkout", e);
-        }
+    @NonNull
+    private final MavenRunner runner;
+
+    public LocalCheckoutPluginMetadataExtractor(@NonNull PluginCompatTesterConfig config, @NonNull MavenRunner runner) {
+        this.localCheckoutDir = getLocalCheckoutDir(config);
+        this.config = config;
+        this.runner = runner;
     }
 
-    /**
-     * Convert a line in the output from {@code hpi:list-plugins} to a {@link Plugin} entry.
-     *
-     * @param cloneDirectory the directory in which to make paths relative to.
-     */
-    private static Plugin toPlugin(File cloneDirectory, String hpiListEntry) throws MetadataExtractionException {
-        Builder builder = new Plugin.Builder();
-        Matcher m = p.matcher(hpiListEntry);
-        if (!m.matches()) {
-            throw new MetadataExtractionException("Could not extract metadata from local checkout: " + hpiListEntry);
+    @NonNull
+    private static File getLocalCheckoutDir(@NonNull PluginCompatTesterConfig config) {
+        File result = config.getLocalCheckoutDir();
+        if (result == null) {
+            throw new AssertionError("Could never happen, but needed to silence SpotBugs");
         }
-        builder.withPluginId(m.group("id"));
-        builder.withVersion(m.group("version"));
+        return result;
+    }
+
+    public List<Plugin> extractMetadata() throws MetadataExtractionException, PomExecutionException {
+        List<Plugin> plugins = new ArrayList<>();
+        List<String> modules = new ArrayList<>();
+        modules.add(null); // Root module
+        modules.addAll(getModules());
+        for (String module : modules) {
+            Plugin plugin = getPlugin(module);
+            if (plugin == null) {
+                continue;
+            }
+            if (config.getExcludePlugins() != null && config.getExcludePlugins().contains(plugin.getPluginId())) {
+                LOGGER.log(Level.INFO, "Plugin {0} in excluded plugins; skipping", plugin.getPluginId());
+            } else if (config.getIncludePlugins() != null
+                    && !config.getIncludePlugins().isEmpty()
+                    && !config.getIncludePlugins().contains(plugin.getPluginId())) {
+                LOGGER.log(Level.INFO, "Plugin {0} not in included plugins; skipping", plugin.getPluginId());
+            } else {
+                plugins.add(plugin);
+            }
+        }
+        if (plugins.isEmpty()) {
+            throw new MetadataExtractionException("Found no plugins in " + localCheckoutDir);
+        }
+        plugins.sort(Comparator.comparing(Plugin::getPluginId));
+        return List.copyOf(plugins);
+    }
+
+    private List<String> getModules() throws PomExecutionException {
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(localCheckoutDir, null, runner);
+        return expressionEvaluator.evaluateList("project.modules");
+    }
+
+    @CheckForNull
+    private Plugin getPlugin(String module) throws PomExecutionException {
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(localCheckoutDir, module, runner);
+        String packaging = expressionEvaluator.evaluateString("project.packaging");
+        if ("hpi".equals(packaging)) {
+            String pluginId = expressionEvaluator.evaluateString("project.artifactId");
+            String version = expressionEvaluator.evaluateString("project.version");
+            return toPlugin(pluginId, version, localCheckoutDir, module);
+        }
+        return null;
+    }
+
+    private static Plugin toPlugin(String pluginId, String version, File cloneDirectory, String module) {
+        Plugin.Builder builder = new Plugin.Builder();
+        builder.withPluginId(pluginId);
+        builder.withVersion(version);
         builder.withGitUrl(cloneDirectory.toURI().toString());
-        builder.withModule(relativePath(cloneDirectory, m.group("path")));
+        builder.withModule(module);
         return builder.build();
-    }
-
-    private static String relativePath(File base, String full) {
-        Path rootPath = base.toPath();
-        Path modulePath = Path.of(full);
-        return rootPath.relativize(modulePath).toString();
     }
 }
