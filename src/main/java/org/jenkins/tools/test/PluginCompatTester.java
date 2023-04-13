@@ -419,7 +419,6 @@ public class PluginCompatTester {
                 lastException = throwOrAddSuppressed(lastException, e, false);
             }
         }
-
         if (lastException != null) {
             throw lastException;
         }
