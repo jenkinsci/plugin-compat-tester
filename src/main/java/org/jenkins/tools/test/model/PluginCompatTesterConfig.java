@@ -50,7 +50,7 @@ public class PluginCompatTesterConfig {
     private final File workingDir;
 
     // Set of plugin artifact ids on which tests will be performed
-    // If empty, tests will be performed on every plugins retrieved from update center
+    // If empty, tests will be performed on every plugin retrieved from the WAR
     @NonNull
     private Set<String> includePlugins = Set.of();
 

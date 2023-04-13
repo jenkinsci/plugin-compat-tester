@@ -578,7 +578,7 @@ public class PluginCompatTester {
     @SuppressFBWarnings(value = "COMMAND_INJECTION", justification = "intended behavior")
     private static void cloneImpl(String gitUrl, String scmTag, File checkoutDirectory)
             throws IOException, PluginSourcesUnavailableException {
-        LOGGER.log(Level.INFO, "Checking out from git repository {0} at {1}", new Object[] {gitUrl, scmTag});
+        LOGGER.log(Level.INFO, "Checking out from Git repository {0} at {1}", new Object[] {gitUrl, scmTag});
 
         /*
          * We previously used the Maven SCM API to clone the repository, which ran the following
