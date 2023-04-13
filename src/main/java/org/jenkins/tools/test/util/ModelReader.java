@@ -8,7 +8,6 @@ import org.apache.maven.model.Scm;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
-import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 
 /**
  * Utility methods to load a {@link Model}
@@ -23,7 +22,7 @@ public class ModelReader {
      * @param artifactId the artifactId of the plugin
      * @param jarInputStream the input stream created from the plugin's JAR file.
      * @return the Maven model for the plugin as read from the {@code META-INF} directory.
-     * @throws PluginSourcesUnavailableException if the entry could not be loaded or found.
+     * @throws MetadataExtractionException if the entry could not be loaded or found.
      * @throws IOException if there was an I/O related issue obtaining the model.
      */
     public static Model getPluginModelFromHpi(String groupId, String artifactId, JarInputStream jarInputStream)
