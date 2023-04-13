@@ -583,4 +583,5 @@ public class PluginCompatTester {
         }
         return caught;
     }
+
 }
