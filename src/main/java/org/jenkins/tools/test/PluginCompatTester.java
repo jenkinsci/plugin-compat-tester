@@ -44,6 +44,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
+import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.maven.ExpressionEvaluator;
@@ -105,6 +106,10 @@ public class PluginCompatTester {
                 BeforeCheckoutContext c = new BeforeCheckoutContext(coreVersion, plugin, config);
                 pcth.runBeforeCheckout(c);
             }
+        }
+
+        if (pluginsByRepository.keySet().isEmpty()) {
+            throw new MetadataExtractionException("List of plugins to check is empty");
         }
 
         PluginCompatibilityTesterException lastException = null;

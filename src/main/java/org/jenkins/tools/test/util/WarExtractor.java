@@ -88,9 +88,6 @@ public class WarExtractor {
         } catch (IOException e) {
             throw new UncheckedIOException("I/O error occurred whilst extracting plugin metadata from WAR", e);
         }
-        if (plugins.isEmpty()) {
-            throw new MetadataExtractionException("Found no plugins in " + warFile);
-        }
         plugins.sort(Comparator.comparing(Plugin::getPluginId));
         return List.copyOf(plugins);
     }

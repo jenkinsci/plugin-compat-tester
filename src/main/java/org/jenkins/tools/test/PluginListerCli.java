@@ -77,6 +77,9 @@ public class PluginListerCli implements Callable<Integer> {
         ServiceHelper serviceHelper = new ServiceHelper(externalHooksJars);
         WarExtractor warExtractor = new WarExtractor(warFile, serviceHelper, includePlugins, excludePlugins);
         List<Plugin> plugins = warExtractor.extractPlugins();
+        if (plugins.isEmpty()) {
+            throw new MetadataExtractionException("Found no plugins in " + warFile);
+        }
 
         if (output != null) {
             NavigableMap<String, List<Plugin>> pluginsByRepository = WarExtractor.byRepository(plugins);
