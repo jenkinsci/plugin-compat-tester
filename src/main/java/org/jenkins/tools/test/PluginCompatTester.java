@@ -94,18 +94,18 @@ public class PluginCompatTester {
         List<Plugin> plugins = warExtractor.extractPlugins();
         NavigableMap<String, List<Plugin>> pluginsByRepository = WarExtractor.byRepository(plugins);
 
+        // Run the before checkout hooks
+        for (Plugin plugin : plugins) {
+            BeforeCheckoutContext c = new BeforeCheckoutContext(coreVersion, plugin, config);
+            pcth.runBeforeCheckout(c);
+        }
+
         if (localCheckoutProvided()) {
             LocalCheckoutPluginMetadataExtractor localCheckoutPluginMetadataExtractor =
                     new LocalCheckoutPluginMetadataExtractor(config, runner);
             // Do not perform the before checkout hooks on a local checkout
             List<Plugin> localCheckout = localCheckoutPluginMetadataExtractor.extractMetadata();
             pluginsByRepository.put(LOCAL_CHECKOUT, localCheckout);
-        } else {
-            // Run the before checkout hooks
-            for (Plugin plugin : plugins) {
-                BeforeCheckoutContext c = new BeforeCheckoutContext(coreVersion, plugin, config);
-                pcth.runBeforeCheckout(c);
-            }
         }
 
         if (pluginsByRepository.keySet().isEmpty()) {
