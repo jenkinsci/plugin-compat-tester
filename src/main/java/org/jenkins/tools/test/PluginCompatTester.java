@@ -94,7 +94,10 @@ public class PluginCompatTester {
         List<Plugin> plugins = warExtractor.extractPlugins();
         NavigableMap<String, List<Plugin>> pluginsByRepository = WarExtractor.byRepository(plugins);
 
-        // Run the before checkout hooks
+        /*
+         * Run the before checkout hooks on everything that we are about to check out (as opposed to an existing local
+         * checkout).
+         */
         for (Plugin plugin : plugins) {
             BeforeCheckoutContext c = new BeforeCheckoutContext(coreVersion, plugin, config);
             pcth.runBeforeCheckout(c);
