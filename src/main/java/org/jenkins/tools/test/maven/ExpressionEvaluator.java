@@ -1,5 +1,6 @@
 package org.jenkins.tools.test.maven;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
 import java.io.IOException;
@@ -21,11 +22,15 @@ public class ExpressionEvaluator {
     @NonNull
     private final File pluginPath;
 
+    @CheckForNull
+    private final String module;
+
     @NonNull
     private final MavenRunner runner;
 
-    public ExpressionEvaluator(File pluginPath, MavenRunner runner) {
+    public ExpressionEvaluator(File pluginPath, String module, MavenRunner runner) {
         this.pluginPath = pluginPath;
+        this.module = module;
         this.runner = runner;
     }
 
@@ -34,6 +39,7 @@ public class ExpressionEvaluator {
         runner.run(
                 Map.of("expression", expression, "output", log.toAbsolutePath().toString()),
                 pluginPath,
+                module,
                 null,
                 "-q",
                 "help:evaluate");
@@ -52,6 +58,7 @@ public class ExpressionEvaluator {
         runner.run(
                 Map.of("expression", expression, "output", log.toAbsolutePath().toString()),
                 pluginPath,
+                module,
                 null,
                 "-q",
                 "help:evaluate");

@@ -1,9 +1,8 @@
 package org.jenkins.tools.test.model.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.UpdateSite;
+import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 
 public abstract class StageContext {
 
@@ -11,26 +10,21 @@ public abstract class StageContext {
     private final Stage stage;
 
     @NonNull
-    private final UpdateSite.Plugin plugin;
-
-    @NonNull
-    private final Model model;
-
-    @NonNull
     private final String coreVersion;
+
+    @NonNull
+    private final Plugin plugin;
 
     @NonNull
     private final PluginCompatTesterConfig config;
 
     public StageContext(
             @NonNull Stage stage,
-            @NonNull UpdateSite.Plugin plugin,
-            @NonNull Model model,
             @NonNull String coreVersion,
+            @NonNull Plugin plugin,
             @NonNull PluginCompatTesterConfig config) {
         this.stage = stage;
         this.plugin = plugin;
-        this.model = model;
         this.coreVersion = coreVersion;
         this.config = config;
     }
@@ -41,18 +35,13 @@ public abstract class StageContext {
     }
 
     @NonNull
-    public UpdateSite.Plugin getPlugin() {
-        return plugin;
-    }
-
-    @NonNull
-    public Model getModel() {
-        return model;
-    }
-
-    @NonNull
     public String getCoreVersion() {
         return coreVersion;
+    }
+
+    @NonNull
+    public Plugin getPlugin() {
+        return plugin;
     }
 
     @NonNull

@@ -3,7 +3,6 @@ package org.jenkins.tools.test.hook;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
 import java.util.stream.IntStream;
-import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 import org.kohsuke.MetaInfServices;
@@ -17,10 +16,7 @@ public class JacocoHook extends PluginCompatTesterHookBeforeExecution {
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
-        Model model = context.getModel();
-        // pending https://github.com/jenkinsci/jacoco-plugin/pull/206
-        // "org.jenkins-ci.plugins".equals(model.getGroupId())
-        return "jacoco".equals(model.getArtifactId()) && "hpi".equals(model.getPackaging());
+        return context.getPlugin().getPluginId().equals("jacoco");
     }
 
     @Override

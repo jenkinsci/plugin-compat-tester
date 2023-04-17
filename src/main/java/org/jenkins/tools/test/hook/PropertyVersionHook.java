@@ -2,7 +2,6 @@ package org.jenkins.tools.test.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.VersionNumber;
-import java.io.File;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExpressionEvaluator;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
@@ -31,17 +30,14 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
         PluginCompatTesterConfig config = context.getConfig();
         MavenRunner runner =
                 new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
-        File pluginDir = context.getPluginDir();
-        if (pluginDir != null) {
-            ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(pluginDir, runner);
-            try {
-                String version = expressionEvaluator.evaluateString(getProperty());
-                return new VersionNumber(version).isOlderThan(new VersionNumber(getMinimumVersion()));
-            } catch (PomExecutionException e) {
-                return false;
-            }
+        ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(
+                context.getCloneDirectory(), context.getPlugin().getModule(), runner);
+        try {
+            String version = expressionEvaluator.evaluateString(getProperty());
+            return new VersionNumber(version).isOlderThan(new VersionNumber(getMinimumVersion()));
+        } catch (PomExecutionException e) {
+            return false;
         }
-        return false;
     }
 
     @Override

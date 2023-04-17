@@ -54,7 +54,8 @@ public class ExternalMavenRunner implements MavenRunner {
 
     @Override
     @SuppressFBWarnings(value = "COMMAND_INJECTION", justification = "intended behavior")
-    public void run(Map<String, String> properties, File baseDirectory, File buildLogFile, String... args)
+    public void run(
+            Map<String, String> properties, File baseDirectory, String moduleName, File buildLogFile, String... args)
             throws PomExecutionException {
         List<String> cmd = new ArrayList<>();
         if (externalMaven != null) {
@@ -69,6 +70,10 @@ public class ExternalMavenRunner implements MavenRunner {
         if (mavenSettings != null) {
             cmd.add("-s");
             cmd.add(mavenSettings.toString());
+        }
+        if (moduleName != null && !moduleName.isBlank()) {
+            cmd.add("-pl");
+            cmd.add(moduleName);
         }
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             cmd.add("-D" + entry);

@@ -3,47 +3,25 @@ package org.jenkins.tools.test.model.hook;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
-import org.apache.maven.model.Model;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
-import org.jenkins.tools.test.model.UpdateSite;
+import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 
 public final class BeforeCompilationContext extends StageContext {
 
     @CheckForNull
-    private final File pluginDir;
-
-    @CheckForNull
-    private final String parentFolder;
-
-    private boolean ranCompile;
+    private final File cloneDirectory;
 
     public BeforeCompilationContext(
-            @NonNull UpdateSite.Plugin plugin,
-            @NonNull Model model,
             @NonNull String coreVersion,
+            @NonNull Plugin plugin,
             @NonNull PluginCompatTesterConfig config,
-            @CheckForNull File pluginDir,
-            @CheckForNull String parentFolder) {
-        super(Stage.COMPILATION, plugin, model, coreVersion, config);
-        this.pluginDir = pluginDir;
-        this.parentFolder = parentFolder;
+            @NonNull File cloneDirectory) {
+        super(Stage.COMPILATION, coreVersion, plugin, config);
+        this.cloneDirectory = cloneDirectory;
     }
 
     @CheckForNull
-    public File getPluginDir() {
-        return pluginDir;
-    }
-
-    @CheckForNull
-    public String getParentFolder() {
-        return parentFolder;
-    }
-
-    public boolean ranCompile() {
-        return ranCompile;
-    }
-
-    public void setRanCompile(boolean ranCompile) {
-        this.ranCompile = ranCompile;
+    public File getCloneDirectory() {
+        return cloneDirectory;
     }
 }

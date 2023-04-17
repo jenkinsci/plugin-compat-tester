@@ -307,7 +307,7 @@
               <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>org.jenkins.tools.test.PluginCompatTesterCli</mainClass>
+                  <mainClass>org.jenkins.tools.test.CLI</mainClass>
                   <manifestEntries>
                     <Implementation-Build>${buildNumber}</Implementation-Build>
                     <Implementation-Build-Is-Tainted>${buildIsTainted}</Implementation-Build-Is-Tainted>

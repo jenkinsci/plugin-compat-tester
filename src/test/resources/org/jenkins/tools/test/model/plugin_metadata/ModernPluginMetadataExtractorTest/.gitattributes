@@ -1,0 +1,2 @@
+# Manifest files are canonically CRLF
+*.mf        text eol=crlf
