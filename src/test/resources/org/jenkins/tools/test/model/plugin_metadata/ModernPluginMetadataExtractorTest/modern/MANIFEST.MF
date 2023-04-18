@@ -22,6 +22,6 @@ Plugin-ScmConnection: scm:git:https://github.com/jenkinsci/aws-java-sdk-
  plugin.git
 Plugin-ScmTag: 938ad577f750694635f3c0160ac2110db5d6eb98
 Plugin-ScmUrl: https://github.com/jenkinsci/aws-java-sdk-plugin/
-Plugin-GitHash: 938ad577f750694635f3c0160ac2110db5d6eb98
 Plugin-Module: aws-java-sdk-ec2
+Implementation-Build: 938ad577f750694635f3c0160ac2110db5d6eb98
 
