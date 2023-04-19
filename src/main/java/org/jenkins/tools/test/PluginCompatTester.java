@@ -39,12 +39,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
-import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
 import org.jenkins.tools.test.maven.ExpressionEvaluator;
@@ -91,28 +91,27 @@ public class PluginCompatTester {
         WarExtractor warExtractor = new WarExtractor(
                 config.getWar(), serviceHelper, config.getIncludePlugins(), config.getExcludePlugins());
         String coreVersion = warExtractor.extractCoreVersion();
-        List<Plugin> plugins = warExtractor.extractPlugins();
-        NavigableMap<String, List<Plugin>> pluginsByRepository = WarExtractor.byRepository(plugins);
 
-        /*
-         * Run the before checkout hooks on everything that we are about to check out (as opposed to an existing local
-         * checkout).
-         */
-        for (Plugin plugin : plugins) {
-            BeforeCheckoutContext c = new BeforeCheckoutContext(coreVersion, plugin, config);
-            pcth.runBeforeCheckout(c);
-        }
+        NavigableMap<String, List<Plugin>> pluginsByRepository;
 
         if (localCheckoutProvided()) {
+            // if a user provides a local checkout we do not also check anything in the way.
             LocalCheckoutPluginMetadataExtractor localCheckoutPluginMetadataExtractor =
                     new LocalCheckoutPluginMetadataExtractor(config, runner);
             // Do not perform the before checkout hooks on a local checkout
             List<Plugin> localCheckout = localCheckoutPluginMetadataExtractor.extractMetadata();
-            pluginsByRepository.put(LOCAL_CHECKOUT, localCheckout);
-        }
-
-        if (pluginsByRepository.keySet().isEmpty()) {
-            throw new MetadataExtractionException("List of plugins to check is empty");
+            pluginsByRepository = new TreeMap<>(Map.of(LOCAL_CHECKOUT, localCheckout));
+        } else {
+            List<Plugin> plugins = warExtractor.extractPlugins();
+            pluginsByRepository = WarExtractor.byRepository(plugins);
+            /*
+             * Run the before checkout hooks on everything that we are about to check out (as opposed to an existing local
+             * checkout).
+             */
+            for (Plugin plugin : plugins) {
+                BeforeCheckoutContext c = new BeforeCheckoutContext(coreVersion, plugin, config);
+                pcth.runBeforeCheckout(c);
+            }
         }
 
         PluginCompatibilityTesterException lastException = null;

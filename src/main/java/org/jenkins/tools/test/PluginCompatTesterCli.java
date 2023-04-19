@@ -149,8 +149,9 @@ public class PluginCompatTesterCli implements Callable<Integer> {
     @CheckForNull
     @CommandLine.Option(
             names = "--local-checkout-dir",
-            description =
-                    "Folder containing either a local (possibly modified) clone of a plugin repository or a set of local clones of different plugins.",
+            description = "Folder containing either a local (possibly modified) clone of a single plugin repository,"
+                    + " or a set of local clones of different plugins with a local aggregator project in the root. "
+                    + "If specified then any plugins bundled in the war will not be tested.",
             converter = ExistingFileTypeConverter.class)
     private File localCheckoutDir;
 

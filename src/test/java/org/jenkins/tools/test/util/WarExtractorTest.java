@@ -7,10 +7,12 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.util.List;
 import java.util.Set;
+import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
 import org.junit.jupiter.api.Test;
 
@@ -40,5 +42,12 @@ class WarExtractorTest {
                         hasProperty("tag", startsWith("text-finder-1.")),
                         hasProperty("name", is("Text Finder")),
                         hasProperty("version", startsWith("1."))));
+    }
+
+    @Test
+    void testExtractPluginsWithNoMatches() throws Exception {
+        WarExtractor warExtractor = new WarExtractor(
+                new File("target", "megawar.war"), new ServiceHelper(Set.of()), Set.of("bogus-plugin-id"), Set.of());
+        assertThrows(MetadataExtractionException.class, () -> warExtractor.extractPlugins());
     }
 }

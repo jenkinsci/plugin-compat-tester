@@ -74,6 +74,7 @@ public class WarExtractor {
      * Extract the list of plugins to be tested from the given WAR.
      *
      * @return An unmodifiable list of plugins to be tested, sorted by plugin ID.
+     * @throws MetadataExtractionException if a non-I/O related issue occurs when the list of plugins is extracted or, if after applying filters, no plugins are located.
      */
     public List<Plugin> extractPlugins() throws MetadataExtractionException {
         List<Plugin> plugins = new ArrayList<>();
@@ -87,6 +88,9 @@ public class WarExtractor {
             }
         } catch (IOException e) {
             throw new UncheckedIOException("I/O error occurred whilst extracting plugin metadata from WAR", e);
+        }
+        if (plugins.isEmpty()) {
+            throw new MetadataExtractionException("Found no plugins in " + warFile);
         }
         plugins.sort(Comparator.comparing(Plugin::getPluginId));
         return List.copyOf(plugins);
