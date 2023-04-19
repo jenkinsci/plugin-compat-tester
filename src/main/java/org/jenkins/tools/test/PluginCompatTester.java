@@ -39,11 +39,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
@@ -104,6 +106,18 @@ public class PluginCompatTester {
         } else {
             List<Plugin> plugins = warExtractor.extractPlugins();
             pluginsByRepository = WarExtractor.byRepository(plugins);
+
+            // Sanity check all plugins in the repository come from the same hash/tag
+            for (List<Plugin> pluginList : pluginsByRepository.values()) {
+                Set<String> tags = pluginList.stream().map(Plugin::getTag).collect(Collectors.toSet());
+                if (tags.size() != 1) {
+                    throw new IllegalArgumentException("Repository "
+                            + pluginList.get(0).getGitUrl()
+                            + " present with multiple tags: "
+                            + String.join(", ", tags));
+                }
+            }
+
             /*
              * Run the before checkout hooks on everything that we are about to check out (as opposed to an existing local
              * checkout).
@@ -126,7 +140,7 @@ public class PluginCompatTester {
                 cloneDir = config.getLocalCheckoutDir();
             } else {
                 cloneDir = new File(config.getWorkingDir(), getRepoNameFromGitUrl(gitUrl));
-                // All plugins from the same reactor are assumed to be of the same version
+                // All plugins from the same reactor are from the same tag
                 String tag = entry.getValue().get(0).getTag();
 
                 try {
