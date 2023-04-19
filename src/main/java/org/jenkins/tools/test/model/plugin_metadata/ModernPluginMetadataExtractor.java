@@ -24,6 +24,7 @@ public class ModernPluginMetadataExtractor implements PluginMetadataExtractor {
     private static final Attributes.Name PLUGIN_ID = new Attributes.Name("Short-Name");
     private static final Attributes.Name PLUGIN_NAME = new Attributes.Name("Long-Name");
     private static final Attributes.Name PLUGIN_VERSION = new Attributes.Name("Plugin-Version");
+    private static final Attributes.Name IMPLEMENTATION_BUILD = new Attributes.Name("Implementation-Build");
 
     @Override
     public boolean isApplicable(String pluginId, Manifest manifest, Model model) {
@@ -38,12 +39,19 @@ public class ModernPluginMetadataExtractor implements PluginMetadataExtractor {
 
         assert pluginId.equals(mainAttributes.getValue(PLUGIN_ID));
 
+        // TODO simplify once https://github.com/jenkinsci/maven-hpi-plugin/pull/471 is adopted in all multi-module
+        // plugins
+        String gitHash = mainAttributes.getValue(IMPLEMENTATION_BUILD);
+        if (gitHash == null) {
+            gitHash = mainAttributes.getValue(PLUGIN_GIT_HASH);
+        }
+
         return new Plugin.Builder()
                 .withPluginId(mainAttributes.getValue(PLUGIN_ID))
                 .withName(mainAttributes.getValue(PLUGIN_NAME))
                 .withScmConnection(mainAttributes.getValue(PLUGIN_SCM_CONNECTION))
                 .withTag(mainAttributes.getValue(PLUGIN_SCM_TAG))
-                .withGitHash(mainAttributes.getValue(PLUGIN_GIT_HASH))
+                .withGitHash(gitHash)
                 .withModule(mainAttributes.getValue(PLUGIN_MODULE))
                 .withVersion(mainAttributes.getValue(PLUGIN_VERSION))
                 .build();
