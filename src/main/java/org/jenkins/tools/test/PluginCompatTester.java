@@ -124,6 +124,7 @@ public class PluginCompatTester {
              */
             for (Plugin plugin : plugins) {
                 BeforeCheckoutContext c = new BeforeCheckoutContext(coreVersion, plugin, config);
+                LOGGER.log(Level.INFO, "Running BeforeCheckout hooks for {0}", plugin.getName());
                 pcth.runBeforeCheckout(c);
             }
         }
