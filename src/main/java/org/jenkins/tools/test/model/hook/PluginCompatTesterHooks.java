@@ -58,13 +58,25 @@ public class PluginCompatTesterHooks {
      * @param context relevant information to hooks at various stages.
      */
     private <C extends StageContext> void runHooks(@NonNull C context) throws PluginCompatibilityTesterException {
-        for (PluginCompatTesterHook<C> hook :
-                (List<? extends PluginCompatTesterHook<C>>) hooksByStage.get(context.getStage())) {
+        List<? extends PluginCompatTesterHook<C>> hooks =
+                (List<? extends PluginCompatTesterHook<C>>) hooksByStage.get(context.getStage());
+
+        if (hooks.isEmpty()) {
+            LOGGER.log(Level.INFO, "No hooks registered for stage {0} for {1}", new Object[] {
+                context.getStage(), context.getPlugin().getName()
+            });
+            return;
+        }
+        for (PluginCompatTesterHook<C> hook : hooks) {
             if (!excludeHooks.contains(hook.getClass().getName()) && hook.check(context)) {
-                LOGGER.log(Level.INFO, "Running hook: {0}", hook.getClass().getName());
+                LOGGER.log(Level.INFO, "Running hook: {0} for {1}", new Object[] {
+                    hook.getClass().getName(), context.getPlugin().getName()
+                });
                 hook.action(context);
             } else {
-                LOGGER.log(Level.FINE, "Skipping hook: {0}", hook.getClass().getName());
+                LOGGER.log(Level.FINE, "Skipping hook: {0} for {1}", new Object[] {
+                    hook.getClass().getName(), context.getPlugin().getName()
+                });
             }
         }
     }
