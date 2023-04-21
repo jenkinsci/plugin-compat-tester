@@ -26,6 +26,6 @@ class PluginListerCliTest {
         assertEquals(retVal, 0);
         assertThat(outputFile, aReadableFile());
         List<String> plugins = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
-        assertThat(plugins, is(List.of("text-finder")));
+        assertThat(plugins, is(List.of("jenkinsci/text-finder-plugin\ttext-finder")));
     }
 }
