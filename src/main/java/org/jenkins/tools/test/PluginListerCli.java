@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
@@ -26,6 +28,8 @@ import picocli.CommandLine;
         description = "List (non-detached) plugins and their associated repositories that the bundled in the WAR.",
         versionProvider = VersionProvider.class)
 public class PluginListerCli implements Callable<Integer> {
+
+    private static final Pattern PATTERN = Pattern.compile("^https://github.com/(.+?)/(.+?)(\\.git)?$");
 
     @CommandLine.Option(
             names = {"-w", "--war"},
@@ -49,7 +53,9 @@ public class PluginListerCli implements Callable<Integer> {
             required = false,
             description = "Location of the file to write containing the plugins grouped by repository."
                     + " The format of the file is a line per repository; each line consists of"
-                    + " a comma-separated list of plugins in that repository.")
+                    + " the owner of the repository, a slash character, the name of the"
+                    + " repository, a tab character, and a comma-separated list of plugins in"
+                    + " that repository.")
     private File output;
 
     @CheckForNull
@@ -83,6 +89,15 @@ public class PluginListerCli implements Callable<Integer> {
 
             try (BufferedWriter writer = Files.newBufferedWriter(output.toPath())) {
                 for (Map.Entry<String, List<Plugin>> entry : pluginsByRepository.entrySet()) {
+                    Matcher matcher = PATTERN.matcher(entry.getKey());
+                    if (matcher.find()) {
+                        writer.write(matcher.group(1));
+                        writer.write('/');
+                        writer.write(matcher.group(2));
+                    } else {
+                        throw new IllegalArgumentException("Invalid GitHub URL: " + entry.getKey());
+                    }
+                    writer.write('\t');
                     writer.write(
                             entry.getValue().stream().map(Plugin::getPluginId).collect(Collectors.joining(",")));
                     writer.newLine();
