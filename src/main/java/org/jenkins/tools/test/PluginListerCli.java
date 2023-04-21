@@ -29,7 +29,7 @@ import picocli.CommandLine;
         versionProvider = VersionProvider.class)
 public class PluginListerCli implements Callable<Integer> {
 
-    private static final Pattern PATTERN = Pattern.compile("^https://github.com/(.+?)/(.+?)(\\.git)?$");
+    private static final Pattern PATTERN = Pattern.compile("^(https|http|git)://github.com/(.+?)/(.+?)(\\.git)?$");
 
     @CommandLine.Option(
             names = {"-w", "--war"},
@@ -91,9 +91,9 @@ public class PluginListerCli implements Callable<Integer> {
                 for (Map.Entry<String, List<Plugin>> entry : pluginsByRepository.entrySet()) {
                     Matcher matcher = PATTERN.matcher(entry.getKey());
                     if (matcher.find()) {
-                        writer.write(matcher.group(1));
-                        writer.write('/');
                         writer.write(matcher.group(2));
+                        writer.write('/');
+                        writer.write(matcher.group(3));
                     } else {
                         throw new IllegalArgumentException("Invalid GitHub URL: " + entry.getKey());
                     }
