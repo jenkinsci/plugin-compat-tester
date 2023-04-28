@@ -463,7 +463,6 @@ public class PluginCompatTester {
      * @param checkoutDirectory the directory in which to clone the Git repository
      * @throws IOException if an error occurs
      */
-    @SuppressFBWarnings(value = "COMMAND_INJECTION", justification = "intended behavior")
     private static void cloneImpl(String gitUrl, String scmTag, File checkoutDirectory)
             throws IOException, PluginSourcesUnavailableException {
         LOGGER.log(Level.INFO, "Checking out from Git repository {0} at {1}", new Object[] {gitUrl, scmTag});
@@ -489,64 +488,9 @@ public class PluginCompatTester {
         }
         Files.createDirectories(checkoutDirectory.toPath());
 
-        // git init
-        Process p = new ProcessBuilder()
-                .directory(checkoutDirectory)
-                .command("git", "init")
-                .redirectErrorStream(true)
-                .start();
-        StreamGobbler gobbler = new StreamGobbler(p.getInputStream());
-        gobbler.start();
-        try {
-            int exitStatus = p.waitFor();
-            gobbler.join();
-            String output = gobbler.getOutput().trim();
-            if (exitStatus != 0) {
-                throw new PluginSourcesUnavailableException(
-                        "git init failed with exit status " + exitStatus + ": " + output);
-            }
-        } catch (InterruptedException e) {
-            throw new PluginSourcesUnavailableException("git init was interrupted", e);
-        }
-
-        p = new ProcessBuilder()
-                .directory(checkoutDirectory)
-                .command("git", "fetch", gitUrl, scmTag)
-                .redirectErrorStream(true)
-                .start();
-        gobbler = new StreamGobbler(p.getInputStream());
-        gobbler.start();
-        try {
-            int exitStatus = p.waitFor();
-            gobbler.join();
-            String output = gobbler.getOutput().trim();
-            if (exitStatus != 0) {
-                throw new PluginSourcesUnavailableException(
-                        "git fetch origin failed with exit status " + exitStatus + ": " + output);
-            }
-        } catch (InterruptedException e) {
-            throw new PluginSourcesUnavailableException("git fetch origin was interrupted", e);
-        }
-
-        // git checkout FETCH_HEAD
-        p = new ProcessBuilder()
-                .directory(checkoutDirectory)
-                .command("git", "checkout", "FETCH_HEAD")
-                .redirectErrorStream(true)
-                .start();
-        gobbler = new StreamGobbler(p.getInputStream());
-        gobbler.start();
-        try {
-            int exitStatus = p.waitFor();
-            gobbler.join();
-            String output = gobbler.getOutput().trim();
-            if (exitStatus != 0) {
-                throw new PluginSourcesUnavailableException(
-                        "git checkout FETCH_HEAD failed with exit status " + exitStatus + ": " + output);
-            }
-        } catch (InterruptedException e) {
-            throw new PluginSourcesUnavailableException("git checkout FETCH_HEAD was interrupted", e);
-        }
+        runCommand(checkoutDirectory, "git", "init");
+        runCommand(checkoutDirectory, "git", "fetch", gitUrl, scmTag);
+        runCommand(checkoutDirectory, "git", "checkout", "FETCH_HEAD");
     }
 
     private static List<String> getFallbackGitUrl(
@@ -602,5 +546,35 @@ public class PluginCompatTester {
             caught.addSuppressed(current);
         }
         return caught;
+    }
+
+    /**
+     * Runs the given command, waiting until it has completed before returning.
+     * @param directory the directory to run the command in.
+     * @param commandAndArgs the command and arguments to run.
+     * @throws IOException if the process could not be started.
+     * @throws PluginSourcesUnavailableException if the command failed (either it was interrupted or exited with a non zero status.
+     */
+    @SuppressFBWarnings(value = "COMMAND_INJECTION", justification = "intended behaviour")
+    private static void runCommand(File directory, String... commandAndArgs)
+            throws IOException, PluginSourcesUnavailableException {
+        Process p = new ProcessBuilder()
+                .directory(directory)
+                .command(commandAndArgs)
+                .redirectErrorStream(true)
+                .start();
+        StreamGobbler gobbler = new StreamGobbler(p.getInputStream());
+        gobbler.start();
+        try {
+            int exitStatus = p.waitFor();
+            gobbler.join();
+            String output = gobbler.getOutput().trim();
+            if (exitStatus != 0) {
+                throw new PluginSourcesUnavailableException(
+                        String.join(" ", commandAndArgs) + " failed with exit status " + exitStatus + ": " + output);
+            }
+        } catch (InterruptedException e) {
+            throw new PluginSourcesUnavailableException(String.join(" ", commandAndArgs) + " was interrupted", e);
+        }
     }
 }
