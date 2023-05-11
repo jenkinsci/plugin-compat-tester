@@ -85,6 +85,9 @@ public class PluginCompatTester {
         runner = new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
     }
 
+    @SuppressFBWarnings(
+            value = "UNSAFE_HASH_EQUALS",
+            justification = "We are not used Git SHA comparisons for security")
     public void testPlugins() throws PluginCompatibilityTesterException {
         ServiceHelper serviceHelper = new ServiceHelper(config.getExternalHooksJars());
         PluginCompatTesterHooks pcth = new PluginCompatTesterHooks(serviceHelper, config.getExcludeHooks());
@@ -109,12 +112,14 @@ public class PluginCompatTester {
 
             // Sanity check all plugins in the repository come from the same hash/tag
             for (List<Plugin> pluginList : pluginsByRepository.values()) {
-                Set<String> tags = pluginList.stream().map(Plugin::getTag).collect(Collectors.toSet());
-                if (tags.size() != 1) {
+                // the legacy extractors set the hash to the tag - so we only need to check the hash to cover modern and
+                // legacy
+                Set<String> hashes = pluginList.stream().map(Plugin::getGitHash).collect(Collectors.toSet());
+                if (hashes.size() != 1) {
                     throw new IllegalArgumentException("Repository "
                             + pluginList.get(0).getGitUrl()
-                            + " present with multiple tags: "
-                            + String.join(", ", tags));
+                            + " present with multiple commits: "
+                            + String.join(", ", hashes));
                 }
             }
 
@@ -140,8 +145,8 @@ public class PluginCompatTester {
                 cloneDir = config.getLocalCheckoutDir();
             } else {
                 cloneDir = new File(config.getWorkingDir(), getRepoNameFromGitUrl(gitUrl));
-                // All plugins from the same reactor are from the same tag
-                String tag = entry.getValue().get(0).getTag();
+                // All plugins from the same reactor are from the same hash/tag
+                String tag = entry.getValue().get(0).getGitHash();
 
                 try {
                     cloneFromScm(gitUrl, config.getFallbackGitHubOrganization(), tag, cloneDir);
