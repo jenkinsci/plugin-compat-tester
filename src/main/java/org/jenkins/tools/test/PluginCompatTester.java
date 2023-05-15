@@ -292,12 +292,6 @@ public class PluginCompatTester {
             // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
 
             // TODO pending release of
-            // https://github.com/jenkinsci/blueocean-display-url-plugin/pull/227
-            gitUrl = gitUrl.replace(
-                    "git://github.com/jenkinsci/blueocean-display-url-plugin",
-                    "https://github.com/jenkinsci/blueocean-display-url-plugin");
-
-            // TODO pending release of
             // https://github.com/jenkinsci/google-metadata-plugin/pull/50
             gitUrl = gitUrl.replace(
                     "git://github.com/jenkinsci/google-metadata-plugin",
@@ -330,15 +324,6 @@ public class PluginCompatTester {
             gitUrl = gitUrl.replace(
                     "git://github.com/jenkinsci/pubsub-light-plugin",
                     "https://github.com/jenkinsci/pubsub-light-plugin");
-
-            // TODO pending release of https://github.com/jenkinsci/s3-plugin/pull/243
-            gitUrl = gitUrl.replace("git://github.com/jenkinsci/s3-plugin", "https://github.com/jenkinsci/s3-plugin");
-
-            // TODO pending release of
-            // https://github.com/jenkinsci/theme-manager-plugin/pull/154
-            gitUrl = gitUrl.replace(
-                    "git://github.com/jenkinsci/theme-manager-plugin",
-                    "https://github.com/jenkinsci/theme-manager-plugin");
             try {
                 cloneImpl(gitUrl, scmTag, checkoutDirectory);
                 return; // checkout was ok
