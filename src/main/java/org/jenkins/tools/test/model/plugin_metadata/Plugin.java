@@ -66,6 +66,7 @@ public class Plugin {
 
     /**
      * The Git tag for this plugin as reported by Maven; may be {@code null} if Maven is not aware of a tag or for a local checkout.
+     * Code should prefer {@link #getGitHash()} if obtaining a commit to checkout.
      */
     @CheckForNull
     public String getTag() {
