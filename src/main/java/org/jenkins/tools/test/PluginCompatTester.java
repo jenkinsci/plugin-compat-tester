@@ -302,6 +302,36 @@ public class PluginCompatTester {
                     "git://github.com/jenkinsci/blueocean-display-url-plugin",
                     "https://github.com/jenkinsci/blueocean-display-url-plugin");
 
+            // TODO pending backport of
+            // https://github.com/jenkinsci/bootstrap5-api-plugin/commit/8c5f60ab5e21c03b68d696e7b760caa991b25aa9 to
+            // 2.375.x
+            gitUrl = gitUrl.replace(
+                    "git://github.com/jenkinsci/bootstrap5-api-plugin",
+                    "https://github.com/jenkinsci/bootstrap5-api-plugin");
+
+            // TODO pending backport of https://github.com/jenkinsci/cloudbees-folder-plugin/pull/260 to 2.361.x
+            gitUrl = gitUrl.replace(
+                    "git://github.com/jenkinsci/cloudbees-folder-plugin",
+                    "https://github.com/jenkinsci/cloudbees-folder-plugin");
+
+            // TODO pending backport of https://github.com/jenkinsci/custom-folder-icon-plugin/pull/109 to 2.361.x
+            gitUrl = gitUrl.replace(
+                    "git://github.com/jenkinsci/custom-folder-icon-plugin",
+                    "https://github.com/jenkinsci/custom-folder-icon-plugin");
+
+            // TODO pending backport of
+            // https://github.com/jenkinsci/data-tables-api-plugin/commit/97dc7555017e6c7ea17f0b67cc292773f1114a54 to
+            // 2.375.x
+            gitUrl = gitUrl.replace(
+                    "git://github.com/jenkinsci/data-tables-api-plugin",
+                    "https://github.com/jenkinsci/data-tables-api-plugin");
+
+            // TODO pending backport of
+            // https://github.com/jenkinsci/echarts-api-plugin/commit/d6951a26e6f1c27b82c8308359f7f76e182de3e3 to
+            // 2.375.x
+            gitUrl = gitUrl.replace(
+                    "git://github.com/jenkinsci/echarts-api-plugin", "https://github.com/jenkinsci/echarts-api-plugin");
+
             // TODO pending release of
             // https://github.com/jenkinsci/google-metadata-plugin/pull/50
             gitUrl = gitUrl.replace(
