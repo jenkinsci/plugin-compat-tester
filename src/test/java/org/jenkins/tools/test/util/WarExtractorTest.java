@@ -38,7 +38,7 @@ class WarExtractorTest {
                 allOf(
                         hasProperty("pluginId", is("text-finder")),
                         hasProperty("gitUrl", is("https://github.com/jenkinsci/text-finder-plugin.git")),
-                        hasProperty("module", nullValue()), // not a multi-module project
+                        hasProperty("module", is(":text-finder")), // regardless if it is a multi-module or not
                         hasProperty("tag", startsWith("text-finder-1.")),
                         hasProperty("name", is("Text Finder")),
                         hasProperty("version", startsWith("1."))));
