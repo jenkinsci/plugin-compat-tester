@@ -30,7 +30,7 @@ public class LegacyPluginMetadataExtractor implements PluginMetadataExtractor {
                 .withGitHash(model.getScm().getTag())
                 .withTag(model.getScm().getTag())
                 // Any multi-module projects have already been handled by now or require new hooks
-                .withModule(null)
+                .withModule(model.getArtifactId())
                 .withVersion(model.getVersion())
                 .build();
     }
