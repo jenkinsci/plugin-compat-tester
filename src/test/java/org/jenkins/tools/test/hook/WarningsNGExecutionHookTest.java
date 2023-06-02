@@ -22,6 +22,7 @@ class WarningsNGExecutionHookTest {
                 .withGitUrl("ignored")
                 .withVersion("ignored")
                 .withPluginId("warnings-ng")
+                .withModule("warnings-ng")
                 .build();
 
         BeforeExecutionContext context = new BeforeExecutionContext(null, plugin, null, null, null);

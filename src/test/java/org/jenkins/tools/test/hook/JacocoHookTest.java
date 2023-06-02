@@ -22,6 +22,7 @@ class JacocoHookTest {
                 .withGitUrl("ignored")
                 .withVersion("ignored")
                 .withPluginId("jacoco")
+                .withModule("jacoco")
                 .build();
 
         BeforeExecutionContext context = new BeforeExecutionContext(null, plugin, null, null, null);
