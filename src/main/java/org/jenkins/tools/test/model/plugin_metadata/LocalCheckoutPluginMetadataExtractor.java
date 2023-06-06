@@ -81,7 +81,7 @@ public class LocalCheckoutPluginMetadataExtractor {
         if ("hpi".equals(packaging)) {
             String pluginId = expressionEvaluator.evaluateString("project.artifactId");
             String version = expressionEvaluator.evaluateString("project.version");
-            return toPlugin(pluginId, version, localCheckoutDir, module);
+            return toPlugin(pluginId, version, localCheckoutDir, ":" + pluginId);
         }
         return null;
     }

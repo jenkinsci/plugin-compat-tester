@@ -45,14 +45,13 @@ public class ModernPluginMetadataExtractor implements PluginMetadataExtractor {
         if (gitHash == null) {
             gitHash = mainAttributes.getValue(PLUGIN_GIT_HASH);
         }
-
         return new Plugin.Builder()
                 .withPluginId(mainAttributes.getValue(PLUGIN_ID))
                 .withName(mainAttributes.getValue(PLUGIN_NAME))
                 .withScmConnection(mainAttributes.getValue(PLUGIN_SCM_CONNECTION))
                 .withTag(mainAttributes.getValue(PLUGIN_SCM_TAG))
                 .withGitHash(gitHash)
-                .withModule(mainAttributes.getValue(PLUGIN_MODULE))
+                .withModule(":" + mainAttributes.getValue(PLUGIN_ID))
                 .withVersion(mainAttributes.getValue(PLUGIN_VERSION))
                 .build();
     }

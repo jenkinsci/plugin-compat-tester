@@ -21,7 +21,7 @@ public class Plugin {
     @CheckForNull
     private final String tag;
 
-    @CheckForNull
+    @NonNull
     private final String module;
 
     @CheckForNull
@@ -35,7 +35,7 @@ public class Plugin {
         this.version = Objects.requireNonNull(builder.version, "version may not be null");
         this.gitUrl = Objects.requireNonNull(builder.gitUrl, "gitUrl may not be null");
         this.tag = builder.tag;
-        this.module = builder.module;
+        this.module = Objects.requireNonNull(builder.module, "module may not be null");
         this.gitHash = builder.gitHash;
         this.name = builder.name;
     }
@@ -82,9 +82,9 @@ public class Plugin {
     }
 
     /**
-     * The module name for this plugin; will be {@code null} if the plugin is not part of a multi-module build.
+     * The module name for this plugin; the module will always have a name, whether it is part of a multi-module build or not.
      */
-    @CheckForNull
+    @NonNull
     public String getModule() {
         return module;
     }
