@@ -20,7 +20,6 @@ public class ModernPluginMetadataExtractor implements PluginMetadataExtractor {
     private static final Attributes.Name PLUGIN_GIT_HASH = new Attributes.Name("Plugin-GitHash");
     private static final Attributes.Name PLUGIN_SCM_CONNECTION = new Attributes.Name("Plugin-ScmConnection");
     private static final Attributes.Name PLUGIN_SCM_TAG = new Attributes.Name("Plugin-ScmTag");
-    private static final Attributes.Name PLUGIN_MODULE = new Attributes.Name("Plugin-Module");
     private static final Attributes.Name PLUGIN_ID = new Attributes.Name("Short-Name");
     private static final Attributes.Name PLUGIN_NAME = new Attributes.Name("Long-Name");
     private static final Attributes.Name PLUGIN_VERSION = new Attributes.Name("Plugin-Version");
