@@ -296,6 +296,13 @@ public class PluginCompatTester {
         for (String gitUrl : gitUrls) {
             // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
 
+            // TODO pending backport of
+            // https://github.com/jenkinsci/authentication-tokens-plugin/pull/106
+            // to 2.375.x
+            gitUrl = gitUrl.replace(
+                    "git://github.com/jenkinsci/authentication-tokens-plugin",
+                    "https://github.com/jenkinsci/authentication-tokens-plugin");
+
             // TODO pending release of
             // https://github.com/jenkinsci/blueocean-display-url-plugin/pull/227
             gitUrl = gitUrl.replace(
