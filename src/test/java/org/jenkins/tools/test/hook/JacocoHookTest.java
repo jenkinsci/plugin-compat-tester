@@ -37,14 +37,20 @@ class JacocoHookTest {
     void testAction() {
         final JacocoHook hook = new JacocoHook();
 
-        List<String> args = new ArrayList<>(List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test"));
+        List<String> args = new ArrayList<>(
+                List.of("hpi:resolve-test-dependencies", "hpi:test-hpl", "hpi:test-runtime", "surefire:test"));
         BeforeExecutionContext context = new BeforeExecutionContext(null, null, null, null, args);
 
         hook.action(context);
         // order is importat
         assertThat(
                 args,
-                contains("jacoco:prepare-agent", "hpi:resolve-test-dependencies", "hpi:test-hpl", "surefire:test"));
+                contains(
+                        "jacoco:prepare-agent",
+                        "hpi:resolve-test-dependencies",
+                        "hpi:test-hpl",
+                        "hpi:test-runtime",
+                        "surefire:test"));
 
         args = new ArrayList<>(List.of("other-plugin:other-goal", "surefire:test"));
         context = new BeforeExecutionContext(null, null, null, null, args);
