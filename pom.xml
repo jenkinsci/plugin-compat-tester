@@ -28,7 +28,7 @@
     <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
     <jenkins.version>2.428</jenkins.version>
     <picocli.version>4.7.5</picocli.version>
-    <slf4j.version>2.0.7</slf4j.version>
+    <slf4j.version>2.0.9</slf4j.version>
     <spotbugs.effort>Max</spotbugs.effort>
     <spotless.check.skip>false</spotless.check.skip>
     <argLine />
@@ -38,8 +38,10 @@
     <dependencies>
       <dependency>
         <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
+        <artifactId>slf4j-bom</artifactId>
         <version>${slf4j.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
