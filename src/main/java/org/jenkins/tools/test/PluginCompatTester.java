@@ -302,11 +302,6 @@ public class PluginCompatTester {
             gitUrl = gitUrl.replace(
                     "git://github.com/jenkinsci/popper2-api-plugin", "https://github.com/jenkinsci/popper2-api-plugin");
 
-            // TODO pending release of https://github.com/jenkinsci/pubsub-light-plugin/pull/100
-            gitUrl = gitUrl.replace(
-                    "git://github.com/jenkinsci/pubsub-light-plugin",
-                    "https://github.com/jenkinsci/pubsub-light-plugin");
-
             try {
                 cloneImpl(gitUrl, scmTag, checkoutDirectory);
                 return; // checkout was ok
