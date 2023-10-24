@@ -295,13 +295,6 @@ public class PluginCompatTester {
 
         PluginSourcesUnavailableException lastException = null;
         for (String gitUrl : gitUrls) {
-            // See: https://github.blog/2021-09-01-improving-git-protocol-security-github/
-
-            // TODO pending release of
-            // https://github.com/jenkinsci/popper2-api-plugin/commit/bf781e31b072103f3f72d7195e9071863f7f4dd9
-            gitUrl = gitUrl.replace(
-                    "git://github.com/jenkinsci/popper2-api-plugin", "https://github.com/jenkinsci/popper2-api-plugin");
-
             try {
                 cloneImpl(gitUrl, scmTag, checkoutDirectory);
                 return; // checkout was ok
