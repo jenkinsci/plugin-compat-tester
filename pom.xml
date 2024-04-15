@@ -28,7 +28,7 @@
     <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
     <jenkins.version>2.452</jenkins.version>
     <picocli.version>4.7.5</picocli.version>
-    <slf4j.version>2.0.12</slf4j.version>
+    <slf4j.version>2.0.13</slf4j.version>
     <spotbugs.effort>Max</spotbugs.effort>
     <spotless.check.skip>false</spotless.check.skip>
     <argLine />
