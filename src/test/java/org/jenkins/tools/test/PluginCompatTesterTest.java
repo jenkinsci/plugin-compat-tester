@@ -61,7 +61,7 @@ class PluginCompatTesterTest {
                 .resolve("text-finder-plugin")
                 .resolve("target")
                 .resolve("surefire-reports")
-                .resolve("TEST-InjectedTest.xml");
+                .resolve("TEST-org.jenkins_ci.plugins.text_finder.InjectedTest.xml");
         assertTrue(Files.exists(report));
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
