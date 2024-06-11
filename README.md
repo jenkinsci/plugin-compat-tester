@@ -3,7 +3,7 @@ Plugin Compatibility Tester (PCT)
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/jenkinsci/plugin-compat-tester?label=changelog)](https://github.com/jenkinsci/plugin-compat-tester/releases)
 
-Generates a compatibility matrix for plugins against Jenkins core.
+Generate a compatibility matrix for plugins against Jenkins core.
 
 ## Running PCT
 
