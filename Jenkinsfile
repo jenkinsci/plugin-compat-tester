@@ -4,5 +4,8 @@
  * allowing one to test against multiple Jenkins versions.
  */
 buildPlugin(useContainerAgent: true, configurations: [
-  [ platform: 'linux', jdk: '17' ],
+  [ platform: 'linux', jdk: 17 ],
+  [ platform: 'linux', jdk: 21 ],
+  [ platform: 'windows', jdk: 17 ],
+  [ platform: 'windows', jdk: 21 ]
 ])
