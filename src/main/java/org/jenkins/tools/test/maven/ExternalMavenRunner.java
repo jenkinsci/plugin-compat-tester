@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.SystemUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
 /** Runs external Maven executable. */
 public class ExternalMavenRunner implements MavenRunner {
@@ -50,6 +51,13 @@ public class ExternalMavenRunner implements MavenRunner {
         this.externalMaven = externalMaven;
         this.mavenSettings = mavenSettings;
         this.mavenArgs = mavenArgs;
+    }
+
+    /**
+     * @param config The PCT configuration to extract maven arguments from.
+     */
+    public ExternalMavenRunner(@NonNull PluginCompatTesterConfig config) {
+        this(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
     }
 
     @Override
