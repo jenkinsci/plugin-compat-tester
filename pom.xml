@@ -26,7 +26,9 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
-    <jenkins.version>2.463</jenkins.version>
+    <jenkins.version>2.462</jenkins.version>
+    <!-- TODO until a critical mass has migrated to Java 17 -->
+    <maven.compiler.release>11</maven.compiler.release>
     <picocli.version>4.7.6</picocli.version>
     <slf4j.version>2.0.13</slf4j.version>
     <spotbugs.effort>Max</spotbugs.effort>
