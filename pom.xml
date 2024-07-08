@@ -11,7 +11,7 @@
 
   <groupId>org.jenkins-ci.tests</groupId>
   <artifactId>plugins-compat-tester-cli</artifactId>
-  <version>${changelist}</version>
+  <version>1473.${changelist}</version>
   <name>Plugins compatibility tester CLI</name>
   <description>Jenkins Plugin Compatibility Tester (PCT) against latest released version</description>
   <url>https://github.com/jenkinsci/plugin-compat-tester</url>
