@@ -63,4 +63,15 @@ public class Jetty12Hook extends PropertyVersionHook {
             throw new UncheckedIOException("Failed to read Winstone version in " + war, e);
         }
     }
+
+    @Override
+    public void action(@NonNull BeforeExecutionContext context) {
+        super.action(context);
+        /*
+         * The version of JUnit 5 used at runtime must match the version of JUnit 5 used to compile the tests, but the
+         * inclusion of a newer test harness might cause the HPI plugin to try to use a newer version of JUnit 5 at
+         * runtime to satisfy upper bounds checks, so exclude JUnit 5 from upper bounds analysis.
+         */
+        context.getArgs().add("-DupperBoundsExcludes=org.junit.jupiter:junit-jupiter-api");
+    }
 }
