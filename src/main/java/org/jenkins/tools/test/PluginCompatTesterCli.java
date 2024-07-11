@@ -158,9 +158,11 @@ public class PluginCompatTesterCli implements Callable<Integer> {
     @CommandLine.Option(
             names = "--fail-fast",
             negatable = true,
+            defaultValue = "true",
+            fallbackValue = "true",
             description =
                     "If multiple plugins are specified, fail the overall run after the first plugin failure occurs rather than continuing to test other plugins.")
-    private boolean failFast = true;
+    private boolean failFast;
 
     @Override
     public Integer call() throws PluginCompatibilityTesterException {
