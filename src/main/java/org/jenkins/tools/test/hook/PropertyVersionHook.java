@@ -6,7 +6,6 @@ import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExpressionEvaluator;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
-import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 
@@ -27,9 +26,7 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
-        PluginCompatTesterConfig config = context.getConfig();
-        MavenRunner runner =
-                new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
+        MavenRunner runner = new ExternalMavenRunner(context.getConfig());
         ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(
                 context.getCloneDirectory(), context.getPlugin().getModule(), runner);
         try {

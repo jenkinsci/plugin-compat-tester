@@ -82,7 +82,7 @@ public class PluginCompatTester {
 
     public PluginCompatTester(PluginCompatTesterConfig config) {
         this.config = config;
-        runner = new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());
+        runner = new ExternalMavenRunner(config);
     }
 
     @SuppressFBWarnings(
