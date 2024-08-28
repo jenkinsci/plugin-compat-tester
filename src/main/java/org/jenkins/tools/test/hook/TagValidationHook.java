@@ -20,7 +20,6 @@ public class TagValidationHook extends PluginCompatTesterHookBeforeCheckout {
             justification = "We are not used Git SHA comparisons for security")
     @Override
     public void action(@NonNull BeforeCheckoutContext context) throws PluginSourcesUnavailableException {
-        // legacy extractors set the gitHash to the tag - so we just need to check the tag.
         String gitHash = context.getPlugin().getGitHash();
         if (gitHash == null || gitHash.equals("HEAD")) {
             throw new PluginSourcesUnavailableException("Failed to check out plugin sources for "

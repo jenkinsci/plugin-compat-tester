@@ -112,8 +112,6 @@ public class PluginCompatTester {
 
             // Sanity check all plugins in the repository come from the same hash/tag
             for (List<Plugin> pluginList : pluginsByRepository.values()) {
-                // the legacy extractors set the hash to the tag - so we only need to check the hash to cover modern and
-                // legacy
                 Set<String> hashes = pluginList.stream().map(Plugin::getGitHash).collect(Collectors.toSet());
                 if (hashes.size() != 1) {
                     throw new IllegalArgumentException("Repository "

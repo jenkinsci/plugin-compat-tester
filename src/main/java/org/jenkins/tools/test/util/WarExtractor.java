@@ -35,9 +35,6 @@ public class WarExtractor {
     @NonNull
     private final File warFile;
 
-    @NonNull
-    private final List<PluginMetadataExtractor> extractors;
-
     @CheckForNull
     private final Set<String> includedPlugins;
 
@@ -47,7 +44,6 @@ public class WarExtractor {
     public WarExtractor(
             File warFile, ServiceHelper serviceHelper, Set<String> includedPlugins, Set<String> excludedPlugins) {
         this.warFile = warFile;
-        this.extractors = serviceHelper.loadServices(PluginMetadataExtractor.class);
         this.includedPlugins = includedPlugins;
         this.excludedPlugins = excludedPlugins;
     }
@@ -140,14 +136,8 @@ public class WarExtractor {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        // Once all plugins have adopted https://github.com/jenkinsci/maven-hpi-plugin/pull/436 this can be simplified
         LOGGER.log(Level.INFO, "Extracting metadata for {0}", pluginId);
-        for (PluginMetadataExtractor extractor : extractors) {
-            if (extractor.isApplicable(pluginId, manifest, model)) {
-                return extractor.extractMetadata(pluginId, manifest, model);
-            }
-        }
-        throw new MetadataExtractionException("No metadata could be extracted for entry " + entry.getName());
+        return PluginMetadataExtractor.extractMetadata(pluginId, manifest, model);
     }
 
     /**
