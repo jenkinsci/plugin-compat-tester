@@ -38,18 +38,12 @@ public class ModernPluginMetadataExtractor implements PluginMetadataExtractor {
 
         assert pluginId.equals(mainAttributes.getValue(PLUGIN_ID));
 
-        // TODO simplify once https://github.com/jenkinsci/maven-hpi-plugin/pull/471 is adopted in all multi-module
-        // plugins
-        String gitHash = mainAttributes.getValue(IMPLEMENTATION_BUILD);
-        if (gitHash == null) {
-            gitHash = mainAttributes.getValue(PLUGIN_GIT_HASH);
-        }
         return new Plugin.Builder()
                 .withPluginId(mainAttributes.getValue(PLUGIN_ID))
                 .withName(mainAttributes.getValue(PLUGIN_NAME))
                 .withScmConnection(mainAttributes.getValue(PLUGIN_SCM_CONNECTION))
                 .withTag(mainAttributes.getValue(PLUGIN_SCM_TAG))
-                .withGitHash(gitHash)
+                .withGitHash(mainAttributes.getValue(IMPLEMENTATION_BUILD))
                 .withModule(":" + mainAttributes.getValue(PLUGIN_ID))
                 .withVersion(mainAttributes.getValue(PLUGIN_VERSION))
                 .build();
