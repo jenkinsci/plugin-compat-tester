@@ -295,10 +295,6 @@ public class PluginCompatTester {
 
         PluginSourcesUnavailableException lastException = null;
         for (String gitUrl : gitUrls) {
-            // TODO pending removal of bom 2.387 line
-            gitUrl = gitUrl.replace(
-                    "git://github.com/jenkinsci/kubernetes-credentials-plugin",
-                    "https://github.com/jenkinsci/kubernetes-credentials-plugin");
             try {
                 cloneImpl(gitUrl, scmTag, checkoutDirectory);
                 return; // checkout was ok
