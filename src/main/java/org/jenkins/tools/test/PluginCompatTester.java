@@ -256,14 +256,18 @@ public class PluginCompatTester {
         properties.put("overrideWar", config.getWar().toString());
         properties.put("jenkins.version", coreVersion);
         properties.put("useUpperBounds", "true");
-        properties.put(
-                "overrideVersions",
-                forExecutionHooks.getOverrideVersions().entrySet().stream()
-                        .map(e -> e.getKey() + ":" + e.getValue())
-                        .collect(Collectors.joining(",")));
-        properties.put(
-                "upperBoundsExcludes",
-                forExecutionHooks.getUpperBoundsExcludes().stream().collect(Collectors.joining(",")));
+        if (!forExecutionHooks.getOverrideVersions().isEmpty()) {
+            properties.put(
+                    "overrideVersions",
+                    forExecutionHooks.getOverrideVersions().entrySet().stream()
+                            .map(e -> e.getKey() + ":" + e.getValue())
+                            .collect(Collectors.joining(",")));
+        }
+        if (!forExecutionHooks.getUpperBoundsExcludes().isEmpty()) {
+            properties.put(
+                    "upperBoundsExcludes",
+                    forExecutionHooks.getUpperBoundsExcludes().stream().collect(Collectors.joining(",")));
+        }
         if (setChangelist) {
             properties.put("set.changelist", "true");
             // As hooks may be adjusting the POMs, tell git-changelist-extension to ignore dirty commits.
