@@ -72,6 +72,6 @@ public class Jetty12Hook extends PropertyVersionHook {
          * inclusion of a newer test harness might cause the HPI plugin to try to use a newer version of JUnit 5 at
          * runtime to satisfy upper bounds checks, so exclude JUnit 5 from upper bounds analysis.
          */
-        context.getArgs().add("-DupperBoundsExcludes=org.junit.jupiter:junit-jupiter-api");
+        context.getUpperBoundsExcludes().add("org.junit.jupiter:junit-jupiter-api");
     }
 }

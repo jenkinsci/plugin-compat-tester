@@ -126,6 +126,6 @@ public class ServletApiWorkaround extends PluginCompatTesterHookBeforeExecution 
 
     @Override
     public void action(@NonNull BeforeExecutionContext context) throws PluginCompatibilityTesterException {
-        context.getArgs().add("-DoverrideVersions=jakarta.servlet:jakarta.servlet-api:5.0.0");
+        context.getOverrideVersions().put("jakarta.servlet:jakarta.servlet-api", "5.0.0");
     }
 }

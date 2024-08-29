@@ -28,7 +28,6 @@ package org.jenkins.tools.test;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import hudson.util.VersionNumber;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -257,20 +256,18 @@ public class PluginCompatTester {
         properties.put("overrideWar", config.getWar().toString());
         properties.put("jenkins.version", coreVersion);
         properties.put("useUpperBounds", "true");
+        properties.put(
+                "overrideVersions",
+                forExecutionHooks.getOverrideVersions().entrySet().stream()
+                        .map(e -> e.getKey() + ":" + e.getValue())
+                        .collect(Collectors.joining(",")));
+        properties.put(
+                "upperBoundsExcludes",
+                forExecutionHooks.getUpperBoundsExcludes().stream().collect(Collectors.joining(",")));
         if (setChangelist) {
             properties.put("set.changelist", "true");
             // As hooks may be adjusting the POMs, tell git-changelist-extension to ignore dirty commits.
             properties.put("ignore.dirt", "true");
-        }
-        if (new VersionNumber(coreVersion).isOlderThan(new VersionNumber("2.382"))) {
-            /*
-             * Versions of Jenkins prior to 2.382 are susceptible to JENKINS-68696, in which
-             * javax.servlet:servlet-api comes from core at version 0. This is an intentional trick
-             * to prevent this library from being used, and we do not want it to be upgraded to a
-             * nonzero version (which is not a realistic test scenario) just because it happens to
-             * be on the class path of some plugin and triggers an upper bounds violation.
-             */
-            properties.put("upperBoundsExcludes", "javax.servlet:servlet-api");
         }
 
         // Execute with tests
