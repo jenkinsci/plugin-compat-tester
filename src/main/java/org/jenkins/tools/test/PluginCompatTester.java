@@ -239,6 +239,7 @@ public class PluginCompatTester {
         if (setChangelist) {
             properties.put("set.changelist", "true");
         }
+        properties.put("hpi-plugin.version", "3.59-rc1640.c198149f77d1");
         runner.run(properties, cloneLocation, plugin.getModule(), buildLogFile, "clean", "process-test-classes");
 
         List<String> args = new ArrayList<>();
@@ -256,6 +257,7 @@ public class PluginCompatTester {
         properties.put("overrideWar", config.getWar().toString());
         properties.put("jenkins.version", coreVersion);
         properties.put("useUpperBounds", "true");
+        properties.put("hpi-plugin.version", "3.59-rc1640.c198149f77d1");
         if (!forExecutionHooks.getOverrideVersions().isEmpty()) {
             properties.put(
                     "overrideVersions",
