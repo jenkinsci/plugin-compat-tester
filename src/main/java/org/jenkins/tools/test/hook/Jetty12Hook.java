@@ -21,6 +21,8 @@ import org.kohsuke.MetaInfServices;
 @MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
 public class Jetty12Hook extends PropertyVersionHook {
 
+    public static final String JTH_VERSION = "2244.2246.v8e44578e0f42";
+
     @Override
     public String getProperty() {
         return "jenkins-test-harness.version";
@@ -28,19 +30,23 @@ public class Jetty12Hook extends PropertyVersionHook {
 
     @Override
     public String getMinimumVersion() {
-        return "2244.2246.v8e44578e0f42";
+        return JTH_VERSION;
     }
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
+        return staticCheck(context, getProperty(), getMinimumVersion());
+    }
+
+    static boolean staticCheck(BeforeExecutionContext context, String property, String minimumVersion) {
         VersionNumber winstoneVersion = getWinstoneVersion(context.getConfig().getWar());
         if (winstoneVersion.getDigitAt(0) < 7) {
             return false;
         }
-        return super.check(context);
+        return PropertyVersionHook.check(context, property, minimumVersion);
     }
 
-    private VersionNumber getWinstoneVersion(File war) {
+    static VersionNumber getWinstoneVersion(File war) {
         try (JarFile jarFile = new JarFile(war)) {
             ZipEntry zipEntry = jarFile.getEntry("executable/winstone.jar");
             if (zipEntry == null) {
