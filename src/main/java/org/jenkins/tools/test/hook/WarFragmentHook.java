@@ -21,7 +21,7 @@ public class WarFragmentHook extends PropertyVersionHook {
 
     @Override
     public String getMinimumVersion() {
-        return "2384.va_d3a_58a_4b_df5";
+        return "2385.vfe86233d0d36";
     }
 
     @Override
@@ -56,7 +56,7 @@ public class WarFragmentHook extends PropertyVersionHook {
     }
 
     private JarEntry getJenkinsCoreEntry(JarFile jarFile) {
-        for (var entries = jarFile.entries(); entries.hasMoreElements();) {
+        for (var entries = jarFile.entries(); entries.hasMoreElements(); ) {
             JarEntry entry = entries.nextElement();
             if (entry.getName().startsWith("WEB-INF/lib/jenkins-core-")) {
                 return entry;

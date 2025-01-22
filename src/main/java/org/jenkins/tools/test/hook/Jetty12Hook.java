@@ -21,7 +21,7 @@ import org.kohsuke.MetaInfServices;
 @MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
 public class Jetty12Hook extends PropertyVersionHook {
 
-    public static final String JTH_VERSION = "2244.2246.v8e44578e0f42";
+    public static final String JTH_VERSION = "2244.2247.ve6b_a_8191b_95f";
 
     @Override
     public String getProperty() {
