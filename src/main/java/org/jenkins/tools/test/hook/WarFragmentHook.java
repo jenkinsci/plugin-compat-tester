@@ -37,8 +37,8 @@ public class WarFragmentHook extends PropertyVersionHook {
                 throw new IllegalArgumentException("Failed to find jenkins-core jar in " + war);
             }
             try (var is = jarFile.getInputStream(jenkinsCoreEntry);
-                 var bis = new BufferedInputStream(is);
-                 var jis = new JarInputStream(bis)) {
+                    var bis = new BufferedInputStream(is);
+                    var jis = new JarInputStream(bis)) {
                 return hasWebFragment(jis);
             }
         } catch (IOException e) {
@@ -64,5 +64,4 @@ public class WarFragmentHook extends PropertyVersionHook {
         }
         return null;
     }
-
 }
