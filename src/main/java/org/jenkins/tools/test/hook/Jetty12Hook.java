@@ -28,7 +28,7 @@ public class Jetty12Hook extends PropertyVersionHook {
 
     @Override
     public String getMinimumVersion() {
-        return "2381.v52b_0b_d2e3763";
+        return "2384.va_d3a_58a_4b_df5";
     }
 
     @Override
