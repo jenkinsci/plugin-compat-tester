@@ -14,7 +14,7 @@ class JenkinsTestHarnessHookTest {
                 hasToString("2244.2247.ve6b_a_8191b_95f"));
         assertThat(
                 JenkinsTestHarnessHook.determineNextVersion(new VersionNumber("2270")),
-                hasToString("2270.2272.v2db_a_04531041"));
+                hasToString("2270.2272.vd890c8c611b_3"));
         assertThat(
                 JenkinsTestHarnessHook.determineNextVersion(new VersionNumber("2271")),
                 hasToString("2385.vfe86233d0d36"));
