@@ -21,7 +21,7 @@ import org.kohsuke.MetaInfServices;
 
 @MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
 public class JenkinsTestHarnessHook extends PluginCompatTesterHookBeforeExecution {
-    public static final String VERSION_WITH_WEB_FRAGMENTS = "2385.vfe86233d0d36";
+    public static final String VERSION_WITH_WEB_FRAGMENTS = "2386.v82359624ea_05";
     public static final List<String> VALID_VERSIONS =
             List.of("2244.2247.ve6b_a_8191b_95f", "2270.2272.vd890c8c611b_3", VERSION_WITH_WEB_FRAGMENTS);
     private static final String PROPERTY_NAME = "jenkins-test-harness.version";
