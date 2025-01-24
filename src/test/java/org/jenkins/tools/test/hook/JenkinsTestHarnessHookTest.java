@@ -10,14 +10,20 @@ class JenkinsTestHarnessHookTest {
     @Test
     void nextVersion() {
         assertThat(
+                JenkinsTestHarnessHook.determineNextVersion(new VersionNumber("2243")),
+                hasToString(JenkinsTestHarnessHook.VERSION_BACKPORT_2244));
+        assertThat(
                 JenkinsTestHarnessHook.determineNextVersion(new VersionNumber("2244")),
-                hasToString("2244.2247.ve6b_a_8191b_95f"));
+                hasToString(JenkinsTestHarnessHook.VERSION_BACKPORT_2244));
+        assertThat(
+                JenkinsTestHarnessHook.determineNextVersion(new VersionNumber("2269")),
+                hasToString(JenkinsTestHarnessHook.VERSION_BACKPORT_2270));
         assertThat(
                 JenkinsTestHarnessHook.determineNextVersion(new VersionNumber("2270")),
-                hasToString("2270.2272.vd890c8c611b_3"));
+                hasToString(JenkinsTestHarnessHook.VERSION_BACKPORT_2270));
         assertThat(
                 JenkinsTestHarnessHook.determineNextVersion(new VersionNumber("2271")),
-                hasToString("2385.vfe86233d0d36"));
-        assertThat(JenkinsTestHarnessHook.determineNextVersion(new VersionNumber("2386")), hasToString("2386"));
+                hasToString(JenkinsTestHarnessHook.VERSION_WITH_WEB_FRAGMENTS));
+        assertThat(JenkinsTestHarnessHook.determineNextVersion(new VersionNumber("2387")), hasToString("2387"));
     }
 }
