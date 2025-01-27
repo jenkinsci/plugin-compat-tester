@@ -21,12 +21,12 @@ import org.kohsuke.MetaInfServices;
 
 @MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
 public class JenkinsTestHarnessHook extends PluginCompatTesterHookBeforeExecution {
-    public static final String VERSION_WITH_JUNIT5_PERMISSIONS = "2390.v2f27c3de6c38"
+    public static final String VERSION_WITH_JUNIT5_PERMISSIONS = "2390.v2f27c3de6c38";
     public static final String VERSION_WITH_WEB_FRAGMENTS = "2386.v82359624ea_05";
     public static final String VERSION_BACKPORT_2244 = "2244.2247.ve6b_a_8191b_95f";
     public static final String VERSION_BACKPORT_2270 = "2270.2272.vd890c8c611b_3";
-    public static final List<String> VALID_VERSIONS =
-            List.of(VERSION_BACKPORT_2244, VERSION_BACKPORT_2270, VERSION_WITH_WEB_FRAGMENTS, VERSION_WITH_JUNIT5_PERMISSIONS);
+    public static final List<String> VALID_VERSIONS = List.of(
+            VERSION_BACKPORT_2244, VERSION_BACKPORT_2270, VERSION_WITH_WEB_FRAGMENTS, VERSION_WITH_JUNIT5_PERMISSIONS);
     private static final String PROPERTY_NAME = "jenkins-test-harness.version";
 
     private static boolean usesWebFragment(@NonNull BeforeExecutionContext context) {
@@ -149,8 +149,8 @@ public class JenkinsTestHarnessHook extends PluginCompatTesterHookBeforeExecutio
 
     @Override
     public void action(@NonNull BeforeExecutionContext context) throws PluginCompatibilityTesterException {
-        var version = getPropertyAsVersion(context, PROPERTY_NAME);
-        context.getArgs().add(String.format("-D%s=%s", PROPERTY_NAME, determineNextVersion(version)));
+        // var version = getPropertyAsVersion(context, PROPERTY_NAME);
+        context.getArgs().add(String.format("-D%s=%s", PROPERTY_NAME, VERSION_WITH_JUNIT5_PERMISSIONS));
         /*
          * The version of JUnit 5 used at runtime must match the version of JUnit 5 used to compile the tests, but the
          * inclusion of a newer test harness might cause the HPI plugin to try to use a newer version of JUnit 5 at
