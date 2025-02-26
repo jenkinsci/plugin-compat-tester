@@ -156,6 +156,13 @@ public class PluginCompatTesterCli implements Callable<Integer> {
     private File localCheckoutDir;
 
     @CommandLine.Option(
+            names = "--compile-only",
+            negatable = true,
+            defaultValue = "false",
+            description = "Only test that plugins can be compiled against the provided core.")
+    private boolean compileOnly;
+
+    @CommandLine.Option(
             names = "--fail-fast",
             negatable = true,
             defaultValue = "true",
@@ -195,6 +202,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
             config.setExternalHooksJars(externalHooksJars);
         }
         config.setLocalCheckoutDir(localCheckoutDir);
+        config.setCompileOnly(compileOnly);
         config.setFailFast(failFast);
 
         PluginCompatTester tester = new PluginCompatTester(config);
