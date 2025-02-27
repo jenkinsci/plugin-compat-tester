@@ -156,17 +156,31 @@ public class PluginCompatTester {
                     continue;
                 }
             }
-            // For each of the plugin metadata entries, go test the plugin
-            for (Plugin plugin : entry.getValue()) {
+            if (!config.isCompileOnly()) {
+                // For each of the plugin metadata entries, go test the plugin
+                for (Plugin plugin : entry.getValue()) {
+                    try {
+                        testPluginAgainst(coreVersion, plugin, cloneDir, pcth);
+                    } catch (PluginCompatibilityTesterException e) {
+                        lastException = throwOrAddSuppressed(lastException, e, config.isFailFast());
+                        LOGGER.log(
+                                Level.SEVERE,
+                                String.format(
+                                        "Internal error while executing a test for core %s and plugin %s at version %s.",
+                                        coreVersion, plugin.getName(), plugin.getVersion()),
+                                e);
+                    }
+                }
+            } else {
                 try {
-                    testPluginAgainst(coreVersion, plugin, cloneDir, pcth);
+                    testCompilationAgainst(coreVersion, gitUrl, cloneDir);
                 } catch (PluginCompatibilityTesterException e) {
                     lastException = throwOrAddSuppressed(lastException, e, config.isFailFast());
                     LOGGER.log(
                             Level.SEVERE,
                             String.format(
-                                    "Internal error while executing a test for core %s and plugin %s at version %s.",
-                                    coreVersion, plugin.getName(), plugin.getVersion()),
+                                    "Internal error while executing a test for core %s and repository %s.",
+                                    coreVersion, gitUrl),
                             e);
                 }
             }
@@ -179,19 +193,30 @@ public class PluginCompatTester {
     private static File createBuildLogFile(File workDirectory, Plugin plugin, String coreVersion) {
         File f = new File(workDirectory.getAbsolutePath()
                 + File.separator
-                + createBuildLogFilePathFor(plugin.getPluginId(), plugin.getVersion(), coreVersion));
-        try {
-            Files.createDirectories(f.getParentFile().toPath());
-            Files.deleteIfExists(f.toPath());
-            Files.createFile(f.toPath());
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to create build log file", e);
-        }
+                + String.format(
+                        "logs/%s/v%s_against_core_version_%s.log",
+                        plugin.getPluginId(), plugin.getVersion(), coreVersion));
+        createBuildLogFile(f);
         return f;
     }
 
-    private static String createBuildLogFilePathFor(String pluginId, String pluginVersion, String coreVersion) {
-        return String.format("logs/%s/v%s_against_core_version_%s.log", pluginId, pluginVersion, coreVersion);
+    private static File createBuildLogFile(File workDirectory, String gitUrl, String coreVersion)
+            throws PluginSourcesUnavailableException {
+        File f = new File(workDirectory.getAbsolutePath()
+                + File.separator
+                + String.format("logs/%s/core_version_%s.log", getRepoNameFromGitUrl(gitUrl), coreVersion));
+        createBuildLogFile(f);
+        return f;
+    }
+
+    private static void createBuildLogFile(File buildLogFile) {
+        try {
+            Files.createDirectories(buildLogFile.getParentFile().toPath());
+            Files.deleteIfExists(buildLogFile.toPath());
+            Files.createFile(buildLogFile.toPath());
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to create build log file", e);
+        }
     }
 
     private void testPluginAgainst(String coreVersion, Plugin plugin, File cloneLocation, PluginCompatTesterHooks pcth)
@@ -279,6 +304,64 @@ public class PluginCompatTester {
                 Collections.unmodifiableMap(properties),
                 cloneLocation,
                 plugin.getModule(),
+                buildLogFile,
+                args.toArray(new String[0]));
+    }
+
+    private void testCompilationAgainst(String coreVersion, String gitUrl, File cloneLocation)
+            throws PluginCompatibilityTesterException {
+        LOGGER.log(
+                Level.INFO,
+                "\n\n\n\n\n\n"
+                        + "#############################################\n"
+                        + "#############################################\n"
+                        + "##\n"
+                        + "## Compiling {0} against core version {1}\n"
+                        + "##\n"
+                        + "#############################################\n"
+                        + "#############################################\n\n\n\n\n",
+                new Object[] {getRepoNameFromGitUrl(gitUrl), coreVersion});
+
+        File buildLogFile = createBuildLogFile(config.getWorkingDir(), gitUrl, coreVersion);
+
+        Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
+        properties.put("jenkins.version", coreVersion);
+        properties.put("checkstyle.skip", "true");
+        properties.put("enforcer.skip", "true");
+        properties.put("invoker.skip", "true");
+        properties.put("maven.javadoc.skip", "true");
+        properties.put("maven.site.skip", "true");
+        properties.put("skip.bower", "true");
+        properties.put("skip.bun", "true");
+        properties.put("skip.corepack", "true");
+        properties.put("skip.ember", "true");
+        properties.put("skip.grunt", "true");
+        properties.put("skip.gulp", "true");
+        properties.put("skip.installbun", "true");
+        properties.put("skip.installnodecorepack", "true");
+        properties.put("skip.installnodenpm", "true");
+        properties.put("skip.installnodepnpm", "true");
+        properties.put("skip.installyarn", "true");
+        properties.put("skip.jspm", "true");
+        properties.put("skip.karma", "true");
+        properties.put("skip.npm", "true");
+        properties.put("skip.npx", "true");
+        properties.put("skip.pnpm", "true");
+        properties.put("skip.webpack", "true");
+        properties.put("skip.yarn", "true");
+        properties.put("skipTests", "true");
+        properties.put("spotbugs.skip", "true");
+        properties.put("spotless.check.skip", "true");
+        properties.put("tidy.skip", "true");
+
+        List<String> args = new ArrayList<>();
+        args.add("clean");
+        args.add("verify");
+
+        runner.run(
+                Collections.unmodifiableMap(properties),
+                cloneLocation,
+                null,
                 buildLogFile,
                 args.toArray(new String[0]));
     }

@@ -91,6 +91,9 @@ public class PluginCompatTesterConfig {
     @CheckForNull
     private File localCheckoutDir;
 
+    // Only test that plugins can be compiled against the provided core.
+    private boolean compileOnly;
+
     // If multiple plugins are specified, fail the overall run after the first plugin failure occurs
     // rather than continuing to test other plugins.
     private boolean failFast;
@@ -198,6 +201,14 @@ public class PluginCompatTesterConfig {
 
     public void setLocalCheckoutDir(@CheckForNull File localCheckoutDir) {
         this.localCheckoutDir = localCheckoutDir;
+    }
+
+    public boolean isCompileOnly() {
+        return compileOnly;
+    }
+
+    public void setCompileOnly(boolean compileOnly) {
+        this.compileOnly = compileOnly;
     }
 
     public boolean isFailFast() {
