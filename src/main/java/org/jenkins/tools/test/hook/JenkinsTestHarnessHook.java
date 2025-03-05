@@ -19,6 +19,10 @@ import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
 import org.kohsuke.MetaInfServices;
 
+/**
+ * @deprecated use {@link JenkinsTestHarnessHook2}
+ */
+@Deprecated
 @MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
 public class JenkinsTestHarnessHook extends PluginCompatTesterHookBeforeExecution {
     public static final String VERSION_WITH_WEB_FRAGMENTS = "2386.v82359624ea_05";
@@ -127,6 +131,9 @@ public class JenkinsTestHarnessHook extends PluginCompatTesterHookBeforeExecutio
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
+        if (JenkinsTestHarnessHook2.isEnabled()) {
+            return false;
+        }
         var winstoneVersion = getWinstoneVersion(context.getConfig().getWar());
         if (winstoneVersion.getDigitAt(0) < 7) {
             // Don't upgrade anything if winstone version is too old.
