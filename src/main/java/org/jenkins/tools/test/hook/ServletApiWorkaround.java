@@ -36,6 +36,9 @@ public class ServletApiWorkaround extends PluginCompatTesterHookBeforeExecution 
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
+        if (JenkinsTestHarnessHook2.isEnabled()) {
+            return false;
+        }
         PluginCompatTesterConfig config = context.getConfig();
         MavenRunner runner =
                 new ExternalMavenRunner(config.getExternalMaven(), config.getMavenSettings(), config.getMavenArgs());

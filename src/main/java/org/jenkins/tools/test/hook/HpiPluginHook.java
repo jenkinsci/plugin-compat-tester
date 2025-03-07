@@ -20,7 +20,10 @@ public class HpiPluginHook extends PropertyVersionHook {
     }
 
     @Override
-    public String getMinimumVersion() {
-        return "3.44";
+    public String getDefaultMinimumVersion() {
+        if (!JenkinsTestHarnessHook2.isEnabled()) {
+            return "3.44";
+        }
+        return "3.61";
     }
 }
