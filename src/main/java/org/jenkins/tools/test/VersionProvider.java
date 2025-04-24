@@ -1,6 +1,5 @@
 package org.jenkins.tools.test;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.jar.Attributes;
@@ -16,10 +15,6 @@ public class VersionProvider implements CommandLine.IVersionProvider {
         return new String[] {getPctVersionString(), getJavaVersionString()};
     }
 
-    @SuppressFBWarnings(
-            value = {"NP_LOAD_OF_KNOWN_NULL_VALUE", "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE"},
-            justification =
-                    "SpotBugs false positive due to try-with-resources / https://github.com/spotbugs/spotbugs/issues/2191")
     private static String getPctVersionString() {
         StringBuilder sb = new StringBuilder("Plugin Compatibility Tester ");
         try (InputStream manifestStream = VersionProvider.class.getResourceAsStream("/META-INF/MANIFEST.MF")) {
