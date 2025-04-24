@@ -27,7 +27,7 @@
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/plugin-compat-tester</gitHubRepo>
     <jenkins.version>2.502</jenkins.version>
-    <picocli.version>4.7.6</picocli.version>
+    <picocli.version>4.7.7</picocli.version>
     <spotbugs.effort>Max</spotbugs.effort>
     <spotless.check.skip>false</spotless.check.skip>
     <argLine />
