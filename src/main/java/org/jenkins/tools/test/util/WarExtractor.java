@@ -108,7 +108,7 @@ public class WarExtractor {
                 return false;
             }
             if (includedPlugins != null && !includedPlugins.isEmpty() && !includedPlugins.contains(pluginId)) {
-                LOGGER.log(Level.INFO, "Plugin {0} not in included plugins; skipping", pluginId);
+                LOGGER.fine(() -> "Plugin " + pluginId + " not in included plugins; skipping");
                 return false;
             }
             return true;
