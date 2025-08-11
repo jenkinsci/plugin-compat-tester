@@ -380,14 +380,7 @@ public class PluginCompatTester {
         Map<String, String> properties = new LinkedHashMap<>();
 
         // Initial Compile
-        gradleRunner.run(
-                properties,
-                cloneLocation,
-                plugin.getModule(),
-                buildLogFile,
-                "clean",
-                "compileKotlin",
-                "compileKotlinTest");
+        gradleRunner.run(properties, cloneLocation, plugin.getModule(), buildLogFile, "compileTestKotlin");
 
         List<String> tasks = new ArrayList<>();
 
