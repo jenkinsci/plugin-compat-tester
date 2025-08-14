@@ -2,11 +2,7 @@ package org.jenkins.tools.test.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.VersionNumber;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +19,8 @@ import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
+import org.jenkins.tools.test.util.BuildSystem;
+import org.jenkins.tools.test.util.BuildSystemUtils;
 import org.kohsuke.MetaInfServices;
 
 /**
@@ -36,7 +34,9 @@ public class ServletApiWorkaround extends PluginCompatTesterHookBeforeExecution 
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
-        if (JenkinsTestHarnessHook2.isEnabled()) {
+        if (JenkinsTestHarnessHook2.isEnabled()
+                || BuildSystemUtils.detectBuildSystem(context.getCloneDirectory())
+                        .equals(BuildSystem.GRADLE)) {
             return false;
         }
         PluginCompatTesterConfig config = context.getConfig();

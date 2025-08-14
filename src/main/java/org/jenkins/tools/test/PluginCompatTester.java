@@ -51,9 +51,7 @@ import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.model.plugin_metadata.LocalCheckoutPluginMetadataExtractor;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
-import org.jenkins.tools.test.util.ServiceHelper;
-import org.jenkins.tools.test.util.StreamGobbler;
-import org.jenkins.tools.test.util.WarExtractor;
+import org.jenkins.tools.test.util.*;
 
 /**
  * Frontend for plugin compatibility tests
@@ -78,21 +76,6 @@ public class PluginCompatTester {
         this.config = config;
         runner = new ExternalMavenRunner(config);
         gradleRunner = new ExternalGradleRunner(config);
-    }
-
-    public enum BuildSystem {
-        MAVEN("pom.xml"),
-        GRADLE("build.gradle", "build.gradle.kts");
-
-        private final String[] buildFiles;
-
-        BuildSystem(String... buildFiles) {
-            this.buildFiles = buildFiles;
-        }
-
-        public String[] getBuildFiles() {
-            return buildFiles;
-        }
     }
 
     @SuppressFBWarnings(
@@ -168,7 +151,7 @@ public class PluginCompatTester {
                 }
             }
 
-            BuildSystem buildSystem = detectBuildSystem(cloneDir);
+            BuildSystem buildSystem = BuildSystemUtils.detectBuildSystem(cloneDir);
             LOGGER.log(Level.INFO, "Detected build system: {0} for repository {1}", new Object[] {buildSystem, gitUrl});
 
             if (!config.isCompileOnly()) {
@@ -202,41 +185,6 @@ public class PluginCompatTester {
         }
         if (lastException != null) {
             throw lastException;
-        }
-    }
-
-    private BuildSystem detectBuildSystem(File cloneDir) {
-        for (String gradleBuildFile : BuildSystem.GRADLE.getBuildFiles()) {
-            File buildFile = new File(cloneDir, gradleBuildFile);
-            if (buildFile.exists() && isGradleJenkinsPlugin(buildFile)) {
-                return BuildSystem.GRADLE;
-            }
-        }
-
-        for (String gradleBuildFile : BuildSystem.MAVEN.getBuildFiles()) {
-            File buildFile = new File(cloneDir, gradleBuildFile);
-            if (buildFile.exists()) {
-
-                return BuildSystem.MAVEN;
-            }
-        }
-
-        return BuildSystem.MAVEN;
-    }
-
-    private boolean isGradleJenkinsPlugin(File buildFile) {
-        try {
-            String content = Files.readString(buildFile.toPath());
-            if (content.contains("org.jenkins-ci.jpi")
-                    || content.contains("gradle-jpi-plugin")
-                    || content.contains("jenkinsPlugin")) {
-                return true;
-            }
-            return content.contains("io.github.aaravmahajanofficial.jenkins-gradle-convention-plugin")
-                    || content.contains("jenkinsConvention");
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Failed to read build file " + buildFile + e);
-            return false;
         }
     }
 
