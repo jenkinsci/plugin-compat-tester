@@ -6,16 +6,21 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.jenkins.tools.test.exception.GradleExecutionException;
 import org.jenkins.tools.test.exception.MetadataExtractionException;
 import org.jenkins.tools.test.exception.PomExecutionException;
+import org.jenkins.tools.test.gradle.ExternalGradleRunner;
 import org.jenkins.tools.test.maven.ExpressionEvaluator;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.util.BuildSystem;
+import org.jenkins.tools.test.util.BuildSystemUtils;
 
 public class LocalCheckoutPluginMetadataExtractor {
 
@@ -40,11 +45,11 @@ public class LocalCheckoutPluginMetadataExtractor {
         this.localCheckoutDir = getLocalCheckoutDir(config);
         this.config = config;
         this.runner = runner;
-        this.pomFile = resolvePomFile(localCheckoutDir);
+        this.pomFile = resolvePomFile(localCheckoutDir, config);
         this.isGradlePom = !pomFile.getName().equals("pom.xml");
     }
 
-    private static File resolvePomFile(File baseDir) {
+    private static File resolvePomFile(File baseDir, PluginCompatTesterConfig config) {
         File rootPom = new File(baseDir, "pom.xml");
         if (rootPom.exists()) {
             return rootPom;
@@ -54,6 +59,18 @@ public class LocalCheckoutPluginMetadataExtractor {
         if (gradlePom.exists()) {
             LOGGER.log(Level.INFO, "Using Gradle-generated POM: {0}", gradlePom.getPath());
             return gradlePom;
+        }
+
+        if (BuildSystemUtils.detectBuildSystem(baseDir) == BuildSystem.GRADLE) {
+            try {
+                new ExternalGradleRunner(config)
+                        .run(Map.of(), baseDir, null, null, "generatePomFileForMavenJpiPublication");
+                if (gradlePom.exists()) {
+                    return gradlePom;
+                }
+            } catch (GradleExecutionException e) {
+                throw new IllegalStateException("Failed to generate POM file for Gradle Project.", e);
+            }
         }
 
         throw new IllegalStateException(
