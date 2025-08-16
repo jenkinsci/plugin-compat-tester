@@ -13,14 +13,6 @@ public class BuildSystemUtils {
             }
         }
 
-        for (String gradleBuildFile : BuildSystem.MAVEN.getBuildFiles()) {
-            File buildFile = new File(cloneDir, gradleBuildFile);
-            if (buildFile.exists()) {
-
-                return BuildSystem.MAVEN;
-            }
-        }
-
         return BuildSystem.MAVEN;
     }
 }
