@@ -32,7 +32,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -51,7 +58,11 @@ import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.model.plugin_metadata.LocalCheckoutPluginMetadataExtractor;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
-import org.jenkins.tools.test.util.*;
+import org.jenkins.tools.test.util.BuildSystem;
+import org.jenkins.tools.test.util.BuildSystemUtils;
+import org.jenkins.tools.test.util.ServiceHelper;
+import org.jenkins.tools.test.util.StreamGobbler;
+import org.jenkins.tools.test.util.WarExtractor;
 
 /**
  * Frontend for plugin compatibility tests

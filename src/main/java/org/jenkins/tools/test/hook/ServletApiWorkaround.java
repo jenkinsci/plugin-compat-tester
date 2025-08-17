@@ -2,7 +2,11 @@ package org.jenkins.tools.test.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.util.VersionNumber;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;

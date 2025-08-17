@@ -139,7 +139,8 @@ public class PluginCompatTesterCli implements Callable<Integer> {
     @CheckForNull
     @CommandLine.Option(
             names = "--gradle",
-            description = "The path to the Gradle executable.",
+            description =
+                    "The path to the Gradle executable. If not specified, the system will use the Gradle available on the PATH by default.",
             converter = ExistingFileTypeConverter.class)
     private File externalGradle;
 
