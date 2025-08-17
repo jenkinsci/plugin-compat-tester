@@ -17,6 +17,8 @@ import org.jenkins.tools.test.maven.ExpressionEvaluator;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
+import org.jenkins.tools.test.util.BuildSystem;
+import org.jenkins.tools.test.util.BuildSystemUtils;
 import org.kohsuke.MetaInfServices;
 
 /**
@@ -131,7 +133,9 @@ public class JenkinsTestHarnessHook extends PluginCompatTesterHookBeforeExecutio
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
-        if (JenkinsTestHarnessHook2.isEnabled()) {
+        if (JenkinsTestHarnessHook2.isEnabled()
+                || BuildSystemUtils.detectBuildSystem(context.getCloneDirectory())
+                        .equals(BuildSystem.GRADLE)) {
             return false;
         }
         var winstoneVersion = getWinstoneVersion(context.getConfig().getWar());
