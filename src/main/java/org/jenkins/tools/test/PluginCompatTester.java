@@ -355,9 +355,8 @@ public class PluginCompatTester {
         pcth.runBeforeExecution(forExecutionHooks);
 
         properties = new LinkedHashMap<>(config.getGradleSystemProperties());
-        properties.put("cfg.plg.jenkinsVersion", coreVersion);
-        properties.put("jenkins.version", coreVersion);
         properties.put("jenkinsVersion", coreVersion);
+        properties.put("jenkins.version", coreVersion);
 
         gradleRunner.run(
                 Collections.unmodifiableMap(properties),
@@ -438,23 +437,10 @@ public class PluginCompatTester {
             throws PluginCompatibilityTesterException {
         Map<String, String> properties = new LinkedHashMap<>(config.getGradleSystemProperties());
 
-        properties.put("cfg.plg.jenkinsVersion", coreVersion);
         properties.put("jenkins.version", coreVersion);
         properties.put("jenkinsVersion", coreVersion);
 
-        properties.putIfAbsent("cfg.quality.checkstyle.enabled", "false");
-        properties.putIfAbsent("cfg.quality.spotbugs.enabled", "false");
-        properties.putIfAbsent("cfg.quality.pmd.enabled", "false");
-        properties.putIfAbsent("cfg.quality.detekt.enabled", "false");
-        properties.putIfAbsent("cfg.quality.spotless.enabled", "false");
-        properties.putIfAbsent("cfg.quality.owasp.enabled", "false");
-        properties.putIfAbsent("cfg.quality.pitest.enabled", "false");
-        properties.putIfAbsent("cfg.quality.kover.enabled", "false");
-        properties.putIfAbsent("cfg.quality.eslint.enabled", "false");
-        properties.putIfAbsent("cfg.quality.dokka.enabled", "false");
-        properties.putIfAbsent("cfg.quality.codenarc.enabled", "false");
-        properties.putIfAbsent("cfg.quality.cpd.enabled", "false");
-        properties.putIfAbsent("cfg.quality.jacoco.enabled", "false");
+        properties.putIfAbsent("quality.enabled", "false");
 
         List<String> tasks = new ArrayList<>();
         tasks.add("clean");
