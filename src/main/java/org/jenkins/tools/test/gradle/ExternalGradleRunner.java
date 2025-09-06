@@ -53,18 +53,11 @@ public class ExternalGradleRunner implements GradleRunner {
 
         List<String> cmd = new ArrayList<>();
 
-        File gradleWrapper = new File(baseDirectory, SystemUtils.IS_OS_WINDOWS ? "gradlew.bat" : "gradlew");
         if (externalGradle != null) {
             cmd.add(externalGradle.getAbsolutePath());
-        } else if (gradleWrapper.exists() && gradleWrapper.canExecute()) {
-            cmd.add(gradleWrapper.getAbsolutePath());
         } else {
-            cmd.add("gradle");
+            cmd.add(SystemUtils.IS_OS_WINDOWS ? "gradle.bat" : "gradle");
         }
-
-        cmd.add("--console=plain");
-        cmd.add("--stacktrace");
-        cmd.add("--info");
 
         if (gradleProperties != null && gradleProperties.exists()) {
             cmd.add("-P");
