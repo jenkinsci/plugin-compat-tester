@@ -4,19 +4,9 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.Reader;
 import java.io.UncheckedIOException;
-import java.io.Writer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +15,7 @@ import java.util.logging.Logger;
 import org.apache.commons.lang.SystemUtils;
 import org.jenkins.tools.test.exception.GradleExecutionException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
+import org.jenkins.tools.test.util.ProcessOutputGobbler;
 
 public class ExternalGradleRunner implements GradleRunner {
 
@@ -122,37 +113,9 @@ public class ExternalGradleRunner implements GradleRunner {
         }
     }
 
-    private static class GradleGobbler extends Thread {
-
-        @NonNull
-        private final Process p;
-
-        @CheckForNull
-        private final File buildLogFile;
-
-        public GradleGobbler(@NonNull Process p, @Nullable File buildLogFile) {
-            this.p = p;
-            this.buildLogFile = buildLogFile;
-        }
-
-        @Override
-        public void run() {
-            try (InputStream is = p.getInputStream();
-                    Reader isr = new InputStreamReader(is, Charset.defaultCharset());
-                    BufferedReader r = new BufferedReader(isr);
-                    OutputStream os = buildLogFile == null
-                            ? OutputStream.nullOutputStream()
-                            : new FileOutputStream(buildLogFile, true);
-                    Writer osw = new OutputStreamWriter(os, Charset.defaultCharset());
-                    PrintWriter w = new PrintWriter(osw)) {
-                String line;
-                while ((line = r.readLine()) != null) {
-                    System.out.println(line);
-                    w.println(line);
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+    private static class GradleGobbler extends ProcessOutputGobbler {
+        public GradleGobbler(@NonNull Process p, @CheckForNull File buildLogFile) {
+            super(p, buildLogFile);
         }
     }
 }
