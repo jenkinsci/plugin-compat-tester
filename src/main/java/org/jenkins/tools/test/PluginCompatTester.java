@@ -254,7 +254,7 @@ public class PluginCompatTester {
                 new BeforeCompilationContext(coreVersion, plugin, config, cloneLocation);
         pcth.runBeforeCompilation(beforeCompile);
 
-        if (buildSystem == BuildSystem.GRADLE) {
+        if (buildSystem == BuildSystem.GRADLE_BUILD_TOOL) {
             testGradlePluginAgainst(coreVersion, plugin, cloneLocation, pcth, buildLogFile);
         } else {
             testMavenPluginAgainst(coreVersion, plugin, cloneLocation, pcth, buildLogFile);
@@ -382,7 +382,7 @@ public class PluginCompatTester {
 
         File buildLogFile = createBuildLogFile(config.getWorkingDir(), gitUrl, coreVersion);
 
-        if (buildSystem == BuildSystem.GRADLE) {
+        if (buildSystem == BuildSystem.GRADLE_BUILD_TOOL) {
             testGradleCompilationAgainst(coreVersion, cloneLocation, buildLogFile);
         } else {
             testMavenCompilationAgainst(coreVersion, cloneLocation, buildLogFile);

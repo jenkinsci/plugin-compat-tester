@@ -135,7 +135,7 @@ public class JenkinsTestHarnessHook extends PluginCompatTesterHookBeforeExecutio
     public boolean check(@NonNull BeforeExecutionContext context) {
         if (JenkinsTestHarnessHook2.isEnabled()
                 || BuildSystemUtils.detectBuildSystem(context.getCloneDirectory())
-                        .equals(BuildSystem.GRADLE)) {
+                        .equals(BuildSystem.GRADLE_BUILD_TOOL)) {
             return false;
         }
         var winstoneVersion = getWinstoneVersion(context.getConfig().getWar());

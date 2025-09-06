@@ -36,47 +36,17 @@ public class LocalCheckoutPluginMetadataExtractor {
     @NonNull
     private final MavenRunner runner;
 
-    @NonNull
-    private final File pomFile;
+    private enum PomInfo {
+        MAVEN_POM,
+        GRADLE_POM
+    }
 
-    private final Boolean isGradlePom;
+    private record PomFile(File file, PomInfo type) {}
 
     public LocalCheckoutPluginMetadataExtractor(@NonNull PluginCompatTesterConfig config, @NonNull MavenRunner runner) {
         this.localCheckoutDir = getLocalCheckoutDir(config);
         this.config = config;
         this.runner = runner;
-        this.pomFile = resolvePomFile(localCheckoutDir, config);
-        this.isGradlePom = !pomFile.getName().equals("pom.xml");
-    }
-
-    private static File resolvePomFile(File baseDir, PluginCompatTesterConfig config) {
-        File rootPom = new File(baseDir, "pom.xml");
-        if (rootPom.exists()) {
-            return rootPom;
-        }
-
-        File gradlePom = new File(baseDir, GRADLE_POM_PATH);
-        if (gradlePom.exists()) {
-            LOGGER.log(Level.INFO, "Using Gradle-generated POM: {0}", gradlePom.getPath());
-            return gradlePom;
-        }
-
-        if (BuildSystemUtils.detectBuildSystem(baseDir) == BuildSystem.GRADLE) {
-            try {
-                new ExternalGradleRunner(config)
-                        .run(Map.of(), baseDir, null, null, "generatePomFileForMavenJpiPublication");
-                if (gradlePom.exists()) {
-                    return gradlePom;
-                }
-            } catch (GradleExecutionException e) {
-                throw new IllegalStateException("Failed to generate POM file for Gradle Project.", e);
-            }
-        }
-
-        throw new IllegalStateException(
-                "Could not find a Maven POM file. Please ensure either pom.xml exists at the root "
-                        + "or, for Gradle plugins, that '" + GRADLE_POM_PATH + "' exists. "
-                        + "If this is a Gradle project, run 'gradlew generatePomFileForMavenJpiPublication' first.");
     }
 
     @NonNull
@@ -89,22 +59,17 @@ public class LocalCheckoutPluginMetadataExtractor {
     }
 
     public List<Plugin> extractMetadata() throws MetadataExtractionException, PomExecutionException {
+        File pomFile = resolvePomFileOrGenerate().file;
+        boolean isGradlePom = resolvePomFileOrGenerate().type == PomInfo.GRADLE_POM;
+
         List<Plugin> plugins = new ArrayList<>();
         if (isGradlePom) {
-            Plugin plugin = getPluginFromGradlePom();
+            Plugin plugin = getPluginFromGradlePom(pomFile);
             if (plugin == null) {
                 throw new MetadataExtractionException(
                         "Could not extract plugin metadata from Gradle POM at:" + pomFile);
             }
-            if (config.getExcludePlugins() != null && config.getExcludePlugins().contains(plugin.getPluginId())) {
-                LOGGER.log(Level.INFO, "Plugin {0} in excluded plugins; skipping", plugin.getPluginId());
-            } else if (config.getIncludePlugins() != null
-                    && !config.getIncludePlugins().isEmpty()
-                    && !config.getIncludePlugins().contains(plugin.getPluginId())) {
-                LOGGER.log(Level.INFO, "Plugin {0} not in included plugins; skipping", plugin.getPluginId());
-            } else {
-                plugins.add(plugin);
-            }
+            shouldAddPlugin(plugins, plugin);
         } else {
             List<String> modules = new ArrayList<>();
             modules.add(null); // Root module
@@ -114,16 +79,7 @@ public class LocalCheckoutPluginMetadataExtractor {
                 if (plugin == null) {
                     continue;
                 }
-                if (config.getExcludePlugins() != null
-                        && config.getExcludePlugins().contains(plugin.getPluginId())) {
-                    LOGGER.log(Level.INFO, "Plugin {0} in excluded plugins; skipping", plugin.getPluginId());
-                } else if (config.getIncludePlugins() != null
-                        && !config.getIncludePlugins().isEmpty()
-                        && !config.getIncludePlugins().contains(plugin.getPluginId())) {
-                    LOGGER.log(Level.INFO, "Plugin {0} not in included plugins; skipping", plugin.getPluginId());
-                } else {
-                    plugins.add(plugin);
-                }
+                shouldAddPlugin(plugins, plugin);
             }
         }
 
@@ -134,7 +90,45 @@ public class LocalCheckoutPluginMetadataExtractor {
         return List.copyOf(plugins);
     }
 
-    private Plugin getPluginFromGradlePom() throws MetadataExtractionException {
+    private void shouldAddPlugin(List<Plugin> plugins, Plugin plugin) {
+        if (config.getExcludePlugins().contains(plugin.getPluginId())) {
+            LOGGER.log(Level.INFO, "Plugin {0} in excluded plugins; skipping", plugin.getPluginId());
+        } else if (!config.getIncludePlugins().isEmpty()
+                && !config.getIncludePlugins().contains(plugin.getPluginId())) {
+            LOGGER.log(Level.INFO, "Plugin {0} not in included plugins; skipping", plugin.getPluginId());
+        } else {
+            plugins.add(plugin);
+        }
+    }
+
+    @NonNull
+    private PomFile resolvePomFileOrGenerate() throws MetadataExtractionException {
+        File rootPom = new File(localCheckoutDir, "pom.xml");
+        if (rootPom.exists()) {
+            return new PomFile(rootPom, PomInfo.MAVEN_POM);
+        }
+
+        File gradlePom = new File(localCheckoutDir, GRADLE_POM_PATH);
+
+        if (BuildSystemUtils.detectBuildSystem(localCheckoutDir) == BuildSystem.GRADLE_BUILD_TOOL) {
+            try {
+                new ExternalGradleRunner(config)
+                        .run(Map.of(), localCheckoutDir, null, null, "generatePomFileForMavenJpiPublication");
+                if (gradlePom.exists()) {
+                    return new PomFile(gradlePom, PomInfo.GRADLE_POM);
+                }
+            } catch (GradleExecutionException e) {
+                throw new MetadataExtractionException("Failed to generate POM file for Gradle Project.", e);
+            }
+        }
+
+        throw new MetadataExtractionException(
+                "Could not find a Maven POM file. Please ensure either pom.xml exists at the root "
+                        + "or, for Gradle plugins, that '" + GRADLE_POM_PATH + "' exists. "
+                        + "If this is a Gradle project, run 'gradlew generatePomFileForMavenJpiPublication' first.");
+    }
+
+    private Plugin getPluginFromGradlePom(@NonNull File pomFile) throws MetadataExtractionException {
         try {
             SAXReader reader = new SAXReader();
             Document doc = reader.read(pomFile);

@@ -2,7 +2,7 @@ package org.jenkins.tools.test.util;
 
 public enum BuildSystem {
     MAVEN("pom.xml"),
-    GRADLE("build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts");
+    GRADLE_BUILD_TOOL("build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts");
 
     private final String[] buildFiles;
 

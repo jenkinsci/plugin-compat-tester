@@ -39,7 +39,7 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
-        if (BuildSystemUtils.detectBuildSystem(context.getCloneDirectory()).equals(BuildSystem.GRADLE)) {
+        if (BuildSystemUtils.detectBuildSystem(context.getCloneDirectory()).equals(BuildSystem.GRADLE_BUILD_TOOL)) {
             return false;
         }
         MavenRunner runner = new ExternalMavenRunner(context.getConfig());
