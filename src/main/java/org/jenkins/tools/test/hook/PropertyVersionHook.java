@@ -11,6 +11,8 @@ import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
+import org.jenkins.tools.test.util.BuildSystem;
+import org.jenkins.tools.test.util.BuildSystemUtils;
 
 /**
  * A generic class for ensuring that a property-versioned dependency is at a certain minimum
@@ -37,6 +39,9 @@ public abstract class PropertyVersionHook extends PluginCompatTesterHookBeforeEx
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
+        if (BuildSystemUtils.detectBuildSystem(context.getCloneDirectory()).equals(BuildSystem.GRADLE)) {
+            return false;
+        }
         MavenRunner runner = new ExternalMavenRunner(context.getConfig());
         ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(
                 context.getCloneDirectory(), context.getPlugin().getModule(), runner);
