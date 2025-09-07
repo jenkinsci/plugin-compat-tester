@@ -147,7 +147,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
     @CheckForNull
     @CommandLine.Option(
             names = "--gradle-properties",
-            description = "Path to gradle.properties file to use when executing Gradle.",
+            description = "Path to a gradle.properties file to supply Gradle configuration when executing tasks.",
             converter = ExistingFileTypeConverter.class)
     private File gradleProperties;
 
@@ -155,7 +155,7 @@ public class PluginCompatTesterCli implements Callable<Integer> {
     @CommandLine.Option(
             names = {"-P", "--gradle-property"},
             description =
-                    "Define a system property to be passed to Gradle when running tests (using -D flag). These will be passed to Gradle both during compilation and when running tests.")
+                    "Define a Gradle project property (-Pkey=value). These properties will be passed to Gradle both during compilation and when running tests.")
     private Map<String, String> gradleSystemProperties;
 
     @CheckForNull
