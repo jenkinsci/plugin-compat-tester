@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.139</version>
+    <version>1.140</version>
     <relativePath />
   </parent>
 
@@ -285,7 +285,6 @@
             <MAVEN_OPTS>-Xmx256m -XX:+TieredCompilation -XX:TieredStopAtLevel=1</MAVEN_OPTS>
           </environmentVariables>
           <reuseForks>false</reuseForks>
-          <runOrder>alphabetical</runOrder>
         </configuration>
       </plugin>
     </plugins>
