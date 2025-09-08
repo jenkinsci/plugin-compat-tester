@@ -285,7 +285,6 @@
             <MAVEN_OPTS>-Xmx256m -XX:+TieredCompilation -XX:TieredStopAtLevel=1</MAVEN_OPTS>
           </environmentVariables>
           <reuseForks>false</reuseForks>
-          <runOrder>alphabetical</runOrder>
         </configuration>
       </plugin>
     </plugins>
