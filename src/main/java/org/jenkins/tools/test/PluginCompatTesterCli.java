@@ -138,6 +138,47 @@ public class PluginCompatTesterCli implements Callable<Integer> {
 
     @CheckForNull
     @CommandLine.Option(
+            names = "--gradle",
+            description =
+                    "The path to the Gradle executable. If not specified, the system will use the Gradle available on the PATH by default.",
+            converter = ExistingFileTypeConverter.class)
+    private File externalGradle;
+
+    @CheckForNull
+    @CommandLine.Option(
+            names = "--gradle-properties",
+            description = "Path to a gradle.properties file to supply Gradle configuration when executing tasks.",
+            converter = ExistingFileTypeConverter.class)
+    private File gradleProperties;
+
+    @CheckForNull
+    @CommandLine.Option(
+            names = {"-P", "--gradle-property"},
+            description =
+                    "Define a Gradle project property (-Pkey=value). These properties will be passed to Gradle both during compilation and when running tests.")
+    private Map<String, String> gradleSystemProperties;
+
+    @CheckForNull
+    @CommandLine.Option(
+            names = "--gradle-args",
+            split = ",",
+            arity = "1",
+            paramLabel = "arg",
+            description =
+                    "Comma-separated list of arguments to pass to Gradle (like --parallel, --build-cache). These arguments will be passed to Gradle both during compilation and when running tests.")
+    private List<String> gradleArgs;
+
+    @CheckForNull
+    @CommandLine.Option(
+            names = "--gradle-tasks",
+            split = ",",
+            arity = "1",
+            paramLabel = "task",
+            description = "Comma-separated list of Gradle tasks to execute for testing Jenkins plugins.")
+    private List<String> gradleTasks;
+
+    @CheckForNull
+    @CommandLine.Option(
             names = "--external-hooks-jars",
             split = ",",
             arity = "1",
@@ -198,6 +239,22 @@ public class PluginCompatTesterCli implements Callable<Integer> {
         if (mavenArgs != null) {
             config.setMavenArgs(mavenArgs);
         }
+
+        config.setExternalGradle(externalGradle);
+        config.setGradleProperties(gradleProperties);
+
+        if (gradleSystemProperties != null) {
+            config.setGradleSystemProperties(gradleSystemProperties);
+        }
+
+        if (gradleArgs != null) {
+            config.setGradleArgs(gradleArgs);
+        }
+
+        if (gradleTasks != null) {
+            config.setGradleTasks(gradleTasks);
+        }
+
         if (externalHooksJars != null) {
             config.setExternalHooksJars(externalHooksJars);
         }
