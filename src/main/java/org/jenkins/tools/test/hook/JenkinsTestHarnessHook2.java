@@ -30,7 +30,7 @@ public class JenkinsTestHarnessHook2 extends PropertyVersionHook {
 
     @Override
     public String getDefaultMinimumVersion() {
-        return "2386.v82359624ea_05";
+        return "2438.v25a_85fb_0328f";
     }
 
     @Override
