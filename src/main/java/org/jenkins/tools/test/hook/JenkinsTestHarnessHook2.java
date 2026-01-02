@@ -1,15 +1,15 @@
 package org.jenkins.tools.test.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
+import org.jenkins.tools.test.model.hook.BeforeCompilationContext;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.kohsuke.MetaInfServices;
 
 /**
  * Recent core versions require a relatively recent Jenkins Test Harness, so ensure that a minimum
  * supported version is in place.
  */
-@MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
+@MetaInfServices(PluginCompatTesterHookBeforeCompile.class)
 public class JenkinsTestHarnessHook2 extends PropertyVersionHook {
 
     public static boolean isEnabled() {
@@ -34,7 +34,7 @@ public class JenkinsTestHarnessHook2 extends PropertyVersionHook {
     }
 
     @Override
-    public boolean check(@NonNull BeforeExecutionContext context) {
+    public boolean check(@NonNull BeforeCompilationContext context) {
         if (!isEnabled()) {
             return false;
         }
@@ -42,7 +42,7 @@ public class JenkinsTestHarnessHook2 extends PropertyVersionHook {
     }
 
     @Override
-    public void action(@NonNull BeforeExecutionContext context) {
+    public void action(@NonNull BeforeCompilationContext context) {
         super.action(context);
         /*
          * The version of JUnit 5 used at runtime must match the version of JUnit 5 used to compile the tests, but the

@@ -1,6 +1,6 @@
 package org.jenkins.tools.test.hook;
 
-import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
+import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeCompile;
 import org.kohsuke.MetaInfServices;
 
 /**
@@ -11,7 +11,7 @@ import org.kohsuke.MetaInfServices;
  * the managed set are using a plugin parent POM with HPI Plugin 3.44 or later (i.e., plugin parent
  * POM 4.63 or later), this can be deleted.
  */
-@MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
+@MetaInfServices(PluginCompatTesterHookBeforeCompile.class)
 public class HpiPluginHook extends PropertyVersionHook {
 
     @Override

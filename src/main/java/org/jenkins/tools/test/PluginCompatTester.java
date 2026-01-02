@@ -244,8 +244,14 @@ public class PluginCompatTester {
         // (which we do not care about for this purpose); and ensures that we are testing a
         // plugin binary as close as possible to what was actually released. We also skip
         // potential javadoc execution to avoid general test failure.
+        Map<String, String> properties =
+                new LinkedHashMap<>(beforeCompile.getConfig().getMavenProperties());
+        if (!beforeCompile.getUpperBoundsExcludes().isEmpty()) {
+            properties.put(
+                    "upperBoundsExcludes",
+                    beforeCompile.getUpperBoundsExcludes().stream().collect(Collectors.joining(",")));
+        }
 
-        Map<String, String> properties = new LinkedHashMap<>();
         properties.put("maven.javadoc.skip", "true");
 
         /*
