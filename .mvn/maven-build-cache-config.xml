@@ -1,0 +1,33 @@
+<cache xmlns="http://maven.apache.org/BUILD-CACHE-CONFIG/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://maven.apache.org/BUILD-CACHE-CONFIG/1.0.0 https://maven.apache.org/xsd/build-cache-config-1.0.0.xsd">
+    <configuration>
+        <enabled>true</enabled>
+        <!-- activated via cli -->
+        <!-- to disable it just use -Dmaven.build.cache.enabled=false -->
+    </configuration>
+    <input>
+        <global>
+            <glob>{*.java,*.xml,*.properties,*.mod,*.adoc}</glob>
+            <excludes>
+                <exclude>*Jenkinsfile*</exclude>
+                <exclude>./idea/*</exclude>
+            </excludes>
+        </global>
+    </input>
+    <executionControl>
+        <runAlways>
+            <goalsLists>
+                <goalsList artifactId="maven-install-plugin">
+                    <goals>
+                        <goal>install</goal>
+                    </goals>
+                </goalsList>
+                <goalsList artifactId="maven-deploy-plugin">
+                    <goals>
+                        <goal>deploy</goal>
+                    </goals>
+                </goalsList>
+            </goalsLists>
+        </runAlways>
+    </executionControl>
+</cache>
