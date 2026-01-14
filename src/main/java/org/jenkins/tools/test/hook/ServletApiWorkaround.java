@@ -23,6 +23,8 @@ import org.jenkins.tools.test.maven.MavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHookBeforeExecution;
+import org.jenkins.tools.test.util.BuildSystem;
+import org.jenkins.tools.test.util.BuildSystemUtils;
 import org.kohsuke.MetaInfServices;
 
 /**
@@ -36,7 +38,9 @@ public class ServletApiWorkaround extends PluginCompatTesterHookBeforeExecution 
 
     @Override
     public boolean check(@NonNull BeforeExecutionContext context) {
-        if (JenkinsTestHarnessHook2.isEnabled()) {
+        if (JenkinsTestHarnessHook2.isEnabled()
+                || BuildSystemUtils.detectBuildSystem(context.getCloneDirectory())
+                        .equals(BuildSystem.GRADLE_BUILD_TOOL)) {
             return false;
         }
         PluginCompatTesterConfig config = context.getConfig();
