@@ -83,6 +83,21 @@ public class PluginCompatTesterConfig {
     @NonNull
     private List<String> mavenArgs = List.of();
 
+    @CheckForNull
+    private File externalGradle;
+
+    @CheckForNull
+    private File gradleProperties;
+
+    @NonNull
+    private Map<String, String> gradleSystemProperties = Map.of();
+
+    @NonNull
+    private List<String> gradleArgs = List.of();
+
+    @NonNull
+    private List<String> gradleTasks = List.of();
+
     // External hooks jar files path locations
     @NonNull
     private Set<File> externalHooksJars = Set.of();
@@ -183,6 +198,52 @@ public class PluginCompatTesterConfig {
 
     public void setMavenArgs(@NonNull List<String> mavenArgs) {
         this.mavenArgs = List.copyOf(mavenArgs);
+    }
+
+    @CheckForNull
+    public File getExternalGradle() {
+        return externalGradle;
+    }
+
+    public void setExternalGradle(@CheckForNull File externalGradle) {
+        this.externalGradle = externalGradle;
+    }
+
+    @CheckForNull
+    public File getGradleProperties() {
+        return gradleProperties;
+    }
+
+    public void setGradleProperties(@CheckForNull File gradleProperties) {
+        this.gradleProperties = gradleProperties;
+    }
+
+    @NonNull
+    public Map<String, String> getGradleSystemProperties() {
+        return gradleSystemProperties;
+    }
+
+    @NonNull
+    public void setGradleSystemProperties(@NonNull Map<String, String> gradleSystemProperties) {
+        this.gradleSystemProperties = Collections.unmodifiableMap(gradleSystemProperties);
+    }
+
+    @NonNull
+    public List<String> getGradleArgs() {
+        return gradleArgs;
+    }
+
+    public void setGradleArgs(@NonNull List<String> gradleArgs) {
+        this.gradleArgs = List.copyOf(gradleArgs);
+    }
+
+    @NonNull
+    public List<String> getGradleTasks() {
+        return gradleTasks;
+    }
+
+    public void setGradleTasks(@NonNull List<String> gradleTasks) {
+        this.gradleTasks = List.copyOf(gradleTasks);
     }
 
     @NonNull
