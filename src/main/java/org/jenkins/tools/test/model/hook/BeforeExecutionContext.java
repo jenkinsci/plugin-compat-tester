@@ -2,7 +2,9 @@ package org.jenkins.tools.test.model.hook;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.TreeMap;
@@ -19,6 +21,12 @@ public final class BeforeExecutionContext extends StageContext {
     private final List<String> args;
 
     @NonNull
+    private final Map<String, String> pluginVersions;
+
+    @NonNull
+    private final Map<String, String> executionProperties;
+
+    @NonNull
     private final NavigableMap<String, String> overrideVersions = new TreeMap<>();
 
     @NonNull
@@ -30,7 +38,20 @@ public final class BeforeExecutionContext extends StageContext {
             @NonNull PluginCompatTesterConfig config,
             @NonNull File cloneDirectory,
             @NonNull List<String> args) {
+        this(coreVersion, plugin, config, cloneDirectory, args, Map.of(), Map.of());
+    }
+
+    public BeforeExecutionContext(
+            @NonNull String coreVersion,
+            @NonNull Plugin plugin,
+            @NonNull PluginCompatTesterConfig config,
+            @NonNull File cloneDirectory,
+            @NonNull List<String> args,
+            @NonNull Map<String, String> pluginVersions,
+            @NonNull Map<String, String> executionProperties) {
         super(Stage.EXECUTION, coreVersion, plugin, config);
+        this.pluginVersions = Map.copyOf(pluginVersions);
+        this.executionProperties = Map.copyOf(executionProperties);
         this.cloneDirectory = cloneDirectory;
         this.args = args;
     }
@@ -43,6 +64,20 @@ public final class BeforeExecutionContext extends StageContext {
     @NonNull
     public List<String> getArgs() {
         return args;
+    }
+
+    /** Plugin versions from the target WAR, independent of which plugins are selected for testing. */
+    @NonNull
+    public Map<String, String> getPluginVersions() {
+        return pluginVersions;
+    }
+
+    /** Current configured properties with the runtime settings used by PCT. */
+    @NonNull
+    public Map<String, String> getMavenProperties() {
+        Map<String, String> properties = new LinkedHashMap<>(getConfig().getMavenProperties());
+        properties.putAll(executionProperties);
+        return properties;
     }
 
     /**
