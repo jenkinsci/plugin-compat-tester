@@ -6,7 +6,10 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.maven.MavenRunner;
@@ -17,6 +20,7 @@ import org.kohsuke.MetaInfServices;
 /** Keep the JCasC test harness aligned with the plugin used at runtime. */
 @MetaInfServices(PluginCompatTesterHookBeforeExecution.class)
 public class ConfigurationAsCodeHook extends PluginCompatTesterHookBeforeExecution {
+    private static final Pattern OVERRIDE = Pattern.compile("([^:]+:[^:]+):([^:]+)");
     private static final String PLUGIN = "configuration-as-code";
     private static final String HARNESS = "io.jenkins.configuration-as-code:test-harness";
 
@@ -47,6 +51,18 @@ public class ConfigurationAsCodeHook extends PluginCompatTesterHookBeforeExecuti
                         null,
                         "dependency:list");
                 if (Files.readString(dependencies, StandardCharsets.UTF_8).contains(HARNESS + ":")) {
+                    Map<String, String> configuredOverrides = new HashMap<>();
+                    String configured = properties.getOrDefault("overrideVersions", "");
+                    if (!configured.isBlank()) {
+                        for (String entry : configured.split(",")) {
+                            Matcher matcher = OVERRIDE.matcher(entry.trim());
+                            if (!matcher.matches()) {
+                                throw new PomExecutionException("Illegal override: " + entry);
+                            }
+                            configuredOverrides.put(matcher.group(1), matcher.group(2));
+                        }
+                    }
+                    configuredOverrides.forEach(context.getOverrideVersions()::putIfAbsent);
                     context.getOverrideVersions()
                             .putIfAbsent(HARNESS, context.getPluginVersions().get(PLUGIN));
                 }

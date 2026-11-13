@@ -93,8 +93,10 @@ class ConfigurationAsCodeHookTest {
     @Test
     void doesNotAddMissingHarness() throws Exception {
         BeforeExecutionContext context = context("other", Map.of("configuration-as-code", "1849.v3a_d20568000a_"));
+        context.getConfig().setMavenProperties(Map.of("overrideVersions", "unrelated:dependency:1.0"));
         hook.alignHarness(context, (properties, directory, module, log, args) -> {});
         assertTrue(context.getOverrideVersions().isEmpty());
+        assertEquals("unrelated:dependency:1.0", context.getMavenProperties().get("overrideVersions"));
     }
 
     @Test
@@ -109,6 +111,46 @@ class ConfigurationAsCodeHookTest {
             }
         });
         assertEquals("explicit", context.getOverrideVersions().get(HARNESS));
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "unrelated:dependency:1.0",
+                "unrelated:dependency:1.0,io.jenkins.configuration-as-code:test-harness:explicit",
+                "unrelated:dependency:0.9, unrelated:dependency:1.0, io.jenkins.configuration-as-code:test-harness:explicit"
+            })
+    void preservesConfiguredOverrides(String overrides) throws Exception {
+        BeforeExecutionContext context = context("other", Map.of("configuration-as-code", "1849.v3a_d20568000a_"));
+        context.getConfig().setMavenProperties(Map.of("overrideVersions", overrides));
+        hook.alignHarness(context, (properties, directory, module, log, args) -> {
+            try {
+                Files.writeString(Path.of(properties.get("outputFile")), HARNESS + ":jar:old:test");
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+        assertEquals("1.0", context.getOverrideVersions().get("unrelated:dependency"));
+        assertEquals(
+                overrides.contains(HARNESS) ? "explicit" : "1849.v3a_d20568000a_",
+                context.getOverrideVersions().get(HARNESS));
+        assertEquals(overrides, context.getConfig().getMavenProperties().get("overrideVersions"));
+    }
+
+    @Test
+    void rejectsMalformedConfiguredOverride() {
+        BeforeExecutionContext context = context("other", Map.of("configuration-as-code", "1849.v3a_d20568000a_"));
+        context.getConfig().setMavenProperties(Map.of("overrideVersions", "missing-version"));
+        assertThrows(
+                PomExecutionException.class,
+                () -> hook.alignHarness(context, (properties, directory, module, log, args) -> {
+                    try {
+                        Files.writeString(Path.of(properties.get("outputFile")), HARNESS + ":jar:old:test");
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                }));
+        assertTrue(context.getOverrideVersions().isEmpty());
     }
 
     @Test
