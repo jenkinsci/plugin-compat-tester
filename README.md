@@ -7,14 +7,14 @@ Generates a compatibility matrix for plugins against Jenkins core.
 
 ## How PCT works
 
-In the default test mode, PCT checks whether a plugin's tests pass with the Jenkins core from the supplied WAR:
+By default, PCT runs a plugin's tests against the Jenkins core in the supplied WAR:
 
 1. Read the Jenkins version from the WAR manifest and select the bundled plugins to test.
 2. Read each plugin's metadata to find its source repository and revision, then check out the sources under the working directory.
    Plugins from the same repository share a checkout.
 3. Compile the plugin and its tests using the original POM with `clean process-test-classes`.
-   This keeps compilation close to the released plugin, rather than requiring its sources to compile against the target Jenkins version.
-4. Resolve the test dependencies and run the compiled tests against the supplied WAR, using the target Jenkins version.
+   The plugin is compiled against its original Jenkins version before its tests run against the target version.
+4. Resolve the test dependencies and run the compiled tests against the supplied WAR.
    PCT hooks can adjust the build for individual plugins before checkout, compilation, or test execution.
 
 With `--local-checkout-dir`, PCT uses the supplied sources instead of checking out the plugins bundled in the WAR.
@@ -23,7 +23,7 @@ With `--compile-only`, it checks compilation against the target Jenkins version 
 ### Checking the results
 
 Maven output is printed to the console and saved under `<working-dir>/logs/`.
-In the default test mode, each plugin's log is stored at
+For test runs, each plugin's log is stored at
 `logs/<plugin-id>/v<plugin-version>_against_core_version_<jenkins-version>.log`.
 The plugin's Maven Surefire reports are available in its checkout, normally under `target/surefire-reports/`
 (or the plugin module's `target/surefire-reports/` for a multi-module project).
