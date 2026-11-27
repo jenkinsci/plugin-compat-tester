@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
 
 /**
@@ -71,7 +70,7 @@ public class ExpressionEvaluator {
         }
         List<String> result = new ArrayList<>();
         for (String line : output) {
-            if (!StringUtils.startsWith(line.trim(), "<string>")) {
+            if (!line.trim().startsWith("<string>")) {
                 continue;
             }
             result.add(line.replace("<string>", "").replace("</string>", "").trim());
