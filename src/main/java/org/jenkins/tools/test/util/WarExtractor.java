@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
@@ -90,6 +91,36 @@ public class WarExtractor {
         }
         plugins.sort(Comparator.comparing(Plugin::getPluginId));
         return List.copyOf(plugins);
+    }
+
+    /** Plugin versions in the target WAR, including plugins excluded from testing. */
+    public Map<String, String> extractPluginVersions() throws MetadataExtractionException {
+        Map<String, String> versions = new TreeMap<>();
+        try (JarFile jf = new JarFile(warFile)) {
+            Enumeration<JarEntry> entries = jf.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                if (!entry.getName().startsWith(PREFIX) || !entry.getName().endsWith(SUFFIX)) {
+                    continue;
+                }
+                try (JarInputStream jis = new JarInputStream(jf.getInputStream(entry))) {
+                    Manifest manifest = jis.getManifest();
+                    String id = manifest == null
+                            ? null
+                            : manifest.getMainAttributes().getValue("Short-Name");
+                    String version = manifest == null
+                            ? null
+                            : manifest.getMainAttributes().getValue("Plugin-Version");
+                    if (id == null || version == null) {
+                        throw new MetadataExtractionException("Missing plugin ID or version in " + entry.getName());
+                    }
+                    versions.put(id, version.replaceFirst(" [(].+[)]$", ""));
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to extract plugin versions from " + warFile, e);
+        }
+        return Map.copyOf(versions);
     }
 
     /**

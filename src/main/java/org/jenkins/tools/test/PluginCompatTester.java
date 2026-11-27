@@ -95,6 +95,7 @@ public class PluginCompatTester {
         WarExtractor warExtractor = new WarExtractor(
                 config.getWar(), serviceHelper, config.getIncludePlugins(), config.getExcludePlugins());
         String coreVersion = warExtractor.extractCoreVersion();
+        Map<String, String> pluginVersions = config.isCompileOnly() ? Map.of() : warExtractor.extractPluginVersions();
 
         NavigableMap<String, List<Plugin>> pluginsByRepository;
 
@@ -160,7 +161,7 @@ public class PluginCompatTester {
                 // For each of the plugin metadata entries, go test the plugin
                 for (Plugin plugin : entry.getValue()) {
                     try {
-                        testPluginAgainst(coreVersion, plugin, cloneDir, pcth);
+                        testPluginAgainst(coreVersion, plugin, cloneDir, pcth, pluginVersions);
                     } catch (PluginCompatibilityTesterException e) {
                         lastException = throwOrAddSuppressed(lastException, e, config.isFailFast());
                         LOGGER.log(
@@ -219,7 +220,12 @@ public class PluginCompatTester {
         }
     }
 
-    private void testPluginAgainst(String coreVersion, Plugin plugin, File cloneLocation, PluginCompatTesterHooks pcth)
+    private void testPluginAgainst(
+            String coreVersion,
+            Plugin plugin,
+            File cloneLocation,
+            PluginCompatTesterHooks pcth,
+            Map<String, String> pluginVersions)
             throws PluginCompatibilityTesterException {
         LOGGER.log(
                 Level.INFO,
@@ -272,15 +278,22 @@ public class PluginCompatTester {
         args.add("hpi:test-runtime");
         args.add("surefire:test");
 
-        // Run preexecution hooks
-        BeforeExecutionContext forExecutionHooks =
-                new BeforeExecutionContext(coreVersion, plugin, config, cloneLocation, args);
-        pcth.runBeforeExecution(forExecutionHooks);
-
-        properties = new LinkedHashMap<>(config.getMavenProperties());
+        properties = new LinkedHashMap<>();
         properties.put("overrideWar", config.getWar().toString());
         properties.put("jenkins.version", coreVersion);
         properties.put("useUpperBounds", "true");
+        if (setChangelist) {
+            properties.put("set.changelist", "true");
+            // As hooks may be adjusting the POMs, tell git-changelist-extension to ignore dirty commits.
+            properties.put("ignore.dirt", "true");
+        }
+
+        // Run preexecution hooks
+        BeforeExecutionContext forExecutionHooks = new BeforeExecutionContext(
+                coreVersion, plugin, config, cloneLocation, args, pluginVersions, properties);
+        pcth.runBeforeExecution(forExecutionHooks);
+
+        properties = forExecutionHooks.getMavenProperties();
         if (!forExecutionHooks.getOverrideVersions().isEmpty()) {
             properties.put(
                     "overrideVersions",
@@ -293,12 +306,6 @@ public class PluginCompatTester {
                     "upperBoundsExcludes",
                     forExecutionHooks.getUpperBoundsExcludes().stream().collect(Collectors.joining(",")));
         }
-        if (setChangelist) {
-            properties.put("set.changelist", "true");
-            // As hooks may be adjusting the POMs, tell git-changelist-extension to ignore dirty commits.
-            properties.put("ignore.dirt", "true");
-        }
-
         // Execute with tests
         runner.run(
                 Collections.unmodifiableMap(properties),
