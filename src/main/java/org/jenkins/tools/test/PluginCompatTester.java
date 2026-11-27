@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.jenkins.tools.test.exception.PluginCompatibilityTesterException;
 import org.jenkins.tools.test.exception.PluginSourcesUnavailableException;
+import org.jenkins.tools.test.gradle.ExternalGradleRunner;
 import org.jenkins.tools.test.maven.ExpressionEvaluator;
 import org.jenkins.tools.test.maven.ExternalMavenRunner;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
@@ -57,6 +58,8 @@ import org.jenkins.tools.test.model.hook.BeforeExecutionContext;
 import org.jenkins.tools.test.model.hook.PluginCompatTesterHooks;
 import org.jenkins.tools.test.model.plugin_metadata.LocalCheckoutPluginMetadataExtractor;
 import org.jenkins.tools.test.model.plugin_metadata.Plugin;
+import org.jenkins.tools.test.util.BuildSystem;
+import org.jenkins.tools.test.util.BuildSystemUtils;
 import org.jenkins.tools.test.util.ServiceHelper;
 import org.jenkins.tools.test.util.StreamGobbler;
 import org.jenkins.tools.test.util.WarExtractor;
@@ -78,10 +81,12 @@ public class PluginCompatTester {
 
     private final PluginCompatTesterConfig config;
     private final ExternalMavenRunner runner;
+    private final ExternalGradleRunner gradleRunner;
 
     public PluginCompatTester(PluginCompatTesterConfig config) {
         this.config = config;
         runner = new ExternalMavenRunner(config);
+        gradleRunner = new ExternalGradleRunner(config);
     }
 
     @SuppressFBWarnings(
@@ -156,11 +161,15 @@ public class PluginCompatTester {
                     continue;
                 }
             }
+
+            BuildSystem buildSystem = BuildSystemUtils.detectBuildSystem(cloneDir);
+            LOGGER.log(Level.INFO, "Detected build system: {0} for repository {1}", new Object[] {buildSystem, gitUrl});
+
             if (!config.isCompileOnly()) {
                 // For each of the plugin metadata entries, go test the plugin
                 for (Plugin plugin : entry.getValue()) {
                     try {
-                        testPluginAgainst(coreVersion, plugin, cloneDir, pcth);
+                        testPluginAgainst(coreVersion, plugin, cloneDir, pcth, buildSystem);
                     } catch (PluginCompatibilityTesterException e) {
                         lastException = throwOrAddSuppressed(lastException, e, config.isFailFast());
                         LOGGER.log(
@@ -173,7 +182,7 @@ public class PluginCompatTester {
                 }
             } else {
                 try {
-                    testCompilationAgainst(coreVersion, gitUrl, cloneDir);
+                    testCompilationAgainst(coreVersion, gitUrl, cloneDir, buildSystem);
                 } catch (PluginCompatibilityTesterException e) {
                     lastException = throwOrAddSuppressed(lastException, e, config.isFailFast());
                     LOGGER.log(
@@ -219,7 +228,12 @@ public class PluginCompatTester {
         }
     }
 
-    private void testPluginAgainst(String coreVersion, Plugin plugin, File cloneLocation, PluginCompatTesterHooks pcth)
+    private void testPluginAgainst(
+            String coreVersion,
+            Plugin plugin,
+            File cloneLocation,
+            PluginCompatTesterHooks pcth,
+            BuildSystem buildSystem)
             throws PluginCompatibilityTesterException {
         LOGGER.log(
                 Level.INFO,
@@ -227,11 +241,11 @@ public class PluginCompatTester {
                         + "#############################################\n"
                         + "#############################################\n"
                         + "##\n"
-                        + "## Starting to test {0} {1} against core version {2}\n"
+                        + "## Starting to test {0} {1} against core version {2} using {3}\n"
                         + "##\n"
                         + "#############################################\n"
                         + "#############################################\n\n\n\n\n",
-                new Object[] {plugin.getName(), plugin.getVersion(), coreVersion});
+                new Object[] {plugin.getName(), plugin.getVersion(), coreVersion, buildSystem.name()});
 
         File buildLogFile = createBuildLogFile(config.getWorkingDir(), plugin, coreVersion);
 
@@ -240,6 +254,16 @@ public class PluginCompatTester {
                 new BeforeCompilationContext(coreVersion, plugin, config, cloneLocation);
         pcth.runBeforeCompilation(beforeCompile);
 
+        if (buildSystem == BuildSystem.GRADLE_BUILD_TOOL) {
+            testGradlePluginAgainst(coreVersion, plugin, cloneLocation, pcth, buildLogFile);
+        } else {
+            testMavenPluginAgainst(coreVersion, plugin, cloneLocation, pcth, buildLogFile);
+        }
+    }
+
+    private void testMavenPluginAgainst(
+            String coreVersion, Plugin plugin, File cloneLocation, PluginCompatTesterHooks pcth, File buildLogFile)
+            throws PluginCompatibilityTesterException {
         // First build against the original POM. This defends against source incompatibilities
         // (which we do not care about for this purpose); and ensures that we are testing a
         // plugin binary as close as possible to what was actually released. We also skip
@@ -308,7 +332,41 @@ public class PluginCompatTester {
                 args.toArray(new String[0]));
     }
 
-    private void testCompilationAgainst(String coreVersion, String gitUrl, File cloneLocation)
+    private void testGradlePluginAgainst(
+            String coreVersion, Plugin plugin, File cloneLocation, PluginCompatTesterHooks pcth, File buildLogFile)
+            throws PluginCompatibilityTesterException {
+
+        Map<String, String> properties = new LinkedHashMap<>();
+
+        // Initial Compile
+        gradleRunner.run(properties, cloneLocation, plugin.getModule(), buildLogFile);
+
+        List<String> tasks = new ArrayList<>();
+
+        if (!config.getGradleTasks().isEmpty()) {
+            tasks.addAll(config.getGradleTasks());
+        } else {
+            tasks.add("test");
+            tasks.add("assemble");
+        }
+
+        BeforeExecutionContext forExecutionHooks =
+                new BeforeExecutionContext(coreVersion, plugin, config, cloneLocation, tasks);
+        pcth.runBeforeExecution(forExecutionHooks);
+
+        properties = new LinkedHashMap<>(config.getGradleSystemProperties());
+        properties.put("jenkinsVersion", coreVersion);
+        properties.put("jenkins.version", coreVersion);
+
+        gradleRunner.run(
+                Collections.unmodifiableMap(properties),
+                cloneLocation,
+                plugin.getModule(),
+                buildLogFile,
+                tasks.toArray(new String[0]));
+    }
+
+    private void testCompilationAgainst(String coreVersion, String gitUrl, File cloneLocation, BuildSystem buildSystem)
             throws PluginCompatibilityTesterException {
         LOGGER.log(
                 Level.INFO,
@@ -316,14 +374,23 @@ public class PluginCompatTester {
                         + "#############################################\n"
                         + "#############################################\n"
                         + "##\n"
-                        + "## Compiling {0} against core version {1}\n"
+                        + "## Compiling {0} against core version {1} using {2}\n"
                         + "##\n"
                         + "#############################################\n"
                         + "#############################################\n\n\n\n\n",
-                new Object[] {getRepoNameFromGitUrl(gitUrl), coreVersion});
+                new Object[] {getRepoNameFromGitUrl(gitUrl), coreVersion, buildSystem.name()});
 
         File buildLogFile = createBuildLogFile(config.getWorkingDir(), gitUrl, coreVersion);
 
+        if (buildSystem == BuildSystem.GRADLE_BUILD_TOOL) {
+            testGradleCompilationAgainst(coreVersion, cloneLocation, buildLogFile);
+        } else {
+            testMavenCompilationAgainst(coreVersion, cloneLocation, buildLogFile);
+        }
+    }
+
+    private void testMavenCompilationAgainst(String coreVersion, File cloneLocation, File buildLogFile)
+            throws PluginCompatibilityTesterException {
         Map<String, String> properties = new LinkedHashMap<>(config.getMavenProperties());
         properties.put("jenkins.version", coreVersion);
         properties.put("checkstyle.skip", "true");
@@ -366,6 +433,28 @@ public class PluginCompatTester {
                 args.toArray(new String[0]));
     }
 
+    private void testGradleCompilationAgainst(String coreVersion, File cloneLocation, File buildLogFile)
+            throws PluginCompatibilityTesterException {
+        Map<String, String> properties = new LinkedHashMap<>(config.getGradleSystemProperties());
+
+        properties.put("jenkins.version", coreVersion);
+        properties.put("jenkinsVersion", coreVersion);
+
+        properties.putIfAbsent("quality.enabled", "false");
+
+        List<String> tasks = new ArrayList<>();
+        tasks.add("clean");
+        tasks.add("classes");
+        tasks.add("jar");
+
+        gradleRunner.run(
+                Collections.unmodifiableMap(properties),
+                cloneLocation,
+                null,
+                buildLogFile,
+                tasks.toArray(new String[0]));
+    }
+
     private static void cloneFromScm(
             String url, String fallbackGitHubOrganization, String scmTag, File checkoutDirectory)
             throws PluginSourcesUnavailableException {
@@ -402,10 +491,10 @@ public class PluginCompatTester {
      *   <li><code>git checkout FETCH_HEAD</code>
      * </ul>
      *
-     * @param gitUrl The git native URL, see the <a
-     *     href="https://git-scm.com/docs/git-clone#_git_urls">git documentation</a> for the
-     *     supported syntax
-     * @param scmTag the tag or sha1 hash to clone
+     * @param gitUrl            The git native URL, see the <a
+     *                          href="https://git-scm.com/docs/git-clone#_git_urls">git documentation</a> for the
+     *                          supported syntax
+     * @param scmTag            the tag or sha1 hash to clone
      * @param checkoutDirectory the directory in which to clone the Git repository
      * @throws IOException if an error occurs
      */
@@ -475,13 +564,13 @@ public class PluginCompatTester {
      * with {@code current} added (if non-null) as a suppressed exception.
      *
      * @param <T>
-     * @param current the PluginCompatibilityTesterException if any
-     * @param caught the newly caught exception
+     * @param current        the PluginCompatibilityTesterException if any
+     * @param caught         the newly caught exception
      * @param throwException {@code true} if we should immediately rethrow {@code caught}, {@code
-     *     false} indicating we should return {@caught}.
+     *                       false} indicating we should return {@caught}.
      * @return {@code caught}
      * @throws PluginCompatibilityTesterException if {@code throwException == true} then {@caught}
-     *     is thrown.
+     *                                            is thrown.
      */
     private static <T extends PluginCompatibilityTesterException> T throwOrAddSuppressed(
             @CheckForNull PluginCompatibilityTesterException current, T caught, boolean throwException) throws T {
@@ -496,9 +585,10 @@ public class PluginCompatTester {
 
     /**
      * Runs the given command, waiting until it has completed before returning.
-     * @param directory the directory to run the command in.
+     *
+     * @param directory      the directory to run the command in.
      * @param commandAndArgs the command and arguments to run.
-     * @throws IOException if the process could not be started.
+     * @throws IOException                       if the process could not be started.
      * @throws PluginSourcesUnavailableException if the command failed (either it was interrupted or exited with a non zero status.
      */
     @SuppressFBWarnings(value = "COMMAND_INJECTION", justification = "intended behaviour")
