@@ -43,11 +43,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Dependency;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -271,8 +271,7 @@ public class MavenPom {
                     String property = version.getTextTrim().replace("${", "").replace("}", "");
                     Element propertyToUpdate = null;
                     for (Element mavenProperty : properties.elements()) {
-                        if (StringUtils.equals(
-                                property, mavenProperty.getQName().getName())) {
+                        if (Objects.equals(property, mavenProperty.getQName().getName())) {
                             propertyToUpdate = mavenProperty;
                             break;
                         }

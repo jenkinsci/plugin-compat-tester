@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.lang.SystemUtils;
 import org.jenkins.tools.test.exception.PomExecutionException;
 import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 
@@ -30,6 +29,17 @@ import org.jenkins.tools.test.model.PluginCompatTesterConfig;
 public class ExternalMavenRunner implements MavenRunner {
 
     private static final Logger LOGGER = Logger.getLogger(ExternalMavenRunner.class.getName());
+
+    private static final String DEFAULT_MAVEN_EXECUTABLE = defaultMavenExecutable();
+
+    static String defaultMavenExecutable() {
+        try {
+            return System.getProperty("os.name", "").startsWith("Windows") ? "mvn.cmd" : "mvn";
+        } catch (SecurityException e) {
+            LOGGER.log(Level.FINE, "Cannot read os.name; defaulting to mvn", e);
+            return "mvn";
+        }
+    }
 
     @CheckForNull
     private final File externalMaven;
@@ -69,7 +79,7 @@ public class ExternalMavenRunner implements MavenRunner {
         if (externalMaven != null) {
             cmd.add(externalMaven.getAbsolutePath());
         } else {
-            cmd.add(SystemUtils.IS_OS_WINDOWS ? "mvn.cmd" : "mvn");
+            cmd.add(DEFAULT_MAVEN_EXECUTABLE);
         }
         cmd.add("-B"); // --batch-mode
         cmd.add("-V"); // --show-version
